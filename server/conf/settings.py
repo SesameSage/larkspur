@@ -33,6 +33,13 @@ from evennia.settings_default import *
 
 # This is the name of your game. Make it catchy!
 SERVERNAME = "kc_mud"
+BASE_ACCOUNT_TYPECLASS = "typeclasses.ooc.accounts.Account"
+BASE_OBJECT_TYPECLASS = "typeclasses.base.objects.Object"
+BASE_CHARACTER_TYPECLASS = "typeclasses.living.characters.Character"
+BASE_ROOM_TYPECLASS = "typeclasses.inanimate.rooms.Room"
+BASE_EXIT_TYPECLASS = "typeclasses.inanimate.exits.Exit"
+BASE_SCRIPT_TYPECLASS = "typeclasses.base.scripts.Script"
+BASE_CHANNEL_TYPECLASS = "typeclasses.ooc.channels.Channel"
 
 
 ######################################################################

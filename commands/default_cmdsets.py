@@ -15,6 +15,10 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 """
 
 from evennia import default_cmds
+from evennia.contrib.game_systems.clothing import ClothedCharacterCmdSet
+from evennia.contrib.game_systems.containers import ContainerCmdSet
+from evennia.contrib.grid.ingame_map_display import MapDisplayCmdSet
+from evennia.contrib.grid.simpledoor import SimpleDoorCmdSet
 
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
@@ -34,6 +38,10 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         #
         # any commands you add below will overload the default ones.
         #
+        self.add(SimpleDoorCmdSet)
+        self.add(ClothedCharacterCmdSet)
+        self.add(ContainerCmdSet)
+        self.add(MapDisplayCmdSet)
 
 
 class AccountCmdSet(default_cmds.AccountCmdSet):

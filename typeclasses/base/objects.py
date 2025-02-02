@@ -215,3 +215,9 @@ class Object(ObjectParent, DefaultObject):
     """
 
     pass
+
+
+class RespawningObject(Object):
+    pass
+
+

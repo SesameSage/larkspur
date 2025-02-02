@@ -4,10 +4,9 @@ Commands
 Commands describe the input the account can do to the game.
 
 """
-
 from evennia.commands.command import Command as BaseCommand
 
-# from evennia import default_cmds
+from typeclasses.base.objects import Object
 
 
 class Command(BaseCommand):
@@ -185,3 +184,8 @@ class Command(BaseCommand):
 #                 self.character = self.caller.get_puppet(self.session)
 #             else:
 #                 self.character = None
+
+
+
+
+
