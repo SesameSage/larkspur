@@ -13,4 +13,8 @@ class LivingEntity(ObjectParent, DefaultCharacter):
 
     """
 
+    def announce_move_from(self, destination, msg=None, mapping=None, move_type="move", **kwargs):
+        string = "{object} leaves {exit}."
+        super().announce_move_from(destination=destination, mapping=mapping, move_type=move_type, msg=string, **kwargs)
+
     pass

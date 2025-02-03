@@ -103,9 +103,3 @@ class Script(DefaultScript):
     pass
 
 
-class Scene(Script):
-    pass
-
-
-class GameStartScene(Scene):
-    pass

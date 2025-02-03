@@ -7,6 +7,7 @@ is set up to be the "default" character type created by the default
 creation commands.
 
 """
+from server import appearance
 from typeclasses.inanimate import rooms
 from typeclasses.living.living_entities import *
 from evennia.contrib.game_systems.clothing import ClothedCharacter
@@ -31,11 +32,30 @@ class Character(LivingEntity, ClothedCharacter):
             self.execute_cmd("map")
         return super().at_look(target, **kwargs)
 
+    def get_display_name(self, looker=None, **kwargs):
+        return appearance.character + super().get_display_name(looker=looker) + "|n"
+
 
 class PlayerCharacter(Character):
-    pass
+
+    def cmd_format(self, string):
+        return appearance.cmd + "'" + string + "'|n"
+
+    def print_ambient(self, string):
+        self.msg(appearance.ambient + string)
+
+    def print_hint(self, string):
+        self.msg(appearance.hint + "Hint: " + string)
 
 
 class NPC(Character, TalkingNPC):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+    def say(self, msg):
+        room = self.location
+        characters = room.contents_get(content_type="character")
+        for character in characters:
+            character.msg(f"{self.get_display_name(looker=character)}{appearance.say}: {msg}")
+
+

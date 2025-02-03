@@ -1,0 +1,5 @@
+ambient = "|410"
+character = "|240"
+cmd = "|020"
+hint = "|220"
+say = "|450"
