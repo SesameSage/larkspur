@@ -8,10 +8,12 @@ class CmdDoor(Command):
     def func(self):
         self.execute_cmd("tunnel " + self.args)
         from typeclasses.base.objects import Object
-        recent_objects = Object.objects.order_by("-created_at")[:2]
+        recent_objects = Object.objects.order_by("-db_date_created")[:2]
+        from evennia import set_trace;
+        set_trace()
 
-        recent_objects[0].execute_cmd(f"@type/reset {recent_objects[0].id} = typeclasses.inanimate.exits.Door")
-        recent_objects[1].execute_cmd(f"@type/reset {recent_objects[1].id} = typeclasses.inanimate.exits.Door")
+        self.execute_cmd(f"@type/update #{recent_objects[0].id} = typeclasses.inanimate.exits.Door")
+        self.execute_cmd(f"@type/update #{recent_objects[1].id} = typeclasses.inanimate.exits.Door")
 
         recent_objects[1].db.return_exit = recent_objects[0]
         recent_objects[0].db.return_exit = recent_objects[1]

@@ -20,6 +20,8 @@ from evennia.contrib.game_systems.containers import ContainerCmdSet
 from evennia.contrib.grid.ingame_map_display import MapDisplayCmdSet
 from evennia.contrib.grid.simpledoor import SimpleDoorCmdSet
 
+from commands.permissions_cmdsets import BuildingCmdSet
+
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
     """
@@ -42,6 +44,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(ClothedCharacterCmdSet)
         self.add(ContainerCmdSet)
         self.add(MapDisplayCmdSet)
+        self.add(BuildingCmdSet)
 
 
 class AccountCmdSet(default_cmds.AccountCmdSet):

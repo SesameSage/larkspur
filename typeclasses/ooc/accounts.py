@@ -24,8 +24,6 @@ several more options for customizing the Guest account system.
 
 from evennia.accounts.accounts import DefaultAccount, DefaultGuest
 
-from commands.permissions_cmdsets import BuildingCmdSet
-
 
 class Account(DefaultAccount):
     """
