@@ -1,8 +1,8 @@
 from evennia import CmdSet, Command
 
 
-class CmdDoor(Command):
-    key = "door"
+class CmdDigDoor(Command):
+    key = "digdoor"
     locks = "cmd:perm(Builder)"
 
     def func(self):
@@ -21,4 +21,4 @@ class BuildingCmdSet(CmdSet):
     key = "Builder"
 
     def at_cmdset_creation(self):
-        self.add(CmdDoor())
+        self.add(CmdDigDoor())

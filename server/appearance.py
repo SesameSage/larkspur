@@ -1,5 +1,6 @@
 ambient = "|410"
-character = "|240"
+character = "|355"
+player = "|335"
 cmd = "|020"
 hint = "|220"
-say = "|450"
+say = "|553"
