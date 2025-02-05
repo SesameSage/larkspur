@@ -41,6 +41,8 @@ BASE_EXIT_TYPECLASS = "typeclasses.inanimate.exits.Exit"
 BASE_SCRIPT_TYPECLASS = "typeclasses.scripts.scripts.Script"
 BASE_CHANNEL_TYPECLASS = "typeclasses.ooc.channels.Channel"
 
+AUTO_CREATE_CHARACTER_WITH_ACCOUNT = False
+
 
 ######################################################################
 # Settings given in secret_settings.py override those in this file.

@@ -4,7 +4,9 @@ from evennia import CmdSet, Command
 
 from server import appearance
 from typeclasses.inanimate.exits import Door
-from typeclasses.scripts.scenes.scene import Scene
+from typeclasses.scripts.scene import Scene
+
+global lofthus
 
 
 class CmdKnock(Command):
@@ -35,6 +37,13 @@ class GameStartScene(Scene):
     def at_script_creation(self):
         self.key = "GameStartScene"
         self.repeats = 0
+
+        global lofthus
+        lofthus = self.obj.search("lofthus", global_search=True)
+        outside_your_home = self.obj.search("Outside your home", global_search=True)
+        if lofthus.location != outside_your_home:
+            lofthus.move_to(outside_your_home)
+
         self.obj.print_ambient("You awaken to the smell of putrid smoke, and have a feeling something is very wrong.")
         self.obj.print_hint(self.obj.cmd_format("get lantern"))
         self.obj.scripts.add(LeaveBedroomScene())
@@ -58,20 +67,19 @@ class LeaveBedroomScene(Scene):
 
 
 class LeaveHomeScene(Scene):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
 
     def at_script_creation(self):
         self.key = "LeaveHomeScene"
-        self.interval = 3
+        self.interval = 4
         self.home = self.obj.search("Your home", global_search=True)
-        self.lofthus = self.obj.search("lof", global_search=True)
-        self.spoken_lines = iter(["You there - We've been attacked! The town guard has fallen.",
-                                  f"We're evacuating to the north - "
-                                  f"please, as you go, {appearance.cmd}knock{appearance.say} on as many doors as you can!",
-                                  f"We've got to alert everyone and get them out!",
-                                  "I'm going to circle around this block first. Although I couldn't ask it of you, "
-                                  "I can cover you if you choose to help."])
+        global lofthus
+        self.spoken_lines = iter(
+            ["You there - We've been attacked! The town guard has nearly fallen. We're evacuating to the north!",
+             f"They cut the alarm bells - "
+             f"please, as you go, {appearance.cmd}knock{appearance.say} on as many doors as you can!",
+             f"We've got to alert everyone and get them out!",
+             "I'm going to circle around this block first. Although I couldn't ask it of you, "
+             "I can cover you if you choose to help."])
 
     def at_repeat(self, **kwargs):
         if self.obj.location != self.home:
@@ -79,9 +87,40 @@ class LeaveHomeScene(Scene):
             if not line:
                 self.obj.cmdset.add(KnockCmdSet)
                 self.obj.db.knocked_doors = set()
+                self.obj.print_hint(f"{appearance.cmd}knock east")
 
                 exit = self.obj.search("south")
-                self.lofthus.move_to(exit)
+                lofthus.move_to(exit)
+                self.obj.scripts.add(ChoosePathScene())
                 self.delete()
             else:
-                self.lofthus.say(line)
+                lofthus.say(line)
+
+
+class ChoosePathScene(Scene):
+    def at_script_creation(self):
+        self.key = "ChoosePathScene"
+        self.interval = 1
+
+    def at_repeat(self, **kwargs):
+        if self.obj.location == self.obj.search("Down the south path", global_search=True):
+            time.sleep(1)
+            global lofthus
+            lofthus.say("I'm grateful Napasso has brave citizens like you. Let's press on quickly - stay behind me, and"
+                        "if things get sticky for me, don't hesitate to run back north. Any number we can save is worth"
+                        " the fight.")
+            self.obj.scripts.add(FollowLofthusScene())
+            self.delete()
+
+
+class FollowLofthusScene(Scene):
+    def at_script_creation(self):
+        self.key = "FollowLofthusScene"
+        self.interval = 3
+        global lofthus
+
+    def at_repeat(self, **kwargs):
+        doors = [exit for exit in lofthus.location.exits if "home" in exit.name]
+        if all(door in self.obj.db.knocked_doors for door in doors):
+            south = self.obj.search("south")
+            lofthus.move_to(south)
