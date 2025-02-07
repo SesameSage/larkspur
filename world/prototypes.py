@@ -47,6 +47,7 @@ Possible keywords are:
 See the `spawn` command and `evennia.prototypes.spawner.spawn` for more info.
 
 """
+import evennia
 
 ## example of module-based prototypes using
 ## the variable name as `prototype_key` and
@@ -88,3 +89,11 @@ See the `spawn` command and `evennia.prototypes.spawner.spawn` for more info.
 # "key": "goblin archwizard",
 # "prototype_parent" : ("GOBLIN_WIZARD", "ARCHWIZARD_MIXIN")
 # }
+
+GAMESTART_LANTERN = {
+    "prototype_key": "gamestart_lantern",
+    "typeclass": "typeclasses.inanimate.items.items.LightItem",
+    "key": "simple lantern",
+    "desc": "your trusty portable light from home",
+    "location": "#3",
+    }

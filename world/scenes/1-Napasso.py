@@ -1,5 +1,4 @@
 import time
-
 from evennia import CmdSet, Command
 
 from server import appearance
