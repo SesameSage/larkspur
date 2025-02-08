@@ -1,9 +1,8 @@
-from evennia.objects.objects import DefaultCharacter
-
+from turnbattle.tb_basic import TBBasicCharacter
 from typeclasses.base.objects import ObjectParent
 
 
-class LivingEntity(ObjectParent, DefaultCharacter):
+class LivingEntity(ObjectParent, TBBasicCharacter):
     """
     The Character just re-implements some of the Object's methods and hooks
     to represent a Character entity in-game.
@@ -17,4 +16,12 @@ class LivingEntity(ObjectParent, DefaultCharacter):
         string = "{object}|=j leaves {exit}."
         super().announce_move_from(destination=destination, mapping=mapping, move_type=move_type, msg=string, **kwargs)
 
+    pass
+
+
+class Mob(LivingEntity):
+    pass
+
+
+class Cultist(Mob):
     pass
