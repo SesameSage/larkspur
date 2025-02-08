@@ -98,12 +98,12 @@ class TestTurnBattleBasicFunc(BaseEvenniaTest):
         super().setUp()
         self.testroom = create_object(DefaultRoom, key="Test Room")
         self.attacker = create_object(
-            tb_basic.TBBasicCharacter, key="Attacker", location=self.testroom
+            tb_basic.TurnBattleCharacter, key="Attacker", location=self.testroom
         )
         self.defender = create_object(
-            tb_basic.TBBasicCharacter, key="Defender", location=self.testroom
+            tb_basic.TurnBattleCharacter, key="Defender", location=self.testroom
         )
-        self.joiner = create_object(tb_basic.TBBasicCharacter, key="Joiner", location=None)
+        self.joiner = create_object(tb_basic.TurnBattleCharacter, key="Joiner", location=None)
 
     def tearDown(self):
         super().tearDown()

@@ -1,8 +1,9 @@
-from turnbattle.tb_basic import TBBasicCharacter
+from server import appearance
+from turnbattle.tb_custom import TurnBattleCharacter
 from typeclasses.base.objects import ObjectParent
 
 
-class LivingEntity(ObjectParent, TBBasicCharacter):
+class LivingEntity(ObjectParent, TurnBattleCharacter):
     """
     The Character just re-implements some of the Object's methods and hooks
     to represent a Character entity in-game.
@@ -11,6 +12,8 @@ class LivingEntity(ObjectParent, TBBasicCharacter):
     properties and methods available on all Object child classes like this.
 
     """
+    def at_object_creation(self):
+        self.db.attribs = {"Strength": 0, "Dexterity": 0}
 
     def announce_move_from(self, destination, msg=None, mapping=None, move_type="move", **kwargs):
         string = "{object}|=j leaves {exit}."
@@ -19,9 +22,10 @@ class LivingEntity(ObjectParent, TBBasicCharacter):
     pass
 
 
-class Mob(LivingEntity):
-    pass
+class Enemy(LivingEntity):
+    def get_display_name(self, looker=None, **kwargs):
+        return appearance.enemy + super().get_display_name(looker=looker) + "|n"
 
 
-class Cultist(Mob):
+class Cultist(Enemy):
     pass

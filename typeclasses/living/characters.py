@@ -39,7 +39,7 @@ class Character(LivingEntity, ClothedCharacter):
 class PlayerCharacter(Character):
 
     def get_display_name(self, looker=None, **kwargs):
-        return appearance.player + super().get_display_name(looker=looker) + "|n"
+        return appearance.player + super().get_display_name(looker=looker)[4:] + "|n"
 
     def cmd_format(self, string):
         return appearance.cmd + "'" + string + "'|n"
