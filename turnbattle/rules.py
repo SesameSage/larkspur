@@ -3,6 +3,7 @@ from random import randint
 from evennia.prototypes.spawner import spawn
 
 from server import appearance
+from typeclasses.inanimate.items.usables import Consumable
 
 TURN_TIMEOUT = 30  # Time before turns automatically end, in seconds
 ACTIONS_PER_TURN = 1  # Number of actions allowed per turn
@@ -343,13 +344,13 @@ class BasicCombatRules:
             user.msg("%s has %i uses remaining." % (item.key.capitalize(), item.db.item_uses))
 
         else:  # All uses spent
-            if not item.db.item_consumable:  # Item isn't consumable
+            if not isinstance(item, Consumable):  # Item isn't consumable
                 # Just inform the player that the uses are gone
                 user.msg("%s has no uses remaining." % item.key.capitalize())
 
             else:  # If item is consumable
                 # If the value is 'True', just destroy the item
-                if item.db.item_consumable:
+                if isinstance(item, Consumable):
                     user.msg("%s has been consumed." % item.key.capitalize())
                     item.delete()  # Delete the spent item
 

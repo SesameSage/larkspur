@@ -1,6 +1,7 @@
 ambient = "|=j"
-story = "|410"
+story = "|245"
 hint = "|220"
+notify = "|530"
 attention = "|550"
 warning = "|400"
 say = "|553"

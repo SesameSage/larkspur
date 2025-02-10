@@ -4,6 +4,7 @@ from evennia.commands.default.muxcommand import MuxCommand
 
 from turnbattle.turn_handler import TurnHandler
 from turnbattle.rules import COMBAT_RULES
+from typeclasses.inanimate.items.usables import Usable, Consumable
 
 
 class CmdFight(Command):
@@ -263,7 +264,7 @@ class CmdUse(MuxCommand):
         """
         This performs the actual command.
         """
-        # Search for item
+        # Search for item in caller's inv
         item = self.caller.search(self.lhs, candidates=self.caller.contents)
         if not item:
             return
@@ -281,11 +282,11 @@ class CmdUse(MuxCommand):
                 self.caller.msg("You can only use items on your turn.")
                 return
 
-        if not item.db.item_func:  # Object has no item_func, not usable
+        if not isinstance(item, Usable):  # Object has no item_func, not usable
             self.caller.msg("'%s' is not a usable item." % item.key.capitalize())
             return
 
-        if item.attributes.has("item_uses"):  # Item has limited uses
+        if isinstance(item, Consumable):  # Item has limited uses
             if item.db.item_uses <= 0:  # Limited uses are spent
                 self.caller.msg("'%s' has no uses remaining." % item.key.capitalize())
                 return
