@@ -223,7 +223,7 @@ class BasicCombatRules:
         attackers_weapon = "attack"
         if attacker.db.wielded_weapon:
             weapon = attacker.db.wielded_weapon
-            attackers_weapon = weapon.db.weapon_type_name
+            attackers_weapon = type(weapon).__name__.lower()
         # Get an attack roll from the attacker.
         if not attack_value:
             attack_value = self.get_attack(attacker, defender)

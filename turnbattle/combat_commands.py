@@ -5,6 +5,7 @@ from evennia.commands.default.muxcommand import MuxCommand
 from turnbattle.turn_handler import TurnHandler
 from turnbattle.rules import COMBAT_RULES
 from typeclasses.inanimate.items.usables import Usable, Consumable
+from typeclasses.inanimate.items.weapons import Weapon
 
 
 class CmdFight(Command):
@@ -330,9 +331,7 @@ class CmdWield(Command):
         weapon = self.caller.search(self.args, candidates=self.caller.contents)
         if not weapon:
             return
-        if not weapon.is_typeclass(
-                "evennia.contrib.game_systems.turnbattle.tb_equip.TBEWeapon", exact=True
-        ):
+        if not isinstance(weapon, Weapon):
             self.caller.msg("That's not a weapon!")
             # Remember to update the path to the weapon typeclass if you move this module!
             return
