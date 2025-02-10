@@ -12,8 +12,11 @@ class LivingEntity(ObjectParent, TurnBattleCharacter):
     properties and methods available on all Object child classes like this.
 
     """
+
     def at_object_creation(self):
+        super().at_object_creation()
         self.db.attribs = {"Strength": 0, "Dexterity": 0}
+        self.db.hostile = False
 
     def announce_move_from(self, destination, msg=None, mapping=None, move_type="move", **kwargs):
         string = "{object}|=j leaves {exit}."
@@ -23,6 +26,10 @@ class LivingEntity(ObjectParent, TurnBattleCharacter):
 
 
 class Enemy(LivingEntity):
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.hostile = True
+
     def get_display_name(self, looker=None, **kwargs):
         return appearance.enemy + super().get_display_name(looker=looker) + "|n"
 

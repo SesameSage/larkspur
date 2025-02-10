@@ -7,12 +7,12 @@ is set up to be the "default" character type created by the default
 creation commands.
 
 """
-from server import appearance
 from typeclasses.inanimate import rooms
 from typeclasses.living.living_entities import *
 from evennia.contrib.game_systems.clothing import ClothedCharacter
 from evennia.contrib.tutorials.talking_npc import TalkingNPC
 
+# TODO: Command Stats
 
 class Character(LivingEntity, ClothedCharacter):
     """
