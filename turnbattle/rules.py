@@ -4,6 +4,17 @@ from evennia.prototypes.spawner import spawn
 
 from server import appearance
 
+TURN_TIMEOUT = 30  # Time before turns automatically end, in seconds
+ACTIONS_PER_TURN = 1  # Number of actions allowed per turn
+NONCOMBAT_TURN_TIME = 30  # Time per turn count out of combat
+REGEN_RATE = (4, 8)  # Min and max HP regen for Regeneration
+POISON_RATE = (4, 8)  # Min and max damage for Poisoned
+ACC_UP_MOD = 25  # Accuracy Up attack roll bonus
+ACC_DOWN_MOD = -25  # Accuracy Down attack roll penalty
+DMG_UP_MOD = 5  # Damage Up damage roll bonus
+DMG_DOWN_MOD = -5  # Damage Down damage roll penalty
+DEF_UP_MOD = 15  # Defense Up defense bonus
+DEF_DOWN_MOD = -15  # Defense Down defense penalty
 
 
 class BasicCombatRules:
@@ -178,6 +189,7 @@ class BasicCombatRules:
             do it.
         """
         defeated.location.msg_contents(f"%s{appearance.attention} has been defeated!" % defeated.get_display_name())
+        defeated.location.scripts.get("Combat Turn Handler")[0].all_defeat_check()
 
     def resolve_attack(
             self,
@@ -300,9 +312,12 @@ class BasicCombatRules:
         if actions == "all":  # If spending all actions
             character.db.combat_actionsleft = 0  # Set actions to 0
         else:
-            character.db.combat_actionsleft -= actions  # Use up actions.
-            if character.db.combat_actionsleft < 0:
-                character.db.combat_actionsleft = 0  # Can't have fewer than 0 actions
+            try:
+                character.db.combat_actionsleft -= actions  # Use up actions.
+                if character.db.combat_actionsleft < 0:
+                    character.db.combat_actionsleft = 0  # Can't have fewer than 0 actions
+            except TypeError:
+                return
         character.db.combat_turnhandler.turn_end_check(character)  # Signal potential end of turn.
 
     # ITEM RULES
@@ -621,15 +636,4 @@ class BasicCombatRules:
         )
 
 
-TURN_TIMEOUT = 30  # Time before turns automatically end, in seconds
-ACTIONS_PER_TURN = 1  # Number of actions allowed per turn
-NONCOMBAT_TURN_TIME = 30  # Time per turn count out of combat
-REGEN_RATE = (4, 8)  # Min and max HP regen for Regeneration
-POISON_RATE = (4, 8)  # Min and max damage for Poisoned
-ACC_UP_MOD = 25  # Accuracy Up attack roll bonus
-ACC_DOWN_MOD = -25  # Accuracy Down attack roll penalty
-DMG_UP_MOD = 5  # Damage Up damage roll bonus
-DMG_DOWN_MOD = -5  # Damage Down damage roll penalty
-DEF_UP_MOD = 15  # Defense Up defense bonus
-DEF_DOWN_MOD = -15  # Defense Down defense penalty
 COMBAT_RULES = BasicCombatRules()
