@@ -1,11 +1,21 @@
-from turnbattle.rules import COMBAT_RULES
+from enum import Enum
 
-ITEMFUNCS = {
-    "heal": COMBAT_RULES.itemfunc_heal,
-    "attack": COMBAT_RULES.itemfunc_attack,
-    "add_condition": COMBAT_RULES.itemfunc_add_condition,
-    "cure_condition": COMBAT_RULES.itemfunc_cure_condition,
-}
+
+class DamageTypes(Enum):
+    BLUNT = 1
+    SLASHING = 2
+    PIERCING = 3
+    FIRE = 4
+    COLD = 5
+    SHOCK = 6
+
+    def get_display_name(self, capital=False):
+        name = self.name.lower()
+        if capital:
+            name = name.capitalize()
+        return name
+
+
 """
 ----------------------------------------------------------------------------
 PROTOTYPES START HERE
@@ -83,8 +93,6 @@ BOMB = {
     "item_consumable": True,
     "item_kwargs": {"damage_range": (25, 40), "accuracy": 25},
 }
-
-
 
 TASER = {
     "key": "a taser",

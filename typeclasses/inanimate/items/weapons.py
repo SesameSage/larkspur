@@ -4,7 +4,7 @@ from typeclasses.inanimate.items.items import Item
 class Weapon(Item):
 
     def at_object_creation(self):
-        self.db.damage_range = (15, 25)  # Minimum and maximum damage on hit
+        self.db.damage_ranges = {}  # Minimum and maximum damage on hit
         self.db.accuracy_bonus = 0  # Bonus to attack rolls (or penalty if negative)
         self.db.weapon_type_name = (
             "weapon"  # Single word for weapon - I.E. "dagger", "staff", "scimitar"
@@ -28,6 +28,14 @@ class Weapon(Item):
 
 
 class MeeleeWeapon(Weapon):
+    pass
+
+
+class RangedWeapon(Weapon):
+    pass
+
+
+class MagicWeapon(Weapon):
     pass
 
 
@@ -56,4 +64,28 @@ class Dagger(MeeleeWeapon):
 
 
 class Quarterstaff(MeeleeWeapon):
+    pass
+
+
+class Javelin(RangedWeapon):
+    pass
+
+
+class Blowgun(RangedWeapon):
+    pass
+
+
+class Bow(RangedWeapon):
+    pass
+
+
+class Crossbow(RangedWeapon):
+    pass
+
+
+class Staff(MagicWeapon):
+    pass
+
+
+class Wand(MagicWeapon):
     pass

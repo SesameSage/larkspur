@@ -3,6 +3,7 @@ from random import randint
 from evennia.prototypes.spawner import spawn
 
 from server import appearance
+from turnbattle.effects import DamageTypes
 from typeclasses.inanimate.items.usables import Consumable
 
 TURN_TIMEOUT = 30  # Time before turns automatically end, in seconds
@@ -126,7 +127,7 @@ class BasicCombatRules:
             defender (obj): Character being damaged
 
         Returns:
-            damage_value (int): Damage value, which is to be deducted from the defending
+            damage_values (dict): Damage types and values, which is to be deducted from the defending
                 character's HP.
 
         Notes:
@@ -134,44 +135,51 @@ class BasicCombatRules:
             unarmed damage range if no weapon is wielded. Incoming damage is reduced
             by the defender's armor.
         """
-        damage_value = 0
+        damage_values = {}
         # Generate a damage value from wielded weapon if armed
         if attacker.db.wielded_weapon:
             weapon = attacker.db.wielded_weapon
-            # Roll between minimum and maximum damage
-            damage_value = randint(weapon.db.damage_range[0], weapon.db.damage_range[1])
+            for damage_type in weapon.db.damage_ranges:
+                # Roll between minimum and maximum damage
+                values = weapon.db.damage_ranges[damage_type]
+                damage_values[damage_type] = randint(values[0], values[1])
+                # Make sure minimum damage is 0
+                if damage_values[damage_type] < 0:
+                    damage_values[damage_type] = 0
+
         # Use attacker's unarmed damage otherwise
         else:
-            damage_value = randint(
+            damage_values[DamageTypes.BLUNT] = randint(
                 attacker.db.unarmed_damage_range[0], attacker.db.unarmed_damage_range[1]
             )
 
-        # Add to damage roll if attacker has the "Damage Up" condition.
+        """# Add to damage roll if attacker has the "Damage Up" condition.
         if "Damage Up" in attacker.db.conditions:
-            damage_value += DMG_UP_MOD
+            damage_values += DMG_UP_MOD
             # Subtract from the roll if the attacker has the "Damage Down" condition.
         if "Damage Down" in attacker.db.conditions:
-            damage_value += DMG_DOWN_MOD
+            damage_values += DMG_DOWN_MOD"""
 
-        # If defender is armored, reduce incoming damage
+        """# If defender is armored, reduce incoming damage
         if defender.db.worn_armor:
             armor = defender.db.worn_armor
-            damage_value -= armor.db.damage_reduction
-        # Make sure minimum damage is 0
-        if damage_value < 0:
-            damage_value = 0
-        return damage_value
+            damage_values -= armor.db.damage_reduction"""
 
-    def apply_damage(self, defender, damage):
+        return damage_values
+
+    def apply_damage(self, defender, damages):
         """
         Applies damage to a target, reducing their HP by the damage amount to a
         minimum of 0.
 
         Args:
             defender (obj): Character taking damage
-            damage (int): Amount of damage being taken
+            damages (dict): Types and amounts of damage being taken
         """
-        defender.db.hp -= damage  # Reduce defender's HP by the damage dealt.
+        # TODO: Effects of different damage types
+        for damage_type in damages:
+            defender.db.hp -= damages[damage_type]  # Reduce defender's HP by the damage dealt.
+
         # If this reduces it to 0 or less, set HP to 0.
         if defender.db.hp <= 0:
             defender.db.hp = 0
@@ -198,7 +206,7 @@ class BasicCombatRules:
             defender,
             attack_value=None,
             defense_value=None,
-            damage_value=None,
+            damage_values=None,
             inflict_condition=[],
     ):
         """
@@ -223,7 +231,7 @@ class BasicCombatRules:
         attackers_weapon = "attack"
         if attacker.db.wielded_weapon:
             weapon = attacker.db.wielded_weapon
-            attackers_weapon = type(weapon).__name__.lower()
+            attackers_weapon = weapon.get_display_name()
         # Get an attack roll from the attacker.
         if not attack_value:
             attack_value = self.get_attack(attacker, defender)
@@ -233,21 +241,30 @@ class BasicCombatRules:
         # If the attack value is lower than the defense value, miss. Otherwise, hit.
         if attack_value < defense_value:
             attacker.location.msg_contents(
-                "%s's %s misses %s!" % (attacker.get_display_name(), attackers_weapon, defender)
+                "%s's %s misses %s!" % (attacker.get_display_name(), attackers_weapon, defender.get_display_name())
             )
         else:
-            damage_value = self.get_damage(attacker, defender)  # Calculate damage value.
+            damage_values = self.get_damage(attacker, defender)  # Calculate damage values
+            damage_values = {key: value for key, value in damage_values.items() if value > 0}
             # Announce damage dealt and apply damage.
-            if damage_value > 0:
-                attacker.location.msg_contents(
-                    "%s's %s strikes %s for %i damage!"
-                    % (attacker, attackers_weapon, defender, damage_value)
-                )
+            msg = "%s's %s strikes %s for " % (attacker.get_display_name(), attackers_weapon, defender.get_display_name())
+            if bool(damage_values):  # If any damages are > 0
+                for i, damage_type in enumerate(damage_values):
+                    if i == len(damage_values) - 1 and len(damage_values) > 1:  # If at the last damage type to list
+                        if msg[-1] != " ":
+                            msg = msg + " "
+                        msg = msg + "and "
+                    elif len(damage_values) > 2:
+                        msg = msg + ", "
+                    msg = msg + f"{appearance.damage}{damage_values[damage_type]} {damage_type.get_display_name()}|n"
+                msg = msg + f"{appearance.damage} damage!|n"
+                attacker.location.msg_contents(msg)
             else:
                 attacker.location.msg_contents(
-                    "%s's %s bounces harmlessly off %s!" % (attacker, attackers_weapon, defender)
+                    "%s's %s bounces harmlessly off %s!" % (attacker.get_display_name(), attackers_weapon, defender.get_display_name())
                 )
-            self.apply_damage(defender, damage_value)
+
+            self.apply_damage(defender, damage_values)
             # Inflict conditions on hit, if any specified
             for condition in inflict_condition:
                 self.add_condition(defender, attacker, condition[0], condition[1])
@@ -386,7 +403,6 @@ class BasicCombatRules:
 
         # Match item_func string to function
         try:
-            from turnbattle.effects import ITEMFUNCS
             item_func = ITEMFUNCS[item.db.item_func]
         except KeyError:  # If item_func string doesn't match to a function in ITEMFUNCS
             user.msg("ERROR: %s not defined in ITEMFUNCS" % item.db.item_func)
@@ -635,9 +651,15 @@ class BasicCombatRules:
             user,
             target,
             attack_value=attack_value,
-            damage_value=damage_value,
+            damage_values=damage_value,
             inflict_condition=inflict_condition,
         )
 
 
 COMBAT_RULES = BasicCombatRules()
+ITEMFUNCS = {
+    "heal": COMBAT_RULES.itemfunc_heal,
+    "attack": COMBAT_RULES.itemfunc_attack,
+    "add_condition": COMBAT_RULES.itemfunc_add_condition,
+    "cure_condition": COMBAT_RULES.itemfunc_cure_condition,
+}

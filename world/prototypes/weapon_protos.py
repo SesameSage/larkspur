@@ -1,22 +1,14 @@
-UNARMED_WEAPON = {}
+from turnbattle.effects import DamageTypes
 
-SWORD = {}
-GREATSWORD = {}
-SHIELD = {}
-AXE = {}
-MACE = {}
-WARHAMMER = {}
+TRAINING_WEAPON = {
+    "desc": "Simplified, flimsy, and poorly balanced, but effective for learning one's way around a weapon type.",
+    "accuracy_bonus": 10
+}
 
-DAGGER = {}
-
-QUARTERSTAFF = {}
-
-JAVELIN = {}
-
-WAND = {}
-STAFF = {}
-
-BLOWGUN = {}
-BOW = {}
-CROSSBOW = {}
+TRAINING_QUARTERSTAFF = {
+    "key": "training quarterstaff",
+    "prototype_parent": "TRAINING_WEAPON",
+    "typeclass": "typeclasses.inanimate.items.weapons.Quarterstaff",
+    "damage_ranges": {DamageTypes.BLUNT: (5, 10)}
+}
 

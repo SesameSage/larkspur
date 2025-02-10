@@ -1,8 +1,13 @@
+from server import appearance
 from typeclasses.base.objects import Object
 from typeclasses.scripts.item_scripts import TemporarilyHide
 
 
 class Item(Object):
+
+    def get_display_name(self, looker=None, **kwargs):
+        return appearance.item + self.name + "|n"
+
     def get_display_desc(self, looker, **kwargs):
         return "This is an item."
 
