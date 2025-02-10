@@ -1,5 +1,5 @@
 from server import appearance
-from turnbattle.tb_custom import TurnBattleCharacter
+from turnbattle.combat_character import TurnBattleCharacter
 from typeclasses.base.objects import ObjectParent
 
 

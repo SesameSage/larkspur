@@ -20,8 +20,9 @@ from evennia.contrib.game_systems.containers import ContainerCmdSet
 from evennia.contrib.grid.ingame_map_display import MapDisplayCmdSet
 from evennia.contrib.grid.simpledoor import SimpleDoorCmdSet
 
+import turnbattle.combat_commands
 from commands.permissions_cmdsets import BuildingCmdSet
-from turnbattle import tb_custom
+from turnbattle import turn_handler
 
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
@@ -46,7 +47,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(ContainerCmdSet)
         self.add(MapDisplayCmdSet)
         self.add(BuildingCmdSet)
-        self.add(tb_custom.BattleCmdSet())
+        self.add(turnbattle.combat_commands.BattleCmdSet())
 
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
