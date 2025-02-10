@@ -33,6 +33,9 @@ from evennia.settings_default import *
 
 # This is the name of your game. Make it catchy!
 SERVERNAME = "kc_mud"
+
+AUTO_CREATE_CHARACTER_WITH_ACCOUNT = False
+
 BASE_ACCOUNT_TYPECLASS = "typeclasses.ooc.accounts.Account"
 BASE_OBJECT_TYPECLASS = "typeclasses.base.objects.Object"
 BASE_CHARACTER_TYPECLASS = "typeclasses.living.characters.PlayerCharacter"
@@ -40,9 +43,8 @@ BASE_ROOM_TYPECLASS = "typeclasses.inanimate.rooms.Room"
 BASE_EXIT_TYPECLASS = "typeclasses.inanimate.exits.Exit"
 BASE_SCRIPT_TYPECLASS = "typeclasses.scripts.scripts.Script"
 BASE_CHANNEL_TYPECLASS = "typeclasses.ooc.channels.Channel"
-
-AUTO_CREATE_CHARACTER_WITH_ACCOUNT = False
-
+PROTOTYPE_MODULES = ["world.prototypes.prototypes", "world.prototypes.entity_protos", "world.prototypes.item_protos",
+                     "world.prototypes.weapon_protos"]
 
 ######################################################################
 # Settings given in secret_settings.py override those in this file.

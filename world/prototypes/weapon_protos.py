@@ -1,0 +1,22 @@
+UNARMED_WEAPON = {}
+
+SWORD = {}
+GREATSWORD = {}
+SHIELD = {}
+AXE = {}
+MACE = {}
+WARHAMMER = {}
+
+DAGGER = {}
+
+QUARTERSTAFF = {}
+
+JAVELIN = {}
+
+WAND = {}
+STAFF = {}
+
+BLOWGUN = {}
+BOW = {}
+CROSSBOW = {}
+

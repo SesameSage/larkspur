@@ -21,3 +21,5 @@ class Weapon(Item):
         if giver.db.wielded_weapon == self:
             giver.db.wielded_weapon = None
             giver.location.msg_contents("%s stops wielding %s." % (giver, self))
+
+

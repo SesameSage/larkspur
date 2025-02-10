@@ -394,8 +394,9 @@ class BasicCombatRules:
         # Call the item function - abort if it returns False, indicating an error.
         # This performs the actual action of using the item.
         # Regardless of what the function returns (if anything), it's still executed.
-        if not item_func(item, user, target, **kwargs):
-            return
+
+        # This was an "if not" check, but I could not get it to return True
+        item_func(item, user, target, **kwargs)
 
         # If we haven't returned yet, we assume the item was used successfully.
         # Spend one use if item has limited uses
@@ -540,6 +541,8 @@ class BasicCombatRules:
         # Add conditions to the target
         for condition in conditions:
             self.add_condition(target, user, condition[0], condition[1])
+
+        return True
 
     def itemfunc_cure_condition(self, item, user, target, **kwargs):
         """
