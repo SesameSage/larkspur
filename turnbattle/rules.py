@@ -73,8 +73,8 @@ class BasicCombatRules:
         attack_value = randint(1, 100)
         accuracy_bonus = 0
         # If armed, add weapon's accuracy bonus.
-        if attacker.db.wielded_weapon:
-            weapon = attacker.db.wielded_weapon
+        if attacker.db.equipped["primary"]:
+            weapon = attacker.db.equipped["primary"]
             accuracy_bonus += weapon.db.accuracy_bonus
         # If unarmed, use character's unarmed accuracy bonus.
         """else:
@@ -90,32 +90,6 @@ class BasicCombatRules:
             attack_value += ACC_DOWN_MOD
 
         return attack_value
-
-    def get_defense(self, attacker, defender):
-        """
-        Returns a value for defense, which an attack roll must equal or exceed in order
-        for an attack to hit.
-
-        Args:
-            attacker (obj): Character doing the attacking
-            defender (obj): Character being attacked
-
-        Returns:
-            defense_value (int): Defense value, compared against an attack roll
-                to determine whether an attack hits or misses.
-
-        Notes:
-            Characters are given a default defense value of 50 which can be
-            modified up or down by armor. In this example, wearing armor actually
-            makes you a little easier to hit, but reduces incoming damage.
-        """
-        # Start with a defense value of 50 for a 50/50 chance to hit.
-        defense_value = 50
-        # Modify this value based on defender's armor.
-        if defender.db.worn_armor:
-            armor = defender.db.worn_armor
-            defense_value += armor.db.defense_modifier
-        return defense_value
 
     def get_damage(self, attacker, defender):
         """
@@ -160,10 +134,9 @@ class BasicCombatRules:
         if "Damage Down" in attacker.db.conditions:
             damage_values += DMG_DOWN_MOD"""
 
-        """# If defender is armored, reduce incoming damage
-        if defender.db.worn_armor:
-            armor = defender.db.worn_armor
-            damage_values -= armor.db.damage_reduction"""
+        # If defender is armored, reduce incoming damage
+        for damage_type in damage_values:
+            damage_values[damage_type] -= defender.get_defense()
 
         return damage_values
 
@@ -205,7 +178,7 @@ class BasicCombatRules:
             attacker,
             defender,
             attack_value=None,
-            defense_value=None,
+            evasion_value=None,
             damage_values=None,
             inflict_condition=[],
     ):
@@ -218,7 +191,7 @@ class BasicCombatRules:
 
                Options:
                    attack_value (int): Override for attack roll
-                   defense_value (int): Override for defense value
+                   evasion_value (int): Override for evasion value
                    damage_value (int): Override for damage value
                    inflict_condition (list): Conditions to inflict upon hit, a
                        list of tuples formated as (condition(str), duration(int))
@@ -235,11 +208,11 @@ class BasicCombatRules:
         # Get an attack roll from the attacker.
         if not attack_value:
             attack_value = self.get_attack(attacker, defender)
-        # Get a defense value from the defender.
-        if not defense_value:
-            defense_value = self.get_defense(attacker, defender)
+        # Get an evasion value from the defender.
+        if not evasion_value:
+            evasion_value = defender.get_evasion()
         # If the attack value is lower than the defense value, miss. Otherwise, hit.
-        if attack_value < defense_value:
+        if attack_value < evasion_value:
             attacker.location.msg_contents(
                 "%s's %s misses %s!" % (attacker.get_display_name(), attackers_weapon, defender.get_display_name())
             )

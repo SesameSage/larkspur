@@ -17,6 +17,10 @@ class LivingEntity(ObjectParent, TurnBattleCharacter):
         super().at_object_creation()
         self.db.attribs = {"Strength": 0, "Dexterity": 0}
         self.db.hostile = False
+        self.db.equipped = {
+            "primary": None,
+            "secondary": None,
+        }
 
     def announce_move_from(self, destination, msg=None, mapping=None, move_type="move", **kwargs):
         string = "{object}|=j leaves {exit}."

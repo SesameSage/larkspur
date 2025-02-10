@@ -27,9 +27,6 @@ class Character(LivingEntity, ClothedCharacter):
 
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     def get_display_name(self, looker=None, **kwargs):
         return appearance.character + super().get_display_name(looker=looker) + "|n"
 

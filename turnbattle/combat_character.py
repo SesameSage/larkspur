@@ -20,9 +20,12 @@ class TurnBattleCharacter(DefaultCharacter):
         """
         self.db.max_hp = 100  # Set maximum HP to 100
         self.db.hp = self.db.max_hp  # Set current HP to maximum
+        self.db.evasion = 0
+        self.db.defense = 0
 
         self.db.wielded_weapon = None  # Currently used weapon
         self.db.worn_armor = None  # Currently worn armor
+
         self.db.unarmed_damage_range = (5, 15)  # Minimum and maximum unarmed damage
         self.db.unarmed_accuracy = 30  # Accuracy bonus for unarmed attacks
 
@@ -78,6 +81,19 @@ class TurnBattleCharacter(DefaultCharacter):
 
         # Apply conditions that fire at the start of each turn.
 
+    def at_update(self):
+        """
+        Fires every 30 seconds.
+        """
+        if not self.rules.is_in_combat(self):  # Not in combat
+            # Change all conditions to update on character's turn.
+            for key in self.db.conditions:
+                self.db.conditions[key][1] = self
+            # Apply conditions that fire every turn
+            self.apply_turn_conditions()
+            # Tick down condition durations
+            self.rules.condition_tickdown(self, self)
+
     def apply_turn_conditions(self):
         """
         Applies the effect of conditions that occur at the start of each
@@ -111,15 +127,18 @@ class TurnBattleCharacter(DefaultCharacter):
             self.location.msg_contents("%s is Paralyzed, and can't act this turn!" % self)
             self.db.combat_turnhandler.turn_end_check(self)
 
-    def at_update(self):
-        """
-        Fires every 30 seconds.
-        """
-        if not self.rules.is_in_combat(self):  # Not in combat
-            # Change all conditions to update on character's turn.
-            for key in self.db.conditions:
-                self.db.conditions[key][1] = self
-            # Apply conditions that fire every turn
-            self.apply_turn_conditions()
-            # Tick down condition durations
-            self.rules.condition_tickdown(self, self)
+    def get_defense(self):
+        total_defense = self.db.defense
+        for slot in self.db.equipped:
+            equipment = self.db.equipped[slot]
+            if equipment and hasattr(equipment, "defense"):
+                total_defense += equipment.defense
+        return total_defense
+
+    def get_evasion(self):
+        total_evasion = self.db.defense
+        for slot in self.db.equipped:
+            equipment = self.db.equipped[slot]
+            if equipment and hasattr(equipment, "evasion"):
+                total_evasion += equipment.evasion
+        return total_evasion

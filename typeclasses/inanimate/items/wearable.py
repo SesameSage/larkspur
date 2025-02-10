@@ -5,7 +5,7 @@ class Wearable(ContribClothing):
     pass
 
 
-class Equipment(Wearable):
+class Armor(Wearable):
     """
     A set of armor which can be worn with the 'don' command.
     """
@@ -15,10 +15,9 @@ class Equipment(Wearable):
         Called once, when this object is first created. This is the
         normal hook to overload for most object types.
         """
-        self.db.damage_reduction = 4  # Amount of incoming damage reduced by armor
-        self.db.defense_modifier = (
-            -4
-        )  # Amount to modify defense value (pos = harder to hit, neg = easier)
+
+        self.db.evasion = 0
+        self.db.defense = 0
 
     def at_pre_drop(self, dropper):
         """
@@ -48,7 +47,7 @@ class Equipment(Wearable):
 
     def at_give(self, giver, getter):
         """
-        Stop being wielded if given.
+        Stop being worn if given.
         """
         if giver.db.worn_armor == self:
             giver.db.worn_armor = None
