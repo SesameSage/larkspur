@@ -5,16 +5,16 @@ from typeclasses.scripts.item_scripts import TemporarilyHide
 
 class Item(Object):
 
+    def at_object_creation(self):
+        self.db.desc = "This is an item."
+
     def get_display_name(self, looker=None, **kwargs):
         return appearance.item + self.name + "|n"
 
-    def get_display_desc(self, looker, **kwargs):
-        return "This is an item."
-
 
 class LightItem(Item):
-    def get_display_desc(self, looker, **kwargs):
-        return "An item that provides light."
+    def at_object_creation(self):
+        self.db.desc = "An item that provides light."
 
 
 class EndlessItem(Object):

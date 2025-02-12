@@ -140,7 +140,7 @@ class Equipment(Item):
 
         # Echo a message to the room
         if not quiet:
-            remove_message = f"$You() $conj(unequip) {self.name}."
+            remove_message = f"$You() $conj(unequip) {self.get_display_name()}."
             wearer.location.msg_contents(remove_message, from_obj=wearer)
 
         if wearer.db.equipment[self.db.equipment_slot] == self:
@@ -248,28 +248,28 @@ class CmdWear(MuxCommand):
             return
         if not self.rhs:
             # check if the whole string is an object
-            clothing = self.caller.search(self.lhs, candidates=self.caller.contents, quiet=True)
-            if not clothing:
+            item_equipping = self.caller.search(self.lhs, candidates=self.caller.contents, quiet=True)
+            if not item_equipping:
                 return
             else:
                 # pass the result through the search-result hook
-                clothing = at_search_result(clothing, self.caller, self.lhs)
+                item_equipping = at_search_result(item_equipping, self.caller, self.lhs)
 
         else:
             # it had an explicit separator - just do a normal search for the lhs
-            clothing = self.caller.search(self.lhs, candidates=self.caller.contents)
+            item_equipping = self.caller.search(self.lhs, candidates=self.caller.contents)
 
-        if not clothing:
+        if not item_equipping:
             return
-        if not clothing.db.equipment_slot:
-            self.caller.msg(f"{clothing.get_display_name().capitalize()} isn't something you can wear.")
-            return
-
-        if self.caller.db.equipment[clothing.db.equipment_slot] == clothing:
-            self.caller.msg(f"You're already wearing your {clothing.get_display_name()}.")
+        if not item_equipping.db.equipment_slot:
+            self.caller.msg(f"{item_equipping.get_display_name().capitalize()} isn't something you can wear.")
             return
 
-        clothing.wear(self.caller)
+        if self.caller.db.equipment[item_equipping.db.equipment_slot] == item_equipping:
+            self.caller.msg(f"You're already wearing your {item_equipping.get_display_name()}.")
+            return
+
+        item_equipping.wear(self.caller)
 
 
 class CmdRemove(MuxCommand):
@@ -327,27 +327,19 @@ class CmdInventory(MuxCommand):
             self.caller.msg("You are not carrying or wearing anything.")
             return
 
-        message_list = []
+        message_list = ["|wYou are carrying:|n"]
 
         # all our items
         items = self.caller.contents
 
         # carried items
-        carried = [obj for obj in items if not obj.db.equipped]
-        carry_table = self.styled_table(border="header")
-
-        for key, desc, _ in group_objects_by_key_and_desc(carried, caller=self.caller):
-            carry_table.add_row(
-                f"{key}|n",
-                "{}|n".format(crop(raw_ansi(desc or ""), width=50) or ""),
-            )
-        message_list.extend(
-            ["|wYou are carrying:|n", str(carry_table) if carry_table.nrows > 0 else " Nothing."]
-        )
+        carried = [item for item in self.caller.contents if not item.db.equipped]
+        for item in carried:
+            message_list.append(f"{item.get_display_name()}      {item.get_display_desc(looker=self.caller)}\n")
 
         # worn items
         wear_table = self.styled_table(border="header")
-        message_list.extend(["|wYou are wearing:|n"])
+        message_list.extend(["|wCurrently equipped:|n"])
         message_list.append(self.caller.show_equipment())
 
         # return the composite message

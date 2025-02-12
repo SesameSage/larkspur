@@ -111,8 +111,8 @@ class BasicCombatRules:
         """
         damage_values = {}
         # Generate a damage value from wielded weapon if armed
-        if attacker.db.wielded_weapon:
-            weapon = attacker.db.wielded_weapon
+        if attacker.db.equipment["primary"]:
+            weapon = attacker.db.equipment["primary"]
             for damage_type in weapon.db.damage_ranges:
                 # Roll between minimum and maximum damage
                 values = weapon.db.damage_ranges[damage_type]
@@ -202,8 +202,8 @@ class BasicCombatRules:
                """
         # Get the attacker's weapon type to reference in combat messages.
         attackers_weapon = "attack"
-        if attacker.db.wielded_weapon:
-            weapon = attacker.db.wielded_weapon
+        if attacker.db.equipment["primary"]:
+            weapon = attacker.db.equipment["primary"]
             attackers_weapon = weapon.get_display_name()
         # Get an attack roll from the attacker.
         if not attack_value:

@@ -9,6 +9,7 @@ class Weapon(Equipment):
         self.db.weapon_type_name = (
             "weapon"  # Single word for weapon - I.E. "dagger", "staff", "scimitar"
         )
+        self.db.equipment_slot = "primary"
 
     def at_drop(self, dropper):
         """
