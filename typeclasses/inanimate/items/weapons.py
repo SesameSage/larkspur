@@ -1,7 +1,7 @@
-from typeclasses.inanimate.items.items import Item
+from typeclasses.inanimate.items.equipment import Equipment
 
 
-class Weapon(Item):
+class Weapon(Equipment):
 
     def at_object_creation(self):
         self.db.damage_ranges = {}  # Minimum and maximum damage on hit

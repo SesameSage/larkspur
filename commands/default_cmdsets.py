@@ -23,6 +23,7 @@ from evennia.contrib.grid.simpledoor import SimpleDoorCmdSet
 import turnbattle.combat_commands
 from commands.permissions_cmdsets import BuildingCmdSet
 from turnbattle import turn_handler
+from typeclasses.inanimate.items.equipment import EquipmentCharacterCmdSet
 
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
@@ -43,7 +44,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # any commands you add below will overload the default ones.
         #
         self.add(SimpleDoorCmdSet)
-        self.add(ClothedCharacterCmdSet)
+        self.add(EquipmentCharacterCmdSet)
         self.add(ContainerCmdSet)
         self.add(MapDisplayCmdSet)
         self.add(BuildingCmdSet)

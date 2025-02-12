@@ -1,11 +1,7 @@
-from evennia.contrib.game_systems.clothing import ContribClothing
+from typeclasses.inanimate.items.equipment import Equipment
 
 
-class Wearable(ContribClothing):
-    pass
-
-
-class Armor(Wearable):
+class Armor(Equipment):
     """
     A set of armor which can be worn with the 'don' command.
     """

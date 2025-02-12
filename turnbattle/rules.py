@@ -73,8 +73,8 @@ class BasicCombatRules:
         attack_value = randint(1, 100)
         accuracy_bonus = 0
         # If armed, add weapon's accuracy bonus.
-        if attacker.db.equipped["primary"]:
-            weapon = attacker.db.equipped["primary"]
+        if attacker.db.equipment["primary"]:
+            weapon = attacker.db.equipment["primary"]
             accuracy_bonus += weapon.db.accuracy_bonus
         # If unarmed, use character's unarmed accuracy bonus.
         """else:

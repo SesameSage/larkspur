@@ -10,14 +10,14 @@ creation commands.
 from evennia.utils import make_iter
 
 from typeclasses.inanimate import rooms
+from typeclasses.inanimate.items.equipment import EquipmentCharacter
 from typeclasses.living.living_entities import *
-from evennia.contrib.game_systems.clothing import ClothedCharacter
 from evennia.contrib.tutorials.talking_npc import TalkingNPC
 
 
 # TODO: Command Stats
 
-class Character(LivingEntity, ClothedCharacter):
+class Character(LivingEntity, EquipmentCharacter):
     """
     The Character just re-implements some of the Object's methods and hooks
     to represent a Character entity in-game.

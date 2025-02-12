@@ -129,16 +129,16 @@ class TurnBattleCharacter(DefaultCharacter):
 
     def get_defense(self):
         total_defense = self.db.defense
-        for slot in self.db.equipped:
-            equipment = self.db.equipped[slot]
+        for slot in self.db.equipment:
+            equipment = self.db.equipment[slot]
             if equipment and hasattr(equipment, "defense"):
                 total_defense += equipment.defense
         return total_defense
 
     def get_evasion(self):
         total_evasion = self.db.defense
-        for slot in self.db.equipped:
-            equipment = self.db.equipped[slot]
+        for slot in self.db.equipment:
+            equipment = self.db.equipment[slot]
             if equipment and hasattr(equipment, "evasion"):
                 total_evasion += equipment.evasion
         return total_evasion
