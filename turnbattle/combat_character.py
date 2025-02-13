@@ -1,11 +1,12 @@
 from random import randint
 
-from evennia import DefaultCharacter, TICKER_HANDLER as tickerhandler
+from evennia import TICKER_HANDLER as tickerhandler
 
 from turnbattle.rules import NONCOMBAT_TURN_TIME, REGEN_RATE, POISON_RATE, COMBAT_RULES
+from typeclasses.inanimate.items.equipment import EquipmentCharacter
 
 
-class TurnBattleCharacter(DefaultCharacter):
+class TurnBattleCharacter(EquipmentCharacter):
     """
     A character able to participate in turn-based combat. Has attributes for current
     and maximum HP, and access to combat commands.
@@ -20,16 +21,17 @@ class TurnBattleCharacter(DefaultCharacter):
         """
         self.db.max_hp = 100  # Set maximum HP to 100
         self.db.hp = self.db.max_hp  # Set current HP to maximum
-        self.db.evasion = 0
-        self.db.defense = 0
-
-        self.db.wielded_weapon = None  # Currently used weapon
-        self.db.worn_armor = None  # Currently worn armor
+        self.db.stamina = 50
+        self.db.mana = 50
 
         self.db.unarmed_damage_range = (5, 15)  # Minimum and maximum unarmed damage
         self.db.unarmed_accuracy = 30  # Accuracy bonus for unarmed attacks
 
         self.db.conditions = {}  # Set empty dict for conditions
+
+        self.db.attribs = {"Strength": 0, "Dexterity": 0, "Constitution": 0}
+        self.db.hostile = False
+
 
         # Subscribe character to the ticker handler
         tickerhandler.add(NONCOMBAT_TURN_TIME, self.at_update, idstring="update")

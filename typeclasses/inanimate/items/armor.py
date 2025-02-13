@@ -19,7 +19,7 @@ class Armor(Equipment):
         """
         Can't drop in combat.
         """
-        if self.rules.is_in_combat(dropper):
+        if self.dropper.rules.is_in_combat(dropper):
             dropper.msg("You can't doff armor in a fight!")
             return False
         return True
@@ -28,6 +28,8 @@ class Armor(Equipment):
         """
         Stop being wielded if dropped.
         """
+        if self.equipped:
+            self.unequip(dropper)
         if dropper.db.worn_armor == self:
             dropper.db.worn_armor = None
             dropper.location.msg_contents("%s removes %s." % (dropper, self))

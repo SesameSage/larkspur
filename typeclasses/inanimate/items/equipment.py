@@ -84,6 +84,7 @@ from evennia.utils import (
     iter_to_str,
 )
 from evennia.utils.ansi import raw as raw_ansi
+from evennia.utils.evtable import EvTable
 
 from server import appearance
 from typeclasses.inanimate.items.items import Item
@@ -95,8 +96,9 @@ class Equipment(Item):
     def at_object_creation(self):
         self.db.equipment_slot = None
         self.db.equipped = False
+        self.db.desc = "An equippable item."
 
-    def wear(self, wearer, quiet=False):
+    def equip(self, wearer, quiet=False):
         """
         Sets clothes to 'worn' and optionally echoes to the room.
 
@@ -109,7 +111,7 @@ class Equipment(Item):
         # Replace any existing equipment
         prev_item = wearer.db.equipment[self.db.equipment_slot]
         if prev_item:
-            prev_item.remove(wearer=wearer, quiet=True)
+            prev_item.unequip(wearer=wearer, quiet=True)
 
         # Set clothing as worn
         wearer.db.equipment[self.db.equipment_slot] = self
@@ -120,7 +122,7 @@ class Equipment(Item):
             message = f"$You() $conj(equip) {self.name}."
             wearer.location.msg_contents(message, from_obj=wearer)
 
-    def remove(self, wearer, quiet=False):
+    def unequip(self, wearer, quiet=False):
         """
         Removes worn clothes and optionally echoes to the room.
 
@@ -132,7 +134,7 @@ class Equipment(Item):
         """
         slot = wearer.db.equipment[self.db.equipment_slot]
         if slot != self:
-            wearer.msg(f"{appearance.warning}Not wearing {self.name} - cannot remove!")
+            wearer.msg(f"{appearance.warning}Not wearing {self.name} - cannot unequip!")
             return False
 
         wearer.db.equipment[self.db.equipment_slot] = None
@@ -156,6 +158,39 @@ class EquipmentCharacter(DefaultCharacter):
     character typeclass.
     """
 
+    def at_object_creation(self):
+        super().at_object_creation()
+
+        self.db.evasion = 0
+        self.db.defense = 0
+
+        self.db.equipment = {
+            "primary": None,
+            "secondary": None,
+            "head": None,
+            "neck": None,
+            "torso": None,
+            "about body": None,
+            "arms": None,
+            # TODO: Rings
+            "waist": None,
+            "legs": None,
+            "feet": None
+        }
+
+    def show_equipment(self, looker=None):
+        if not looker:
+            looker = self
+        wear_table = EvTable(border="header")
+        wear_table.add_row("\n|wEquipped:|n")
+        for slot in self.db.equipment:
+            if self.db.equipment[slot]:
+                equipment = self.db.equipment[slot].get_display_name()
+            else:
+                equipment = "|=j---|n"
+            wear_table.add_row(slot + ": ", equipment)
+        return wear_table
+
     def get_display_desc(self, looker, **kwargs):
         """
         Get the 'desc' component of the object description. Called by `return_appearance`.
@@ -169,7 +204,7 @@ class EquipmentCharacter(DefaultCharacter):
         desc = self.db.desc
 
         # Create outfit string
-        msg = f"{self.get_display_name(looker, **kwargs)} is wearing:\n" + self.show_equipment(looker=looker)
+        msg = self.show_equipment(looker=looker)
 
         # Add on to base description
         if desc:
@@ -200,7 +235,17 @@ class EquipmentCharacter(DefaultCharacter):
         # sort and handle same-named things
         things = _filter_visible(self.contents_get(content_type="object"))
 
-        grouped_things = defaultdict(list)
+        carried = [item for item in things if not item.db.equipped]
+        carry_table = EvTable(border="header")
+        carry_table.add_row("\n|wCarrying:|n")
+        for item in carried:
+            carry_table.add_row(item.get_display_name(), item.get_display_desc(looker=looker))
+        if carry_table.nrows <= 1:
+            carry_table.add_row("Nothing.")
+
+        return carry_table
+
+        """grouped_things = defaultdict(list)
         for thing in things:
             grouped_things[thing.get_display_name(looker, **kwargs)].append(thing)
 
@@ -215,13 +260,13 @@ class EquipmentCharacter(DefaultCharacter):
             f"\n{self.get_display_name(looker, **kwargs)} is carrying {thing_names}"
             if thing_names
             else ""
-        )
+        )"""
 
 
 # COMMANDS START HERE
 
 
-class CmdWear(MuxCommand):
+class CmdEquip(MuxCommand):
     """
     Puts on an item of clothing you are holding.
 
@@ -238,8 +283,8 @@ class CmdWear(MuxCommand):
     provide will be displayed after the clothing's name.
     """
 
-    key = "wear"
-    aliases = ["equip", "eq"]
+    key = "equip"
+    aliases = ["equ", "eq"]
     help_category = "equipment"
 
     def func(self):
@@ -269,10 +314,10 @@ class CmdWear(MuxCommand):
             self.caller.msg(f"You're already wearing your {item_equipping.get_display_name()}.")
             return
 
-        item_equipping.wear(self.caller)
+        item_equipping.equip(self.caller)
 
 
-class CmdRemove(MuxCommand):
+class CmdUnequip(MuxCommand):
     """
     Takes off an item of clothing.
 
@@ -284,8 +329,8 @@ class CmdRemove(MuxCommand):
     off the covering item first.
     """
 
-    key = "remove"
-    aliases = ["rem", "unequip", "unequ", "uneq"]
+    key = "unequip"
+    aliases = ["rem", "remove", "unequ", "uneq"]
     help_category = "equipment"
 
     def func(self):
@@ -299,7 +344,7 @@ class CmdRemove(MuxCommand):
         if not self.caller.db.equipment[clothing.db.equipment_slot] == clothing:
             self.caller.msg(f"You're not wearing {clothing.get_display_name()}!")
             return
-        clothing.remove(self.caller)
+        clothing.unequip(self.caller)
 
 
 class CmdInventory(MuxCommand):
@@ -327,23 +372,11 @@ class CmdInventory(MuxCommand):
             self.caller.msg("You are not carrying or wearing anything.")
             return
 
-        message_list = ["|wYou are carrying:|n"]
-
-        # all our items
-        items = self.caller.contents
-
         # carried items
-        carried = [item for item in self.caller.contents if not item.db.equipped]
-        for item in carried:
-            message_list.append(f"{item.get_display_name()}      {item.get_display_desc(looker=self.caller)}\n")
+        self.caller.msg(self.caller.get_display_things(looker=self.caller))
 
         # worn items
-        wear_table = self.styled_table(border="header")
-        message_list.extend(["|wCurrently equipped:|n"])
-        message_list.append(self.caller.show_equipment())
-
-        # return the composite message
-        self.caller.msg(text=("\n".join(message_list), {"type": "inventory"}))
+        self.caller.msg(self.caller.show_equipment())
 
 
 class EquipmentCharacterCmdSet(default_cmds.CharacterCmdSet):
@@ -364,8 +397,6 @@ class EquipmentCharacterCmdSet(default_cmds.CharacterCmdSet):
         #
         # any commands you add below will overload the default ones.
         #
-        self.add(CmdWear())
-        self.add(CmdRemove())
+        self.add(CmdEquip())
+        self.add(CmdUnequip())
         self.add(CmdInventory())
-
-

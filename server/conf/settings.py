@@ -35,6 +35,8 @@ from evennia.settings_default import *
 SERVERNAME = "kc_mud"
 
 AUTO_CREATE_CHARACTER_WITH_ACCOUNT = False
+AUTO_PUPPET_ON_LOGIN = False
+MAX_NR_CHARACTERS = 10
 
 BASE_ACCOUNT_TYPECLASS = "typeclasses.ooc.accounts.Account"
 BASE_OBJECT_TYPECLASS = "typeclasses.base.objects.Object"

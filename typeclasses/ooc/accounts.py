@@ -25,6 +25,7 @@ several more options for customizing the Guest account system.
 from evennia.accounts.accounts import DefaultAccount, DefaultGuest
 
 
+# TODO: Change character creation and sign-in
 class Account(DefaultAccount):
     """
     An Account is the actual OOC player entity. It doesn't exist in the game,

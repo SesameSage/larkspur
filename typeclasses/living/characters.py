@@ -17,7 +17,7 @@ from evennia.contrib.tutorials.talking_npc import TalkingNPC
 
 # TODO: Command Stats
 
-class Character(LivingEntity, EquipmentCharacter):
+class Character(LivingEntity):
     """
     The Character just re-implements some of the Object's methods and hooks
     to represent a Character entity in-game.
