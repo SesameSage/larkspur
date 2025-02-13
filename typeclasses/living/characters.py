@@ -173,6 +173,10 @@ class Character(LivingEntity):
 
 class PlayerCharacter(Character):
 
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.xp = 0
+
     def get_display_name(self, looker=None, **kwargs):
         return appearance.player + super().get_display_name(looker=looker)[4:] + "|n"
 

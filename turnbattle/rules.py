@@ -201,7 +201,7 @@ class BasicCombatRules:
                    made with items.
                """
         # Get the attacker's weapon type to reference in combat messages.
-        attackers_weapon = "attack"
+        attackers_weapon = attacker.db.unarmed_attack
         if attacker.db.equipment["primary"]:
             weapon = attacker.db.equipment["primary"]
             attackers_weapon = weapon.get_display_name()

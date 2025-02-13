@@ -2,6 +2,7 @@ from random import randint
 
 from evennia import TICKER_HANDLER as tickerhandler
 
+from turnbattle.combat_commands import BattleCmdSet
 from turnbattle.rules import NONCOMBAT_TURN_TIME, REGEN_RATE, POISON_RATE, COMBAT_RULES
 from typeclasses.inanimate.items.equipment import EquipmentCharacter
 
@@ -19,11 +20,13 @@ class TurnBattleCharacter(EquipmentCharacter):
         Called once, when this object is first created. This is the
         normal hook to overload for most object types.
         """
+        super().at_object_creation()
         self.db.max_hp = 100  # Set maximum HP to 100
         self.db.hp = self.db.max_hp  # Set current HP to maximum
         self.db.stamina = 50
         self.db.mana = 50
 
+        self.db.unarmed_attack = "attack"
         self.db.unarmed_damage_range = (5, 15)  # Minimum and maximum unarmed damage
         self.db.unarmed_accuracy = 30  # Accuracy bonus for unarmed attacks
 
@@ -35,6 +38,8 @@ class TurnBattleCharacter(EquipmentCharacter):
 
         # Subscribe character to the ticker handler
         tickerhandler.add(NONCOMBAT_TURN_TIME, self.at_update, idstring="update")
+
+        self.cmdset.add("turnbattle.combat_commands.BattleCmdSet")
         """
         Adds attributes for a character's current and maximum HP.
         We're just going to set this value at '100' by default.

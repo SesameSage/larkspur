@@ -13,6 +13,7 @@ class LivingEntity(ObjectParent, TurnBattleCharacter):
 
     """
     def at_object_creation(self):
+        super().at_object_creation()
         self.appearance_template = """
 {header}
 |c{name}{extra_name_info}|n

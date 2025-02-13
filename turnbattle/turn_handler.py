@@ -108,6 +108,7 @@ class TurnHandler(DefaultScript):
         """
         Called once, when the script is created.
         """
+        super().at_script_creation()
         self.key = "Combat Turn Handler"
         self.interval = 5  # Once every 5 seconds
         self.persistent = True
