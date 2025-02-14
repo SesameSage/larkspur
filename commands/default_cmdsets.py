@@ -15,15 +15,14 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 """
 
 from evennia import default_cmds
-from evennia.contrib.game_systems.clothing import ClothedCharacterCmdSet
 from evennia.contrib.game_systems.containers import ContainerCmdSet
 from evennia.contrib.grid.ingame_map_display import MapDisplayCmdSet
 from evennia.contrib.grid.simpledoor import SimpleDoorCmdSet
 
 import turnbattle.combat_commands
 from commands.permissions_cmdsets import BuildingCmdSet
-from turnbattle import turn_handler
 from typeclasses.inanimate.items.equipment import EquipmentCharacterCmdSet
+from typeclasses.living.talking_npc import TalkingCmdSet
 
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
@@ -49,6 +48,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(MapDisplayCmdSet)
         self.add(BuildingCmdSet)
         self.add(turnbattle.combat_commands.BattleCmdSet())
+        self.add(TalkingCmdSet)
 
 
 class AccountCmdSet(default_cmds.AccountCmdSet):

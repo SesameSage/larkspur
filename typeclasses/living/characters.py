@@ -10,9 +10,8 @@ creation commands.
 from evennia.utils import make_iter
 
 from typeclasses.inanimate import rooms
-from typeclasses.inanimate.items.equipment import EquipmentCharacter
 from typeclasses.living.living_entities import *
-from evennia.contrib.tutorials.talking_npc import TalkingNPC
+from typeclasses.living.talking_npc import TalkableNPC
 
 
 # TODO: Command Stats
@@ -195,7 +194,7 @@ class PlayerCharacter(Character):
         self.msg(appearance.hint + "Hint: " + string)
 
 
-class NPC(Character, TalkingNPC):
+class NPC(Character, TalkableNPC):
     pass
 
 
