@@ -3,21 +3,12 @@ from random import randint
 from evennia.prototypes.spawner import spawn
 
 from server import appearance
-from turnbattle.effects import DamageTypes
+from turnbattle.effects import DamageTypes, ACC_UP_MOD, ACC_DOWN_MOD
 from typeclasses.inanimate.items.usables import Consumable
 
 TURN_TIMEOUT = 30  # Time before turns automatically end, in seconds
 ACTIONS_PER_TURN = 1  # Number of actions allowed per turn
 NONCOMBAT_TURN_TIME = 30  # Time per turn count out of combat
-REGEN_RATE = (4, 8)  # Min and max HP regen for Regeneration
-POISON_RATE = (4, 8)  # Min and max damage for Poisoned
-ACC_UP_MOD = 25  # Accuracy Up attack roll bonus
-ACC_DOWN_MOD = -25  # Accuracy Down attack roll penalty
-DMG_UP_MOD = 5  # Damage Up damage roll bonus
-DMG_DOWN_MOD = -5  # Damage Down damage roll penalty
-DEF_UP_MOD = 15  # Defense Up defense bonus
-DEF_DOWN_MOD = -15  # Defense Down defense penalty
-
 
 class BasicCombatRules:
     """
@@ -83,10 +74,10 @@ class BasicCombatRules:
         attack_value += accuracy_bonus
 
         # Add to the roll if the attacker has the "Accuracy Up" condition.
-        if "Accuracy Up" in attacker.db.conditions:  # TODO: Rename conditions to effects?
+        if "Accuracy Up" in attacker.db.effects:  # TODO: Rename conditions to effects?
             attack_value += ACC_UP_MOD
         # Subtract from the roll if the attack has the "Accuracy Down" condition.
-        if "Accuracy Down" in attacker.db.conditions:
+        if "Accuracy Down" in attacker.db.effects:
             attack_value += ACC_DOWN_MOD
 
         return attack_value
@@ -221,6 +212,7 @@ class BasicCombatRules:
             damage_values = {key: value for key, value in damage_values.items() if value > 0}
             # Announce damage dealt and apply damage.
             msg = "%s's %s strikes %s for " % (attacker.get_display_name(), attackers_weapon, defender.get_display_name())
+            dmg_color = appearance.good_damage if defender.db.hostile else appearance.bad_damage
             if bool(damage_values):  # If any damages are > 0
                 for i, damage_type in enumerate(damage_values):
                     if i == len(damage_values) - 1 and len(damage_values) > 1:  # If at the last damage type to list
@@ -229,8 +221,8 @@ class BasicCombatRules:
                         msg = msg + "and "
                     elif len(damage_values) > 2:
                         msg = msg + ", "
-                    msg = msg + f"{appearance.damage}{damage_values[damage_type]} {damage_type.get_display_name()}|n"
-                msg = msg + f"{appearance.damage} damage!|n"
+                    msg = msg + f"{dmg_color}{damage_values[damage_type]} {damage_type.get_display_name()}|n"
+                msg = msg + f"{dmg_color} damage!|n"
                 attacker.location.msg_contents(msg)
             else:
                 attacker.location.msg_contents(
@@ -412,24 +404,24 @@ class BasicCombatRules:
             every 30 seconds by default.
         """
 
-        for key in character.db.conditions:
+        for key in character.db.effects:
             # The first value is the remaining turns - the second value is whose turn to count down
             # on.
-            condition_duration = character.db.conditions[key][0]
-            condition_turnchar = character.db.conditions[key][1]
+            condition_duration = character.db.effects[key][0]
+            condition_turnchar = character.db.effects[key][1]
             # If the duration is 'True', then the condition doesn't tick down - it lasts
             # indefinitely.
             if condition_duration is not True:
                 # Count down if the given turn character matches the condition's turn character.
                 if condition_turnchar == turnchar:
-                    character.db.conditions[key][0] -= 1
-                if character.db.conditions[key][0] <= 0:
+                    character.db.effects[key][0] -= 1
+                if character.db.effects[key][0] <= 0:
                     # If the duration is brought down to 0, remove the condition and inform
                     # everyone.
                     character.location.msg_contents(
                         "%s no longer has the '%s' condition." % (str(character), str(key))
                     )
-                    del character.db.conditions[key]
+                    del character.db.effects[key]
 
     def add_condition(self, character, turnchar, condition, duration):
         """
@@ -442,7 +434,7 @@ class BasicCombatRules:
             duration (int or True): Number of turns the condition lasts, or True for indefinite
         """
         # The first value is the remaining turns - the second value is whose turn to count down on.
-        character.db.conditions.update({condition: [duration, turnchar]})
+        character.db.effects.update({condition: [duration, turnchar]})
         # Tell everyone!
         character.location.msg_contents("%s gains the '%s' condition." % (character, condition))
 
@@ -556,11 +548,11 @@ class BasicCombatRules:
 
         item_msg = "%s uses %s! " % (user, item)
 
-        for key in target.db.conditions:
+        for key in target.db.effects:
             if key in to_cure:
                 # If condition specified in to_cure, remove it.
                 item_msg += "%s no longer has the '%s' condition. " % (str(target), str(key))
-                del target.db.conditions[key]
+                del target.db.effects[key]
 
         user.location.msg_contents(item_msg)
 
@@ -614,9 +606,9 @@ class BasicCombatRules:
         damage_value = randint(min_damage, max_damage)
 
         # Account for "Accuracy Up" and "Accuracy Down" conditions
-        if "Accuracy Up" in user.db.conditions:
+        if "Accuracy Up" in user.db.effects:
             attack_value += 25
-        if "Accuracy Down" in user.db.conditions:
+        if "Accuracy Down" in user.db.effects:
             attack_value -= 25
 
         user.location.msg_contents("%s attacks %s with %s!" % (user, target, item))
@@ -636,3 +628,4 @@ ITEMFUNCS = {
     "add_condition": COMBAT_RULES.itemfunc_add_condition,
     "cure_condition": COMBAT_RULES.itemfunc_cure_condition,
 }
+

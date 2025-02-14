@@ -3,7 +3,8 @@ from random import randint
 from evennia import TICKER_HANDLER as tickerhandler
 
 from turnbattle.combat_commands import BattleCmdSet
-from turnbattle.rules import NONCOMBAT_TURN_TIME, REGEN_RATE, POISON_RATE, COMBAT_RULES
+from turnbattle.rules import COMBAT_RULES, NONCOMBAT_TURN_TIME
+from turnbattle.effects import REGEN_RATE, POISON_RATE
 from typeclasses.inanimate.items.equipment import EquipmentCharacter
 
 
@@ -30,7 +31,7 @@ class TurnBattleCharacter(EquipmentCharacter):
         self.db.unarmed_damage_range = (5, 15)  # Minimum and maximum unarmed damage
         self.db.unarmed_accuracy = 30  # Accuracy bonus for unarmed attacks
 
-        self.db.conditions = {}  # Set empty dict for conditions
+        self.db.effects = {}  # Set empty dict for conditions
 
         self.db.attribs = {"Strength": 0, "Dexterity": 0, "Constitution": 0}
         self.db.hostile = False
@@ -88,26 +89,13 @@ class TurnBattleCharacter(EquipmentCharacter):
 
         # Apply conditions that fire at the start of each turn.
 
-    def at_update(self):
-        """
-        Fires every 30 seconds.
-        """
-        if not self.rules.is_in_combat(self):  # Not in combat
-            # Change all conditions to update on character's turn.
-            for key in self.db.conditions:
-                self.db.conditions[key][1] = self
-            # Apply conditions that fire every turn
-            self.apply_turn_conditions()
-            # Tick down condition durations
-            self.rules.condition_tickdown(self, self)
-
     def apply_turn_conditions(self):
         """
         Applies the effect of conditions that occur at the start of each
         turn in combat, or every 30 seconds out of combat.
         """
         # Regeneration: restores 4 to 8 HP at the start of character's turn
-        if "Regeneration" in self.db.conditions:
+        if "Regeneration" in self.db.effects:
             to_heal = randint(REGEN_RATE[0], REGEN_RATE[1])  # Restore HP
             if self.db.hp + to_heal > self.db.max_hp:
                 to_heal = self.db.max_hp - self.db.hp  # Cap healing to max HP
@@ -115,7 +103,7 @@ class TurnBattleCharacter(EquipmentCharacter):
             self.location.msg_contents("%s regains %i HP from Regeneration." % (self, to_heal))
 
         # Poisoned: does 4 to 8 damage at the start of character's turn
-        if "Poisoned" in self.db.conditions:
+        if "Poisoned" in self.db.effects:
             to_hurt = randint(POISON_RATE[0], POISON_RATE[1])  # Deal damage
             self.rules.apply_damage(self, to_hurt)
             self.location.msg_contents("%s takes %i damage from being Poisoned." % (self, to_hurt))
@@ -124,12 +112,12 @@ class TurnBattleCharacter(EquipmentCharacter):
                 self.rules.at_defeat(self)
 
         # Haste: Gain an extra action in combat.
-        if self.rules.is_in_combat(self) and "Haste" in self.db.conditions:
+        if self.rules.is_in_combat(self) and "Haste" in self.db.effects:
             self.db.combat_actionsleft += 1
             self.msg("You gain an extra action this turn from Haste!")
 
         # Paralyzed: Have no actions in combat.
-        if self.rules.is_in_combat(self) and "Paralyzed" in self.db.conditions:
+        if self.rules.is_in_combat(self) and "Paralyzed" in self.db.effects:
             self.db.combat_actionsleft = 0
             self.location.msg_contents("%s is Paralyzed, and can't act this turn!" % self)
             self.db.combat_turnhandler.turn_end_check(self)

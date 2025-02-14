@@ -45,7 +45,7 @@ in your game and using it as-is.
 from evennia import DefaultScript
 
 from server import appearance
-from turnbattle.rules import TURN_TIMEOUT, ACTIONS_PER_TURN, COMBAT_RULES
+from turnbattle.rules import COMBAT_RULES, TURN_TIMEOUT, ACTIONS_PER_TURN
 
 """
 ----------------------------------------------------------------------------
@@ -206,7 +206,7 @@ class TurnHandler(DefaultScript):
             separated for movement, by adding "character.db.combat_movesleft = 3" or
             something similar.
         """
-        character.apply_turn_conditions()
+        #character.apply_turn_conditions()
 
         if not self.id:
             return
@@ -265,8 +265,8 @@ class TurnHandler(DefaultScript):
 
         # Count down condition timers.
         next_fighter = self.db.fighters[self.db.turn]
-        for fighter in self.db.fighters:
-            self.rules.condition_tickdown(fighter, next_fighter)
+        """for fighter in self.db.fighters:
+            self.rules.condition_tickdown(fighter, next_fighter)"""
 
     def turn_end_check(self, character):
         """

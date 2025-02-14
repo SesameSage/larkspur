@@ -29,15 +29,17 @@ from evennia.utils.evmenu import EvMenu
 # Menu implementing the dialogue tree
 
 nodes = {"menu_start_node": ("'Hello there, how can I help you?'", (
-        {"desc": "Hey, do you know what this 'Evennia' thing is all about?", "goto": "info1"},
-        {"desc": "What's your name, little NPC?", "goto": "info2"},)),
-         {"info_1":}
-         }
+            {"desc": "Hey, do you know what this 'Evennia' thing is all about?", "goto": ("node", {"dialogue": "info_1"})},
+            {"desc": "What's your name, little NPC?", "goto": ("node", {"dialogue": "info_2"})},)),
+         "info_1": ("'Oh, Evennia is where you are right now! Don't you feel the power?'", (
+             {"desc": "Sure, *I* do, not sure how you do though. You are just an NPC.", "goto": ("node", {"dialogue": "info_3"})},
+             {"desc": "Sure I do. What's yer name, NPC?", "goto": ("node", {"dialogue": "info_2"})},
+             {"desc": "Ok, bye for now then.", "goto": "END"}))}
+
 
 def node(caller, raw_string, **kwargs):
+    pass
 
-    text, options = nodes[kwargs]
-    return text, options
 
 def menu_start_node(caller):
     text = "'Hello there, how can I help you?'"
@@ -151,4 +153,4 @@ class TalkableNPC(DefaultObject):
         super().at_object_creation()
         self.db.desc = "This is a talkative NPC."
         # assign the talk command to npc
-        self.cmdset.add_default(TalkingCmdSet, persistent=True)
+        self.cmdset.add(TalkingCmdSet)

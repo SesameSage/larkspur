@@ -9,7 +9,8 @@ say = "|553"
 whisper = "|515"
 
 cmd = "|020"
-damage = "|[100"
+good_damage = "|440"
+bad_damage = "|510"
 
 character = "|145"
 player = "|340"

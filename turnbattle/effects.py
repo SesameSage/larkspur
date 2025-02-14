@@ -1,4 +1,9 @@
 from enum import Enum
+from random import randint
+
+from typeclasses.scripts.scripts import Script
+
+EFFECT_SECS_PER_TURN = 5
 
 
 class DamageTypes(Enum):
@@ -8,6 +13,7 @@ class DamageTypes(Enum):
     FIRE = 4
     COLD = 5
     SHOCK = 6
+    POISON = 7
 
     def get_display_name(self, capital=False):
         name = self.name.lower()
@@ -15,6 +21,136 @@ class DamageTypes(Enum):
             name = name.capitalize()
         return name
 
+
+REGEN_RATE = (4, 8)  # Min and max HP regen for Regeneration
+POISON_RATE = (4, 8)  # Min and max damage for Poisoned
+ACC_UP_MOD = 25  # Accuracy Up attack roll bonus
+ACC_DOWN_MOD = -25  # Accuracy Down attack roll penalty
+DMG_UP_MOD = 5  # Damage Up damage roll bonus
+DMG_DOWN_MOD = -5  # Damage Down damage roll penalty
+DEF_UP_MOD = 15  # Defense Up defense bonus
+DEF_DOWN_MOD = -15  # Defense Down defense penalty
+
+
+class EffectScript(Script):
+    def __init__(self, effect_key: str, duration: int,  *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.effect_key = effect_key
+        self.duration = duration
+
+    def at_script_creation(self):
+        super().at_script_creation()
+        self.obj.db.effects[self.effect_key] = {"duration": self.duration}
+        self.seconds_passed = 0
+
+    def at_repeat(self, **kwargs):
+        if self.seconds_passed > self.duration:
+            self.obj.location.msg_contents(f"{self.obj.get_display_name()}'s {self.effect_key.lower()} has worn off.")
+            self.delete()
+            return
+
+    def at_script_delete(self):
+        del self.obj.db.effects[self.effect_key]
+        return True
+
+
+class Regeneration(EffectScript):
+    def __init__(self, range: tuple[int, int], duration: int, *args, **kwargs):
+        super().__init__(effect_key="Regeneration", duration=duration, *args, **kwargs)
+        self.range = range
+
+    def at_script_creation(self):
+        super().at_script_creation()
+        self.key = "Regeneration"
+        self.interval = 1
+        self.healed_this_turn = False
+
+    def at_repeat(self, **kwargs):
+        super().at_repeat()  # Checks for duration end of all effect scripts
+        min, max = self.range
+        healing_amt = randint(min, max)
+        if hasattr(self.obj, "rules") and self.obj.rules.is_in_combat(self.obj):
+            if self.obj.rules.is_turn(self.obj):
+                if not self.healed_this_turn:
+                    healing_amt = healing_amt * EFFECT_SECS_PER_TURN
+                    self.obj.db.hp += healing_amt
+                    self.healed_this_turn = True
+                    self.obj.location.msg_contents(f"{self.obj.get_display_name()} "
+                                                   f"recovers {healing_amt} HP from regeneration.")
+                    self.seconds_passed += EFFECT_SECS_PER_TURN
+            else:
+                self.healed_this_turn = False
+        else:  # Not in combat
+            self.healed_this_turn = False
+            self.obj.db.hp += healing_amt
+            self.seconds_passed += 1
+
+        if self.obj.db.hp > self.obj.db.max_hp:
+            self.obj.db.hp = self.obj.db.max_hp
+
+
+class DamageOverTime(EffectScript):
+    def __init__(self, effect_key:str, duration: int, range: tuple[int, int], damage_type: DamageTypes, *args, **kwargs):
+        super().__init__(effect_key=effect_key, duration=duration, *args, **kwargs)
+        self.range = range
+        self.damage_type = damage_type
+
+    def at_script_creation(self):
+        super().at_script_creation()
+        self.key = "Damage Over Time"
+        self.interval = 1
+        self.damaged_this_turn = False
+
+    def at_repeat(self, **kwargs):
+        super().at_repeat()
+        min, max = self.range
+        damage_amt = randint(min, max)
+        if hasattr(self.obj, "rules") and self.obj.rules.is_in_combat(self.obj):
+            if self.obj.rules.is_turn(self.obj):
+                if not self.damaged_this_turn:
+                    self.obj.db.hp -= damage_amt * EFFECT_SECS_PER_TURN
+                    self.damaged_this_turn = True
+                    self.obj.location.msg_contents(f"{self.obj.get_display_name()} "
+                                                   f"takes {damage_amt} damage from {self.effect_key}.")
+                    self.seconds_passed += EFFECT_SECS_PER_TURN
+            else:
+                self.damaged_this_turn = False
+        else:  # Not in combat
+            self.damaged_this_turn = False
+            self.obj.db.hp -= damage_amt
+            self.seconds_passed += 1
+
+        if self.obj.db.hp < 0:
+            self.obj.db.hp = 0
+
+
+class FixedModWithDuration(EffectScript):
+    def __init__(self, duration: int, effect_key: str, *args, **kwargs):
+        super().__init__(duration=duration, effect_key=effect_key, *args, **kwargs)
+
+    def at_script_creation(self):
+        super().at_script_creation()
+        self.key = "Timed Mod"
+        self.interval = 1
+        self.incremented_this_turn = False
+
+    def at_repeat(self, **kwargs):
+        super().at_repeat()
+        if hasattr(self.obj, "rules") and self.obj.rules.is_in_combat(self.obj):
+            if self.obj.rules.is_turn(self.obj):
+                if not self.incremented_this_turn:
+                    self.seconds_passed += EFFECT_SECS_PER_TURN
+            else:
+                self.incremented_this_turn = False
+        else:
+            self.seconds_passed += 1
+
+
+
+
+effect_callers = {
+    "Regeneration"
+}
 
 """
 ----------------------------------------------------------------------------
