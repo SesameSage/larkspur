@@ -36,7 +36,6 @@ class EffectScript(Script):
             del self.obj.db.effects[self.db.effect_key]
         except KeyError:
             pass
-        self.stop()
         return True
 
 
@@ -57,7 +56,6 @@ class DurationEffect(EffectScript):
             return
         if self.db.seconds_passed > self.db.duration:
             self.obj.location.msg_contents(f"{self.obj.get_display_name()}'s {self.db.effect_key} has worn off.")
-            self.stop()
             self.delete()
             return
 
