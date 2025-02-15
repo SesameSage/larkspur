@@ -174,7 +174,9 @@ class PlayerCharacter(Character):
 
     def at_object_creation(self):
         super().at_object_creation()
+        self.permissions.add("Player")
         self.db.xp = 0
+        self.db.prefs = {"more_info": False}
 
     def get_display_name(self, looker=None, **kwargs):
         return appearance.player + super().get_display_name(looker=looker)[4:] + "|n"
@@ -192,6 +194,10 @@ class PlayerCharacter(Character):
 
     def print_hint(self, string):
         self.msg(appearance.hint + "Hint: " + string)
+
+    def more_info(self, string):
+        if self.db.prefs["more_info"]:
+            self.msg(appearance.moreinfo + string)
 
 
 class NPC(Character, TalkableNPC):

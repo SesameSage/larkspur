@@ -1,10 +1,6 @@
-from random import randint
-
 from evennia import TICKER_HANDLER as tickerhandler
 
-from turnbattle.combat_commands import BattleCmdSet
 from turnbattle.rules import COMBAT_RULES, NONCOMBAT_TURN_TIME
-from turnbattle.effects import REGEN_RATE, POISON_RATE
 from typeclasses.inanimate.items.equipment import EquipmentCharacter
 
 
@@ -22,25 +18,28 @@ class TurnBattleCharacter(EquipmentCharacter):
         normal hook to overload for most object types.
         """
         super().at_object_creation()
-        self.db.max_hp = 100  # Set maximum HP to 100
-        self.db.hp = self.db.max_hp  # Set current HP to maximum
-        self.db.stamina = 50
-        self.db.mana = 50
+
+        self.db.attribs = {"Strength": 0, "Constitution": 0, "Dexterity": 0, "Perception": 0,
+                           "Intelligence": 0, "Wisdom": 0, "Spirit": 0}
+
+        self.db.max_hp = 100
+        self.db.hp = self.db.max_hp
+        self.db.max_stamina = 50
+        self.db.stamina = self.db.max_stamina
+        self.db.max_mana = 50
+        self.db.mana = self.db.max_mana
 
         self.db.unarmed_attack = "attack"
-        self.db.unarmed_damage_range = (5, 15)  # Minimum and maximum unarmed damage
-        self.db.unarmed_accuracy = 30  # Accuracy bonus for unarmed attacks
+        # TODO: Calculate instead of storing these
+        self.db.unarmed_damage_range = (5, 15)
+        self.db.unarmed_accuracy = 30
 
         self.db.effects = {}  # Set empty dict for conditions
 
-        self.db.attribs = {"Strength": 0, "Dexterity": 0, "Constitution": 0}
         self.db.hostile = False
 
-
         # Subscribe character to the ticker handler
-        tickerhandler.add(NONCOMBAT_TURN_TIME, self.at_update, idstring="update")
-
-        self.cmdset.add("turnbattle.combat_commands.BattleCmdSet")
+        #tickerhandler.add(NONCOMBAT_TURN_TIME, self.at_update, idstring="update")
         """
         Adds attributes for a character's current and maximum HP.
         We're just going to set this value at '100' by default.
@@ -95,7 +94,7 @@ class TurnBattleCharacter(EquipmentCharacter):
         turn in combat, or every 30 seconds out of combat.
         """
         # Regeneration: restores 4 to 8 HP at the start of character's turn
-        if "Regeneration" in self.db.effects:
+        """if "Regeneration" in self.db.effects:
             to_heal = randint(REGEN_RATE[0], REGEN_RATE[1])  # Restore HP
             if self.db.hp + to_heal > self.db.max_hp:
                 to_heal = self.db.max_hp - self.db.hp  # Cap healing to max HP
@@ -120,20 +119,48 @@ class TurnBattleCharacter(EquipmentCharacter):
         if self.rules.is_in_combat(self) and "Paralyzed" in self.db.effects:
             self.db.combat_actionsleft = 0
             self.location.msg_contents("%s is Paralyzed, and can't act this turn!" % self)
-            self.db.combat_turnhandler.turn_end_check(self)
+            self.db.combat_turnhandler.turn_end_check(self)"""
 
     def get_defense(self):
         total_defense = self.db.defense
+        self.location.more_info(f"{total_defense} base defense ({self.name})")
+
         for slot in self.db.equipment:
             equipment = self.db.equipment[slot]
-            if equipment and hasattr(equipment, "defense"):
-                total_defense += equipment.defense
+            if equipment and hasattr(equipment.db, "defense") and equipment.db.defense:
+                total_defense += equipment.db.defense
+                self.location.more_info(f"+{equipment.db.defense} defense from {equipment.name} ({self.name})")
+
+        effect = None
+        if "Defense Up" in self.db.effects:
+            effect = self.db.effects["Defense Up"]["amount"]
+        if "Defense Down" in self.db.effects:
+            effect = self.db.effects["Defense Down"]["amount"]
+        if effect:
+            total_defense += effect
+            self.location.more_info(f"{"+" if effect > 0 else ""}{effect} defense from effect ({self.name})")
+
+        self.location.more_info(f"{total_defense} total defense ({self.name})")
         return total_defense
 
     def get_evasion(self):
-        total_evasion = self.db.defense
+        total_evasion = self.db.evasion
+        self.location.more_info(f"{total_evasion} base evasion ({self.name})")
+
         for slot in self.db.equipment:
             equipment = self.db.equipment[slot]
-            if equipment and hasattr(equipment, "evasion"):
-                total_evasion += equipment.evasion
+            if equipment and hasattr(equipment.db, "evasion") and equipment.db.evasion:
+                total_evasion += equipment.db.evasion
+                self.location.more_info(f"+{equipment.db.evasion} evasion from {equipment.name} ({self.name})")
+
+        effect = None
+        if "Evasion Up" in self.db.effects:
+            effect = self.db.effects["Evasion Up"]["amount"]
+        if "Evasion Down" in self.db.effects:
+            effect = self.db.effects["Evasion Down"]["amount"]
+        if effect:
+            total_evasion += effect
+            self.location.more_info(f"{"+" if effect > 0 else ""}{effect} evasion from effect ({self.name})")
+
+        self.location.more_info(f"{total_evasion} total evasion ({self.name})")
         return total_evasion

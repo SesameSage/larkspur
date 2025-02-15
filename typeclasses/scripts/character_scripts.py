@@ -3,7 +3,7 @@ from typeclasses.scripts.scripts import Script
 
 class AutoPass(Script):
     def at_script_creation(self):
-        self.interval = 5
+        self.db.interval = 5
         self.key = "AutoPass"
 
     def at_repeat(self, **kwargs):
@@ -18,7 +18,7 @@ class SimpleAttack(Script):
         self.interval = 5
 
     def at_repeat(self, **kwargs):
-        if hasattr(self.obj, "rules"):
+        if hasattr(self.obj, "rules") and self.obj.rules.is_in_combat(self.obj):
             if self.obj.rules.is_turn(self.obj):
                 for fighter in self.obj.location.scripts.get("Combat Turn Handler")[0].db.fighters:
                     if fighter != self.obj:

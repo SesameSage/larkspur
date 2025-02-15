@@ -160,6 +160,7 @@ class EquipmentCharacter(DefaultCharacter):
 
     def at_object_creation(self):
         super().at_object_creation()
+        self.permissions.remove("player")
 
         self.db.evasion = 0
         self.db.defense = 0

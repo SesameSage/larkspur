@@ -1,9 +1,10 @@
-ambient = "|=j"
+ambient = "|=p"
 story = "|245"
 hint = "|220"
 notify = "|530"
 attention = "|550"
 warning = "|400"
+moreinfo = "|=g"
 
 say = "|553"
 whisper = "|515"

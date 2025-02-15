@@ -8,7 +8,7 @@ from evennia.commands.command import Command as BaseCommand
 
 from typeclasses.base.objects import Object
 
-# TODO: Change parsing that requires =
+#   TODO: Change parsing that requires =
 class Command(BaseCommand):
     """
     Base command (you may see this if a child command had no help text defined)

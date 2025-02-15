@@ -20,6 +20,7 @@ from evennia.contrib.grid.ingame_map_display import MapDisplayCmdSet
 from evennia.contrib.grid.simpledoor import SimpleDoorCmdSet
 
 import turnbattle.combat_commands
+from commands.character_cmdsets import PrefsCmdSet
 from commands.permissions_cmdsets import BuildingCmdSet
 from typeclasses.inanimate.items.equipment import EquipmentCharacterCmdSet
 from typeclasses.living.talking_npc import TalkingCmdSet
@@ -49,6 +50,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(BuildingCmdSet)
         self.add(turnbattle.combat_commands.BattleCmdSet())
         self.add(TalkingCmdSet)
+        self.add(PrefsCmdSet)
 
 
 class AccountCmdSet(default_cmds.AccountCmdSet):

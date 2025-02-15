@@ -1,10 +1,3 @@
-"""
-Room
-
-Rooms are simple containers that has no location of their own.
-
-"""
-
 from evennia.objects.objects import DefaultRoom
 
 from typeclasses.base.objects import ObjectParent
@@ -21,4 +14,9 @@ class Room(ObjectParent, DefaultRoom):
     properties and methods available on all Objects.
     """
 
-    pass
+    def more_info(self, string):
+        for thing in self.contents:
+            try:
+                thing.more_info(string)
+            except AttributeError:
+                pass

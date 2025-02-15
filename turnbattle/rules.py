@@ -3,12 +3,15 @@ from random import randint
 from evennia.prototypes.spawner import spawn
 
 from server import appearance
-from turnbattle.effects import DamageTypes, ACC_UP_MOD, ACC_DOWN_MOD
+from turnbattle.effects import DamageTypes
 from typeclasses.inanimate.items.usables import Consumable
+
+# TODO: Command for more info on combat calculations
 
 TURN_TIMEOUT = 30  # Time before turns automatically end, in seconds
 ACTIONS_PER_TURN = 1  # Number of actions allowed per turn
 NONCOMBAT_TURN_TIME = 30  # Time per turn count out of combat
+
 
 class BasicCombatRules:
     """
@@ -62,24 +65,31 @@ class BasicCombatRules:
         """
         # Start with a roll from 1 to 100.
         attack_value = randint(1, 100)
+        attacker.location.more_info(f"Hitroll {attack_value} ({attacker.name})")
         accuracy_bonus = 0
         # If armed, add weapon's accuracy bonus.
         if attacker.db.equipment["primary"]:
             weapon = attacker.db.equipment["primary"]
             accuracy_bonus += weapon.db.accuracy_bonus
+            attacker.location.more_info(f"+{accuracy_bonus} accuracy from {weapon.name} ({attacker.name})")
         # If unarmed, use character's unarmed accuracy bonus.
         """else:
             accuracy_bonus += attacker.db.unarmed_accuracy
         # Add the accuracy bonus to the attack roll."""
         attack_value += accuracy_bonus
 
+        effect = None
         # Add to the roll if the attacker has the "Accuracy Up" condition.
         if "Accuracy Up" in attacker.db.effects:  # TODO: Rename conditions to effects?
-            attack_value += ACC_UP_MOD
+            effect = attacker.db.effects["Accuracy Up"]["amount"]
         # Subtract from the roll if the attack has the "Accuracy Down" condition.
         if "Accuracy Down" in attacker.db.effects:
-            attack_value += ACC_DOWN_MOD
+            effect = attacker.db.effects["Accuracy Down"]["amount"]
+        if effect:
+            attack_value += effect
+            attacker.location.more_info(f"{"+" if effect > 0 else ""}{effect} accuracy ({attacker.name})")
 
+        attacker.location.more_info(f"{attack_value} to hit ({attacker.name})")
         return attack_value
 
     def get_damage(self, attacker, defender):
@@ -108,6 +118,7 @@ class BasicCombatRules:
                 # Roll between minimum and maximum damage
                 values = weapon.db.damage_ranges[damage_type]
                 damage_values[damage_type] = randint(values[0], values[1])
+                attacker.location.more_info(f"+{damage_values[damage_type]} {damage_type.get_display_name()} damage from {weapon.name} ({attacker.name})")
                 # Make sure minimum damage is 0
                 if damage_values[damage_type] < 0:
                     damage_values[damage_type] = 0
@@ -118,12 +129,20 @@ class BasicCombatRules:
                 attacker.db.unarmed_damage_range[0], attacker.db.unarmed_damage_range[1]
             )
 
-        """# Add to damage roll if attacker has the "Damage Up" condition.
-        if "Damage Up" in attacker.db.conditions:
-            damage_values += DMG_UP_MOD
-            # Subtract from the roll if the attacker has the "Damage Down" condition.
-        if "Damage Down" in attacker.db.conditions:
-            damage_values += DMG_DOWN_MOD"""
+        attacker.location.more_info(f"Damage roll ({attacker.name}):")
+        attacker.location.more_info(str([f"{damage_type.get_display_name()}: {damage_values[damage_type]}"
+                                     for damage_type in damage_values]))
+
+        if "Damage Up" in attacker.db.effects:
+            damage_boost = attacker.db.effects["Damage Up"]["amount"]
+            for damage_type in damage_values:
+                damage_values[damage_type] += damage_boost
+                attacker.location.more_info(f"+{damage_boost} {damage_type} damage from effect ({attacker.name})")
+        if "Damage Down" in attacker.db.effects:
+            damage_penalty = attacker.db.effects["Damage Down"]["amount"]
+            for damage_type in damage_values:
+                damage_values[damage_type] -= damage_penalty
+                attacker.location.more_info(f"-{damage_penalty} {damage_type} damage from effect ({attacker.name}")
 
         # If defender is armored, reduce incoming damage
         for damage_type in damage_values:
@@ -161,6 +180,8 @@ class BasicCombatRules:
             into a dying state or something similar) then this is the place to
             do it.
         """
+        if defeated.db.hp < 0:
+            defeated.db.hp = 0
         defeated.location.msg_contents(f"%s{appearance.attention} has been defeated!" % defeated.get_display_name())
         defeated.location.scripts.get("Combat Turn Handler")[0].all_defeat_check()
 
@@ -204,14 +225,17 @@ class BasicCombatRules:
             evasion_value = defender.get_evasion()
         # If the attack value is lower than the defense value, miss. Otherwise, hit.
         if attack_value < evasion_value:
+            attacker.location.more_info(f"{attack_value} hit < {evasion_value} evasion (miss)")
             attacker.location.msg_contents(
                 "%s's %s misses %s!" % (attacker.get_display_name(), attackers_weapon, defender.get_display_name())
             )
         else:
+            attacker.location.more_info(f"{attack_value} hit > {evasion_value} evasion (success)")
             damage_values = self.get_damage(attacker, defender)  # Calculate damage values
             damage_values = {key: value for key, value in damage_values.items() if value > 0}
             # Announce damage dealt and apply damage.
-            msg = "%s's %s strikes %s for " % (attacker.get_display_name(), attackers_weapon, defender.get_display_name())
+            msg = "%s's %s strikes %s for " % (
+            attacker.get_display_name(), attackers_weapon, defender.get_display_name())
             dmg_color = appearance.good_damage if defender.db.hostile else appearance.bad_damage
             if bool(damage_values):  # If any damages are > 0
                 for i, damage_type in enumerate(damage_values):
@@ -226,7 +250,8 @@ class BasicCombatRules:
                 attacker.location.msg_contents(msg)
             else:
                 attacker.location.msg_contents(
-                    "%s's %s bounces harmlessly off %s!" % (attacker.get_display_name(), attackers_weapon, defender.get_display_name())
+                    "%s's %s bounces harmlessly off %s!" % (
+                    attacker.get_display_name(), attackers_weapon, defender.get_display_name())
                 )
 
             self.apply_damage(defender, damage_values)
@@ -628,4 +653,3 @@ ITEMFUNCS = {
     "add_condition": COMBAT_RULES.itemfunc_add_condition,
     "cure_condition": COMBAT_RULES.itemfunc_cure_condition,
 }
-
