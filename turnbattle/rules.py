@@ -5,6 +5,7 @@ from evennia.prototypes.spawner import spawn
 from server import appearance
 from turnbattle.effects import DamageTypes
 from typeclasses.inanimate.items.usables import Consumable
+from typeclasses.living.char_stats import CharAttrib
 
 # TODO: Command for more info on combat calculations
 
@@ -43,7 +44,7 @@ class BasicCombatRules:
 
             This way, characters with a higher dexterity will go first more often.
         """
-        return randint(1, 20) + character.db.attribs["Dexterity"]
+        return randint(1, 20) + character.get_attribute(CharAttrib.DEXTERITY)
 
     def get_attack(self, attacker, defender):
         """

@@ -1,8 +1,12 @@
+from enum import Enum
+
 from evennia import TICKER_HANDLER as tickerhandler
 
-from turnbattle.rules import COMBAT_RULES, NONCOMBAT_TURN_TIME
+from turnbattle.rules import COMBAT_RULES
 from typeclasses.inanimate.items.equipment import EquipmentCharacter
+from typeclasses.living.char_stats import CharAttrib
 
+DEXT_TO_EVADE_FACTOR = 2
 
 class TurnBattleCharacter(EquipmentCharacter):
     """
@@ -19,8 +23,9 @@ class TurnBattleCharacter(EquipmentCharacter):
         """
         super().at_object_creation()
 
-        self.db.attribs = {"Strength": 0, "Constitution": 0, "Dexterity": 0, "Perception": 0,
-                           "Intelligence": 0, "Wisdom": 0, "Spirit": 0}
+        self.db.attribs = {CharAttrib.STRENGTH: 0, CharAttrib.CONSTITUTION: 0,
+                           CharAttrib.DEXTERITY: 0, CharAttrib.PERCEPTION: 0, CharAttrib.INTELLIGENCE: 0,
+                           CharAttrib.WISDOM: 0, CharAttrib.SPIRIT: 0}
 
         self.db.max_hp = 100
         self.db.hp = self.db.max_hp
@@ -39,7 +44,7 @@ class TurnBattleCharacter(EquipmentCharacter):
         self.db.hostile = False
 
         # Subscribe character to the ticker handler
-        #tickerhandler.add(NONCOMBAT_TURN_TIME, self.at_update, idstring="update")
+        # tickerhandler.add(NONCOMBAT_TURN_TIME, self.at_update, idstring="update")
         """
         Adds attributes for a character's current and maximum HP.
         We're just going to set this value at '100' by default.
@@ -121,6 +126,22 @@ class TurnBattleCharacter(EquipmentCharacter):
             self.location.msg_contents("%s is Paralyzed, and can't act this turn!" % self)
             self.db.combat_turnhandler.turn_end_check(self)"""
 
+    def get_attr(self, attribute: CharAttrib):
+        base_attr = self.db.attribs[attribute]
+
+        eq_bonus = 0
+        for slot in self.db.equipment:
+            equipment = self.db.equipment[slot]
+
+        effect = 0
+        name = attribute.get_display_name()
+        if f"{name} Up" in self.db.effects:
+            effect = self.db.effects(f"{name} Up")["amount"]
+        if f"{name} Down" in self.db.effects:
+            effect = self.db.effects(f"{name} Down")["amount"]
+
+        return base_attr + effect + eq_bonus
+
     def get_defense(self):
         total_defense = self.db.defense
         self.location.more_info(f"{total_defense} base defense ({self.name})")
@@ -144,23 +165,34 @@ class TurnBattleCharacter(EquipmentCharacter):
         return total_defense
 
     def get_evasion(self):
-        total_evasion = self.db.evasion
+
+        def base_evasion():
+            dex_ev = self.get_attr(CharAttrib.DEXTERITY) * DEXT_TO_EVADE_FACTOR
+            return dex_ev
+
+        def equipment_evasion():
+            eq_ev = 0
+            for slot in self.db.equipment:
+                equipment = self.db.equipment[slot]
+                if equipment and hasattr(equipment.db, "evasion") and equipment.db.evasion:
+                    eq_ev += equipment.db.evasion
+                    self.location.more_info(f"+{equipment.db.evasion} evasion from {equipment.name} ({self.name})")
+            return eq_ev
+
+        def effect_evasion():
+            effect = 0
+            if "Evasion Up" in self.db.effects:
+                effect += self.db.effects["Evasion Up"]["amount"]
+            if "Evasion Down" in self.db.effects:
+                effect += self.db.effects["Evasion Down"]["amount"]
+            if effect > 0:
+                self.location.more_info(f"{"+" if effect > 0 else ""}{effect} evasion from effect ({self.name})")
+            return effect
+
+        total_evasion = base_evasion()
         self.location.more_info(f"{total_evasion} base evasion ({self.name})")
-
-        for slot in self.db.equipment:
-            equipment = self.db.equipment[slot]
-            if equipment and hasattr(equipment.db, "evasion") and equipment.db.evasion:
-                total_evasion += equipment.db.evasion
-                self.location.more_info(f"+{equipment.db.evasion} evasion from {equipment.name} ({self.name})")
-
-        effect = None
-        if "Evasion Up" in self.db.effects:
-            effect = self.db.effects["Evasion Up"]["amount"]
-        if "Evasion Down" in self.db.effects:
-            effect = self.db.effects["Evasion Down"]["amount"]
-        if effect:
-            total_evasion += effect
-            self.location.more_info(f"{"+" if effect > 0 else ""}{effect} evasion from effect ({self.name})")
+        total_evasion += equipment_evasion()
+        total_evasion += effect_evasion()
 
         self.location.more_info(f"{total_evasion} total evasion ({self.name})")
         return total_evasion
