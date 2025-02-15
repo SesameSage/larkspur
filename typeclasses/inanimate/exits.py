@@ -9,10 +9,10 @@ for allowing Characters to traverse the exit to its destination.
 from evennia.contrib.grid.simpledoor import SimpleDoor
 from evennia.objects.objects import DefaultExit
 
-from typeclasses.base.objects import ObjectParent
+from typeclasses.base.objects import Object
 
 
-class Exit(ObjectParent, DefaultExit):
+class Exit(Object, DefaultExit):
     """
     Exits are connectors between rooms. Exits are normal Objects except
     they defines the `destination` property and overrides some hooks

@@ -1,9 +1,9 @@
 from server import appearance
-from turnbattle.combat_character import TurnBattleCharacter
-from typeclasses.base.objects import ObjectParent
+from typeclasses.living.combat_character import TurnBattleEntity
+from typeclasses.base.objects import Object
 
 
-class LivingEntity(ObjectParent, TurnBattleCharacter):
+class LivingEntity(Object, TurnBattleEntity):
     """
     The Character just re-implements some of the Object's methods and hooks
     to represent a Character entity in-game.
@@ -34,4 +34,5 @@ class Enemy(LivingEntity):
 
     def get_display_name(self, looker=None, **kwargs):
         return appearance.enemy + super().get_display_name(looker=looker) + "|n"
+
 

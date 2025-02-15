@@ -13,6 +13,7 @@ to be modified.
 """
 
 from evennia.comms.comms import DefaultChannel
+from evennia.utils import create, logger
 
 
 class Channel(DefaultChannel):
@@ -115,4 +116,49 @@ class Channel(DefaultChannel):
 
     """
 
-    pass
+    def create(cls, key, creator=None, *args, **kwargs):  # Changed attribute organization
+        """
+        Creates a basic Channel with default parameters, unless otherwise
+        specified or extended.
+
+        Provides a friendlier interface to the utils.create_channel() function.
+
+        Args:
+            key (str): This must be unique.
+            creator (Account or Object): Entity to associate with this channel
+                (used for tracking)
+
+        Keyword Args:
+            aliases (list of str): List of alternative (likely shorter) keynames.
+            description (str): A description of the channel, for use in listings.
+            locks (str): Lockstring.
+            keep_log (bool): Log channel throughput.
+            typeclass (str or class): The typeclass of the Channel (not
+                often used).
+            ip (str): IP address of creator (for object auditing).
+
+        Returns:
+            channel (Channel): A newly created Channel.
+            errors (list): A list of errors in string form, if any.
+
+        """
+        errors = []
+        obj = None
+        ip = kwargs.pop("ip", "")
+
+        try:
+            kwargs["desc"] = kwargs.pop("description", "")
+            kwargs["typeclass"] = kwargs.get("typeclass", cls)
+            obj = create.create_channel(key, *args, **kwargs)
+
+            # Record creator id and creation IP
+            if ip:
+                obj.attributes.add(key="creator_ip", value=ip, category="ooc")
+            if creator:
+                obj.attributes.add(key="creator_id", value=creator.id, category="ooc")
+
+        except Exception as exc:
+            errors.append("An error occurred while creating this '%s' object." % key)
+            logger.log_err(exc)
+
+        return obj, errors

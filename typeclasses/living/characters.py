@@ -7,7 +7,9 @@ is set up to be the "default" character type created by the default
 creation commands.
 
 """
-from evennia.utils import make_iter
+from django.conf import settings
+from django.utils.translation import gettext as _
+from evennia.utils import make_iter, create, logger
 
 from typeclasses.inanimate import rooms
 from typeclasses.living.living_entities import *
@@ -176,7 +178,7 @@ class PlayerCharacter(Character):
         super().at_object_creation()
         self.permissions.add("Player")
         self.db.xp = 0
-        self.db.prefs = {"more_info": False}
+        self.attributes.add(key="prefs", value={"more_info": False}, category="ooc")
 
     def get_display_name(self, looker=None, **kwargs):
         return appearance.player + super().get_display_name(looker=looker)[4:] + "|n"
@@ -196,7 +198,7 @@ class PlayerCharacter(Character):
         self.msg(appearance.hint + "Hint: " + string)
 
     def more_info(self, string):
-        if self.db.prefs["more_info"]:
+        if self.attributes.get("prefs", category="ooc")["more_info"]:
             self.msg(appearance.moreinfo + string)
 
 
@@ -206,3 +208,5 @@ class NPC(Character, TalkableNPC):
 
 class EnemyCharacter(NPC, Enemy):
     pass
+
+

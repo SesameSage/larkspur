@@ -3,9 +3,10 @@ from evennia import CmdSet, Command
 
 class CmdMoreInfo(Command):
     key = "moreinfo"
+
     def func(self):
-        self.caller.db.prefs["more_info"] = not self.caller.db.prefs["more_info"]
-        self.caller.print_ambient(f"MoreInfo set to {self.caller.db.prefs["more_info"]}.")
+        self.caller.attributes.get("prefs")["more_info"] = not self.caller.attributes.get("prefs")["more_info"]
+        self.caller.print_ambient(f"MoreInfo set to {self.caller.attributes.get("prefs")["more_info"]}.")
 
 
 class PrefsCmdSet(CmdSet):

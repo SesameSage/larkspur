@@ -7,7 +7,6 @@ Use the ObjectParent class to implement common features for *all* entities
 with a location in the game world (like Characters, Rooms, Exits).
 
 """
-
 from evennia.objects.objects import DefaultObject
 
 
@@ -213,7 +212,6 @@ class Object(ObjectParent, DefaultObject):
      at_desc(looker=None)
 
     """
-
     pass
 
 
