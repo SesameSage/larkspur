@@ -33,13 +33,26 @@ DEF_DOWN_MOD = -15  # Defense Down defense penalty
 
 
 class EffectScript(Script):
-    def __init__(self, effect_key: str, duration: int,  *args, **kwargs):
+    def __init__(self, effect_key: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.effect_key = effect_key
+
+    def at_script_creation(self):
+        self.obj.db.effects[self.effect_key] = {}
+
+    def at_script_delete(self):
+        del self.obj.db.effects[self.effect_key]
+        return True
+
+
+class DurationEffect(EffectScript):
+    def __init__(self, effect_key: str, duration: int, *args, **kwargs):
+        super().__init__(effect_key=effect_key, *args, **kwargs)
         self.duration = duration
 
     def at_script_creation(self):
         super().at_script_creation()
+        self.interval = 1
         self.obj.db.effects[self.effect_key] = {"duration": self.duration}
         self.seconds_passed = 0
 
@@ -49,50 +62,65 @@ class EffectScript(Script):
             self.delete()
             return
 
-    def at_script_delete(self):
-        del self.obj.db.effects[self.effect_key]
-        return True
 
+class PerSecEffect(DurationEffect):
 
-class Regeneration(EffectScript):
-    def __init__(self, range: tuple[int, int], duration: int, *args, **kwargs):
-        super().__init__(effect_key="Regeneration", duration=duration, *args, **kwargs)
+    def __init__(self, effect_key: str, duration: int, range: tuple[int, int], *args, **kwargs):
+        super().__init__(effect_key, duration, *args, **kwargs)
         self.range = range
 
     def at_script_creation(self):
         super().at_script_creation()
+        self.applied_this_turn = False
+
+    def at_repeat(self, **kwargs):
+        super().at_repeat()
+        min, max = self.range
+        amount = randint(min, max)
+        if hasattr(self.obj, "rules") and self.obj.rules.is_in_combat(self.obj):
+            if self.obj.rules.is_turn(self.obj):
+                if not self.applied_this_turn:
+                    self.increment(amount=amount, in_combat=True)
+                    self.seconds_passed += EFFECT_SECS_PER_TURN
+                    self.applied_this_turn = True
+            else:
+                self.applied_this_turn = False
+        else:  # Not in combat
+            self.applied_this_turn = False
+            self.increment(amount=amount, in_combat=False)
+            self.seconds_passed += 1
+
+    def increment(self, amount: int, in_combat=False):
+        pass
+
+
+class Regeneration(PerSecEffect):
+    def __init__(self, range: tuple[int, int], duration: int, *args, **kwargs):
+        super().__init__(effect_key="Regeneration", range=range, duration=duration, *args, **kwargs)
+
+    def at_script_creation(self):
+        super().at_script_creation()
         self.key = "Regeneration"
-        self.interval = 1
         self.healed_this_turn = False
 
     def at_repeat(self, **kwargs):
         super().at_repeat()  # Checks for duration end of all effect scripts
-        min, max = self.range
-        healing_amt = randint(min, max)
-        if hasattr(self.obj, "rules") and self.obj.rules.is_in_combat(self.obj):
-            if self.obj.rules.is_turn(self.obj):
-                if not self.healed_this_turn:
-                    healing_amt = healing_amt * EFFECT_SECS_PER_TURN
-                    self.obj.db.hp += healing_amt
-                    self.healed_this_turn = True
-                    self.obj.location.msg_contents(f"{self.obj.get_display_name()} "
-                                                   f"recovers {healing_amt} HP from regeneration.")
-                    self.seconds_passed += EFFECT_SECS_PER_TURN
-            else:
-                self.healed_this_turn = False
-        else:  # Not in combat
-            self.healed_this_turn = False
-            self.obj.db.hp += healing_amt
-            self.seconds_passed += 1
-
         if self.obj.db.hp > self.obj.db.max_hp:
             self.obj.db.hp = self.obj.db.max_hp
 
+    def increment(self, amount: int, in_combat=False):
+        if in_combat:
+            amount = amount * EFFECT_SECS_PER_TURN
+            self.obj.location.msg_contents(f"{self.obj.get_display_name()} "
+                                           f"recovers {amount} HP from regeneration.")
 
-class DamageOverTime(EffectScript):
-    def __init__(self, effect_key:str, duration: int, range: tuple[int, int], damage_type: DamageTypes, *args, **kwargs):
-        super().__init__(effect_key=effect_key, duration=duration, *args, **kwargs)
-        self.range = range
+        self.obj.db.hp += amount
+
+
+class DamageOverTime(PerSecEffect):
+    def __init__(self, effect_key: str, range:tuple[int, int], duration: int, damage_type: DamageTypes, *args,
+                 **kwargs):
+        super().__init__(effect_key=effect_key, range=range, duration=duration, *args, **kwargs)
         self.damage_type = damage_type
 
     def at_script_creation(self):
@@ -103,28 +131,18 @@ class DamageOverTime(EffectScript):
 
     def at_repeat(self, **kwargs):
         super().at_repeat()
-        min, max = self.range
-        damage_amt = randint(min, max)
-        if hasattr(self.obj, "rules") and self.obj.rules.is_in_combat(self.obj):
-            if self.obj.rules.is_turn(self.obj):
-                if not self.damaged_this_turn:
-                    self.obj.db.hp -= damage_amt * EFFECT_SECS_PER_TURN
-                    self.damaged_this_turn = True
-                    self.obj.location.msg_contents(f"{self.obj.get_display_name()} "
-                                                   f"takes {damage_amt} damage from {self.effect_key}.")
-                    self.seconds_passed += EFFECT_SECS_PER_TURN
-            else:
-                self.damaged_this_turn = False
-        else:  # Not in combat
-            self.damaged_this_turn = False
-            self.obj.db.hp -= damage_amt
-            self.seconds_passed += 1
-
         if self.obj.db.hp < 0:
             self.obj.db.hp = 0
 
+    def increment(self, amount: int, in_combat=False):
+        if in_combat:
+            amount = amount * EFFECT_SECS_PER_TURN
+            self.obj.location.msg_contents(f"{self.obj.get_display_name()} "
+                                           f"takes {amount} damage from {self.effect_key}.")
+        self.obj.db.hp -= amount
 
-class FixedModWithDuration(EffectScript):
+
+class FixedModWithDuration(DurationEffect):
     def __init__(self, duration: int, effect_key: str, *args, **kwargs):
         super().__init__(duration=duration, effect_key=effect_key, *args, **kwargs)
 
@@ -144,8 +162,6 @@ class FixedModWithDuration(EffectScript):
                 self.incremented_this_turn = False
         else:
             self.seconds_passed += 1
-
-
 
 
 effect_callers = {
