@@ -44,7 +44,7 @@ class BasicCombatRules:
 
             This way, characters with a higher dexterity will go first more often.
         """
-        return randint(1, 20) + character.get_attribute(CharAttrib.DEXTERITY)
+        return randint(1, 20) + character.get_attr(CharAttrib.DEXTERITY)
 
     def get_attack(self, attacker, defender):
         """
