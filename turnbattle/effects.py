@@ -152,7 +152,7 @@ class DamageOverTime(PerSecEffect):
         self.obj.db.hp -= amount
 
 
-class FixedModWithDuration(DurationEffect):
+class FixedEffectWithDuration(DurationEffect):
     def __init__(self, effect_key: str, duration: int, *args, **kwargs):
         super().__init__(effect_key=effect_key, duration=duration, *args, **kwargs)
 
@@ -179,7 +179,16 @@ class FixedModWithDuration(DurationEffect):
             self.db.seconds_passed += 1
 
 
-class DamageMod(FixedModWithDuration):
+class Knockdown(FixedEffectWithDuration):
+    # TODO: Knockdown
+    def __init__(self, duration: int, *args, **kwargs):
+        super().__init__(effect_key="Knockdown", duration=duration, *args, **kwargs)
+
+    def at_script_creation(self):
+        super().at_script_creation()
+
+
+class DamageMod(FixedEffectWithDuration):
     def __init__(self, effect_key: str, duration: int, damage_type: str, amount: int, *args, **kwargs):
         super().__init__(effect_key=effect_key, duration=duration, *args, **kwargs)
         self.damage_type = damage_type
@@ -190,7 +199,7 @@ class DamageMod(FixedModWithDuration):
         self.obj.db.effects[self.db.effect_key]["damage_type"] = self.damage_type
 
 
-class AccuracyMod(FixedModWithDuration):
+class AccuracyMod(FixedEffectWithDuration):
     def __init__(self, duration: int, amount: int, *args, **kwargs):
         if amount >= 0:
             effect_key = "Accuracy Up"
@@ -200,7 +209,7 @@ class AccuracyMod(FixedModWithDuration):
         self.amount = amount
 
 
-class DefenseMod(FixedModWithDuration):
+class DefenseMod(FixedEffectWithDuration):
     def __init__(self, duration: int, amount: int, *args, **kwargs):
         if amount > 0:
             effect_key = "Defense Up"
@@ -210,7 +219,7 @@ class DefenseMod(FixedModWithDuration):
         self.amount = amount
 
 
-class EvasionMod(FixedModWithDuration):
+class EvasionMod(FixedEffectWithDuration):
     def __init__(self, duration: int, amount: int, *args, **kwargs):
         if amount > 0:
             effect_key = "Evasion Up"

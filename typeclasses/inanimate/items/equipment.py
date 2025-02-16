@@ -87,9 +87,11 @@ from typeclasses.inanimate.items.items import Item
 class Equipment(Item):
 
     def at_object_creation(self):
+        super().at_object_creation()
         self.db.equipment_slot = None
         self.db.equipped = False
         self.db.desc = "An equippable item."
+        self.db.equip_effect = None
 
     def equip(self, wearer, quiet=False):
         """

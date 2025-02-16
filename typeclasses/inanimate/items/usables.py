@@ -4,7 +4,9 @@ from typeclasses.inanimate.items.items import Item
 
 
 class Usable(Item):
-    pass
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.use_effect = None
 
 
 class Consumable(Usable):

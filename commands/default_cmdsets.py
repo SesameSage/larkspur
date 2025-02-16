@@ -17,7 +17,7 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 from evennia import default_cmds
 from evennia.contrib.grid.simpledoor import SimpleDoorCmdSet
 
-import turnbattle.combat_commands
+import commands.combat_commands
 from commands.refiled_cmds import *
 from typeclasses.inanimate.items.equipment import EquipmentCharacterCmdSet
 
@@ -41,7 +41,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         #
         self.add(SimpleDoorCmdSet)
         self.add(EquipmentCharacterCmdSet)
-        self.add(turnbattle.combat_commands.BattleCmdSet())
+        self.add(commands.combat_commands.BattleCmdSet())
 
         self.add(RefiledCmdSet)
 

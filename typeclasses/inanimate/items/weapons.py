@@ -4,14 +4,13 @@ from typeclasses.inanimate.items.equipment import Equipment
 class Weapon(Equipment):
 
     def at_object_creation(self):
+        super().at_object_creation()
+        self.db.weapon_type = None
         self.db.damage_ranges = {}  # Minimum and maximum damage on hit
         self.db.accuracy_bonus = 0  # Bonus to attack rolls (or penalty if negative)
-        self.db.weapon_type_name = (
-            "weapon"  # Single word for weapon - I.E. "dagger", "staff", "scimitar"
-        )
         self.db.equipment_slot = "primary"
 
-    def at_drop(self, dropper):
+    def at_drop(self, dropper, **kwargs):
         """
         Stop being wielded if dropped.
         """
@@ -19,7 +18,7 @@ class Weapon(Equipment):
             dropper.db.wielded_weapon = None
             dropper.location.msg_contents("%s stops wielding %s." % (dropper, self))
 
-    def at_give(self, giver, getter):
+    def at_give(self, giver, getter, **kwargs):
         """
         Stop being wielded if given.
         """
@@ -28,7 +27,7 @@ class Weapon(Equipment):
             giver.location.msg_contents("%s stops wielding %s." % (giver, self))
 
 
-class MeeleeWeapon(Weapon):
+class MeleeWeapon(Weapon):
     pass
 
 
@@ -40,31 +39,31 @@ class MagicWeapon(Weapon):
     pass
 
 
-class Sword(MeeleeWeapon):
+class Sword(MeleeWeapon):
     pass
 
 
-class GreatSword(MeeleeWeapon):
+class GreatSword(MeleeWeapon):
     pass
 
 
-class Axe(MeeleeWeapon):
+class Axe(MeleeWeapon):
     pass
 
 
-class Mace(MeeleeWeapon):
+class Mace(MeleeWeapon):
     pass
 
 
-class WarHammer(MeeleeWeapon):
+class WarHammer(MeleeWeapon):
     pass
 
 
-class Dagger(MeeleeWeapon):
+class Dagger(MeleeWeapon):
     pass
 
 
-class Quarterstaff(MeeleeWeapon):
+class Quarterstaff(MeleeWeapon):
     pass
 
 
