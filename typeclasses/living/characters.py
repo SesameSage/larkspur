@@ -7,10 +7,10 @@ is set up to be the "default" character type created by the default
 creation commands.
 
 """
-from django.conf import settings
-from django.utils.translation import gettext as _
-from evennia.utils import make_iter, create, logger
+from evennia.utils import make_iter
 
+from commands.character_cmdsets import PlayerCmdSet
+from commands.refiled_cmds import RefiledCmdSet
 from typeclasses.inanimate import rooms
 from typeclasses.living.living_entities import *
 from typeclasses.living.talking_npc import TalkableNPC
@@ -179,6 +179,8 @@ class PlayerCharacter(Character):
         self.permissions.add("Player")
         self.db.xp = 0
         self.attributes.add(key="prefs", value={"more_info": False}, category="ooc")
+        self.cmdset.add(PlayerCmdSet, persistent=True)
+        self.cmdset.add(RefiledCmdSet, persistent=True)  # Override player cmds where necessary
 
     def get_display_name(self, looker=None, **kwargs):
         return appearance.player + super().get_display_name(looker=looker)[4:] + "|n"

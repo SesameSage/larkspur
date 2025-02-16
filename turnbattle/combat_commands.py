@@ -257,7 +257,7 @@ class CmdUse(MuxCommand):
     """
 
     key = "use"
-    help_category = "combat"
+    help_category = "items"
 
     rules = COMBAT_RULES
 
@@ -296,93 +296,6 @@ class CmdUse(MuxCommand):
         self.rules.use_item(self.caller, item, target)
 
 
-class CmdWield(Command):
-    """
-    Wield a weapon you are carrying
-
-    Usage:
-      wield <weapon>
-
-    Select a weapon you are carrying to wield in combat. If
-    you are already wielding another weapon, you will switch
-    to the weapon you specify instead. Using this command in
-    combat will spend your action for your turn. Use the
-    "unwield" command to stop wielding any weapon you are
-    currently wielding.
-    """
-
-    key = "wield"
-    help_category = "combat"
-
-    rules = COMBAT_RULES
-
-    def func(self):
-        """
-        This performs the actual command.
-        """
-        # If in combat, check to see if it's your turn.
-        if self.rules.is_in_combat(self.caller):
-            if not self.rules.is_turn(self.caller):
-                self.caller.msg("You can only do that on your turn.")
-                return
-        if not self.args:
-            self.caller.msg("Usage: wield <obj>")
-            return
-        weapon = self.caller.search(self.args, candidates=self.caller.contents)
-        if not weapon:
-            return
-        if not isinstance(weapon, Weapon):
-            self.caller.msg("That's not a weapon!")
-            # Remember to update the path to the weapon typeclass if you move this module!
-            return
-
-        if not self.caller.db.wielded_weapon:
-            self.caller.db.wielded_weapon = weapon
-            self.caller.location.msg_contents("%s wields %s." % (self.caller, weapon))
-        else:
-            old_weapon = self.caller.db.wielded_weapon
-            self.caller.db.wielded_weapon = weapon
-            self.caller.location.msg_contents(
-                "%s lowers %s and wields %s." % (self.caller, old_weapon, weapon)
-            )
-        # Spend an action if in combat.
-        if self.rules.is_in_combat(self.caller):
-            self.rules.spend_action(self.caller, 1, action_name="wield")  # Use up one action.
-
-
-class CmdUnwield(Command):
-    """
-    Stop wielding a weapon.
-
-    Usage:
-      unwield
-
-    After using this command, you will stop wielding any
-    weapon you are currently wielding and become unarmed.
-    """
-
-    key = "unwield"
-    help_category = "combat"
-
-    rules = COMBAT_RULES
-
-    def func(self):
-        """
-        This performs the actual command.
-        """
-        # If in combat, check to see if it's your turn.
-        if self.rules.is_in_combat(self.caller):
-            if not self.rules.is_turn(self.caller):
-                self.caller.msg("You can only do that on your turn.")
-                return
-        if not self.caller.db.wielded_weapon:
-            self.caller.msg("You aren't wielding a weapon!")
-        else:
-            old_weapon = self.caller.db.wielded_weapon
-            self.caller.db.wielded_weapon = None
-            self.caller.location.msg_contents("%s lowers %s." % (self.caller, old_weapon))
-
-
 class BattleCmdSet(default_cmds.CharacterCmdSet):
     """
     This command set includes all the commmands used in the battle system.
@@ -401,4 +314,3 @@ class BattleCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdDisengage())
         self.add(CmdCombatHelp())
         self.add(CmdUse())
-        self.add(CmdWield())

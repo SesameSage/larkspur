@@ -15,15 +15,11 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 """
 
 from evennia import default_cmds
-from evennia.contrib.game_systems.containers import ContainerCmdSet
-from evennia.contrib.grid.ingame_map_display import MapDisplayCmdSet
 from evennia.contrib.grid.simpledoor import SimpleDoorCmdSet
 
 import turnbattle.combat_commands
-from commands.character_cmdsets import PrefsCmdSet
-from commands.permissions_cmdsets import BuildingCmdSet
+from commands.refiled_cmds import *
 from typeclasses.inanimate.items.equipment import EquipmentCharacterCmdSet
-from typeclasses.living.talking_npc import TalkingCmdSet
 
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
@@ -45,12 +41,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         #
         self.add(SimpleDoorCmdSet)
         self.add(EquipmentCharacterCmdSet)
-        self.add(ContainerCmdSet)
-        self.add(MapDisplayCmdSet)
-        self.add(BuildingCmdSet)
         self.add(turnbattle.combat_commands.BattleCmdSet())
-        self.add(TalkingCmdSet)
-        self.add(PrefsCmdSet)
+
+        self.add(RefiledCmdSet)
 
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
@@ -71,6 +64,15 @@ class AccountCmdSet(default_cmds.AccountCmdSet):
         #
         # any commands you add below will overload the default ones.
         #
+        self.add(MyCmdColor)
+        self.add(MyCmdQuit)
+        self.add(MyCmdSessions)
+        self.add(MyCmdStyle)
+        self.add(MyCmdWho)
+        self.add(MyCmdPassword)
+        self.add(MyCmdIC)
+        self.add(MyCmdOOC)
+        self.add(MyCmdOption)
 
 
 class UnloggedinCmdSet(default_cmds.UnloggedinCmdSet):

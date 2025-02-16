@@ -1,0 +1,121 @@
+from evennia import CmdSet
+from evennia.commands.default.account import CmdColorTest, CmdQuit, CmdSessions, CmdStyle, CmdWho, CmdPassword, CmdIC, \
+    CmdOOC, CmdOption
+from evennia.commands.default.comms import CmdChannel, CmdPage
+from evennia.commands.default.general import CmdSay, CmdWhisper, CmdGet, CmdDrop, CmdGive, CmdNick, CmdPose, CmdLook, \
+    CmdAccess, CmdSetDesc
+from evennia.contrib.game_systems.containers.containers import CmdPut
+from evennia.contrib.grid.ingame_map_display.ingame_map_display import CmdMap
+
+
+class MyCmdSay(CmdSay):
+    help_category = "communication"
+
+
+class MyCmdWhisper(CmdWhisper):
+    help_category = "communication"
+
+
+class MyCmdChannel(CmdChannel):
+    help_category = "communication"
+
+
+class MyCmdPage(CmdPage):
+    help_category = "communication"
+
+
+class MyCmdLook(CmdLook):
+    help_category = "navigation"
+
+
+class MyCmdMap(CmdMap):
+    help_category = "navigation"
+
+
+class MyCmdGet(CmdGet):
+    help_category = "items"
+
+
+class MyCmdDrop(CmdDrop):
+    help_category = "items"
+
+
+class MyCmdGive(CmdGive):
+    help_category = "items"
+
+
+class MyCmdPut(CmdPut):
+    help_category = "items"
+
+
+class MyCmdNick(CmdNick):
+    help_category = "appearance"
+
+
+class MyCmdPose(CmdPose):
+    locks = "cmd:false()"
+
+
+class MyCmdAccess(CmdAccess):
+    help_category = "account"
+
+
+class MyCmdSetDesc(CmdSetDesc):
+    help_category = "character"
+
+
+class RefiledCmdSet(CmdSet):
+    key = "PlayerCharacter"
+
+    def at_cmdset_creation(self):
+        super().at_cmdset_creation()
+        self.add(MyCmdSay)
+        self.add(MyCmdWhisper)
+        self.add(MyCmdChannel)
+        self.add(MyCmdPage)
+        self.add(MyCmdGet)
+        self.add(MyCmdDrop)
+        self.add(MyCmdGive)
+        self.add(MyCmdPut)
+        self.add(MyCmdNick)
+        self.add(MyCmdPose)
+        self.add(MyCmdLook)
+        self.add(MyCmdMap)
+        self.add(MyCmdAccess)
+        self.add(MyCmdSetDesc)
+
+
+class MyCmdColor(CmdColorTest):
+    help_category = "appearance"
+
+
+class MyCmdQuit(CmdQuit):
+    help_category = "system"
+
+
+class MyCmdSessions(CmdSessions):
+    help_category = "system"
+
+
+class MyCmdStyle(CmdStyle):
+    help_category = "appearance"
+
+
+class MyCmdWho(CmdWho):
+    help_category = "communication"
+
+
+class MyCmdPassword(CmdPassword):
+    help_category = "account"
+
+
+class MyCmdIC(CmdIC):
+    help_category = "account"
+
+
+class MyCmdOOC(CmdOOC):
+    help_category = "account"
+
+
+class MyCmdOption(CmdOption):
+    help_category = "account"

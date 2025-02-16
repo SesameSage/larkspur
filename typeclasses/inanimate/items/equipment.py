@@ -152,21 +152,16 @@ class CmdEquip(MuxCommand):
     Puts on an item of clothing you are holding.
 
     Usage:
-      wear <obj> [=] [wear style]
+      equip <obj> [=] [wear style]
 
     Examples:
-      wear red shirt
-      wear scarf wrapped loosely about the shoulders
-      wear blue hat = at a jaunty angle
-
-    All the clothes you are wearing are appended to your description.
-    If you provide a 'wear style' after the command, the message you
-    provide will be displayed after the clothing's name.
+      equip boots
+      eq sword
     """
 
     key = "equip"
     aliases = ["equ", "eq"]
-    help_category = "equipment"
+    help_category = "items"
 
     def func(self):
         if not self.args:
@@ -212,7 +207,7 @@ class CmdUnequip(MuxCommand):
 
     key = "unequip"
     aliases = ["rem", "remove", "unequ", "uneq"]
-    help_category = "equipment"
+    help_category = "items"
 
     def func(self):
         if not self.args:
@@ -246,6 +241,7 @@ class CmdInventory(MuxCommand):
     aliases = ["inv", "i"]
     locks = "cmd:all()"
     arg_regex = r"$"
+    help_category = "items"
 
     def func(self):
         """check inventory"""

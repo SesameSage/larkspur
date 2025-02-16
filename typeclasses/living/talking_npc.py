@@ -116,7 +116,7 @@ class CmdTalk(default_cmds.MuxCommand):
 
     key = "talk"
     locks = "cmd:all()"
-    help_category = "General"
+    help_category = "communication"
 
     def func(self):
         "Implements the command."

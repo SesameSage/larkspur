@@ -7,8 +7,6 @@ from turnbattle.effects import DamageTypes
 from typeclasses.inanimate.items.usables import Consumable
 from typeclasses.living.char_stats import CharAttrib
 
-# TODO: Command for more info on combat calculations
-
 TURN_TIMEOUT = 30  # Time before turns automatically end, in seconds
 ACTIONS_PER_TURN = 1  # Number of actions allowed per turn
 NONCOMBAT_TURN_TIME = 30  # Time per turn count out of combat
@@ -81,7 +79,7 @@ class BasicCombatRules:
 
         effect = None
         # Add to the roll if the attacker has the "Accuracy Up" condition.
-        if "Accuracy Up" in attacker.db.effects:  # TODO: Rename conditions to effects?
+        if "Accuracy Up" in attacker.db.effects:
             effect = attacker.db.effects["Accuracy Up"]["amount"]
         # Subtract from the roll if the attack has the "Accuracy Down" condition.
         if "Accuracy Down" in attacker.db.effects:
