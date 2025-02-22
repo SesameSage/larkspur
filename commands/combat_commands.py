@@ -92,7 +92,14 @@ class CmdAttack(Command):
         defender = self.caller.search(self.args)
 
         if not defender:  # No valid target given.
-            return
+            valid_targets = []
+            for fighter in attacker.scripts.get("Combat Turn Handler")[0].db.fighters:
+                if fighter is not attacker:
+                    valid_targets.append(fighter)
+            if len(valid_targets) > 1:
+                return
+            else:
+                defender = valid_targets[0]
 
         if not defender.db.hp:  # Target object has no HP left or to begin with
             self.caller.msg("You can't fight that!")
@@ -105,6 +112,37 @@ class CmdAttack(Command):
         "If everything checks out, call the attack resolving function."
         self.rules.resolve_attack(attacker, defender)
         self.rules.spend_action(self.caller, 1, action_name="attack")  # Use up one action.
+
+
+class CmdCast(Command):
+    """"""
+    key = "cast"
+    aliases = ["cas", "ca", "c"]
+    help_category = "combat"
+
+    rules = COMBAT_RULES
+
+    def func(self):
+        args = self.args.split()
+        ability_string = args[0]
+        try:
+            target_string = args[1]
+            target = self.caller.search(target_string)
+            if not target:
+                self.caller.msg("No valid target found for " + target_string)
+        except KeyError:
+            target = None
+
+        valid_castables = []
+        for ability in self.caller.db.abilities:
+            if ability.key.startswith(ability_string):
+                valid_castables.append(ability)
+        if len(valid_castables) == 0:
+            self.caller.msg("No valid abilities found for " + ability_string)
+        elif len(valid_castables) > 1:
+            self.caller.msg("Multiple abilities found for " + ability_string)
+        if 0 < len(valid_castables) < 2:
+            valid_castables[0].cast(caster=self.caller, target=target)
 
 
 class CmdPass(Command):
@@ -309,6 +347,7 @@ class BattleCmdSet(default_cmds.CharacterCmdSet):
         """
         self.add(CmdFight())
         self.add(CmdAttack())
+        self.add(CmdCast())
         self.add(CmdRest())
         self.add(CmdPass())
         self.add(CmdDisengage())
