@@ -7,6 +7,9 @@ from turnbattle.effects import DamageTypes
 from typeclasses.inanimate.items.usables import Consumable
 from typeclasses.living.char_stats import CharAttrib
 
+# TODO: Fighters not defeated properly when killed by effects
+# TODO: Reduce duration effects to 0 remaining on defeat
+
 TURN_TIMEOUT = 30  # Time before turns automatically end, in seconds
 ACTIONS_PER_TURN = 1  # Number of actions allowed per turn
 NONCOMBAT_TURN_TIME = 30  # Time per turn count out of combat

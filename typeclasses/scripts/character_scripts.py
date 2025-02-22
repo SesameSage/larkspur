@@ -4,6 +4,8 @@ from typeclasses.scripts.scripts import Script
 
 class TickCooldowns(Script):
     def at_script_creation(self):
+        self.db.key = "TickCooldowns"
+        self.interval = 1
         self.db.interval = 1
         self.db.incremented_this_turn = False
 
@@ -11,15 +13,17 @@ class TickCooldowns(Script):
         if hasattr(self.obj, "rules") and self.obj.rules.is_in_combat(self.obj):
             if self.obj.rules.is_turn(self.obj):
                 if not self.db.incremented_this_turn:
-                    self.obj.db.cooldowns[self.key] -= EFFECT_SECS_PER_TURN
+                    for ability in self.obj.db.cooldowns:
+                        if self.obj.db.cooldowns[ability] > 0:
+                            self.obj.db.cooldowns[ability] -= EFFECT_SECS_PER_TURN
+                            if self.obj.db.cooldowns[ability] < 0:
+                                self.obj.db.cooldowns[ability] = 0
                     self.db.incremented_this_turn = True
-                    if self.obj.db.cooldowns[self.key] < 0:
-                        self.obj.db.cooldowns[self.key] = 0
             else:
                 self.db.incremented_this_turn = False
-        for cooldown in self.obj.db.cooldowns:
-            if cooldown > 0:
-                self.obj.db.cooldowns[self.key] -= 1
+        for ability in self.obj.db.cooldowns:
+            if self.obj.db.cooldowns[ability] > 0:
+                self.obj.db.cooldowns[ability] -= 1
 
 
 class AutoPass(Script):

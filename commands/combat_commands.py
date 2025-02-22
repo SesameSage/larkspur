@@ -2,6 +2,7 @@ from evennia import Command, default_cmds
 from evennia.commands.default.help import CmdHelp
 from evennia.commands.default.muxcommand import MuxCommand
 
+from server import appearance
 from turnbattle.turn_handler import TurnHandler
 from turnbattle.rules import COMBAT_RULES
 from typeclasses.inanimate.items.usables import Usable, Consumable
@@ -124,13 +125,17 @@ class CmdCast(Command):
 
     def func(self):
         args = self.args.split()
+        if len(args) < 1:
+            self.caller.msg(f"Usage: {appearance.cmd}cast <ability> |n/ {appearance.cmd}cast <ability> <target>")
+            return
         ability_string = args[0]
         try:
             target_string = args[1]
             target = self.caller.search(target_string)
             if not target:
                 self.caller.msg("No valid target found for " + target_string)
-        except KeyError:
+                return
+        except IndexError:
             target = None
 
         valid_castables = []
@@ -139,8 +144,10 @@ class CmdCast(Command):
                 valid_castables.append(ability)
         if len(valid_castables) == 0:
             self.caller.msg("No valid abilities found for " + ability_string)
+            return
         elif len(valid_castables) > 1:
             self.caller.msg("Multiple abilities found for " + ability_string)
+            return
         if 0 < len(valid_castables) < 2:
             valid_castables[0].cast(caster=self.caller, target=target)
 

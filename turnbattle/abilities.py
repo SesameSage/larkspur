@@ -20,11 +20,12 @@ class Ability(Object):
         if self.db.cooldown > 0:
             try:
                 if caster.db.cooldowns[self.key] > 0:
+                    caster.msg(f"{caster.db.cooldowns[self.key]} seconds cooldown remaining to cast {self.key}")
                     return False
             except KeyError:
                 caster.db.cooldowns[self.key] = 0
         if self.db.targeted:
-            if target:
+            if target and target is not None:
                 if self.db.must_target_entity:
                     if inherits_from(target, LivingEntity):
                         return True
@@ -42,6 +43,7 @@ class Ability(Object):
         else:
             if self.db.cooldown > 0:
                 caster.db.cooldowns[self.key] = self.db.cooldown
+                return True
 
 
 class SustainedAbility(Ability):
