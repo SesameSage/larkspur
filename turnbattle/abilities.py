@@ -17,6 +17,12 @@ class Ability(Object):
         self.db.cooldown = 0
 
     def check(self, caster, target):
+        if self.db.cooldown > 0:
+            try:
+                if caster.db.cooldowns[self.key] > 0:
+                    return False
+            except KeyError:
+                caster.db.cooldowns[self.key] = 0
         if self.db.targeted:
             if target:
                 if self.db.must_target_entity:
@@ -33,6 +39,9 @@ class Ability(Object):
     def cast(self, caster: LivingEntity, target: Object = None):
         if not self.check(caster, target):
             return False
+        else:
+            if self.db.cooldown > 0:
+                caster.db.cooldowns[self.key] = self.db.cooldown
 
 
 class SustainedAbility(Ability):
@@ -47,14 +56,14 @@ class Sweep(Ability):
         self.db.targeted = True
         self.db.must_target_entity = True
         self.db.cost = {"stamina": 1}
-        self.db.cooldown = 0
+        self.db.cooldown = 5
 
     def cast(self, caster: LivingEntity, target: Object = None):
         super().cast(caster, target)
         duration = 10
-        # TODO: ints to decimals in effect scripts
-        duration += caster.get_attr(CharAttrib.STRENGTH) * 0.25
-        duration -= target.get_attr(CharAttrib.DEXTERITY) * 0.25
-        target.scripts.add(Knockdown(duration))
+        duration += caster.get_attr(CharAttrib.STRENGTH) * Dec(0.25)
+        duration -= target.get_attr(CharAttrib.DEXTERITY) * Dec(0.25)
+        target.scripts.add(KnockedDown(duration))
+        return True
 
 

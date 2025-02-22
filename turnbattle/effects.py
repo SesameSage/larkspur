@@ -1,3 +1,4 @@
+from decimal import Decimal as Dec
 from enum import Enum
 from random import randint
 
@@ -40,7 +41,7 @@ class EffectScript(Script):
 
 
 class DurationEffect(EffectScript):
-    def __init__(self, effect_key: str, duration: int, *args, **kwargs):
+    def __init__(self, effect_key: str, duration: Dec, *args, **kwargs):
         super().__init__(effect_key=effect_key, *args, **kwargs)
         self.duration = duration
 
@@ -62,7 +63,7 @@ class DurationEffect(EffectScript):
 
 class PerSecEffect(DurationEffect):
 
-    def __init__(self, effect_key: str, duration: int, range: tuple[int, int], *args, **kwargs):
+    def __init__(self, effect_key: str, duration: Dec, range: tuple[int, int], *args, **kwargs):
         super().__init__(effect_key, duration, *args, **kwargs)
         self.range = range
 
@@ -94,7 +95,7 @@ class PerSecEffect(DurationEffect):
 
 
 class Regeneration(PerSecEffect):
-    def __init__(self, stat, range: tuple[int, int], duration: int, *args, **kwargs):
+    def __init__(self, stat, range: tuple[int, int], duration: Dec, *args, **kwargs):
         super().__init__(effect_key=f"{stat.capitalize()} Regeneration", range=range, duration=duration, *args,
                          **kwargs)
         self.stat = stat
@@ -127,7 +128,7 @@ class Regeneration(PerSecEffect):
 
 
 class DamageOverTime(PerSecEffect):
-    def __init__(self, effect_key: str, range: tuple[int, int], duration: int, damage_type: DamageTypes, *args,
+    def __init__(self, effect_key: str, range: tuple[int, int], duration: Dec, damage_type: DamageTypes, *args,
                  **kwargs):
         super().__init__(effect_key=effect_key, range=range, duration=duration, *args, **kwargs)
         self.damage_type = damage_type
@@ -153,7 +154,7 @@ class DamageOverTime(PerSecEffect):
 
 
 class FixedEffectWithDuration(DurationEffect):
-    def __init__(self, effect_key: str, duration: int, *args, **kwargs):
+    def __init__(self, effect_key: str, duration: Dec, *args, **kwargs):
         super().__init__(effect_key=effect_key, duration=duration, *args, **kwargs)
 
     def at_script_creation(self):
@@ -179,17 +180,17 @@ class FixedEffectWithDuration(DurationEffect):
             self.db.seconds_passed += 1
 
 
-class Knockdown(FixedEffectWithDuration):
+class KnockedDown(FixedEffectWithDuration):
     # TODO: Knockdown
-    def __init__(self, duration: int, *args, **kwargs):
-        super().__init__(effect_key="Knockdown", duration=duration, *args, **kwargs)
+    def __init__(self, duration: Dec, *args, **kwargs):
+        super().__init__(effect_key="Knocked Down", duration=duration, *args, **kwargs)
 
     def at_script_creation(self):
         super().at_script_creation()
 
 
 class DamageMod(FixedEffectWithDuration):
-    def __init__(self, effect_key: str, duration: int, damage_type: str, amount: int, *args, **kwargs):
+    def __init__(self, effect_key: str, duration: Dec, damage_type: str, amount: int, *args, **kwargs):
         super().__init__(effect_key=effect_key, duration=duration, *args, **kwargs)
         self.damage_type = damage_type
         self.amount = amount
@@ -200,7 +201,7 @@ class DamageMod(FixedEffectWithDuration):
 
 
 class AccuracyMod(FixedEffectWithDuration):
-    def __init__(self, duration: int, amount: int, *args, **kwargs):
+    def __init__(self, duration: Dec, amount: int, *args, **kwargs):
         if amount >= 0:
             effect_key = "Accuracy Up"
         else:
@@ -210,7 +211,7 @@ class AccuracyMod(FixedEffectWithDuration):
 
 
 class DefenseMod(FixedEffectWithDuration):
-    def __init__(self, duration: int, amount: int, *args, **kwargs):
+    def __init__(self, duration: Dec, amount: int, *args, **kwargs):
         if amount > 0:
             effect_key = "Defense Up"
         else:
@@ -220,7 +221,7 @@ class DefenseMod(FixedEffectWithDuration):
 
 
 class EvasionMod(FixedEffectWithDuration):
-    def __init__(self, duration: int, amount: int, *args, **kwargs):
+    def __init__(self, duration: Dec, amount: int, *args, **kwargs):
         if amount > 0:
             effect_key = "Evasion Up"
         else:

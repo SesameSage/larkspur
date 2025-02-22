@@ -3,7 +3,7 @@ from evennia.utils.evtable import EvTable
 
 from turnbattle.rules import COMBAT_RULES
 from typeclasses.living.char_stats import CharAttrib
-
+from typeclasses.scripts.character_scripts import TickCooldowns
 
 DEXT_TO_EVADE_FACTOR = 2
 
@@ -147,12 +147,18 @@ class TurnBattleEntity(EquipmentEntity):
         self.db.max_mana = 50
         self.db.mana = self.db.max_mana
 
+        self.db.abilities = []
+
         self.db.unarmed_attack = "attack"
         # TODO: Calculate instead of storing these
         self.db.unarmed_damage_range = (5, 15)
         self.db.unarmed_accuracy = 30
 
+        self.db.mods = {}
         self.db.effects = {}  # Set empty dict for conditions
+
+        self.db.cooldowns = {}
+        self.scripts.add(TickCooldowns)
 
         self.db.hostile = False
 
