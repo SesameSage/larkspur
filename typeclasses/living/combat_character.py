@@ -1,6 +1,9 @@
 from evennia import DefaultCharacter
+from evennia.utils import inherits_from
 from evennia.utils.evtable import EvTable
 
+from server import appearance
+from turnbattle.effects import DurationEffect
 from turnbattle.rules import COMBAT_RULES
 from typeclasses.living.char_stats import CharAttrib
 from typeclasses.scripts.character_scripts import TickCooldowns
@@ -315,3 +318,31 @@ class TurnBattleEntity(EquipmentEntity):
 
         self.location.more_info(f"{total_evasion} total evasion ({self.name})")
         return total_evasion
+
+    def apply_damage(self, damages):
+        """
+        Applies damage to a target, reducing their HP by the damage amount to a
+        minimum of 0.
+
+        Args:
+            defender (obj): Character taking damage
+            damages (dict): Types and amounts of damage being taken
+        """
+        # TODO: Effects of different damage types
+        for damage_type in damages:
+            self.db.hp -= damages[damage_type]  # Reduce defender's HP by the damage dealt.
+
+        # If this reduces it to 0 or less, set HP to 0.
+        if self.db.hp <= 0:
+            self.db.hp = 0
+            if hasattr(self, "rules") and self.rules.is_in_combat(self):
+                self.rules.at_defeat(defeated=self)
+            else:
+                self.at_defeat()
+
+    def at_defeat(self):
+        self.location.msg_contents(f"%s{appearance.attention} has been defeated!" % self.get_display_name())
+        for script in self.scripts.all():
+            if inherits_from(script, DurationEffect):
+                script.delete()
+        return True

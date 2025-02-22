@@ -47,10 +47,11 @@ class DurationEffect(EffectScript):
 
     def at_script_creation(self):
         super().at_script_creation()
-        self.db.duration = self.duration
         self.interval = 1
-        self.obj.db.effects[self.db.effect_key]["duration"] = self.db.duration
+        self.db.duration = self.duration
         self.db.seconds_passed = 0
+        self.obj.db.effects[self.db.effect_key]["duration"] = self.db.duration
+        self.obj.db.effects[self.db.effect_key]["seconds passed"] = self.db.seconds_passed
 
     def at_repeat(self, **kwargs):
         if not self.db.duration:
@@ -89,6 +90,7 @@ class PerSecEffect(DurationEffect):
             self.applied_this_turn = False
             self.increment(amount=amount, in_combat=False)
             self.db.seconds_passed += 1
+        self.obj.db.effects[self.db.effect_key]["seconds passed"] = self.db.seconds_passed
 
     def increment(self, amount: int, in_combat=False):
         pass
@@ -144,13 +146,14 @@ class DamageOverTime(PerSecEffect):
         super().at_repeat()
         if self.obj.db.hp < 0:
             self.obj.db.hp = 0
+            self.obj.at_defeat()
 
     def increment(self, amount: int, in_combat=False):
         if in_combat:
             amount = amount * EFFECT_SECS_PER_TURN
             self.obj.location.msg_contents(f"{self.obj.get_display_name()} "
                                            f"takes {amount} damage from {self.db.effect_key}.")
-        self.obj.db.hp -= amount
+        self.obj.apply_damage({self.db.damage_type: amount})
 
 
 class FixedEffectWithDuration(DurationEffect):

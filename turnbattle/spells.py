@@ -26,7 +26,7 @@ class Firebolt(Spell):
 
         if not hasattr(target, "rules") or not target.rules.is_in_combat(target):
             caster.execute_cmd("fight")
-        target.rules.apply_damage(target, {DamageTypes.FIRE: fire_damage})
+        target.apply_damage({DamageTypes.FIRE: fire_damage})
 
         target.scripts.add(DamageOverTime(effect_key="Burning", range=(1, 1),
                                           duration=Dec(10), damage_type=DamageTypes.FIRE))

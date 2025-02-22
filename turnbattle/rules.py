@@ -7,8 +7,7 @@ from turnbattle.effects import DamageTypes
 from typeclasses.inanimate.items.usables import Consumable
 from typeclasses.living.char_stats import CharAttrib
 
-# TODO: Fighters not defeated properly when killed by effects
-# TODO: Reduce duration effects to 0 remaining on defeat
+# TODO: Abilities use actions
 
 TURN_TIMEOUT = 30  # Time before turns automatically end, in seconds
 ACTIONS_PER_TURN = 1  # Number of actions allowed per turn
@@ -152,23 +151,6 @@ class BasicCombatRules:
 
         return damage_values
 
-    def apply_damage(self, defender, damages):
-        """
-        Applies damage to a target, reducing their HP by the damage amount to a
-        minimum of 0.
-
-        Args:
-            defender (obj): Character taking damage
-            damages (dict): Types and amounts of damage being taken
-        """
-        # TODO: Effects of different damage types
-        for damage_type in damages:
-            defender.db.hp -= damages[damage_type]  # Reduce defender's HP by the damage dealt.
-
-        # If this reduces it to 0 or less, set HP to 0.
-        if defender.db.hp <= 0:
-            defender.db.hp = 0
-
     def at_defeat(self, defeated):
         """
         Announces the defeat of a fighter in combat.
@@ -184,8 +166,9 @@ class BasicCombatRules:
         """
         if defeated.db.hp < 0:
             defeated.db.hp = 0
-        defeated.location.msg_contents(f"%s{appearance.attention} has been defeated!" % defeated.get_display_name())
+        defeated.at_defeat()
         defeated.location.scripts.get("Combat Turn Handler")[0].all_defeat_check()
+        return True
 
     def resolve_attack(
             self,
@@ -256,7 +239,7 @@ class BasicCombatRules:
                     attacker.get_display_name(), attackers_weapon, defender.get_display_name())
                 )
 
-            self.apply_damage(defender, damage_values)
+            defender.apply_damage(damage_values)
             # Inflict conditions on hit, if any specified
             for condition in inflict_condition:
                 self.add_condition(defender, attacker, condition[0], condition[1])

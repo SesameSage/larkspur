@@ -173,7 +173,13 @@ class CmdEquip(MuxCommand):
             # check if the whole string is an object
             item_equipping = self.caller.search(self.lhs, candidates=self.caller.contents, quiet=True)
             if not item_equipping:
-                return
+                item_equipping = self.caller.search(self.lhs, candidates=self.caller.location.contents, quiet=True)
+                if item_equipping:
+                    self.caller.execute_cmd("get " + self.lhs)
+                    item_equipping = at_search_result(item_equipping, self.caller, self.lhs)
+                else:
+                    self.caller.msg(f"Can't find '{self.args}'")
+                    return
             else:
                 # pass the result through the search-result hook
                 item_equipping = at_search_result(item_equipping, self.caller, self.lhs)
@@ -181,8 +187,13 @@ class CmdEquip(MuxCommand):
         else:
             # it had an explicit separator - just do a normal search for the lhs
             item_equipping = self.caller.search(self.lhs, candidates=self.caller.contents)
+            if not item_equipping:
+                item_equipping = self.caller.search(self.lhs, candidates=self.caller.location.contents, quiet=True)
+                if item_equipping:
+                    self.caller.excute_cmd("get " + self.lhs)
 
         if not item_equipping:
+            self.caller.msg(f"Can't find '{self.args}'")
             return
         if not item_equipping.db.equipment_slot:
             self.caller.msg(f"{item_equipping.get_display_name().capitalize()} isn't something you can wear.")
