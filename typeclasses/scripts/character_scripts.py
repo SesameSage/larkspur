@@ -10,7 +10,7 @@ class TickCooldowns(Script):
         self.db.incremented_this_turn = False
 
     def at_repeat(self, **kwargs):
-        if hasattr(self.obj, "rules") and self.obj.rules.is_in_combat(self.obj):
+        if self.obj.is_in_combat():
             if self.obj.rules.is_turn(self.obj):
                 if not self.db.incremented_this_turn:
                     for ability in self.obj.db.cooldowns:
@@ -43,8 +43,8 @@ class SimpleAttack(Script):
         self.interval = 5
 
     def at_repeat(self, **kwargs):
-        if hasattr(self.obj, "rules") and self.obj.rules.is_in_combat(self.obj):
-            if self.obj.rules.is_turn(self.obj):
+        if self.obj.is_in_combat():
+            if self.obj.is_turn():
                 for fighter in self.obj.location.scripts.get("Combat Turn Handler")[0].db.fighters:
                     if fighter != self.obj:
                         target = fighter

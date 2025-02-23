@@ -4,6 +4,8 @@ from random import randint
 
 from typeclasses.scripts.scripts import Script
 
+# TODO: Increment effects more precisely on combat turn
+
 EFFECT_SECS_PER_TURN = 5
 
 
@@ -78,8 +80,8 @@ class PerSecEffect(DurationEffect):
         super().at_repeat()
         min, max = self.db.range
         amount = randint(min, max)
-        if hasattr(self.obj, "rules") and self.obj.rules.is_in_combat(self.obj):
-            if self.obj.rules.is_turn(self.obj):
+        if self.obj.is_in_combat():
+            if self.obj.is_turn():
                 if not self.applied_this_turn:
                     self.increment(amount=amount, in_combat=True)
                     self.db.seconds_passed += EFFECT_SECS_PER_TURN
@@ -146,7 +148,6 @@ class DamageOverTime(PerSecEffect):
         super().at_repeat()
         if self.obj.db.hp < 0:
             self.obj.db.hp = 0
-            self.obj.at_defeat()
 
     def increment(self, amount: int, in_combat=False):
         if in_combat:
@@ -172,8 +173,8 @@ class FixedEffectWithDuration(DurationEffect):
         super().at_repeat()
         if not self.db.duration:
             return
-        if hasattr(self.obj, "rules") and self.obj.rules.is_in_combat(self.obj):
-            if self.obj.rules.is_turn(self.obj):
+        if self.obj.is_in_combat():
+            if self.obj.is_turn():
                 if not self.db.incremented_this_turn:
                     self.db.seconds_passed += EFFECT_SECS_PER_TURN
                     self.db.incremented_this_turn = True

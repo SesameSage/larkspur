@@ -243,9 +243,6 @@ class BasicCombatRules:
             # Inflict conditions on hit, if any specified
             for condition in inflict_condition:
                 self.add_condition(defender, attacker, condition[0], condition[1])
-            # If defender HP is reduced to 0 or less, call at_defeat.
-            if defender.db.hp <= 0:
-                self.at_defeat(defender)
 
     def combat_cleanup(self, character):
         """

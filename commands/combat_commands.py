@@ -68,7 +68,7 @@ class CmdAttack(Command):
     """
 
     key = "attack"
-    aliases = ["att", "hit"]
+    aliases = ["att", "at", "hit"]
     help_category = "combat"
 
     rules = COMBAT_RULES
@@ -90,17 +90,21 @@ class CmdAttack(Command):
             return
 
         attacker = self.caller
-        defender = self.caller.search(self.args)
 
-        if not defender:  # No valid target given.
+        if self.args == "":  # No valid target given.
             valid_targets = []
-            for fighter in attacker.scripts.get("Combat Turn Handler")[0].db.fighters:
+            for fighter in attacker.location.scripts.get("Combat Turn Handler")[0].db.fighters:
                 if fighter is not attacker:
                     valid_targets.append(fighter)
             if len(valid_targets) > 1:
                 return
             else:
                 defender = valid_targets[0]
+        else:
+            defender = self.caller.search(self.args)
+            if not defender:
+                self.caller.msg("Can't find " + self.args)
+                return
 
         if not defender.db.hp:  # Target object has no HP left or to begin with
             self.caller.msg("You can't fight that!")
@@ -149,7 +153,9 @@ class CmdCast(Command):
             self.caller.msg("Multiple abilities found for " + ability_string)
             return
         if 0 < len(valid_castables) < 2:
-            valid_castables[0].cast(caster=self.caller, target=target)
+            if valid_castables[0].cast(caster=self.caller, target=target):
+                if self.caller.is_in_combat():
+                    self.caller.rules.spend_action(character=self.caller, actions=1, action_name="cast")
 
 
 class CmdPass(Command):

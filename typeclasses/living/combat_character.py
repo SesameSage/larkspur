@@ -181,6 +181,18 @@ class TurnBattleEntity(EquipmentEntity):
         can be changed at creation and factor into combat calculations.
         """
 
+    def is_in_combat(self):
+        if hasattr(self, "rules") and self.rules.is_in_combat(self):
+            return True
+        else:
+            return False
+
+    def is_turn(self):
+        if hasattr(self, "rules") and self.rules.is_turn(self):
+            return True
+        else:
+            return False
+
     def at_pre_move(self, destination, move_type="move", **kwargs):
         """
         Called just before starting to move this object to
@@ -335,7 +347,7 @@ class TurnBattleEntity(EquipmentEntity):
         # If this reduces it to 0 or less, set HP to 0.
         if self.db.hp <= 0:
             self.db.hp = 0
-            if hasattr(self, "rules") and self.rules.is_in_combat(self):
+            if self.is_in_combat():
                 self.rules.at_defeat(defeated=self)
             else:
                 self.at_defeat()
