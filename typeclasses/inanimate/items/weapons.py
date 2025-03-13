@@ -31,6 +31,14 @@ class MeleeWeapon(Weapon):
     pass
 
 
+class OneHanded(MeleeWeapon):
+    pass
+
+
+class TwoHanded(MeleeWeapon):
+    pass
+
+
 class RangedWeapon(Weapon):
     pass
 
@@ -39,31 +47,35 @@ class MagicWeapon(Weapon):
     pass
 
 
-class Sword(MeleeWeapon):
+class Sword(OneHanded):
     pass
 
 
-class GreatSword(MeleeWeapon):
+class GreatSword(TwoHanded):
     pass
 
 
-class Axe(MeleeWeapon):
+class HandAxe(OneHanded):
     pass
 
 
-class Mace(MeleeWeapon):
+class Mace(OneHanded):
     pass
 
 
-class WarHammer(MeleeWeapon):
+class Warhammer(TwoHanded):
     pass
 
 
-class Dagger(MeleeWeapon):
+class Greataxe(TwoHanded):
     pass
 
 
-class Quarterstaff(MeleeWeapon):
+class Dagger(OneHanded):
+    pass
+
+
+class Quarterstaff(TwoHanded):
     pass
 
 

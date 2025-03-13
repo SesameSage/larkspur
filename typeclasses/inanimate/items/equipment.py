@@ -83,14 +83,14 @@ from server import appearance
 from typeclasses.inanimate.items.items import Item
 
 
-# HELPER FUNCTIONS START HERE
 class Equipment(Item):
 
     def at_object_creation(self):
         super().at_object_creation()
+        self.db.desc = "An equippable item."
         self.db.equipment_slot = None
         self.db.equipped = False
-        self.db.desc = "An equippable item."
+        self.db.required_level = 0
         self.db.equip_effect = None
 
     def equip(self, wearer, quiet=False):
@@ -203,6 +203,11 @@ class CmdEquip(MuxCommand):
             self.caller.msg(f"You're already wearing your {item_equipping.get_display_name()}.")
             return
 
+        if self.caller.db.level < item_equipping.db.required_level:
+            self.caller.msg(f"{item_equipping.get_display_name().capitalize()} requires character level "
+                            f"{item_equipping.db.required_level} ({self.caller.name} is level {self.caller.db.level})")
+            return
+
         item_equipping.equip(self.caller)
 
 
@@ -290,3 +295,5 @@ class EquipmentCharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdEquip())
         self.add(CmdUnequip())
         self.add(CmdInventory())
+
+# TODO: Shields

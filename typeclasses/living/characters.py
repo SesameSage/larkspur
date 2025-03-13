@@ -15,8 +15,12 @@ from typeclasses.inanimate import rooms
 from typeclasses.living.living_entities import *
 from typeclasses.living.talking_npc import TalkableNPC
 
-
 # TODO: Command Stats
+
+XP_THRESHOLDS = {
+    2: 100
+}
+
 
 class Character(LivingEntity):
     """
@@ -173,7 +177,6 @@ class Character(LivingEntity):
 
 
 class PlayerCharacter(Character):
-
     def at_object_creation(self):
         super().at_object_creation()
         self.permissions.add("Player")
@@ -203,6 +206,15 @@ class PlayerCharacter(Character):
         if self.attributes.get("prefs", category="ooc")["more_info"]:
             self.msg(appearance.moreinfo + string)
 
+    def gain_xp(self, amt):
+        self.db.xp += amt
+        self.msg(f"You gain {amt} experience.")
+        if self.db.xp >= XP_THRESHOLDS[(self.db.level + 1)]:
+            self.level_up()
+
+    def level_up(self):
+        pass
+
 
 class NPC(Character, TalkableNPC):
     pass
@@ -210,5 +222,3 @@ class NPC(Character, TalkableNPC):
 
 class EnemyCharacter(NPC, Enemy):
     pass
-
-

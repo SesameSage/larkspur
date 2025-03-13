@@ -46,7 +46,8 @@ BASE_EXIT_TYPECLASS = "typeclasses.inanimate.exits.Exit"
 BASE_SCRIPT_TYPECLASS = "typeclasses.scripts.scripts.Script"
 BASE_CHANNEL_TYPECLASS = "typeclasses.ooc.channels.Channel"
 PROTOTYPE_MODULES = ["world.prototypes.prototypes", "world.prototypes.entity_protos", "world.prototypes.item_protos",
-                     "world.prototypes.weapon_protos", "world.prototypes.consumable_protos", "world.prototypes.armor_protos"]
+                     "world.prototypes.weapon_protos", "world.prototypes.consumable_protos",
+                     "world.prototypes.armor_protos", "world.prototypes.apparel_protos"]
 
 FILE_HELP_ENTRY_MODULES = ["world.help_entries", "turnbattle.help_combat", "typclasses.living.help_characters",
                            "typeclasses.inanimate.items.help_items", "typeclasses.ooc.help_ooc", "turnbattle.help_magic",]

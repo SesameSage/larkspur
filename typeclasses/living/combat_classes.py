@@ -1,47 +1,70 @@
 from typeclasses.scripts.scripts import Script
+from typeclasses.inanimate.items.weapons import *
 
 
 class CombatClass(Script):
 
     def at_script_creation(self):
         self.db.class_desc = ""
-        self.db.weapon_types = []
+        self.db.equipment_types = []
         self.db.ability_tree = None
 
 
 class Templar(CombatClass):
-    pass
+    def at_script_creation(self):
+        super().at_script_creation()
+        self.db.equipment_types = [Sword, GreatSword, HandAxe, Mace]
 
 
 class Warden(CombatClass):
-    pass
+    def at_script_creation(self):
+        super().at_script_creation()
+        self.db.equipment_types = [Javelin, Crossbow]
 
 
-# Beserker?
+class Gladiator(CombatClass):
+    def at_script_creation(self):
+        super().at_script_creation()
+        self.db.equipment_types = [GreatSword, Greataxe, Warhammer]
+
 
 class Monk(CombatClass):
-    pass
+    def at_script_creation(self):
+        super().at_script_creation()
+        self.db.equipment_types = [Dagger, Quarterstaff]
 
 
 class Assassin(CombatClass):
-    pass
+    def at_script_creation(self):
+        super().at_script_creation()
+        self.db.equipment_types = [Sword, HandAxe, Dagger, Blowgun]
 
 
 class Ranger(CombatClass):
-    pass
+    def at_script_creation(self):
+        super().at_script_creation()
+        self.db.equipment_types = [Blowgun, Bow, Crossbow]
 
 
 class Druid(CombatClass):
-    pass
+    def at_script_creation(self):
+        super().at_script_creation()
+        self.db.equipment_types = [Quarterstaff, Blowgun]
 
 
 class Cleric(CombatClass):
-    pass
+    def at_script_creation(self):
+        super().at_script_creation()
+        self.db.equipment_types = [Staff]
 
 
 class Witch(CombatClass):
-    pass
+    def at_script_creation(self):
+        super().at_script_creation()
+        self.db.equipment_types = [Wand]
 
 
 class Sorcerer(CombatClass):
-    pass
+    def at_script_creation(self):
+        super().at_script_creation()
+        self.db.equipment_types = [Staff, Wand]

@@ -3,6 +3,7 @@ from evennia.objects.objects import DefaultRoom
 from typeclasses.base.objects import ObjectParent
 
 
+# TODO: Areas, Regions
 class Room(ObjectParent, DefaultRoom):
     """
     Rooms are like any Object, except their location is None

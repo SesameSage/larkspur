@@ -1,7 +1,7 @@
 from typeclasses.inanimate.items.equipment import Equipment
 
 
-class Armor(Equipment):
+class Apparel(Equipment):
     """
     A set of armor which can be worn with the 'don' command.
     """
@@ -14,6 +14,7 @@ class Armor(Equipment):
         super().at_object_creation()
         self.db.evasion = 0
         self.db.defense = 0
+        self.db.resistance = 0
 
     def at_pre_drop(self, dropper, **kwargs):
         """
@@ -32,7 +33,7 @@ class Armor(Equipment):
             self.unequip(dropper)
         if dropper.db.equipment[self.db.equipment_slot] == self:
             dropper.db.equipmnt[self.db.equipment_slot] = None
-            dropper.location.msg_contents("%s removes %s." % (dropper, self))
+            dropper.location.msg_contents("%s unequips %s." % (dropper, self))
 
     def at_pre_give(self, giver, getter, **kwargs):
         """

@@ -2,6 +2,7 @@ from server import appearance
 from typeclasses.base.objects import Object
 
 
+# TODO: Command identify
 class Item(Object):
 
     def at_object_creation(self):

@@ -31,6 +31,7 @@ class Enemy(LivingEntity):
     def at_object_creation(self):
         super().at_object_creation()
         self.db.hostile = True
+        # TODO: Hostility to specific characters
 
     def get_display_name(self, looker=None, **kwargs):
         return appearance.enemy + super().get_display_name(looker=looker) + "|n"

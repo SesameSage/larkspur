@@ -24,6 +24,7 @@ class EquipmentEntity(DefaultCharacter):
 
         self.db.evasion = 0
         self.db.defense = 0
+        self.db.resistance = 0
 
         self.db.equipment = {
             "primary": None,
@@ -138,17 +139,22 @@ class TurnBattleEntity(EquipmentEntity):
         normal hook to overload for most object types.
         """
         super().at_object_creation()
+        # TODO: Speed?
 
-        self.db.attribs = {CharAttrib.STRENGTH: 0, CharAttrib.CONSTITUTION: 0,
-                           CharAttrib.DEXTERITY: 0, CharAttrib.PERCEPTION: 0, CharAttrib.INTELLIGENCE: 0,
-                           CharAttrib.WISDOM: 0, CharAttrib.SPIRIT: 0}
+        self.db.level = 0
+        # TODO: How to utilize enemy level
+        self.db.attribs = {CharAttrib.STRENGTH: 1, CharAttrib.CONSTITUTION: 1,
+                           CharAttrib.DEXTERITY: 1, CharAttrib.PERCEPTION: 1, CharAttrib.INTELLIGENCE: 1,
+                           CharAttrib.WISDOM: 1, CharAttrib.SPIRIT: 1}
 
+        # TODO: How and when to implement calculations like max HP based on Constitution, max mana, etc
         self.db.max_hp = 100
         self.db.hp = self.db.max_hp
         self.db.max_stamina = 50
         self.db.stamina = self.db.max_stamina
         self.db.max_mana = 50
         self.db.mana = self.db.max_mana
+        # TODO: Regen rates
 
         self.db.abilities = []
 
@@ -358,3 +364,4 @@ class TurnBattleEntity(EquipmentEntity):
             if inherits_from(script, DurationEffect):
                 script.delete()
         return True
+    # TODO: Logic for who to give XP to
