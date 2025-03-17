@@ -12,7 +12,7 @@ class Apparel(Equipment):
         normal hook to overload for most object types.
         """
         super().at_object_creation()
-        self.db.evasion = 0
+        self.db.base_evasion = 0
         self.db.defense = 0
         self.db.resistance = 0
 

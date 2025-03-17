@@ -180,8 +180,11 @@ class PlayerCharacter(Character):
     def at_object_creation(self):
         super().at_object_creation()
         self.permissions.add("Player")
+
         self.db.xp = 0
+        # TODO: Story point and portal key handler
         self.attributes.add(key="prefs", value={"more_info": False}, category="ooc")
+
         self.cmdset.add(PlayerCmdSet, persistent=True)
         self.cmdset.add(RefiledCmdSet, persistent=True)  # Override player cmds where necessary
 

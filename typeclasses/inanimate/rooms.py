@@ -1,5 +1,6 @@
 from evennia.objects.objects import DefaultRoom
 
+from server import appearance
 from typeclasses.base.objects import ObjectParent
 
 
@@ -15,9 +16,17 @@ class Room(ObjectParent, DefaultRoom):
     properties and methods available on all Objects.
     """
 
+    def at_object_creation(self):
+        self.db.area = None
+        self.db.region = None
+        self.db.is_outdoors = True
+
     def more_info(self, string):
         for thing in self.contents:
             try:
                 thing.more_info(string)
             except AttributeError:
                 pass
+
+    def print_ambient(self, string):
+        self.msg_contents(appearance.ambient + string)

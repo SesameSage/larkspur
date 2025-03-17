@@ -8,7 +8,44 @@ from turnbattle.rules import COMBAT_RULES
 from typeclasses.living.char_stats import CharAttrib
 from typeclasses.scripts.character_scripts import TickCooldowns
 
-DEXT_TO_EVADE_FACTOR = 2
+
+MAX_HP_BASE = 100
+LVL_TO_MAXHP = {
+    1: 0,
+    2: 10,
+}
+CON_TO_MAXHP = {
+    1: 0,
+    2: 10,
+}
+MAX_MANA_BASE = 50
+LVL_TO_MAXMANA = {
+    1: 0,
+}
+SPIRIT_TO_MAXMANA = {
+    1: 0,
+    2: 10,
+}
+MAX_STAM_BASE = 50
+LVL_TO_MAXSTAM = {
+    1: 0,
+    2: 5,
+}
+STR_TO_MAXSTAM = {
+    1: 0,
+}
+
+CON_TO_DEFENSE = {
+    1: 0,
+    2: 2,
+}
+DEXT_TO_EVADE = {
+    1: 0,
+    2: 5,
+}
+WIS_TO_RESIST_FACTOR = {
+    1: 0,
+}
 
 
 class EquipmentEntity(DefaultCharacter):
@@ -22,9 +59,9 @@ class EquipmentEntity(DefaultCharacter):
         super().at_object_creation()
         self.permissions.remove("player")
 
-        self.db.evasion = 0
-        self.db.defense = 0
-        self.db.resistance = 0
+        self.db.char_evasion = 0
+        self.db.char_defense = 0
+        self.db.char_resistance = 0
 
         self.db.equipment = {
             "primary": None,
@@ -39,6 +76,11 @@ class EquipmentEntity(DefaultCharacter):
             "legs": None,
             "feet": None
         }
+
+        self.db.unarmed_attack = "attack"
+        # TODO: Calculate instead of storing these
+        self.db.unarmed_damage_range = (5, 15)
+        self.db.unarmed_accuracy = 30
 
     def show_equipment(self, looker=None):
         if not looker:
@@ -148,23 +190,24 @@ class TurnBattleEntity(EquipmentEntity):
                            CharAttrib.WISDOM: 1, CharAttrib.SPIRIT: 1}
 
         # TODO: How and when to implement calculations like max HP based on Constitution, max mana, etc
-        self.db.max_hp = 100
+        # TODO: Stat handler?
+        self.db.max_hp = MAX_HP_BASE
         self.db.hp = self.db.max_hp
-        self.db.max_stamina = 50
+        self.db.hp_regen = 0
+
+        self.db.max_stamina = MAX_STAM_BASE
         self.db.stamina = self.db.max_stamina
-        self.db.max_mana = 50
+        self.db.stamina_regen = 0
+
+        self.db.max_mana = MAX_MANA_BASE
         self.db.mana = self.db.max_mana
+        self.db.mana_regen = 0
         # TODO: Regen rates
 
         self.db.abilities = []
 
-        self.db.unarmed_attack = "attack"
-        # TODO: Calculate instead of storing these
-        self.db.unarmed_damage_range = (5, 15)
-        self.db.unarmed_accuracy = 30
-
         self.db.mods = {}
-        self.db.effects = {}  # Set empty dict for conditions
+        self.db.effects = {}
 
         self.db.cooldowns = {}
         self.scripts.add(TickCooldowns)
@@ -173,19 +216,6 @@ class TurnBattleEntity(EquipmentEntity):
 
         # Subscribe character to the ticker handler
         # tickerhandler.add(NONCOMBAT_TURN_TIME, self.at_update, idstring="update")
-        """
-        Adds attributes for a character's current and maximum HP.
-        We're just going to set this value at '100' by default.
-
-        An empty dictionary is created to store conditions later,
-        and the character is subscribed to the Ticker Handler, which
-        will call at_update() on the character, with the interval
-        specified by NONCOMBAT_TURN_TIME above. This is used to tick
-        down conditions out of combat.
-
-        You may want to expand this to include various 'stats' that
-        can be changed at creation and factor into combat calculations.
-        """
 
     def is_in_combat(self):
         if hasattr(self, "rules") and self.rules.is_in_combat(self):
@@ -282,8 +312,11 @@ class TurnBattleEntity(EquipmentEntity):
 
         return base_attr + effect + eq_bonus
 
+    # TODO: Should other stats be in a get_ function like these, or calculated as in update_stats (faster)?
+    # Defense and evasion can also depend on attacker; max hp and mana may just be changed by spells
+
     def get_defense(self):
-        total_defense = self.db.defense
+        total_defense = self.db.char_defense
         self.location.more_info(f"{total_defense} base defense ({self.name})")
 
         for slot in self.db.equipment:
@@ -306,10 +339,6 @@ class TurnBattleEntity(EquipmentEntity):
 
     def get_evasion(self):
 
-        def base_evasion():
-            dex_ev = self.get_attr(CharAttrib.DEXTERITY) * DEXT_TO_EVADE_FACTOR
-            return dex_ev
-
         def equipment_evasion():
             eq_ev = 0
             for slot in self.db.equipment:
@@ -329,7 +358,7 @@ class TurnBattleEntity(EquipmentEntity):
                 self.location.more_info(f"{"+" if effect > 0 else ""}{effect} evasion from effect ({self.name})")
             return effect
 
-        total_evasion = base_evasion()
+        total_evasion = self.db.char_evasion
         self.location.more_info(f"{total_evasion} base evasion ({self.name})")
         total_evasion += equipment_evasion()
         total_evasion += effect_evasion()
@@ -365,3 +394,12 @@ class TurnBattleEntity(EquipmentEntity):
                 script.delete()
         return True
     # TODO: Logic for who to give XP to
+
+    def update_stats(self):
+        self.db.max_hp = MAX_HP_BASE + LVL_TO_MAXHP[self.db.level] + CON_TO_MAXHP[self.get_attr(CharAttrib.CONSTITUTION)]
+        self.db.max_stamina = MAX_STAM_BASE + LVL_TO_MAXSTAM[self.db.level] + STR_TO_MAXSTAM[self.get_attr(CharAttrib.STRENGTH)]
+        self.db.max_mana = MAX_MANA_BASE + LVL_TO_MAXMANA[self.db.level] + SPIRIT_TO_MAXMANA[self.get_attr(CharAttrib.SPIRIT)]
+
+        self.db.char_defense = CON_TO_DEFENSE[self.get_attr(CharAttrib.CONSTITUTION)]
+        self.db.char_evasion = DEXT_TO_EVADE[self.get_attr(CharAttrib.DEXTERITY)]
+        self.db.char_resistance = WIS_TO_RESIST_FACTOR[self.get_attr(CharAttrib.WISDOM)]
