@@ -1,3 +1,4 @@
+from decimal import Decimal
 from random import randint
 
 from evennia import DefaultCharacter
@@ -6,7 +7,7 @@ from evennia.utils.evtable import EvTable
 from evennia import TICKER_HANDLER as tickerhandler
 
 from server import appearance
-from turnbattle.effects import DurationEffect, PerSecEffect
+from turnbattle.effects import DurationEffect, PerSecEffect, EffectScript
 from turnbattle.rules import COMBAT_RULES
 from typeclasses.living.char_stats import CharAttrib
 from typeclasses.scripts.character_scripts import TickCooldowns
@@ -231,6 +232,12 @@ class TurnBattleEntity(EquipmentEntity):
 
         # Apply conditions that fire at the start of each turn.
 
+    def add_effect(self, effect: EffectScript):
+        # The first value is the remaining turns - the second value is whose turn to count down on.
+        self.scripts.add(effect)
+        # Tell everyone!
+        self.location.msg_contents("%s gains '%s'." % (self, effect.effect_key))
+
     def tick_effects(self):
         if not self.is_in_combat():
             for script in self.scripts.all():
@@ -245,6 +252,8 @@ class TurnBattleEntity(EquipmentEntity):
         for script in self.scripts.all():
             if inherits_from(script, DurationEffect):
                 script.at_tick()
+                script.db.seconds_passed += Decimal(5)
+                self.db.effects[script.db.effect_key]["seconds passed"] = self.db.seconds_passed
                 if inherits_from(script, PerSecEffect):
                     min, max = script.db.range
                     amount = randint(min, max)

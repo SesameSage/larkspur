@@ -50,20 +50,22 @@ class DurationEffect(EffectScript):
     def at_script_creation(self):
         super().at_script_creation()
         self.db.duration = self.duration
-        self.db.seconds_passed = 0
+        self.db.seconds_passed = Dec(0)
         self.obj.db.effects[self.db.effect_key]["duration"] = self.db.duration
-        self.obj.db.effects[self.db.effect_key]["seconds passed"] = self.db.seconds_passed
+        self.obj.db.effects[self.db.effect_key]["seconds passed"] = 0
 
     def at_tick(self, **kwargs):
         if not self.db.duration:
             return
+        if not self.obj.db.effects[self.db.effect_key]["seconds_passed"]:
+            self.obj.db.effects[self.db.effect_key]["seconds_passed"] = 0
         if self.db.seconds_passed > self.db.duration:
             self.obj.location.msg_contents(f"{self.obj.get_display_name()}'s {self.db.effect_key} has worn off.")
             self.delete()
             return
 
         if not self.obj.is_in_combat():
-            self.db.seconds_passed += 1
+            self.db.seconds_passed += Dec(1)
             self.obj.db.effects[self.db.effect_key]["seconds passed"] = self.db.seconds_passed
 
 
@@ -98,7 +100,7 @@ class Regeneration(PerSecEffect):
     def at_script_creation(self):
         super().at_script_creation()
         self.db.stat = self.stat
-        self.key = "Regeneration"
+        self.db.key = "Regeneration"
 
     def increment(self, amount: int, in_combat=False):
         if in_combat:

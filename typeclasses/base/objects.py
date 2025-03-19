@@ -212,7 +212,13 @@ class Object(ObjectParent, DefaultObject):
      at_desc(looker=None)
 
     """
-    pass
+    def get_display_name(self, looker=None, capital=False, **kwargs):
+        name = super().get_display_name(looker, **kwargs)
+        if capital:
+            return name.capitalize()
+        else:
+            return name
+
 
 
 class RespawningObject(Object):

@@ -3,6 +3,7 @@ from random import randint
 from evennia.prototypes.spawner import spawn
 
 from server import appearance
+from turnbattle import effects
 from turnbattle.effects import DamageTypes
 from typeclasses.inanimate.items.usables import Consumable
 from typeclasses.living.char_stats import CharAttrib
@@ -242,7 +243,7 @@ class BasicCombatRules:
             defender.apply_damage(damage_values)
             # Inflict conditions on hit, if any specified
             for condition in inflict_condition:
-                self.add_condition(defender, attacker, condition[0], condition[1])
+                self.add_effect(defender, attacker, condition[0], condition[1])
 
     def combat_cleanup(self, character):
         """
@@ -368,10 +369,15 @@ class BasicCombatRules:
             user.msg("%s can only be used on yourself." % item)
             return
 
+        if item.db.item_notself:
+            if target is user or target is None:
+                user.msg(f"{item.get_display_name} can't be used on yourself. {appearance.cmd}(use <item> = <target>)")
+                return
+
         # Set kwargs to pass to item_func
         kwargs = {}
-        if item.db.item_kwargs:
-            kwargs = item.db.item_kwargs
+        if item.db.kwargs:
+            kwargs = item.db.kwargs
 
         # Match item_func string to function
         try:
@@ -395,55 +401,6 @@ class BasicCombatRules:
         # Spend an action if in combat
         if self.is_in_combat(user):
             self.spend_action(user, 1, action_name="item")
-
-    def condition_tickdown(self, character, turnchar):
-        """
-        Ticks down the duration of conditions on a character at the start of a given character's
-        turn.
-
-        Args:
-            character (obj): Character to tick down the conditions of
-            turnchar (obj): Character whose turn it currently is
-
-        Notes:
-            In combat, this is called on every fighter at the start of every character's turn. Out
-            of combat, it's instead called when a character's at_update() hook is called, which is
-            every 30 seconds by default.
-        """
-
-        for key in character.db.effects:
-            # The first value is the remaining turns - the second value is whose turn to count down
-            # on.
-            condition_duration = character.db.effects[key][0]
-            condition_turnchar = character.db.effects[key][1]
-            # If the duration is 'True', then the condition doesn't tick down - it lasts
-            # indefinitely.
-            if condition_duration is not True:
-                # Count down if the given turn character matches the condition's turn character.
-                if condition_turnchar == turnchar:
-                    character.db.effects[key][0] -= 1
-                if character.db.effects[key][0] <= 0:
-                    # If the duration is brought down to 0, remove the condition and inform
-                    # everyone.
-                    character.location.msg_contents(
-                        "%s no longer has the '%s' condition." % (str(character), str(key))
-                    )
-                    del character.db.effects[key]
-
-    def add_condition(self, character, turnchar, condition, duration):
-        """
-        Adds a condition to a fighter.
-
-        Args:
-            character (obj): Character to give the condition to
-            turnchar (obj): Character whose turn to tick down the condition on in combat
-            condition (str): Name of the condition
-            duration (int or True): Number of turns the condition lasts, or True for indefinite
-        """
-        # The first value is the remaining turns - the second value is whose turn to count down on.
-        character.db.effects.update({condition: [duration, turnchar]})
-        # Tell everyone!
-        character.location.msg_contents("%s gains the '%s' condition." % (character, condition))
 
     # ----------------------------------------------------------------------------
     # ITEM FUNCTIONS START HERE
@@ -500,7 +457,7 @@ class BasicCombatRules:
 
         user.location.msg_contents("%s uses %s! %s regains %i HP!" % (user, item, target, to_heal))
 
-    def itemfunc_add_condition(self, item, user, target, **kwargs):
+    def itemfunc_add_effect(self, item, user, target, **kwargs):
         """
         Item function that gives the target one or more conditions.
 
@@ -512,7 +469,7 @@ class BasicCombatRules:
             Should mostly be used for beneficial conditions - use itemfunc_attack
             for an item that can give an enemy a harmful condition.
         """
-        conditions = [("Regeneration", 5)]
+        item_effects = []
 
         if not target:
             target = user  # Target user if none specified
@@ -522,14 +479,22 @@ class BasicCombatRules:
             return False  # Returning false aborts the item use
 
         # Retrieve condition / duration from kwargs, if present
-        if "conditions" in kwargs:
-            conditions = kwargs["conditions"]
+        if "effects" in kwargs:
+            item_effects = kwargs["effects"]
 
         user.location.msg_contents("%s uses %s!" % (user, item))
 
         # Add conditions to the target
-        for condition in conditions:
-            self.add_condition(target, user, condition[0], condition[1])
+        effect_dict = {}
+        for effect in item_effects:
+            for entry in effect.items():
+                if entry[0] != "script_key":
+                    effect_dict[entry[0]] = entry[1]
+            effect_script = getattr(effects, effect["script_key"])
+            effect_obj = effect_script(**effect_dict)
+            effect_obj.save()
+            effect_obj.at_script_creation()
+            target.add_effect(effect_obj)
 
         return True
 
@@ -632,6 +597,6 @@ COMBAT_RULES = BasicCombatRules()
 ITEMFUNCS = {
     "heal": COMBAT_RULES.itemfunc_heal,
     "attack": COMBAT_RULES.itemfunc_attack,
-    "add_condition": COMBAT_RULES.itemfunc_add_condition,
+    "add_effect": COMBAT_RULES.itemfunc_add_effect,
     "cure_condition": COMBAT_RULES.itemfunc_cure_condition,
 }
