@@ -43,8 +43,10 @@ in your game and using it as-is.
 """
 
 from evennia import DefaultScript
+from evennia.utils import evtable
 
 from server import appearance
+from turnbattle.effects import EFFECT_SECS_PER_TURN
 from turnbattle.rules import COMBAT_RULES, TURN_TIMEOUT, ACTIONS_PER_TURN
 
 """
@@ -224,7 +226,19 @@ class TurnHandler(DefaultScript):
 
         # Prompt the character for their turn and give some information.
         character.msg("|[550|=a~~~~~ YOUR TURN ~~~~~~")
-        character.msg("|wYou have %i HP remaining.|n" % character.db.hp)
+        table = evtable.EvTable()
+        for fighter in self.db.fighters:
+            row = [fighter.get_display_name(capital=True), f"{fighter.db.hp} hp"]
+            effects_str = ""
+            for effect in fighter.db.effects:
+                effects_str = effects_str + f"[{effect}]({(fighter.db.effects[effect]["duration"]
+                                                  - fighter.db.effects[effect]["seconds passed"])
+                                                 // EFFECT_SECS_PER_TURN}) "
+
+            if effects_str != "":
+                row.append(effects_str)
+            table.add_row(*row)
+        character.msg(table)
 
         character.apply_effects()
 
