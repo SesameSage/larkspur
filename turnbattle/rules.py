@@ -1,5 +1,6 @@
 from random import randint
 
+import evennia
 from evennia.prototypes.spawner import spawn
 
 from server import appearance
@@ -485,15 +486,14 @@ class BasicCombatRules:
         user.location.msg_contents("%s uses %s!" % (user, item))
 
         # Add conditions to the target
-        effect_dict = {}
+        attr_list = []
         for effect in item_effects:
             for entry in effect.items():
                 if entry[0] != "script_key":
-                    effect_dict[entry[0]] = entry[1]
+                    attr_list.append(entry)
             effect_script = getattr(effects, effect["script_key"])
-            effect_obj = effect_script(**effect_dict)
-            effect_obj.save()
-            effect_obj.at_script_creation()
+            effect_obj = evennia.create_script(typeclass=effect_script, obj=target, attributes=attr_list)
+            effect_obj.pre_effect_add()
             target.add_effect(effect_obj)
 
         return True

@@ -1,4 +1,3 @@
-from decimal import Decimal
 from random import randint
 
 from evennia import DefaultCharacter
@@ -171,7 +170,7 @@ class TurnBattleEntity(EquipmentEntity):
 
         # Subscribe character to the ticker handler
         # tickerhandler.add(NONCOMBAT_TURN_TIME, self.at_update, idstring="update")
-        tickerhandler.add(1, self.tick_effects, idstring="tick_effects")
+        tickerhandler.add(1, self.at_tick(), idstring="tick_effects")
         """
         Adds attributes for a character's current and maximum HP.
         We're just going to set this value at '100' by default.
@@ -185,6 +184,10 @@ class TurnBattleEntity(EquipmentEntity):
         You may want to expand this to include various 'stats' that
         can be changed at creation and factor into combat calculations.
         """
+
+    def at_tick(self):
+        if not self.is_in_combat():
+            self.apply_effects()
 
     def is_in_combat(self):
         if hasattr(self, "rules") and self.rules.is_in_combat(self):
@@ -233,31 +236,13 @@ class TurnBattleEntity(EquipmentEntity):
         # Apply conditions that fire at the start of each turn.
 
     def add_effect(self, effect: EffectScript):
-        # The first value is the remaining turns - the second value is whose turn to count down on.
         self.scripts.add(effect)
-        # Tell everyone!
-        self.location.msg_contents("%s gains '%s'." % (self, effect.effect_key))
+        self.location.msg_contents("%s gains '%s'." % (self, effect.db.effect_key))
 
-    def tick_effects(self):
-        if not self.is_in_combat():
-            for script in self.scripts.all():
-                if inherits_from(script, DurationEffect):
-                    script.at_tick()
-                    if inherits_from(script, PerSecEffect):
-                        min, max = script.db.range
-                        amount = randint(min, max)
-                        script.increment(amount=amount, in_combat=False)
-
-    def apply_turn_effects(self):
+    def apply_effects(self):
         for script in self.scripts.all():
             if inherits_from(script, DurationEffect):
-                script.at_tick()
-                script.db.seconds_passed += Decimal(5)
-                self.db.effects[script.db.effect_key]["seconds passed"] = self.db.seconds_passed
-                if inherits_from(script, PerSecEffect):
-                    min, max = script.db.range
-                    amount = randint(min, max)
-                    script.increment(amount=amount, in_combat=True)
+                script.apply(in_combat=self.is_in_combat())
 
     def get_attr(self, attribute: CharAttrib):
         base_attr = self.db.attribs[attribute]

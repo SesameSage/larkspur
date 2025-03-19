@@ -13,7 +13,7 @@ POISON_DART = {
                 "script_key": "DamageOverTime",
                 "effect_key": "Poisoned",
                 "range": (1, 1),
-                "duration": Dec(15),
+                "duration": 15,
                 "damage_type": 7
             }
         ]

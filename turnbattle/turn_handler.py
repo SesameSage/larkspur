@@ -226,7 +226,7 @@ class TurnHandler(DefaultScript):
         character.msg("|[550|=a~~~~~ YOUR TURN ~~~~~~")
         character.msg("|wYou have %i HP remaining.|n" % character.db.hp)
 
-        character.apply_turn_effects()
+        character.apply_effects()
 
     def next_turn(self):
         """

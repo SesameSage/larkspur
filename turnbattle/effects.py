@@ -1,4 +1,3 @@
-from decimal import Decimal as Dec
 from enum import Enum
 from random import randint
 
@@ -24,14 +23,9 @@ class DamageTypes(Enum):
             name = name.capitalize()
         return name
 
-
 class EffectScript(Script):
-    def __init__(self, effect_key: str, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.effect_key = effect_key
 
-    def at_script_creation(self):
-        self.db.effect_key = self.effect_key
+    def pre_effect_add(self):
         self.obj.db.effects[self.db.effect_key] = {}
 
     def at_script_delete(self):
@@ -43,73 +37,67 @@ class EffectScript(Script):
 
 
 class DurationEffect(EffectScript):
-    def __init__(self, effect_key: str, duration: Dec, *args, **kwargs):
-        super().__init__(effect_key=effect_key, *args, **kwargs)
-        self.duration = duration
 
-    def at_script_creation(self):
-        super().at_script_creation()
-        self.db.duration = self.duration
-        self.db.seconds_passed = Dec(0)
-        self.obj.db.effects[self.db.effect_key]["duration"] = self.db.duration
-        self.obj.db.effects[self.db.effect_key]["seconds passed"] = 0
-
-    def at_tick(self, **kwargs):
+    def pre_effect_add(self):
+        super().pre_effect_add()
         if not self.db.duration:
-            return
-        if not self.obj.db.effects[self.db.effect_key]["seconds_passed"]:
-            self.obj.db.effects[self.db.effect_key]["seconds_passed"] = 0
-        if self.db.seconds_passed > self.db.duration:
+            self.db.duration = 1
+        self.obj.db.effects[self.db.effect_key]["duration"] = self.db.duration
+        self.db.seconds_passed = 0
+        self.obj.db.effects[self.db.effect_key]["seconds passed"] = self.db.seconds_passed
+
+    def apply(self, in_combat=False):
+        self.add_seconds(in_combat=in_combat)
+
+    def add_seconds(self, in_combat=False):
+        self.db.seconds_passed += (EFFECT_SECS_PER_TURN if in_combat else 1)
+        self.obj.db.effects[self.db.effect_key]["seconds passed"] = self.db.seconds_passed
+
+    def check_duration(self):
+        if self.db.seconds_passed >= self.db.duration:
             self.obj.location.msg_contents(f"{self.obj.get_display_name()}'s {self.db.effect_key} has worn off.")
             self.delete()
-            return
-
-        if not self.obj.is_in_combat():
-            self.db.seconds_passed += Dec(1)
-            self.obj.db.effects[self.db.effect_key]["seconds passed"] = self.db.seconds_passed
 
 
 class PerSecEffect(DurationEffect):
 
-    def __init__(self, effect_key: str, duration: Dec, range: tuple[int, int], *args, **kwargs):
-        super().__init__(effect_key, duration, *args, **kwargs)
-        self.range = range
-
-    def at_script_creation(self):
-        super().at_script_creation()
-        self.db.range = self.range
+    def pre_effect_add(self):
+        super().pre_effect_add()
+        if not self.db.range:
+            self.db.range = (1, 1)
         self.obj.db.effects[self.db.effect_key]["range"] = self.db.range
 
-    def at_tick(self, **kwargs):
-        super().at_tick(**kwargs)
-        if not self.obj.is_in_combat():
-            min, max = self.db.range
-            amount = randint(min, max)
-            self.increment(amount=amount, in_combat=False)
+    def apply(self, in_combat=False):
+        self.increment(amount=self.get_amount(in_combat=in_combat), in_combat=in_combat)
+        self.add_seconds(in_combat=in_combat)
+        self.check_duration()
+
+    def get_amount(self, in_combat=False):
+        min, max = self.db.range
+        amount = randint(min, max)
+        if in_combat:
+            amount = amount * EFFECT_SECS_PER_TURN
+        return amount
 
     def increment(self, amount: int, in_combat=False):
         pass
 
 
 class Regeneration(PerSecEffect):
-    def __init__(self, stat, range: tuple[int, int], duration: Dec, *args, **kwargs):
-        super().__init__(effect_key=f"{stat.capitalize()} Regeneration", range=range, duration=duration, *args,
-                         **kwargs)
-        self.stat = stat
 
-    def at_script_creation(self):
-        super().at_script_creation()
-        self.db.stat = self.stat
-        self.db.key = "Regeneration"
+    def pre_effect_add(self):
+        super().pre_effect_add()
+        if not self.db.stat:
+            self.db.stat = "hp"
+        self.obj.db.effects[self.db.effect_key]["stat"] = self.db.stat
 
     def increment(self, amount: int, in_combat=False):
         if in_combat:
-            amount = amount * EFFECT_SECS_PER_TURN
             self.obj.location.msg_contents(f"{self.obj.get_display_name()} "
-                                           f"recovers {amount} {self.stat} from regeneration.")
+                                           f"recovers {amount} {self.db.stat} from regeneration.")
 
-        match self.stat:
-            case "health":
+        match self.db.stat:
+            case "hp":
                 self.obj.db.hp += amount
                 if self.obj.db.hp > self.obj.db.max_hp:
                     self.obj.db.hp = self.obj.db.max_hp
@@ -124,31 +112,21 @@ class Regeneration(PerSecEffect):
 
 
 class DamageOverTime(PerSecEffect):
-    def __init__(self, effect_key: str, range: tuple[int, int], duration: Dec, damage_type: DamageTypes, *args,
-                 **kwargs):
-        super().__init__(effect_key=effect_key, range=range, duration=duration, *args, **kwargs)
-        self.damage_type = damage_type
 
-    def at_script_creation(self):
-        super().at_script_creation()
-        self.db.damage_type = self.damage_type
-        self.key = "DamageOverTime"
-
-    def at_tick(self, **kwargs):
-        super().at_tick(**kwargs)
-        if self.obj.db.hp < 0:
-            self.obj.db.hp = 0
+    def pre_effect_add(self):
+        super().pre_effect_add()
+        if not self.db.damage_type:
+            self.db.damage_type = DamageTypes.POISON
 
     def increment(self, amount: int, in_combat=False):
         if in_combat:
-            amount = amount * EFFECT_SECS_PER_TURN
             self.obj.location.msg_contents(f"{self.obj.get_display_name()} "
                                            f"takes {amount} damage from {self.db.effect_key}.")
         self.obj.apply_damage({self.db.damage_type: amount})
 
 
 class FixedTimedEffect(DurationEffect):
-    def __init__(self, effect_key: str, duration: Dec, *args, **kwargs):
+    def __init__(self, effect_key: str, duration: int, *args, **kwargs):
         super().__init__(effect_key=effect_key, duration=duration, *args, **kwargs)
 
     def at_script_creation(self):
@@ -160,7 +138,7 @@ class FixedTimedEffect(DurationEffect):
 
 class KnockedDown(FixedTimedEffect):
     # TODO: Knockdown
-    def __init__(self, duration: Dec, *args, **kwargs):
+    def __init__(self, duration: int, *args, **kwargs):
         super().__init__(effect_key="Knocked Down", duration=duration, *args, **kwargs)
 
     def at_script_creation(self):
@@ -168,7 +146,7 @@ class KnockedDown(FixedTimedEffect):
 
 
 class DamageMod(FixedTimedEffect):
-    def __init__(self, effect_key: str, duration: Dec, damage_type: str, amount: int, *args, **kwargs):
+    def __init__(self, effect_key: str, duration: int, damage_type: str, amount: int, *args, **kwargs):
         super().__init__(effect_key=effect_key, duration=duration, *args, **kwargs)
         self.damage_type = damage_type
         self.amount = amount
@@ -179,7 +157,7 @@ class DamageMod(FixedTimedEffect):
 
 
 class AccuracyMod(FixedTimedEffect):
-    def __init__(self, duration: Dec, amount: int, *args, **kwargs):
+    def __init__(self, duration: int, amount: int, *args, **kwargs):
         if amount >= 0:
             effect_key = "Accuracy Up"
         else:
@@ -189,7 +167,7 @@ class AccuracyMod(FixedTimedEffect):
 
 
 class DefenseMod(FixedTimedEffect):
-    def __init__(self, duration: Dec, amount: int, *args, **kwargs):
+    def __init__(self, duration: int, amount: int, *args, **kwargs):
         if amount > 0:
             effect_key = "Defense Up"
         else:
@@ -199,7 +177,7 @@ class DefenseMod(FixedTimedEffect):
 
 
 class EvasionMod(FixedTimedEffect):
-    def __init__(self, duration: Dec, amount: int, *args, **kwargs):
+    def __init__(self, duration: int, amount: int, *args, **kwargs):
         if amount > 0:
             effect_key = "Evasion Up"
         else:
