@@ -6,7 +6,6 @@ POISON_DART = {
     "item_uses": 1,
     "item_kwargs": {
         "damage_range": (5, 10),
-        "accuracy": 25,
-        "inflict_condition": [("Poisoned", 10)],
+        "accuracy": 25
     },
 }

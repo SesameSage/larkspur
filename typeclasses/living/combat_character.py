@@ -1,9 +1,12 @@
+from random import randint
+
 from evennia import DefaultCharacter
 from evennia.utils import inherits_from
 from evennia.utils.evtable import EvTable
+from evennia import TICKER_HANDLER as tickerhandler
 
 from server import appearance
-from turnbattle.effects import DurationEffect
+from turnbattle.effects import DurationEffect, PerSecEffect
 from turnbattle.rules import COMBAT_RULES
 from typeclasses.living.char_stats import CharAttrib
 from typeclasses.scripts.character_scripts import TickCooldowns
@@ -167,6 +170,7 @@ class TurnBattleEntity(EquipmentEntity):
 
         # Subscribe character to the ticker handler
         # tickerhandler.add(NONCOMBAT_TURN_TIME, self.at_update, idstring="update")
+        tickerhandler.add(1, self.tick_effects, idstring="tick_effects")
         """
         Adds attributes for a character's current and maximum HP.
         We're just going to set this value at '100' by default.
@@ -227,38 +231,24 @@ class TurnBattleEntity(EquipmentEntity):
 
         # Apply conditions that fire at the start of each turn.
 
-    def apply_turn_conditions(self):
-        """
-        Applies the effect of conditions that occur at the start of each
-        turn in combat, or every 30 seconds out of combat.
-        """
-        # Regeneration: restores 4 to 8 HP at the start of character's turn
-        """if "Regeneration" in self.db.effects:
-            to_heal = randint(REGEN_RATE[0], REGEN_RATE[1])  # Restore HP
-            if self.db.hp + to_heal > self.db.max_hp:
-                to_heal = self.db.max_hp - self.db.hp  # Cap healing to max HP
-            self.db.hp += to_heal
-            self.location.msg_contents("%s regains %i HP from Regeneration." % (self, to_heal))
+    def tick_effects(self):
+        if not self.is_in_combat():
+            for script in self.scripts.all():
+                if inherits_from(script, DurationEffect):
+                    script.at_tick()
+                    if inherits_from(script, PerSecEffect):
+                        min, max = script.db.range
+                        amount = randint(min, max)
+                        script.increment(amount=amount, in_combat=False)
 
-        # Poisoned: does 4 to 8 damage at the start of character's turn
-        if "Poisoned" in self.db.effects:
-            to_hurt = randint(POISON_RATE[0], POISON_RATE[1])  # Deal damage
-            self.rules.apply_damage(self, to_hurt)
-            self.location.msg_contents("%s takes %i damage from being Poisoned." % (self, to_hurt))
-            if self.db.hp <= 0:
-                # Call at_defeat if poison defeats the character
-                self.rules.at_defeat(self)
-
-        # Haste: Gain an extra action in combat.
-        if self.rules.is_in_combat(self) and "Haste" in self.db.effects:
-            self.db.combat_actionsleft += 1
-            self.msg("You gain an extra action this turn from Haste!")
-
-        # Paralyzed: Have no actions in combat.
-        if self.rules.is_in_combat(self) and "Paralyzed" in self.db.effects:
-            self.db.combat_actionsleft = 0
-            self.location.msg_contents("%s is Paralyzed, and can't act this turn!" % self)
-            self.db.combat_turnhandler.turn_end_check(self)"""
+    def apply_turn_effects(self):
+        for script in self.scripts.all():
+            if inherits_from(script, DurationEffect):
+                script.at_tick()
+                if inherits_from(script, PerSecEffect):
+                    min, max = script.db.range
+                    amount = randint(min, max)
+                    script.increment(amount=amount, in_combat=True)
 
     def get_attr(self, attribute: CharAttrib):
         base_attr = self.db.attribs[attribute]

@@ -206,7 +206,6 @@ class TurnHandler(DefaultScript):
             separated for movement, by adding "character.db.combat_movesleft = 3" or
             something similar.
         """
-        #character.apply_turn_conditions()
 
         if not self.id:
             return
@@ -226,6 +225,8 @@ class TurnHandler(DefaultScript):
         # Prompt the character for their turn and give some information.
         character.msg("|[550|=a~~~~~ YOUR TURN ~~~~~~")
         character.msg("|wYou have %i HP remaining.|n" % character.db.hp)
+
+        character.apply_turn_effects()
 
     def next_turn(self):
         """

@@ -40,7 +40,7 @@ class AutoPass(Script):
 class SimpleAttack(Script):
     def at_script_creation(self):
         self.key = "SimpleAttack"
-        self.interval = 5
+        self.interval = 10
 
     def at_repeat(self, **kwargs):
         if self.obj.is_in_combat():
