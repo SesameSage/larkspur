@@ -78,7 +78,6 @@ class EquipmentEntity(DefaultCharacter):
         }
 
         self.db.unarmed_attack = "attack"
-        # TODO: Calculate instead of storing these
         self.db.unarmed_damage_range = (5, 15)
         self.db.unarmed_accuracy = 30
 

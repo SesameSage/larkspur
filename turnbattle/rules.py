@@ -74,7 +74,7 @@ class BasicCombatRules:
             accuracy_bonus += weapon.db.accuracy_bonus
             attacker.location.more_info(f"+{accuracy_bonus} accuracy from {weapon.name} ({attacker.name})")
         # If unarmed, use character's unarmed accuracy bonus.
-        """else:
+        else:
             accuracy_bonus += attacker.db.unarmed_accuracy
         # Add the accuracy bonus to the attack roll."""
         attack_value += accuracy_bonus

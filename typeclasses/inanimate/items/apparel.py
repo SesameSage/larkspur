@@ -51,3 +51,9 @@ class Apparel(Equipment):
         if giver.db.worn_armor == self:
             giver.db.worn_armor = None
             giver.location.msg_contents("%s removes %s." % (giver, self))
+
+
+class Shield(Apparel):
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.equipment_slot = "secondary"

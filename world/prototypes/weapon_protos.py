@@ -2,7 +2,8 @@ from turnbattle.effects import DamageTypes
 
 TRAINING_WEAPON = {
     "desc": "Simplified, flimsy, and poorly balanced, but effective for learning one's way around a weapon type.",
-    "accuracy_bonus": 10
+    "accuracy_bonus": 10,
+    "required_level": 0
 }
 
 TRAINING_QUARTERSTAFF = {

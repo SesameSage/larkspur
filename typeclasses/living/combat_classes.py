@@ -1,3 +1,4 @@
+from typeclasses.inanimate.items.apparel import Shield
 from typeclasses.scripts.scripts import Script
 from typeclasses.inanimate.items.weapons import *
 
@@ -13,19 +14,19 @@ class CombatClass(Script):
 class Templar(CombatClass):
     def at_script_creation(self):
         super().at_script_creation()
-        self.db.equipment_types = [Sword, GreatSword, HandAxe, Mace]
+        self.db.equipment_types = [Shield, Sword, GreatSword, HandAxe, Mace]
 
 
 class Warden(CombatClass):
     def at_script_creation(self):
         super().at_script_creation()
-        self.db.equipment_types = [Javelin, Crossbow]
+        self.db.equipment_types = [Shield, Javelin, Crossbow]
 
 
 class Gladiator(CombatClass):
     def at_script_creation(self):
         super().at_script_creation()
-        self.db.equipment_types = [GreatSword, Greataxe, Warhammer]
+        self.db.equipment_types = [Shield, GreatSword, Greataxe, Warhammer]
 
 
 class Monk(CombatClass):

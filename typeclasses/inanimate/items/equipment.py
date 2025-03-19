@@ -295,5 +295,3 @@ class EquipmentCharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdEquip())
         self.add(CmdUnequip())
         self.add(CmdInventory())
-
-# TODO: Shields
