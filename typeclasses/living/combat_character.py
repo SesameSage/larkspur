@@ -1,5 +1,4 @@
-from random import randint
-
+import evennia
 from evennia import DefaultCharacter
 from evennia.utils import inherits_from
 from evennia.utils.evtable import EvTable
@@ -170,7 +169,7 @@ class TurnBattleEntity(EquipmentEntity):
 
         # Subscribe character to the ticker handler
         # tickerhandler.add(NONCOMBAT_TURN_TIME, self.at_update, idstring="update")
-        tickerhandler.add(1, self.at_tick(), idstring="tick_effects")
+        tickerhandler.add(1, self.at_tick, idstring="tick_effects")
         """
         Adds attributes for a character's current and maximum HP.
         We're just going to set this value at '100' by default.
@@ -235,9 +234,27 @@ class TurnBattleEntity(EquipmentEntity):
 
         # Apply conditions that fire at the start of each turn.
 
-    def add_effect(self, effect: EffectScript):
-        self.scripts.add(effect)
-        self.location.msg_contents("%s gains '%s'." % (self, effect.db.effect_key))
+    def effect_active(self, effect_key, duration_for_reset=0):
+        for script in self.scripts.all():
+            if script.db.effect_key == effect_key:
+                if isinstance(script, DurationEffect):
+                    script.reset_seconds(duration_for_reset)
+                return True
+        return False
+
+    def add_effect(self, typeclass, attributes):
+        for attribute in attributes:
+            if attribute[0] == "effect_key":
+                effect_key = attribute[1]
+            elif attribute[0] == "duration":
+                duration = attribute[1]
+
+        if self.effect_active(effect_key, duration):
+            self.location.msg_contents("%s regains %s." % (self.get_display_name(), effect_key))
+            return
+        effect = evennia.create_script(typeclass=typeclass, obj=self, attributes=attributes)
+        effect.pre_effect_add()
+        self.location.msg_contents("%s gains %s." % (self.get_display_name(), effect_key))
 
     def apply_effects(self):
         for script in self.scripts.all():

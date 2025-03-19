@@ -3,7 +3,7 @@ story = "|245"
 hint = "|220"
 notify = "|530"
 attention = "|550"
-warning = "|400"
+warning = "|[100|500"
 moreinfo = "|=g"
 
 say = "|553"

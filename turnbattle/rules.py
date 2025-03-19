@@ -342,7 +342,7 @@ class BasicCombatRules:
             else:  # If item is consumable
                 # If the value is 'True', just destroy the item
                 if isinstance(item, Consumable):
-                    user.msg("%s has been consumed." % item.key.capitalize())
+                    user.msg("%s has been consumed." % item.get_display_name(capital=True))
                     item.delete()  # Delete the spent item
 
                 else:  # If a string, use value of item_consumable to spawn an object in its place
@@ -483,7 +483,7 @@ class BasicCombatRules:
         if "effects" in kwargs:
             item_effects = kwargs["effects"]
 
-        user.location.msg_contents("%s uses %s!" % (user, item))
+        user.location.msg_contents("%s uses %s!" % (user, item.get_display_name()))
 
         # Add conditions to the target
         attr_list = []
@@ -492,9 +492,7 @@ class BasicCombatRules:
                 if entry[0] != "script_key":
                     attr_list.append(entry)
             effect_script = getattr(effects, effect["script_key"])
-            effect_obj = evennia.create_script(typeclass=effect_script, obj=target, attributes=attr_list)
-            effect_obj.pre_effect_add()
-            target.add_effect(effect_obj)
+            target.add_effect(typeclass=effect_script, attributes=attr_list)
 
         return True
 

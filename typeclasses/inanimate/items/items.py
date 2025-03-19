@@ -10,8 +10,11 @@ class Item(Object):
         self.db.weight = 0.0
         self.db.avg_value = 0.0
 
-    def get_display_name(self, looker=None, **kwargs):
-        return appearance.item + self.name + "|n"
+    def get_display_name(self, looker=None, capital=False, **kwargs):
+        name = self.name
+        if capital:
+            name = name.capitalize()
+        return appearance.item + name + "|n"
 
 
 class LightItem(Item):

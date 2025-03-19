@@ -23,6 +23,7 @@ class DamageTypes(Enum):
             name = name.capitalize()
         return name
 
+
 class EffectScript(Script):
 
     def pre_effect_add(self):
@@ -34,6 +35,9 @@ class EffectScript(Script):
         except KeyError:
             pass
         return True
+
+    def reset_seconds(self, duration):
+        pass
 
 
 class DurationEffect(EffectScript):
@@ -51,6 +55,12 @@ class DurationEffect(EffectScript):
 
     def add_seconds(self, in_combat=False):
         self.db.seconds_passed += (EFFECT_SECS_PER_TURN if in_combat else 1)
+        self.obj.db.effects[self.db.effect_key]["seconds passed"] = self.db.seconds_passed
+
+    def reset_seconds(self, duration):
+        self.db.seconds_passed = 0
+        if duration > self.db.duration:
+            self.db.duration = duration
         self.obj.db.effects[self.db.effect_key]["seconds passed"] = self.db.seconds_passed
 
     def check_duration(self):
