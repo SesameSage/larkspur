@@ -188,7 +188,7 @@ class TurnBattleEntity(EquipmentEntity):
                            CharAttrib.DEXTERITY: 1, CharAttrib.PERCEPTION: 1, CharAttrib.INTELLIGENCE: 1,
                            CharAttrib.WISDOM: 1, CharAttrib.SPIRIT: 1}
 
-        # TODO: How and when to implement calculations like max HP based on Constitution, max mana, etc
+        # TODO: When to implement calculations like max HP based on Constitution, max mana, etc
         # TODO: Stat handler?
         self.db.max_hp = MAX_HP_BASE
         self.db.hp = self.db.max_hp
@@ -215,6 +215,8 @@ class TurnBattleEntity(EquipmentEntity):
 
         # Subscribe character to the ticker handler
         # tickerhandler.add(NONCOMBAT_TURN_TIME, self.at_update, idstring="update")
+
+        self.update_stats()
 
     def is_in_combat(self):
         if hasattr(self, "rules") and self.rules.is_in_combat(self):
@@ -391,6 +393,7 @@ class TurnBattleEntity(EquipmentEntity):
         for script in self.scripts.all():
             if inherits_from(script, DurationEffect):
                 script.delete()
+        self.update_stats()
         return True
     # TODO: Logic for who to give XP to
 

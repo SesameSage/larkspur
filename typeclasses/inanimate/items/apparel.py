@@ -25,16 +25,6 @@ class Apparel(Equipment):
             return False
         return True
 
-    def at_drop(self, dropper, **kwargs):
-        """
-        Stop being wielded if dropped.
-        """
-        if self.db.equipped:
-            self.unequip(dropper)
-        if dropper.db.equipment[self.db.equipment_slot] == self:
-            dropper.db.equipmnt[self.db.equipment_slot] = None
-            dropper.location.msg_contents("%s unequips %s." % (dropper, self))
-
     def at_pre_give(self, giver, getter, **kwargs):
         """
         Can't give away in combat.
@@ -43,14 +33,6 @@ class Apparel(Equipment):
             giver.msg("You can't doff armor in a fight!")
             return False
         return True
-
-    def at_give(self, giver, getter, **kwargs):
-        """
-        Stop being worn if given.
-        """
-        if giver.db.worn_armor == self:
-            giver.db.worn_armor = None
-            giver.location.msg_contents("%s removes %s." % (giver, self))
 
 
 class Shield(Apparel):

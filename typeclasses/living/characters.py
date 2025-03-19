@@ -216,7 +216,7 @@ class PlayerCharacter(Character):
             self.level_up()
 
     def level_up(self):
-        pass
+        self.update_stats()
 
 
 class NPC(Character, TalkableNPC):

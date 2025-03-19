@@ -7,8 +7,6 @@ from turnbattle.effects import DamageTypes
 from typeclasses.inanimate.items.usables import Consumable
 from typeclasses.living.char_stats import CharAttrib
 
-# TODO: Abilities use actions
-
 TURN_TIMEOUT = 30  # Time before turns automatically end, in seconds
 ACTIONS_PER_TURN = 1  # Number of actions allowed per turn
 NONCOMBAT_TURN_TIME = 30  # Time per turn count out of combat

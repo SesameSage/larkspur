@@ -145,6 +145,24 @@ class Equipment(Item):
         else:
             return False
 
+    def at_drop(self, dropper, **kwargs):
+        """
+        Stop being wielded if dropped.
+        """
+        if self.db.equipped:
+            self.unequip(dropper)
+        if dropper.db.equipment[self.db.equipment_slot] == self:
+            dropper.db.equipmnt[self.db.equipment_slot] = None
+            dropper.location.msg_contents("%s unequips %s." % (dropper, self))
+
+    def at_give(self, giver, getter, **kwargs):
+        """
+        Stop being worn if given.
+        """
+        if giver.db.equipment[self.db.equipment_slot] == self:
+            giver.db.equipmnt[self.db.equipment_slot] = None
+            giver.location.msg_contents("%s unequips %s." % (giver, self))
+
 
 # COMMANDS START HERE
 
@@ -209,6 +227,7 @@ class CmdEquip(MuxCommand):
             return
 
         item_equipping.equip(self.caller)
+        self.caller.update_stats()
 
 
 class CmdUnequip(MuxCommand):
@@ -239,6 +258,7 @@ class CmdUnequip(MuxCommand):
             self.caller.msg(f"You're not wearing {clothing.get_display_name()}!")
             return
         clothing.unequip(self.caller)
+        self.caller.update_stats()
 
 
 class CmdInventory(MuxCommand):
