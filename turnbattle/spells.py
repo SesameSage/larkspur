@@ -29,6 +29,6 @@ class Firebolt(Spell):
         target.apply_damage({DamageTypes.FIRE: fire_damage})
 
         target.scripts.add(DamageOverTime(effect_key="Burning", range=(1, 1),
-                                          duration=Dec(10), damage_type=DamageTypes.FIRE))
+                                          duration=10, damage_type=DamageTypes.FIRE))
         return True
 

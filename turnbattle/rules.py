@@ -2,10 +2,11 @@ from random import randint
 
 import evennia
 from evennia.prototypes.spawner import spawn
+from evennia.utils import inherits_from
 
 from server import appearance
 from turnbattle import effects
-from turnbattle.effects import DamageTypes
+from turnbattle.effects import DamageTypes, EffectScript
 from typeclasses.inanimate.items.usables import Consumable
 from typeclasses.living.char_stats import CharAttrib
 
@@ -121,7 +122,8 @@ class BasicCombatRules:
                 # Roll between minimum and maximum damage
                 values = weapon.db.damage_ranges[damage_type]
                 damage_values[damage_type] = randint(values[0], values[1])
-                attacker.location.more_info(f"+{damage_values[damage_type]} {damage_type.get_display_name()} damage from {weapon.name} ({attacker.name})")
+                attacker.location.more_info(
+                    f"+{damage_values[damage_type]} {damage_type.get_display_name()} damage from {weapon.name} ({attacker.name})")
                 # Make sure minimum damage is 0
                 if damage_values[damage_type] < 0:
                     damage_values[damage_type] = 0
@@ -134,7 +136,7 @@ class BasicCombatRules:
 
         attacker.location.more_info(f"Damage roll ({attacker.name}):")
         attacker.location.more_info(str([f"{damage_type.get_display_name()}: {damage_values[damage_type]}"
-                                     for damage_type in damage_values]))
+                                         for damage_type in damage_values]))
 
         if "Damage Up" in attacker.db.effects:
             damage_boost = attacker.db.effects["Damage Up"]["amount"]
@@ -222,7 +224,7 @@ class BasicCombatRules:
             damage_values = {key: value for key, value in damage_values.items() if value > 0}
             # Announce damage dealt and apply damage.
             msg = "%s's %s strikes %s for " % (
-            attacker.get_display_name(), attackers_weapon, defender.get_display_name())
+                attacker.get_display_name(), attackers_weapon, defender.get_display_name())
             dmg_color = appearance.good_damage if defender.db.hostile else appearance.bad_damage
             if bool(damage_values):  # If any damages are > 0
                 for i, damage_type in enumerate(damage_values):
@@ -238,7 +240,7 @@ class BasicCombatRules:
             else:
                 attacker.location.msg_contents(
                     "%s's %s bounces harmlessly off %s!" % (
-                    attacker.get_display_name(), attackers_weapon, defender.get_display_name())
+                        attacker.get_display_name(), attackers_weapon, defender.get_display_name())
                 )
 
             defender.apply_damage(damage_values)
@@ -372,7 +374,8 @@ class BasicCombatRules:
 
         if item.db.item_notself:
             if target is user or target is None:
-                user.msg(f"{item.get_display_name} can't be used on yourself. {appearance.cmd}(use <item> = <target>)")
+                user.msg(
+                    f"{item.get_display_name()} can't be used on yourself. {appearance.cmd}(use <item> = <target>)")
                 return
 
         # Set kwargs to pass to item_func
@@ -443,27 +446,25 @@ class BasicCombatRules:
             user.msg("%s is already at full health." % target)
             return False
 
-        min_healing = 20
-        max_healing = 40
-
         # Retrieve healing range from kwargs, if present
-        if "healing_range" in kwargs:
-            min_healing = kwargs["healing_range"][0]
-            max_healing = kwargs["healing_range"][1]
+        if "heal_range" in kwargs:
+            min_healing = kwargs["heal_range"][0]
+            max_healing = kwargs["heal_range"][1]
 
-        to_heal = randint(min_healing, max_healing)  # Restore 20 to 40 hp
-        if target.db.hp + to_heal > target.db.max_hp:
-            to_heal = target.db.max_hp - target.db.hp  # Cap healing to max HP
-        target.db.hp += to_heal
+        amt_to_heal = randint(min_healing, max_healing)
+        if target.db.hp + amt_to_heal > target.db.max_hp:
+            amt_to_heal = target.db.max_hp - target.db.hp  # Cap healing to max HP
+        target.db.hp += amt_to_heal
 
-        user.location.msg_contents("%s uses %s! %s regains %i HP!" % (user, item, target, to_heal))
+        user.location.msg_contents(
+            "%s uses %s! %s regains %i HP!" % (user, item.get_display_name(), target, amt_to_heal))
 
     def itemfunc_add_effect(self, item, user, target, **kwargs):
         """
         Item function that gives the target one or more conditions.
 
         kwargs:
-            conditions (list): Conditions added by the item
+            effects (list): Conditions added by the item
                formatted as a list of tuples: (condition (str), duration (int or True))
 
         Notes:
@@ -494,37 +495,25 @@ class BasicCombatRules:
             effect_script = getattr(effects, effect["script_key"])
             target.add_effect(typeclass=effect_script, attributes=attr_list)
 
-        return True
-
     def itemfunc_cure_condition(self, item, user, target, **kwargs):
-        """
-        Item function that'll remove given conditions from a target.
-
-        kwargs:
-            to_cure(list): List of conditions (str) that the item cures when used
-        """
-        to_cure = ["Poisoned"]
-
         if not target:
             target = user  # Target user if none specified
 
         if not target.attributes.has("max_hp"):  # Is not a fighter
-            user.msg("You can't use %s on that." % item)
+            user.msg("You can't use %s on that." % item.get_display_name())
             return False  # Returning false aborts the item use
 
-        # Retrieve condition(s) to cure from kwargs, if present
-        if "to_cure" in kwargs:
-            to_cure = kwargs["to_cure"]
+        if "effects_cured" in kwargs:
+            effects_cured = kwargs["effects_cured"]
 
-        item_msg = "%s uses %s! " % (user, item)
+        user.location.msg_contents("%s uses %s! " % (user, item.get_display_name()))
 
-        for key in target.db.effects:
-            if key in to_cure:
-                # If condition specified in to_cure, remove it.
-                item_msg += "%s no longer has the '%s' condition. " % (str(target), str(key))
-                del target.db.effects[key]
-
-        user.location.msg_contents(item_msg)
+        for script in target.scripts.all():
+            if inherits_from(script, EffectScript):
+                effect_key = script.db.effect_key
+                if effect_key in effects_cured:
+                    script.delete()
+                    user.location.msg_contents(f"{target} is no longer {effect_key}.")
 
     def itemfunc_attack(self, item, user, target, **kwargs):
         """
@@ -534,7 +523,7 @@ class BasicCombatRules:
             min_damage(int): Minimum damage dealt by the attack
             max_damage(int): Maximum damage dealth by the attack
             accuracy(int): Bonus / penalty to attack accuracy roll
-            inflict_condition(list): List of conditions inflicted on hit,
+            effects_inflicted(list): List of conditions inflicted on hit,
                 formatted as a (str, int) tuple containing condition name
                 and duration.
 
@@ -557,23 +546,29 @@ class BasicCombatRules:
             user.msg("You can't use %s on that." % item)
             return False
 
-        min_damage = 20
-        max_damage = 40
+        damage_ranges = {}
         accuracy = 0
-        inflict_condition = []
+        effects_inflicted = []
 
         # Retrieve values from kwargs, if present
-        if "damage_range" in kwargs:
-            min_damage = kwargs["damage_range"][0]
-            max_damage = kwargs["damage_range"][1]
+        if "damage_ranges" in kwargs:
+            for type_name in kwargs:
+                try:
+                    damage_type = DamageTypes[type_name]
+                except KeyError:
+                    user.msg(appearance.warning + "No damage type matching for " + type_name)
+                    return
+                damage_ranges[damage_type] = kwargs["damage_ranges"][type_name]
+
         if "accuracy" in kwargs:
             accuracy = kwargs["accuracy"]
-        if "inflict_condition" in kwargs:
-            inflict_condition = kwargs["inflict_condition"]
+        # if "effects_inflicted" in kwargs:
+        #     effects_inflicted = kwargs["effects_inflicted"]
 
         # Roll attack and damage
         attack_value = randint(1, 100) + accuracy
-        damage_value = randint(min_damage, max_damage)
+        # TODO: Itemfunc Attack
+
 
         # Account for "Accuracy Up" and "Accuracy Down" conditions
         if "Accuracy Up" in user.db.effects:
@@ -586,8 +581,8 @@ class BasicCombatRules:
             user,
             target,
             attack_value=attack_value,
-            damage_values=damage_value,
-            inflict_condition=inflict_condition,
+            damage_values=damage_ranges,
+            inflict_condition=effects_inflicted,
         )
 
 
