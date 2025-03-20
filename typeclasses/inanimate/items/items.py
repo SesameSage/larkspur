@@ -1,5 +1,181 @@
+from random import randint
+
+from evennia.utils import inherits_from
+
 from server import appearance
+from turnbattle import effects
+from turnbattle.effects import DamageTypes, EffectScript
 from typeclasses.base.objects import Object
+
+
+def itemfunc_heal(item, user, target, **kwargs):
+    """
+    Item function that heals HP.
+
+    kwargs:
+        min_healing(int): Minimum amount of HP recovered
+        max_healing(int): Maximum amount of HP recovered
+    """
+    if not target:
+        target = user  # Target user if none specified
+
+    if not target.attributes.has("max_hp"):  # Has no HP to speak of
+        user.msg("You can't use %s on that." % item)
+        return False  # Returning false aborts the item use
+
+    if target.db.hp >= target.db.max_hp:
+        user.msg("%s is already at full health." % target)
+        return False
+
+    # Retrieve healing range from kwargs, if present
+    if "heal_range" in kwargs:
+        min_healing = kwargs["heal_range"][0]
+        max_healing = kwargs["heal_range"][1]
+
+    amt_to_heal = randint(min_healing, max_healing)
+    if target.db.hp + amt_to_heal > target.db.max_hp:
+        amt_to_heal = target.db.max_hp - target.db.hp  # Cap healing to max HP
+    target.db.hp += amt_to_heal
+
+    user.location.msg_contents(
+        "%s uses %s! %s regains %i HP!" % (
+            user.get_display_name(capital=True), item.get_display_name(), target, amt_to_heal))
+
+
+def itemfunc_add_effect(item, user, target, **kwargs):
+    """
+    Item function that gives the target one or more conditions.
+
+    kwargs:
+        effects (list): Conditions added by the item
+           formatted as a list of tuples: (condition (str), duration (int or True))
+
+    Notes:
+        Should mostly be used for beneficial conditions - use itemfunc_attack
+        for an item that can give an enemy a harmful condition.
+    """
+    item_effects = []
+
+    if not target:
+        target = user  # Target user if none specified
+
+    if not target.attributes.has("max_hp"):  # Is not a fighter
+        user.msg("You can't use %s on that." % item)
+        return False  # Returning false aborts the item use
+
+    # Retrieve condition / duration from kwargs, if present
+    if "effects" in kwargs:
+        item_effects = kwargs["effects"]
+
+    user.location.msg_contents("%s uses %s!" % (user, item.get_display_name()))
+
+    # Add conditions to the target
+    attr_list = []
+    for effect in item_effects:
+        for entry in effect.items():
+            if entry[0] != "script_key":
+                attr_list.append(entry)
+        effect_script = getattr(effects, effect["script_key"])
+        target.add_effect(typeclass=effect_script, attributes=attr_list)
+
+
+def itemfunc_cure_condition(item, user, target, **kwargs):
+    if not target:
+        target = user  # Target user if none specified
+
+    if not target.attributes.has("max_hp"):  # Is not a fighter
+        user.msg("You can't use %s on that." % item.get_display_name())
+        return False  # Returning false aborts the item use
+
+    if "effects_cured" in kwargs:
+        effects_cured = kwargs["effects_cured"]
+
+    user.location.msg_contents("%s uses %s! " % (user, item.get_display_name()))
+
+    for script in target.scripts.all():
+        if inherits_from(script, EffectScript):
+            effect_key = script.db.effect_key
+            if effect_key in effects_cured:
+                script.delete()
+                user.location.msg_contents(f"{target} is no longer {effect_key}.")
+
+
+def itemfunc_attack(item, user, target, **kwargs):
+    """
+    Item function that attacks a target.
+
+    kwargs:
+        min_damage(int): Minimum damage dealt by the attack
+        max_damage(int): Maximum damage dealth by the attack
+        accuracy(int): Bonus / penalty to attack accuracy roll
+        effects_inflicted(list): List of conditions inflicted on hit,
+            formatted as a (str, int) tuple containing condition name
+            and duration.
+
+    Notes:
+        Calls resolve_attack at the end.
+    """
+    if not user.is_in_combat():
+        user.msg("You can only use that in combat.")
+        return False  # Returning false aborts the item use
+
+    if not target:
+        user.msg("You have to specify a target to use %s! (use <item> = <target>)" % item)
+        return False
+
+    if target == user:
+        user.msg("You can't attack yourself!")
+        return False
+
+    if not target.db.hp:  # Has no HP
+        user.msg("You can't use %s on that." % item)
+        return False
+
+    damage_ranges = {}
+    accuracy = 0
+    effects_inflicted = []
+
+    # Retrieve values from kwargs, if present
+    if "damage_ranges" in kwargs:
+        for type_name in kwargs:
+            try:
+                damage_type = DamageTypes[type_name]
+            except KeyError:
+                user.msg(appearance.warning + "No damage type matching for " + type_name)
+                return
+            damage_ranges[damage_type] = kwargs["damage_ranges"][type_name]
+
+    if "accuracy" in kwargs:
+        accuracy = kwargs["accuracy"]
+    # if "effects_inflicted" in kwargs:
+    #     effects_inflicted = kwargs["effects_inflicted"]
+
+    # Roll attack and damage
+    attack_value = randint(1, 100) + accuracy
+    # TODO: Itemfunc Attack
+
+    # Account for "Accuracy Up" and "Accuracy Down" conditions
+    if "Accuracy Up" in user.db.effects:
+        attack_value += 25
+    if "Accuracy Down" in user.db.effects:
+        attack_value -= 25
+
+    user.location.msg_contents("%s attacks %s with %s!" % (user, target, item))
+    COMBAT.resolve_attack(
+        user,
+        target,
+        attack_value=attack_value,
+        damage_values=damage_ranges,
+        inflict_condition=effects_inflicted,
+    )
+
+
+ITEMFUNCS = {
+    "heal": itemfunc_heal,
+    "attack": itemfunc_attack,
+    "add_effect": itemfunc_add_effect,
+    "cure_condition": itemfunc_cure_condition,
+}
 
 
 class Item(Object):

@@ -19,7 +19,7 @@ class Armor(Equipment):
         """
         Can't drop in combat.
         """
-        if dropper.rules.is_in_combat(dropper):
+        if dropper.is_in_combat():
             dropper.msg("You can't doff armor in a fight!")
             return False
         return True
@@ -38,7 +38,7 @@ class Armor(Equipment):
         """
         Can't give away in combat.
         """
-        if self.rules.is_in_combat(giver):
+        if giver.is_in_combat():
             giver.msg("You can't doff armor in a fight!")
             return False
         return True

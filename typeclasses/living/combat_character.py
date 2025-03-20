@@ -6,7 +6,7 @@ from evennia import TICKER_HANDLER as tickerhandler
 
 from server import appearance
 from turnbattle.effects import DurationEffect, PerSecEffect, EffectScript
-from turnbattle.rules import COMBAT_RULES
+from turnbattle.combat_handler import COMBAT
 from typeclasses.living.char_stats import CharAttrib
 from typeclasses.scripts.character_scripts import TickCooldowns
 
@@ -132,8 +132,6 @@ class TurnBattleEntity(EquipmentEntity):
     and maximum HP, and access to combat commands.
     """
 
-    rules = COMBAT_RULES
-
     def at_object_creation(self):
         """
         Called once, when this object is first created. This is the
@@ -189,15 +187,21 @@ class TurnBattleEntity(EquipmentEntity):
             self.apply_effects()
 
     def is_in_combat(self):
-        if hasattr(self, "rules") and self.rules.is_in_combat(self):
-            return True
-        else:
+        try:
+            if self.db.combat_turnhandler.is_in_combat(self):
+                return True
+            else:
+                return False
+        except AttributeError:
             return False
 
     def is_turn(self):
-        if hasattr(self, "rules") and self.rules.is_turn(self):
-            return True
-        else:
+        try:
+            if self.db.combat_turnhandler.is_turn(self):
+                return True
+            else:
+                return False
+        except AttributeError:
             return False
 
     def at_pre_move(self, destination, move_type="move", **kwargs):
@@ -217,7 +221,7 @@ class TurnBattleEntity(EquipmentEntity):
 
         """
         # Keep the character from moving if at 0 HP or in combat.
-        if self.rules.is_in_combat(self):
+        if self.is_in_combat():
             self.msg("You can't exit a room while in combat!")
             return False  # Returning false keeps the character from moving.
         if self.db.HP <= 0:
@@ -349,7 +353,7 @@ class TurnBattleEntity(EquipmentEntity):
         if self.db.hp <= 0:
             self.db.hp = 0
             if self.is_in_combat():
-                self.rules.at_defeat(defeated=self)
+                self.db.combat_turnhandler.at_defeat(defeated=self)
             else:
                 self.at_defeat()
 

@@ -24,11 +24,10 @@ class Firebolt(Spell):
         fire_damage = caster.get_attr(CharAttrib.SPIRIT) * damage_mod
         ignite_buildup = 0
 
-        if not hasattr(target, "rules") or not target.rules.is_in_combat(target):
+        if not target.is_in_combat():
             caster.execute_cmd("fight")
         target.apply_damage({DamageTypes.FIRE: fire_damage})
 
-        target.scripts.add(DamageOverTime(effect_key="Burning", range=(1, 1),
-                                          duration=10, damage_type=DamageTypes.FIRE))
+        target.add_effect(DamageOverTime, [("effect_key", "Burning"), ("range", (1, 1)), ("duration", 15), ("damage_type", 4)])
         return True
 

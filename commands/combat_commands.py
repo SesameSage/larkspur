@@ -4,10 +4,9 @@ from evennia.commands.default.muxcommand import MuxCommand
 
 from server import appearance
 from turnbattle.turn_handler import TurnHandler
-from turnbattle.rules import COMBAT_RULES
+from turnbattle.combat_handler import COMBAT
 from typeclasses.inanimate.items.usables import Usable, Consumable
 from typeclasses.inanimate.items.weapons import Weapon
-
 
 class CmdFight(Command):
     """
@@ -23,8 +22,6 @@ class CmdFight(Command):
 
     key = "fight"
     help_category = "combat"
-
-    rules = COMBAT_RULES
     combat_handler_class = TurnHandler
 
     def func(self):
@@ -37,7 +34,7 @@ class CmdFight(Command):
         if not self.caller.db.hp:  # If you don't have any hp
             self.caller.msg("You can't start a fight if you've been defeated!")
             return
-        if self.rules.is_in_combat(self.caller):  # Already in a fight
+        if self.caller.is_in_combat():  # Already in a fight
             self.caller.msg("You're already in a fight!")
             return
         # TODO: Take hostility into account instead of just starting a fight with everyone
@@ -71,17 +68,10 @@ class CmdAttack(Command):
     aliases = ["att", "at", "hit"]
     help_category = "combat"
 
-    rules = COMBAT_RULES
-
     def func(self):
-        "This performs the actual command."
-        "Set the attacker to the caller and the defender to the target."
-
-        if not self.rules.is_in_combat(self.caller):  # If not in combat, can't attack.
-            self.caller.msg("You can only do that in combat. (see: help fight)")
+        if not self.confirm_in_combat():
             return
-
-        if not self.rules.is_turn(self.caller):  # If it's not your turn, can't attack.
+        if not self.turn_handler.is_turn(self.caller):  # If it's not your turn, can't attack.
             self.caller.msg("You can only do that on your turn.")
             return
 
@@ -114,9 +104,16 @@ class CmdAttack(Command):
             self.caller.msg("You can't attack yourself!")
             return
 
-        "If everything checks out, call the attack resolving function."
-        self.rules.resolve_attack(attacker, defender)
-        self.rules.spend_action(self.caller, 1, action_name="attack")  # Use up one action.
+        COMBAT.resolve_attack(attacker, defender)
+        self.turn_handler.spend_action(self.caller, 1, action_name="attack")  # Use up one action.
+
+    def confirm_in_combat(self):
+        if not self.caller.is_in_combat():  # If not in combat, can't attack.
+            self.caller.msg("You can only do that in combat. (see: help fight)")
+            return False
+
+        self.turn_handler = self.caller.db.combat_turnhandler
+        return True
 
 
 class CmdCast(Command):
@@ -124,8 +121,6 @@ class CmdCast(Command):
     key = "cast"
     aliases = ["cas", "ca", "c"]
     help_category = "combat"
-
-    rules = COMBAT_RULES
 
     def func(self):
         args = self.args.split()
@@ -155,7 +150,7 @@ class CmdCast(Command):
         if 0 < len(valid_castables) < 2:
             if valid_castables[0].cast(caster=self.caller, target=target):
                 if self.caller.is_in_combat():
-                    self.caller.rules.spend_action(character=self.caller, actions=1, action_name="cast")
+                    self.turn_handler.spend_action(character=self.caller, actions=1, action_name="cast")
 
 
 class CmdPass(Command):
@@ -173,17 +168,11 @@ class CmdPass(Command):
     aliases = ["wait", "hold"]
     help_category = "combat"
 
-    rules = COMBAT_RULES
-
     def func(self):
-        """
-        This performs the actual command.
-        """
-        if not self.rules.is_in_combat(self.caller):  # Can only pass a turn in combat.
-            self.caller.msg("You can only do that in combat. (see: help fight)")
+        if not self.confirm_in_combat():
             return
 
-        if not self.rules.is_turn(self.caller):  # Can only pass if it's your turn.
+        if not self.turn_handler.is_turn(self.caller):  # Can only pass if it's your turn.
             self.caller.msg("You can only do that on your turn.")
             return
 
@@ -191,7 +180,15 @@ class CmdPass(Command):
             "%s takes no further action, passing the turn." % self.caller
         )
         # Spend all remaining actions.
-        self.rules.spend_action(self.caller, "all", action_name="pass")
+        self.turn_handler.spend_action(self.caller, "all", action_name="pass")
+
+    def confirm_in_combat(self):
+        if not self.caller.is_in_combat():  # If not in combat, can't attack.
+            self.caller.msg("You can only do that in combat. (see: help fight)")
+            return False
+
+        self.turn_handler = self.caller.db.combat_turnhandler
+        return True
 
 
 class CmdDisengage(Command):
@@ -210,27 +207,29 @@ class CmdDisengage(Command):
     aliases = ["spare"]
     help_category = "combat"
 
-    rules = COMBAT_RULES
-
     def func(self):
-        """
-        This performs the actual command.
-        """
-        if not self.rules.is_in_combat(self.caller):  # If you're not in combat
-            self.caller.msg("You can only do that in combat. (see: help fight)")
+        if not self.confirm_in_combat():
             return
 
-        if not self.rules.is_turn(self.caller):  # If it's not your turn
+        if not self.caller.is_turn():  # If it's not your turn
             self.caller.msg("You can only do that on your turn.")
             return
 
         self.caller.location.msg_contents("%s disengages, ready to stop fighting." % self.caller)
         # Spend all remaining actions.
-        self.rules.spend_action(self.caller, "all", action_name="disengage")
+        self.turn_handler.spend_action(self.caller, "all", action_name="disengage")
         """
         The action_name kwarg sets the character's last action to "disengage", which is checked by
         the turn handler script to see if all fighters have disengaged.
         """
+
+    def confirm_in_combat(self):
+        if not self.caller.is_in_combat():  # If not in combat, can't attack.
+            self.caller.msg("You can only do that in combat. (see: help fight)")
+            return False
+
+        self.turn_handler = self.caller.db.combat_turnhandler
+        return True
 
 
 class CmdRest(Command):
@@ -247,12 +246,8 @@ class CmdRest(Command):
     key = "rest"
     help_category = "combat"
 
-    rules = COMBAT_RULES
-
     def func(self):
-        "This performs the actual command."
-
-        if self.rules.is_in_combat(self.caller):  # If you're in combat
+        if self.caller.is_in_combat():  # If you're in combat
             self.caller.msg("You can't rest while you're in combat.")
             return
 
@@ -275,8 +270,6 @@ class CmdCombatHelp(CmdHelp):
     This will search for help on commands and other
     topics related to the game.
     """
-
-    rules = COMBAT_RULES
     combat_help_text = (
         "Available combat commands:|/"
         "|wAttack:|n Attack a target, attempting to deal damage.|/"
@@ -289,7 +282,7 @@ class CmdCombatHelp(CmdHelp):
 
     def func(self):
         # In combat and entered 'help' alone
-        if self.rules.is_in_combat(self.caller) and not self.args:
+        if COMBAT.is_in_combat(self.caller) and not self.args:
             self.caller.msg(self.combat_help_text)
         else:
             super().func()  # Call the default help command
@@ -310,8 +303,6 @@ class CmdUse(MuxCommand):
     key = "use"
     help_category = "items"
 
-    rules = COMBAT_RULES
-
     def func(self):
         """
         This performs the actual command.
@@ -329,8 +320,8 @@ class CmdUse(MuxCommand):
                 return
 
         # If in combat, can only use items on your turn
-        if self.rules.is_in_combat(self.caller):
-            if not self.rules.is_turn(self.caller):
+        if self.caller.is_in_combat():
+            if not self.caller.is_turn():
                 self.caller.msg("You can only use items on your turn.")
                 return
 
@@ -344,7 +335,7 @@ class CmdUse(MuxCommand):
                 return
 
         # If everything checks out, call the use_item function
-        self.rules.use_item(self.caller, item, target)
+        COMBAT.use_item(self.caller, item, target)
 
 
 class BattleCmdSet(default_cmds.CharacterCmdSet):

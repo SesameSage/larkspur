@@ -1,53 +1,22 @@
 from random import randint
 
-import evennia
 from evennia.prototypes.spawner import spawn
-from evennia.utils import inherits_from
 
 from server import appearance
-from turnbattle import effects
-from turnbattle.effects import DamageTypes, EffectScript
+from turnbattle.effects import DamageTypes
+from typeclasses.inanimate.items.items import ITEMFUNCS
 from typeclasses.inanimate.items.usables import Consumable
-from typeclasses.living.char_stats import CharAttrib
 
 # TODO: Abilities use actions
 
-TURN_TIMEOUT = 30  # Time before turns automatically end, in seconds
-ACTIONS_PER_TURN = 1  # Number of actions allowed per turn
-NONCOMBAT_TURN_TIME = 30  # Time per turn count out of combat
 
 
-class BasicCombatRules:
+
+class CombatHandler:
     """
     Stores all combat rules and helper methods.
 
     """
-
-    def roll_init(self, character):
-        """
-        Rolls a number between 1-1000 to determine initiative.
-
-        Args:
-            character (obj): The character to determine initiative for
-
-        Returns:
-            initiative (int): The character's place in initiative - higher
-            numbers go first.
-
-        Notes:
-            By default, does not reference the character and simply returns
-            a random integer from 1 to 1000.
-
-            Since the character is passed to this function, you can easily reference
-            a character's stats to determine an initiative roll - for example, if your
-            character has a 'dexterity' attribute, you can use it to give that character
-            an advantage in turn order, like so:
-
-            return (randint(1,20)) + character.db.dexterity
-
-            This way, characters with a higher dexterity will go first more often.
-        """
-        return randint(1, 20) + character.get_attr(CharAttrib.DEXTERITY)
 
     def get_attack(self, attacker, defender):
         """
@@ -155,25 +124,6 @@ class BasicCombatRules:
 
         return damage_values
 
-    def at_defeat(self, defeated):
-        """
-        Announces the defeat of a fighter in combat.
-
-        Args:
-            defeated (obj): Fighter that's been defeated.
-
-        Notes:
-            All this does is announce a defeat message by default, but if you
-            want anything else to happen to defeated fighters (like putting them
-            into a dying state or something similar) then this is the place to
-            do it.
-        """
-        if defeated.db.hp < 0:
-            defeated.db.hp = 0
-        defeated.at_defeat()
-        defeated.location.scripts.get("Combat Turn Handler")[0].all_defeat_check()
-        return True
-
     def resolve_attack(
             self,
             attacker,
@@ -247,72 +197,6 @@ class BasicCombatRules:
             # Inflict conditions on hit, if any specified
             for condition in inflict_condition:
                 self.add_effect(defender, attacker, condition[0], condition[1])
-
-    def combat_cleanup(self, character):
-        """
-        Cleans up all the temporary combat-related attributes on a character.
-
-        Args:
-            character (obj): Character to have their combat attributes removed
-
-        Notes:
-            Any attribute whose key begins with 'combat_' is temporary and no
-            longer needed once a fight ends.
-        """
-        for attr in character.attributes.all():
-            if attr.key[:7] == "combat_":  # If the attribute name starts with 'combat_'...
-                character.attributes.remove(key=attr.key)  # ...then delete it!
-
-    def is_in_combat(self, character):
-        """
-        Returns true if the given character is in combat.
-
-        Args:
-            character (obj): Character to determine if is in combat or not
-
-        Returns:
-            (bool): True if in combat or False if not in combat
-        """
-        return bool(character.db.combat_turnhandler)
-
-    def is_turn(self, character):
-        """
-        Returns true if it's currently the given character's turn in combat.
-
-        Args:
-            character (obj): Character to determine if it is their turn or not
-
-        Returns:
-            (bool): True if it is their turn or False otherwise
-        """
-        turnhandler = character.db.combat_turnhandler
-        currentchar = turnhandler.db.fighters[turnhandler.db.turn]
-        return bool(character == currentchar)
-
-    def spend_action(self, character, actions, action_name=None):
-        """
-        Spends a character's available combat actions and checks for end of turn.
-
-        Args:
-            character (obj): Character spending the action
-            actions (int) or 'all': Number of actions to spend, or 'all' to spend all actions
-
-        Keyword Args:
-            action_name (str or None): If a string is given, sets character's last action in
-            combat to provided string
-        """
-        if action_name:
-            character.db.combat_lastaction = action_name
-        if actions == "all":  # If spending all actions
-            character.db.combat_actionsleft = 0  # Set actions to 0
-        else:
-            try:
-                character.db.combat_actionsleft -= actions  # Use up actions.
-                if character.db.combat_actionsleft < 0:
-                    character.db.combat_actionsleft = 0  # Can't have fewer than 0 actions
-            except TypeError:
-                return
-        character.db.combat_turnhandler.turn_end_check(character)  # Signal potential end of turn.
 
     # ITEM RULES
 
@@ -403,193 +287,9 @@ class BasicCombatRules:
             self.spend_item_use(item, user)
 
         # Spend an action if in combat
-        if self.is_in_combat(user):
-            self.spend_action(user, 1, action_name="item")
-
-    # ----------------------------------------------------------------------------
-    # ITEM FUNCTIONS START HERE
-    # ----------------------------------------------------------------------------
-
-    # These functions carry out the action of using an item - every item should
-    # contain a db entry "item_func", with its value being a string that is
-    # matched to one of these functions in the ITEMFUNCS dictionary below.
-
-    # Every item function must take the following arguments:
-    #     item (obj): The item being used
-    #     user (obj): The character using the item
-    #     target (obj): The target of the item use
-
-    # Item functions must also accept **kwargs - these keyword arguments can be
-    # used to define how different items that use the same function can have
-    # different effects (for example, different attack items doing different
-    # amounts of damage).
-
-    # Each function below contains a description of what kwargs the function will
-    # take and the effect they have on the result.
-
-    def itemfunc_heal(self, item, user, target, **kwargs):
-        """
-        Item function that heals HP.
-
-        kwargs:
-            min_healing(int): Minimum amount of HP recovered
-            max_healing(int): Maximum amount of HP recovered
-        """
-        if not target:
-            target = user  # Target user if none specified
-
-        if not target.attributes.has("max_hp"):  # Has no HP to speak of
-            user.msg("You can't use %s on that." % item)
-            return False  # Returning false aborts the item use
-
-        if target.db.hp >= target.db.max_hp:
-            user.msg("%s is already at full health." % target)
-            return False
-
-        # Retrieve healing range from kwargs, if present
-        if "heal_range" in kwargs:
-            min_healing = kwargs["heal_range"][0]
-            max_healing = kwargs["heal_range"][1]
-
-        amt_to_heal = randint(min_healing, max_healing)
-        if target.db.hp + amt_to_heal > target.db.max_hp:
-            amt_to_heal = target.db.max_hp - target.db.hp  # Cap healing to max HP
-        target.db.hp += amt_to_heal
-
-        user.location.msg_contents(
-            "%s uses %s! %s regains %i HP!" % (user, item.get_display_name(), target, amt_to_heal))
-
-    def itemfunc_add_effect(self, item, user, target, **kwargs):
-        """
-        Item function that gives the target one or more conditions.
-
-        kwargs:
-            effects (list): Conditions added by the item
-               formatted as a list of tuples: (condition (str), duration (int or True))
-
-        Notes:
-            Should mostly be used for beneficial conditions - use itemfunc_attack
-            for an item that can give an enemy a harmful condition.
-        """
-        item_effects = []
-
-        if not target:
-            target = user  # Target user if none specified
-
-        if not target.attributes.has("max_hp"):  # Is not a fighter
-            user.msg("You can't use %s on that." % item)
-            return False  # Returning false aborts the item use
-
-        # Retrieve condition / duration from kwargs, if present
-        if "effects" in kwargs:
-            item_effects = kwargs["effects"]
-
-        user.location.msg_contents("%s uses %s!" % (user, item.get_display_name()))
-
-        # Add conditions to the target
-        attr_list = []
-        for effect in item_effects:
-            for entry in effect.items():
-                if entry[0] != "script_key":
-                    attr_list.append(entry)
-            effect_script = getattr(effects, effect["script_key"])
-            target.add_effect(typeclass=effect_script, attributes=attr_list)
-
-    def itemfunc_cure_condition(self, item, user, target, **kwargs):
-        if not target:
-            target = user  # Target user if none specified
-
-        if not target.attributes.has("max_hp"):  # Is not a fighter
-            user.msg("You can't use %s on that." % item.get_display_name())
-            return False  # Returning false aborts the item use
-
-        if "effects_cured" in kwargs:
-            effects_cured = kwargs["effects_cured"]
-
-        user.location.msg_contents("%s uses %s! " % (user, item.get_display_name()))
-
-        for script in target.scripts.all():
-            if inherits_from(script, EffectScript):
-                effect_key = script.db.effect_key
-                if effect_key in effects_cured:
-                    script.delete()
-                    user.location.msg_contents(f"{target} is no longer {effect_key}.")
-
-    def itemfunc_attack(self, item, user, target, **kwargs):
-        """
-        Item function that attacks a target.
-
-        kwargs:
-            min_damage(int): Minimum damage dealt by the attack
-            max_damage(int): Maximum damage dealth by the attack
-            accuracy(int): Bonus / penalty to attack accuracy roll
-            effects_inflicted(list): List of conditions inflicted on hit,
-                formatted as a (str, int) tuple containing condition name
-                and duration.
-
-        Notes:
-            Calls resolve_attack at the end.
-        """
-        if not self.is_in_combat(user):
-            user.msg("You can only use that in combat.")
-            return False  # Returning false aborts the item use
-
-        if not target:
-            user.msg("You have to specify a target to use %s! (use <item> = <target>)" % item)
-            return False
-
-        if target == user:
-            user.msg("You can't attack yourself!")
-            return False
-
-        if not target.db.hp:  # Has no HP
-            user.msg("You can't use %s on that." % item)
-            return False
-
-        damage_ranges = {}
-        accuracy = 0
-        effects_inflicted = []
-
-        # Retrieve values from kwargs, if present
-        if "damage_ranges" in kwargs:
-            for type_name in kwargs:
-                try:
-                    damage_type = DamageTypes[type_name]
-                except KeyError:
-                    user.msg(appearance.warning + "No damage type matching for " + type_name)
-                    return
-                damage_ranges[damage_type] = kwargs["damage_ranges"][type_name]
-
-        if "accuracy" in kwargs:
-            accuracy = kwargs["accuracy"]
-        # if "effects_inflicted" in kwargs:
-        #     effects_inflicted = kwargs["effects_inflicted"]
-
-        # Roll attack and damage
-        attack_value = randint(1, 100) + accuracy
-        # TODO: Itemfunc Attack
+        if user.is_in_combat():
+            user.db.combat_turnhandler.spend_action(user, 1, action_name="item")
 
 
-        # Account for "Accuracy Up" and "Accuracy Down" conditions
-        if "Accuracy Up" in user.db.effects:
-            attack_value += 25
-        if "Accuracy Down" in user.db.effects:
-            attack_value -= 25
+COMBAT = CombatHandler()
 
-        user.location.msg_contents("%s attacks %s with %s!" % (user, target, item))
-        self.resolve_attack(
-            user,
-            target,
-            attack_value=attack_value,
-            damage_values=damage_ranges,
-            inflict_condition=effects_inflicted,
-        )
-
-
-COMBAT_RULES = BasicCombatRules()
-ITEMFUNCS = {
-    "heal": COMBAT_RULES.itemfunc_heal,
-    "attack": COMBAT_RULES.itemfunc_attack,
-    "add_effect": COMBAT_RULES.itemfunc_add_effect,
-    "cure_condition": COMBAT_RULES.itemfunc_cure_condition,
-}

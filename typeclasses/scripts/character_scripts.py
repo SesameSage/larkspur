@@ -34,9 +34,8 @@ class AutoPass(Script):
         self.key = "AutoPass"
 
     def at_repeat(self, **kwargs):
-        if hasattr(self.obj, "rules"):
-            if self.obj.rules.is_turn(self.obj):
-                self.obj.execute_cmd("pass")
+        if self.obj.is_turn():
+            self.obj.execute_cmd("pass")
 
 
 class SimpleAttack(Script):
