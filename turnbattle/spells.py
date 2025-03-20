@@ -22,12 +22,15 @@ class Firebolt(Spell):
             return False
         damage_mod = caster.db.mods["fire damage"] if "fire damage" in caster.db.mods else 1
         fire_damage = caster.get_attr(CharAttrib.SPIRIT) * damage_mod
+        caster.location.more_info(f"{fire_damage} fire damage = "
+                                  f"{caster.get_attr(CharAttrib.SPIRIT)} Spirit * {damage_mod} mod")
         ignite_buildup = 0
 
         if not target.is_in_combat():
             caster.execute_cmd("fight")
         target.apply_damage({DamageTypes.FIRE: fire_damage})
+        caster.location.msg_contents(f"A bolt of fire ignites in {caster.get_display_name()}'s hand and scorches "
+                                     f"{target.get_display_name()} for {fire_damage} fire damage!")
 
         target.add_effect(DamageOverTime, [("effect_key", "Burning"), ("range", (1, 1)), ("duration", 15), ("damage_type", 4)])
         return True
-

@@ -9,25 +9,18 @@ class Weapon(Equipment):
         self.db.damage_ranges = {}  # Minimum and maximum damage on hit
         self.db.accuracy_bonus = 0  # Bonus to attack rolls (or penalty if negative)
         self.db.equipment_slot = "primary"
-
-    def at_drop(self, dropper, **kwargs):
-        """
-        Stop being wielded if dropped.
-        """
-        if dropper.db.wielded_weapon == self:
-            dropper.db.wielded_weapon = None
-            dropper.location.msg_contents("%s stops wielding %s." % (dropper, self))
-
-    def at_give(self, giver, getter, **kwargs):
-        """
-        Stop being wielded if given.
-        """
-        if giver.db.wielded_weapon == self:
-            giver.db.wielded_weapon = None
-            giver.location.msg_contents("%s stops wielding %s." % (giver, self))
+        # TODO: Secondary holding slot
 
 
 class MeleeWeapon(Weapon):
+    pass
+
+
+class OneHanded(MeleeWeapon):
+    pass
+
+
+class TwoHanded(MeleeWeapon):
     pass
 
 
@@ -39,31 +32,35 @@ class MagicWeapon(Weapon):
     pass
 
 
-class Sword(MeleeWeapon):
+class Sword(OneHanded):
     pass
 
 
-class GreatSword(MeleeWeapon):
+class GreatSword(TwoHanded):
     pass
 
 
-class Axe(MeleeWeapon):
+class HandAxe(OneHanded):
     pass
 
 
-class Mace(MeleeWeapon):
+class Mace(OneHanded):
     pass
 
 
-class WarHammer(MeleeWeapon):
+class Warhammer(TwoHanded):
     pass
 
 
-class Dagger(MeleeWeapon):
+class Greataxe(TwoHanded):
     pass
 
 
-class Quarterstaff(MeleeWeapon):
+class Dagger(OneHanded):
+    pass
+
+
+class Quarterstaff(TwoHanded):
     pass
 
 

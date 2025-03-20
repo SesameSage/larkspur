@@ -9,6 +9,7 @@ from turnbattle.effects import *
 class Ability(Object):
 
     def at_object_creation(self):
+        self.locks.add("view:false()")
         self.db.desc = ""
         self.db.action_text = ""
         self.db.targeted = False

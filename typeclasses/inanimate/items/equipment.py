@@ -83,14 +83,14 @@ from server import appearance
 from typeclasses.inanimate.items.items import Item
 
 
-# HELPER FUNCTIONS START HERE
 class Equipment(Item):
 
     def at_object_creation(self):
         super().at_object_creation()
+        self.db.desc = "An equippable item."
         self.db.equipment_slot = None
         self.db.equipped = False
-        self.db.desc = "An equippable item."
+        self.db.required_level = 0
         self.db.equip_effect = None
 
     def equip(self, wearer, quiet=False):
@@ -144,6 +144,24 @@ class Equipment(Item):
             return True
         else:
             return False
+
+    def at_drop(self, dropper, **kwargs):
+        """
+        Stop being wielded if dropped.
+        """
+        if self.db.equipped:
+            self.unequip(dropper)
+        if dropper.db.equipment[self.db.equipment_slot] == self:
+            dropper.db.equipmnt[self.db.equipment_slot] = None
+            dropper.location.msg_contents("%s unequips %s." % (dropper, self))
+
+    def at_give(self, giver, getter, **kwargs):
+        """
+        Stop being worn if given.
+        """
+        if giver.db.equipment[self.db.equipment_slot] == self:
+            giver.db.equipmnt[self.db.equipment_slot] = None
+            giver.location.msg_contents("%s unequips %s." % (giver, self))
 
 
 # COMMANDS START HERE
@@ -203,7 +221,13 @@ class CmdEquip(MuxCommand):
             self.caller.msg(f"You're already wearing your {item_equipping.get_display_name()}.")
             return
 
+        if self.caller.db.level < item_equipping.db.required_level:
+            self.caller.msg(f"{item_equipping.get_display_name().capitalize()} requires character level "
+                            f"{item_equipping.db.required_level} ({self.caller.name} is level {self.caller.db.level})")
+            return
+
         item_equipping.equip(self.caller)
+        self.caller.update_stats()
 
 
 class CmdUnequip(MuxCommand):
@@ -234,6 +258,7 @@ class CmdUnequip(MuxCommand):
             self.caller.msg(f"You're not wearing {clothing.get_display_name()}!")
             return
         clothing.unequip(self.caller)
+        self.caller.update_stats()
 
 
 class CmdInventory(MuxCommand):

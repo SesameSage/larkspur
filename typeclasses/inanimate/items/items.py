@@ -178,6 +178,7 @@ ITEMFUNCS = {
 }
 
 
+# TODO: Command identify
 class Item(Object):
 
     def at_object_creation(self):
