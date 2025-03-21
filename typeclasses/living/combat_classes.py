@@ -1,6 +1,6 @@
 from typeclasses.inanimate.items.apparel import Shield
-from typeclasses.scripts.scripts import Script
 from typeclasses.inanimate.items.weapons import *
+from typeclasses.scripts.scripts import Script
 
 
 class CombatClass(Script):

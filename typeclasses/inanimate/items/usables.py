@@ -1,5 +1,3 @@
-import evennia.prototypes.prototypes
-
 from typeclasses.inanimate.items.items import Item
 
 

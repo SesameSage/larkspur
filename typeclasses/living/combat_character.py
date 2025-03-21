@@ -1,15 +1,12 @@
 import evennia
 from evennia import DefaultCharacter
+from evennia import TICKER_HANDLER as tickerhandler
 from evennia.utils import inherits_from
 from evennia.utils.evtable import EvTable
-from evennia import TICKER_HANDLER as tickerhandler
 
 from server import appearance
-from turnbattle.effects import DurationEffect, PerSecEffect, EffectScript
-from turnbattle.combat_handler import COMBAT
+from turnbattle.effects import DurationEffect
 from typeclasses.living.char_stats import CharAttrib
-from typeclasses.scripts.character_scripts import TickCooldowns
-
 
 MAX_HP_BASE = 100
 LVL_TO_MAXHP = {

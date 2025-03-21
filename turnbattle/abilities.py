@@ -1,10 +1,10 @@
 from evennia.utils import inherits_from
 
 from server import appearance
+from turnbattle.effects import *
 from typeclasses.base.objects import Object
 from typeclasses.living.char_stats import CharAttrib
 from typeclasses.living.living_entities import LivingEntity
-from turnbattle.effects import *
 
 
 class Ability(Object):
