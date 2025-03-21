@@ -1,3 +1,4 @@
+from server.appearance import dmg_color
 from turnbattle.abilities import *
 
 
@@ -30,7 +31,7 @@ class Firebolt(Spell):
             caster.execute_cmd("fight")
         target.apply_damage({DamageTypes.FIRE: fire_damage})
         caster.location.msg_contents(f"A bolt of fire ignites in {caster.get_display_name()}'s hand and scorches "
-                                     f"{target.get_display_name()} for {fire_damage} fire damage!")
+                                     f"{target.get_display_name()} for {dmg_color(caster, target)}{fire_damage} fire damage!")
 
         target.add_effect(DamageOverTime, [("effect_key", "Burning"), ("range", (1, 1)), ("duration", 15), ("damage_type", 4)])
         return True

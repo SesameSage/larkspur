@@ -177,7 +177,7 @@ class CmdPass(Command):
             return
 
         self.caller.location.msg_contents(
-            "%s takes no further action, passing the turn." % self.caller
+            "%s takes no further action, passing the turn." % self.caller.get_display_name()
         )
         # Spend all remaining actions.
         self.turn_handler.spend_action(self.caller, "all", action_name="pass")

@@ -7,7 +7,10 @@ Use the ObjectParent class to implement common features for *all* entities
 with a location in the game world (like Characters, Rooms, Exits).
 
 """
+from collections import defaultdict
+
 from evennia.objects.objects import DefaultObject
+from evennia.utils import iter_to_str
 
 
 class ObjectParent:
@@ -212,16 +215,16 @@ class Object(ObjectParent, DefaultObject):
      at_desc(looker=None)
 
     """
-    def get_display_name(self, looker=None, capital=False, **kwargs):
-        name = super().get_display_name(looker, **kwargs)
-        if capital:
-            return name.capitalize()
-        else:
-            return name
 
+    def color(self):
+        return ""
+
+    def get_display_name(self, looker=None, capital=False, **kwargs):
+        name = self.name
+        if capital:
+            name = name.capitalize()
+        return self.color() + name + "|n"
 
 
 class RespawningObject(Object):
     pass
-
-

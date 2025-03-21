@@ -32,8 +32,8 @@ class Character(LivingEntity):
 
     """
 
-    def get_display_name(self, looker=None, **kwargs):
-        return appearance.character + super().get_display_name(looker=looker) + "|n"
+    def color(self):
+        return appearance.character
 
     def say(self, msg):
         self.at_say(message=msg, msg_self=True)
@@ -188,8 +188,8 @@ class PlayerCharacter(Character):
         self.cmdset.add(PlayerCmdSet, persistent=True)
         self.cmdset.add(RefiledCmdSet, persistent=True)  # Override player cmds where necessary
 
-    def get_display_name(self, looker=None, **kwargs):
-        return appearance.player + super().get_display_name(looker=looker)[4:] + "|n"
+    def color(self):
+        return appearance.player
 
     def at_look(self, target=None, session=None, **kwargs):
         if isinstance(target, rooms.Room):
@@ -223,5 +223,5 @@ class NPC(Character, TalkableNPC):
     pass
 
 
-class EnemyCharacter(NPC, Enemy):
+class EnemyCharacter(Enemy, NPC):
     pass

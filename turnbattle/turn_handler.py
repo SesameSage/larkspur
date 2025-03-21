@@ -292,6 +292,7 @@ class TurnHandler(DefaultScript):
 
         # Prompt the character for their turn and give some information.
         character.msg("|[550|=a~~~~~ YOUR TURN ~~~~~~")
+
         table = evtable.EvTable()
         for fighter in self.db.fighters:
             row = [fighter.get_display_name(capital=True), f"{fighter.db.hp} hp"]
@@ -301,7 +302,7 @@ class TurnHandler(DefaultScript):
                     "seconds passed"]) // EFFECT_SECS_PER_TURN
                 if fighter == character:
                     turns_left -= 1
-                effects_str = effects_str + f"[{effect}]({turns_left}) "
+                effects_str = effects_str + f"[{effect}({turns_left})] "
 
             if effects_str != "":
                 row.append(effects_str)

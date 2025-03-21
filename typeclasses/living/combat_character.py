@@ -394,7 +394,7 @@ class TurnBattleEntity(EquipmentEntity):
                 self.at_defeat()
 
     def at_defeat(self):
-        self.location.msg_contents(f"%s{appearance.attention} has been defeated!" % self.get_display_name())
+        self.location.msg_contents(f"|[110%s{appearance.attention}|[110 has been defeated!" % self.get_display_name())
         for script in self.scripts.all():
             if inherits_from(script, DurationEffect):
                 script.delete()

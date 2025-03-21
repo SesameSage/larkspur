@@ -1,5 +1,6 @@
 from evennia.utils import inherits_from
 
+from server import appearance
 from typeclasses.base.objects import Object
 from typeclasses.living.char_stats import CharAttrib
 from typeclasses.living.living_entities import LivingEntity
@@ -21,7 +22,7 @@ class Ability(Object):
         if self.db.cooldown > 0:
             try:
                 if caster.db.cooldowns[self.key] > 0:
-                    caster.msg(f"{caster.db.cooldowns[self.key]} seconds cooldown remaining to cast {self.key}")
+                    caster.msg(f"{appearance.notify}{caster.db.cooldowns[self.key]} seconds cooldown remaining to cast {self.key}")
                     return False
             except KeyError:
                 caster.db.cooldowns[self.key] = 0

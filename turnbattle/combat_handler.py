@@ -3,13 +3,10 @@ from random import randint
 from evennia.prototypes.spawner import spawn
 
 from server import appearance
+from server.appearance import dmg_color
 from turnbattle.effects import DamageTypes
 from typeclasses.inanimate.items.items import ITEMFUNCS
 from typeclasses.inanimate.items.usables import Consumable
-
-# TODO: Abilities use actions
-
-
 
 
 class CombatHandler:
@@ -175,7 +172,7 @@ class CombatHandler:
             # Announce damage dealt and apply damage.
             msg = "%s's %s strikes %s for " % (
                 attacker.get_display_name(), attackers_weapon, defender.get_display_name())
-            dmg_color = appearance.good_damage if defender.db.hostile else appearance.bad_damage
+
             if bool(damage_values):  # If any damages are > 0
                 for i, damage_type in enumerate(damage_values):
                     if i == len(damage_values) - 1 and len(damage_values) > 1:  # If at the last damage type to list
@@ -184,8 +181,8 @@ class CombatHandler:
                         msg = msg + "and "
                     elif len(damage_values) > 2:
                         msg = msg + ", "
-                    msg = msg + f"{dmg_color}{damage_values[damage_type]} {damage_type.get_display_name()}|n"
-                msg = msg + f"{dmg_color} damage!|n"
+                    msg = msg + f"{dmg_color(attacker, defender)}{damage_values[damage_type]} {damage_type.get_display_name()}|n"
+                msg = msg + f"{dmg_color(attacker, defender)} damage!|n"
                 attacker.location.msg_contents(msg)
             else:
                 attacker.location.msg_contents(

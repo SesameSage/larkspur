@@ -67,7 +67,7 @@ def itemfunc_add_effect(item, user, target, **kwargs):
     if "effects" in kwargs:
         item_effects = kwargs["effects"]
 
-    user.location.msg_contents("%s uses %s!" % (user, item.get_display_name()))
+    user.location.msg_contents("%s uses %s!" % (user.get_display_name(), item.get_display_name()))
 
     # Add conditions to the target
     attr_list = []
@@ -187,11 +187,8 @@ class Item(Object):
         self.db.weight = 0.0
         self.db.avg_value = 0.0
 
-    def get_display_name(self, looker=None, capital=False, **kwargs):
-        name = self.name
-        if capital:
-            name = name.capitalize()
-        return appearance.item + name + "|n"
+    def color(self):
+        return appearance.item
 
 
 class LightItem(Item):

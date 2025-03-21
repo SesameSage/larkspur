@@ -33,7 +33,7 @@ class Enemy(LivingEntity):
         self.db.hostile = True
         # TODO: Hostility to specific characters
 
-    def get_display_name(self, looker=None, **kwargs):
-        return appearance.enemy + super().get_display_name(looker=looker) + "|n"
+    def color(self):
+        return appearance.enemy
 
 
