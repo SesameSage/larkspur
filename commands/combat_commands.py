@@ -150,7 +150,7 @@ class CmdCast(Command):
         if 0 < len(valid_castables) < 2:
             if valid_castables[0].cast(caster=self.caller, target=target):
                 if self.caller.is_in_combat():
-                    self.turn_handler.spend_action(character=self.caller, actions=1, action_name="cast")
+                    self.caller.db.combat_turnhandler.spend_action(character=self.caller, actions=1, action_name="cast")
 
 
 class CmdPass(Command):

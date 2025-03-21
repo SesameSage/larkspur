@@ -185,7 +185,7 @@ class CmdEquip(MuxCommand):
 
     def func(self):
         if not self.args:
-            self.caller.msg("Usage: equip <obj>")
+            self.caller.msg(self.caller.show_equipment())
             return
         if not self.rhs:
             # check if the whole string is an object
@@ -289,9 +289,6 @@ class CmdInventory(MuxCommand):
 
         # carried items
         self.caller.msg(self.caller.get_display_things(looker=self.caller))
-
-        # worn items
-        self.caller.msg(self.caller.show_equipment())
 
 
 class EquipmentCharacterCmdSet(default_cmds.CharacterCmdSet):

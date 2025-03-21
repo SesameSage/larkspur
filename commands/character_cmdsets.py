@@ -6,7 +6,7 @@ from commands.permissions_cmdsets import BuildingCmdSet
 from commands.refiled_cmds import *
 from typeclasses.living.talking_npc import TalkingCmdSet
 
-
+# TODO: Why doesn't moreinfo setting persist?
 class CmdMoreInfo(Command):
     key = "moreinfo"
     help_category = "appearance"

@@ -1,3 +1,4 @@
+import evennia
 from evennia import DefaultCharacter
 from evennia.utils import inherits_from
 from evennia.utils.evtable import EvTable
@@ -181,7 +182,7 @@ class TurnBattleEntity(EquipmentEntity):
         super().at_object_creation()
         # TODO: Speed?
 
-        self.db.level = 0
+        self.db.level = 1
         # TODO: How to utilize enemy level
         self.db.attribs = {CharAttrib.STRENGTH: 1, CharAttrib.CONSTITUTION: 1,
                            CharAttrib.DEXTERITY: 1, CharAttrib.PERCEPTION: 1, CharAttrib.INTELLIGENCE: 1,
@@ -208,7 +209,7 @@ class TurnBattleEntity(EquipmentEntity):
         self.db.effects = {}
 
         self.db.cooldowns = {}
-        self.scripts.add(TickCooldowns)
+        # self.scripts.add(TickCooldowns)
 
         self.db.hostile = False
 
