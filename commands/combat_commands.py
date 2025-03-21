@@ -282,7 +282,7 @@ class CmdCombatHelp(CmdHelp):
 
     def func(self):
         # In combat and entered 'help' alone
-        if COMBAT.is_in_combat(self.caller) and not self.args:
+        if self.caller.is_in_combat() and not self.args:
             self.caller.msg(self.combat_help_text)
         else:
             super().func()  # Call the default help command

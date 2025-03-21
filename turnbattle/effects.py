@@ -3,8 +3,6 @@ from random import randint
 
 from typeclasses.scripts.scripts import Script
 
-# TODO: Increment effects more precisely on combat turn
-
 EFFECT_SECS_PER_TURN = 5
 
 

@@ -24,16 +24,8 @@ class MyCmdPage(CmdPage):
     help_category = "communication"
 
 
-class MyCmdLook(CmdLook):
-    help_category = "navigation"
-
-
 class MyCmdMap(CmdMap):
     help_category = "navigation"
-
-
-class MyCmdGet(CmdGet):
-    help_category = "items"
 
 
 class MyCmdDrop(CmdDrop):
@@ -73,13 +65,11 @@ class RefiledCmdSet(CmdSet):
         self.add(MyCmdWhisper)
         self.add(MyCmdChannel)
         self.add(MyCmdPage)
-        self.add(MyCmdGet)
         self.add(MyCmdDrop)
         self.add(MyCmdGive)
         self.add(MyCmdPut)
         self.add(MyCmdNick)
         self.add(MyCmdPose)
-        self.add(MyCmdLook)
         self.add(MyCmdMap)
         self.add(MyCmdAccess)
         self.add(MyCmdSetDesc)

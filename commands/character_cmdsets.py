@@ -1,9 +1,9 @@
 from evennia import Command
-from evennia.contrib.game_systems.containers import ContainerCmdSet
 from evennia.contrib.grid.ingame_map_display import MapDisplayCmdSet
 
 from commands.permissions_cmdsets import BuildingCmdSet
 from commands.refiled_cmds import *
+from typeclasses.inanimate.containers import ContainerCmdSet
 from typeclasses.living.talking_npc import TalkingCmdSet
 
 # TODO: Why doesn't moreinfo setting persist?
