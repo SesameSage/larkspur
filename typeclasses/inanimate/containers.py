@@ -52,9 +52,6 @@ class Container(Item):
     It implements a very basic "size" limitation that is just a flat number of objects.
     """
 
-    # This defines how many objects the container can hold.
-    capacity = AttributeProperty(default=20)
-
     def at_object_creation(self):
         """
         Extends the base object `at_object_creation` method by setting the "get_from" lock to "true",
@@ -65,6 +62,8 @@ class Container(Item):
         non-container objects.
         """
         super().at_object_creation()
+        self.db.desc = "A container to hold items."
+        self.db.capacity = None
         self.locks.add("get_from:true()")
 
     def at_pre_get_from(self, getter, target, **kwargs):
@@ -100,7 +99,7 @@ class Container(Item):
             To add more complex capacity checks, modify this method on your child typeclass.
         """
         # check if we're already at capacity
-        if len(self.contents) >= self.capacity:
+        if len(self.contents) >= self.db.capacity:
             singular, _ = self.get_numbered_name(1, putter)
             putter.msg(f"You can't fit anything else in {singular}.")
             return False

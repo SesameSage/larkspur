@@ -23,7 +23,7 @@ POISON_DART = {
 ANTIDOTE = {
     "key": "antidote",
     "typeclass": "typeclasses.inanimate.items.usables.Consumable",
-    "desc": "Antidote to cure poisoning.",
+    "desc": "An antidote to poison.",
     "item_func": "cure_condition",
     "item_uses": 1,
     "kwargs": {
