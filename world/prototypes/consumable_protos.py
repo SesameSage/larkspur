@@ -1,4 +1,4 @@
-from turnbattle.effects import *
+from decimal import Decimal as Dec
 
 POISON_DART = {
     "key": "poison dart",
@@ -18,6 +18,7 @@ POISON_DART = {
             }
         ]
     },
+    "weight": round(Dec(0.1), 1),
 }
 ANTIDOTE = {
     "key": "antidote",
@@ -28,6 +29,7 @@ ANTIDOTE = {
     "kwargs": {
         "effects_cured": ["Poisoned"]
     },
+    "weight": round(Dec(0.2), 1),
 }
 
 HEALTH_POTION = {
@@ -39,6 +41,7 @@ HEALTH_POTION = {
     "kwargs": {
         "heal_range": (20, 30)
     },
+    "weight": Dec(1)
 }
 
 HP_REGEN_POTION = {
@@ -58,5 +61,6 @@ HP_REGEN_POTION = {
             }
         ]
     },
+    "weight": Dec(1),
 }
 

@@ -244,6 +244,12 @@ class CmdContainerGet(CmdGet):
             else:
                 self.msg("You can't get that.")
             return
+        if self.caller.encumbrance() + obj.db.weight > self.caller.db.carry_weight:
+            self.msg("You can't carry that much!")
+            return
+        if self.caller.carried_count() + 1 > self.caller.db.max_carry_count:
+            self.msg("You can't carry that many items!")
+            return
 
         # calling possible at_pre_get_from hook on location
         if hasattr(location, "at_pre_get_from") and not location.at_pre_get_from(caller, obj):

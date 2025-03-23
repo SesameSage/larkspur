@@ -47,6 +47,9 @@ class Ability(Object):
                 caster.db.cooldowns[self.key] = self.db.cooldown
                 return True
 
+    def get_display_name(self, looker=None, capital=False, **kwargs):
+        return appearance.ability + self.name
+
 
 class SustainedAbility(Ability):
     def at_object_creation(self):

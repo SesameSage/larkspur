@@ -1,4 +1,5 @@
 from random import randint
+from decimal import Decimal as Dec
 
 from evennia.utils import inherits_from
 
@@ -184,7 +185,7 @@ class Item(Object):
     def at_object_creation(self):
         super().at_object_creation()
         self.db.desc = "This is an item."
-        self.db.weight = 0.0
+        self.db.weight = Dec(0)
         self.db.avg_value = 0.0
 
     def color(self):

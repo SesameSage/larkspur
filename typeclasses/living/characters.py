@@ -7,11 +7,15 @@ is set up to be the "default" character type created by the default
 creation commands.
 
 """
+from decimal import Decimal as Dec
+
 from evennia.utils import make_iter
 
 from commands.character_cmdsets import PlayerCmdSet
 from commands.refiled_cmds import RefiledCmdSet
 from typeclasses.inanimate import rooms
+from typeclasses.inanimate.items.items import Item
+from typeclasses.living.char_stats import CharAttrib
 from typeclasses.living.living_entities import *
 from typeclasses.living.talking_npc import TalkableNPC
 
@@ -19,6 +23,26 @@ from typeclasses.living.talking_npc import TalkableNPC
 
 XP_THRESHOLDS = {
     2: 100
+}
+
+BASE_CARRY_WEIGHT = Dec(30)
+STR_TO_CARRY_WEIGHT = {
+    1: Dec(0),
+    2: Dec(5),
+    3: Dec(10),
+    4: Dec(20),
+    5: Dec(35),
+    6: Dec(55),
+    7: Dec(80),
+}
+BASE_CARRY_COUNT = 10
+DEX_TO_CARRY_COUNT = {
+    1: 0,
+    2: 2,
+    3: 3,
+    4: 5,
+    5: 7,
+    6: 10,
 }
 
 
@@ -182,11 +206,18 @@ class PlayerCharacter(Character):
         self.permissions.add("Player")
 
         self.db.xp = 0
+        self.db.carry_weight = BASE_CARRY_WEIGHT
+        self.db.max_carry_count = BASE_CARRY_COUNT
         # TODO: Story point and portal key handler
+
         self.attributes.add(key="prefs", value={"more_info": False}, category="ooc")
 
         self.cmdset.add(PlayerCmdSet, persistent=True)
         self.cmdset.add(RefiledCmdSet, persistent=True)  # Override player cmds where necessary
+
+    def update_stats(self):
+        super().update_stats()
+        self.db.carry_weight = BASE_CARRY_WEIGHT + STR_TO_CARRY_WEIGHT[self.get_attr(CharAttrib.STRENGTH)]
 
     def color(self):
         return appearance.player
@@ -218,6 +249,19 @@ class PlayerCharacter(Character):
     def level_up(self):
         self.update_stats()
 
+    def encumbrance(self):
+        encumbrance = 0
+        for item in self.contents:
+            if isinstance(item, Item):
+                encumbrance += item.db.weight
+        return encumbrance
+
+    def carried_count(self):
+        carried_count = 0
+        for item in self.contents:
+            if isinstance(item, Item):
+                carried_count += 1
+        return carried_count
 
 class NPC(Character, TalkableNPC):
     pass

@@ -18,6 +18,9 @@ player = "|340"
 enemy = "|400"
 
 item = "|545"
+equipment = "|224"
+ability = "|025"
+spell = "|315"
 
 
 def dmg_color(attacker, defender):

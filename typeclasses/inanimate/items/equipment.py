@@ -78,6 +78,7 @@ from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils import (
     at_search_result,
 )
+from evennia.utils.evtable import EvTable
 
 from server import appearance
 from typeclasses.inanimate.items.items import Item
@@ -89,9 +90,15 @@ class Equipment(Item):
         super().at_object_creation()
         self.db.desc = "An equippable item."
         self.db.equipment_slot = None
-        self.db.equipped = False
+
         self.db.required_level = 0
+        self.db.required_stat = None
         self.db.equip_effect = None
+
+        self.db.equipped = False
+
+    def color(self):
+        return appearance.equipment
 
     def equip(self, wearer, quiet=False):
         """
@@ -214,7 +221,7 @@ class CmdEquip(MuxCommand):
             self.caller.msg(f"Can't find '{self.args}'")
             return
         if not item_equipping.db.equipment_slot:
-            self.caller.msg(f"{item_equipping.get_display_name().capitalize()} isn't something you can wear.")
+            self.caller.msg(f"{item_equipping.get_display_name().capitalize()} isn't something you can equip.")
             return
 
         if self.caller.db.equipment[item_equipping.db.equipment_slot] == item_equipping:
@@ -257,6 +264,12 @@ class CmdUnequip(MuxCommand):
         if not self.caller.db.equipment[clothing.db.equipment_slot] == clothing:
             self.caller.msg(f"You're not wearing {clothing.get_display_name()}!")
             return
+        if self.caller.encumbrance() + clothing.weight > self.caller.carry_weight:
+            self.caller.msg("You can't carry that much!")
+            return
+        if self.caller.carried_count() + 1 > self.caller.db.max_carry_count:
+            self.caller.msg("You can't carry that many items!")
+            return
         clothing.unequip(self.caller)
         self.caller.update_stats()
 
@@ -289,6 +302,12 @@ class CmdInventory(MuxCommand):
 
         # carried items
         self.caller.msg(self.caller.get_display_things(looker=self.caller))
+        self.caller.msg(" ")
+
+        table = EvTable(border=None)
+        table.add_row(self.caller.carried_count(), "/", self.caller.db.max_carry_count, "items")
+        table.add_row(format(self.caller.encumbrance(), ".2g"), "/", self.caller.db.carry_weight, "weight")
+        self.caller.msg(table)
 
 
 class EquipmentCharacterCmdSet(default_cmds.CharacterCmdSet):
