@@ -33,19 +33,19 @@ or implement the same locks/hooks in your own typeclasses.
 from collections import defaultdict
 
 from django.conf import settings
-
 from evennia import AttributeProperty, CmdSet, DefaultObject, EvTable
 from evennia.commands.default.general import CmdDrop, CmdGet, CmdLook
-from evennia.utils import class_from_module, iter_to_str
+from evennia.utils import class_from_module
 
 from server import appearance
 from typeclasses.base.objects import Object
+from typeclasses.inanimate.items.items import Item
 
 # establish the right inheritance for container objects
 _BASE_OBJECT_TYPECLASS = class_from_module(settings.BASE_OBJECT_TYPECLASS, DefaultObject)
 
 
-class Container(Object):
+class Container(Item):
     """
     A type of Object which can be used as a container.
 

@@ -250,10 +250,14 @@ class PlayerCharacter(Character):
         self.update_stats()
 
     def encumbrance(self):
-        encumbrance = 0
+        encumbrance = Dec(0)
         for item in self.contents:
             if isinstance(item, Item):
+                if item.contents:
+                    for content in item.contents:
+                        encumbrance += content.db.weight
                 encumbrance += item.db.weight
+
         return encumbrance
 
     def carried_count(self):
@@ -262,6 +266,7 @@ class PlayerCharacter(Character):
             if isinstance(item, Item):
                 carried_count += 1
         return carried_count
+
 
 class NPC(Character, TalkableNPC):
     pass
