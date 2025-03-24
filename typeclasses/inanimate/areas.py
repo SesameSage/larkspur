@@ -9,3 +9,4 @@ class Area(Script):
 class Region(Script):
     def at_script_creation(self):
         self.db.areas = []
+        self.db.weathers = []

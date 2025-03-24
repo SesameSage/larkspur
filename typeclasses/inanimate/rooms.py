@@ -1,11 +1,11 @@
 from evennia.objects.objects import DefaultRoom
 
 from server import appearance
-from typeclasses.base.objects import ObjectParent
+from typeclasses.base.objects import Object
 
 
 # TODO: Areas, Regions
-class Room(ObjectParent, DefaultRoom):
+class Room(Object, DefaultRoom):
     """
     Rooms are like any Object, except their location is None
     (which is default). They also use basetype_setup() to
@@ -30,3 +30,4 @@ class Room(ObjectParent, DefaultRoom):
 
     def print_ambient(self, string):
         self.msg_contents(appearance.ambient + string)
+

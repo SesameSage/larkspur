@@ -206,6 +206,8 @@ class PlayerCharacter(Character):
         self.permissions.add("Player")
 
         self.db.xp = 0
+        self.db.portal_keys = []
+
         self.db.carry_weight = BASE_CARRY_WEIGHT
         self.db.max_carry_count = BASE_CARRY_COUNT
         # TODO: Story point and portal key handler

@@ -4,6 +4,7 @@ from evennia.contrib.grid.ingame_map_display import MapDisplayCmdSet
 from commands.permissions_cmdsets import BuildingCmdSet
 from commands.refiled_cmds import *
 from typeclasses.inanimate.containers import ContainerCmdSet
+from typeclasses.inanimate.portals import CmdTravel
 from typeclasses.living.talking_npc import TalkingCmdSet
 
 # TODO: Why doesn't moreinfo setting persist?
@@ -28,3 +29,4 @@ class PlayerCmdSet(CmdSet):
         self.add(ContainerCmdSet)
 
         self.add(CmdMoreInfo)
+        self.add(CmdTravel)
