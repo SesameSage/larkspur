@@ -17,7 +17,7 @@ class Firebolt(Spell):
         self.db.targeted = True
         self.db.must_target_entity = False
         self.db.cost = {"mana": 2}
-        self.db.cooldown = 3
+        self.db.cooldown = 10
 
     def cast(self, caster: LivingEntity, target: Object = None):
         if not super().cast(caster=caster, target=target):

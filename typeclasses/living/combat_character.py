@@ -219,6 +219,14 @@ class TurnBattleEntity(EquipmentEntity):
     def at_tick(self):
         if not self.is_in_combat():
             self.apply_effects()
+            self.tick_cooldowns()
+
+    def tick_cooldowns(self, secs=1):
+        for ability in self.db.cooldowns:
+            self.db.cooldowns[ability] -= secs
+            if self.db.cooldowns[ability] < 0:
+                self.db.cooldowns[ability] = 0
+
 
     def is_in_combat(self):
         try:
@@ -297,7 +305,10 @@ class TurnBattleEntity(EquipmentEntity):
     def apply_effects(self):
         for script in self.scripts.all():
             if inherits_from(script, DurationEffect):
-                script.apply(in_combat=self.is_in_combat())
+                try:
+                    script.apply(in_combat=self.is_in_combat())
+                except TypeError:
+                    pass
 
     def get_attr(self, attribute: CharAttrib):
         base_attr = self.db.attribs[attribute]
@@ -391,7 +402,7 @@ class TurnBattleEntity(EquipmentEntity):
                 self.at_defeat()
 
     def at_defeat(self):
-        self.location.msg_contents(f"|[110%s{appearance.attention}|[110 has been defeated!" % self.get_display_name())
+        self.location.msg_contents("|w|[110%s has been defeated!" % self.name)
         for script in self.scripts.all():
             if inherits_from(script, DurationEffect):
                 script.delete()

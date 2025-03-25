@@ -309,6 +309,7 @@ class TurnHandler(DefaultScript):
             table.add_row(*row)
         character.msg(table)
 
+        character.tick_cooldowns(EFFECT_SECS_PER_TURN)
         character.apply_effects()
 
     def is_turn(self, character):
