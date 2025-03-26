@@ -21,6 +21,7 @@ class LivingEntity(Object, TurnBattleEntity):
 {things}
 {footer}
     """
+        self.db.appear_string = f"A {self.name} is here."
 
     def announce_move_from(self, destination, msg=None, mapping=None, move_type="move", **kwargs):
         string = "{object}|=j leaves {exit}."

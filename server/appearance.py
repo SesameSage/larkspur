@@ -15,13 +15,15 @@ bad_damage = "|510"
 
 character = "|553"
 player = "|340"
-enemy = "|400"
+enemy = "|510"
 
 item = "|545"
-equipment = "|224"
-usable = "|413"
-ability = "|025"
-spell = "|315"
+equipment = "|532"
+usable = "|535"
+ability = "|035"
+spell = "|325"
+exit = "|353"
+container = "|440"
 
 
 def dmg_color(attacker, defender):

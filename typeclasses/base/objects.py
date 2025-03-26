@@ -214,6 +214,16 @@ class Object(ObjectParent, DefaultObject):
 
     """
 
+    appearance_template = """
+    {header}
+    |c{name}{extra_name_info}|n
+    {desc}
+    {exits}
+    {characters}
+    {things}
+    {footer}
+        """
+
     def color(self):
         return ""
 
@@ -224,5 +234,7 @@ class Object(ObjectParent, DefaultObject):
         return self.color() + name + "|n"
 
 
-class RespawningObject(Object):
-    pass
+class Fixture(Object):
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.locks.add("get:false()")

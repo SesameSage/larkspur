@@ -56,6 +56,10 @@ class Character(LivingEntity):
 
     """
 
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.appear_string = f"{self.name} is here."
+
     def color(self):
         return appearance.character
 

@@ -25,8 +25,6 @@ class TickCooldowns(Script):
             if self.obj.db.cooldowns[ability] > 0:
                 self.obj.db.cooldowns[ability] -= 1
 
-    # TODO: Tickerhandler this
-
 
 class AutoPass(Script):
     def at_script_creation(self):

@@ -66,6 +66,9 @@ class Container(Item):
         self.db.capacity = None
         self.locks.add("get_from:true()")
 
+    def color(self):
+        return appearance.container
+
     def at_pre_get_from(self, getter, target, **kwargs):
         """
         This will be called when something attempts to get another object FROM this object,
