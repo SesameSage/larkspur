@@ -291,7 +291,7 @@ class TurnHandler(DefaultScript):
             obj.msg(msg)
 
         # Prompt the character for their turn and give some information.
-        character.msg("|[550|=a~~~~~ YOUR TURN ~~~~~~")
+        character.msg("|[551|=a~~~~~ YOUR TURN ~~~~~~")
 
         table = evtable.EvTable()
         for fighter in self.db.fighters:
@@ -433,7 +433,7 @@ class TurnHandler(DefaultScript):
         if (hostiles_left == 0) or (nonhostiles_left == 0):
             self.obj.msg_contents(f"{appearance.ambient}Quiet falls upon the battlefield.")
             if hostiles_left == 0:
-                self.obj.msg_contents("|[050|=aYou are victorious!")
+                self.obj.msg_contents("|[350|=aYou are victorious!")
             self.stop()  # Stop this script and end combat.
             self.delete()
             return

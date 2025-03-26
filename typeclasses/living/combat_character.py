@@ -296,11 +296,11 @@ class TurnBattleEntity(EquipmentEntity):
                 duration = attribute[1]
 
         if self.effect_active(effect_key, duration):
-            self.location.msg_contents("%s regains %s." % (self.get_display_name(), effect_key))
+            self.location.msg_contents(f"{self.get_display_name()} regains {effect_key}.")
             return
         effect = evennia.create_script(typeclass=typeclass, obj=self, attributes=attributes)
         effect.pre_effect_add()
-        self.location.msg_contents("%s gains %s." % (self.get_display_name(), effect_key))
+        self.location.msg_contents(f"{self.get_display_name()} gains {effect.color()}{effect_key}.")
 
     def apply_effects(self):
         for script in self.scripts.all():

@@ -98,7 +98,7 @@ def itemfunc_cure_condition(item, user, target, **kwargs):
             effect_key = script.db.effect_key
             if effect_key in effects_cured:
                 script.delete()
-                user.location.msg_contents(f"{target} is no longer {effect_key}.")
+                user.location.msg_contents(f"{target} is no longer {script.color()}{effect_key}.")
 
 
 def itemfunc_attack(item, user, target, **kwargs):
@@ -162,7 +162,7 @@ def itemfunc_attack(item, user, target, **kwargs):
         attack_value -= 25
 
     user.location.msg_contents("%s attacks %s with %s!" % (user, target, item))
-    COMBAT.resolve_attack(
+    user.db.combat_turnhandler.resolve_attack(
         user,
         target,
         attack_value=attack_value,

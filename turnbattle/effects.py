@@ -1,6 +1,7 @@
 from enum import Enum
 from random import randint
 
+from server import appearance
 from typeclasses.scripts.scripts import Script
 
 EFFECT_SECS_PER_TURN = 5
@@ -23,6 +24,9 @@ class DamageTypes(Enum):
 
 
 class EffectScript(Script):
+
+    def color(self):
+        return appearance.effect
 
     def pre_effect_add(self):
         self.obj.db.effects[self.db.effect_key] = {}
@@ -63,7 +67,7 @@ class DurationEffect(EffectScript):
 
     def check_duration(self):
         if self.db.seconds_passed >= self.db.duration:
-            self.obj.location.msg_contents(f"{self.obj.get_display_name()}'s {self.db.effect_key} has worn off.")
+            self.obj.location.msg_contents(f"{self.obj.get_display_name()}'s {self.color()}{self.db.effect_key}|n has worn off.")
             self.delete()
 
 
@@ -129,7 +133,7 @@ class DamageOverTime(PerSecEffect):
     def increment(self, amount: int, in_combat=False):
         if in_combat:
             self.obj.location.msg_contents(f"{self.obj.get_display_name()} "
-                                           f"takes {amount} damage from {self.db.effect_key}.")
+                                           f"takes {appearance.dmg_color(None, self.obj)}{amount} damage|n from {self.color()}{self.db.effect_key}.")
         self.obj.apply_damage({self.db.damage_type: amount})
 
 
