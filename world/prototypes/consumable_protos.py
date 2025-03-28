@@ -1,5 +1,7 @@
 from decimal import Decimal as Dec
 
+from turnbattle.effects import SECS_PER_TURN
+
 POISON_DART = {
     "key": "poison dart",
     "typeclass": "typeclasses.inanimate.items.usables.Consumable",
@@ -13,7 +15,7 @@ POISON_DART = {
                 "script_key": "DamageOverTime",
                 "effect_key": "Poisoned",
                 "range": (1, 1),
-                "duration": 12,
+                "duration": 3 * SECS_PER_TURN,
                 "damage_type": 7
             }
         ]
@@ -57,7 +59,7 @@ HP_REGEN_POTION = {
                 "effect_key": "Regenerating HP",
                 "stat": "HP",
                 "range": (1, 1),
-                "duration": 12
+                "duration": 5 * SECS_PER_TURN
             }
         ]
     },

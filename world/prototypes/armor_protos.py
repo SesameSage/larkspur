@@ -4,7 +4,7 @@ LEATHER_VEST = {
     "key": "leather vest",
     "typeclass": "typeclasses.inanimate.items.apparel.Apparel",
     "equipment_slot": "torso",
-    "weight": 7,
+    "weight": Dec(7),
 
     "defense": 10,
     "evasion": 15
@@ -13,7 +13,7 @@ KINETIC_FOOTWRAPS = {
     "key": "kinetic footwraps",
     "typeclass": "typeclasses.inanimate.items.apparel.Apparel",
     "equipment_slot": "feet",
-    "weight": 0.5,
+    "weight": Dec(0.5),
 
     "defense": 2,
     "evasion": 15,

@@ -22,7 +22,9 @@ class Room(Object, DefaultRoom):
     def at_object_creation(self):
         self.db.area = None
         self.db.region = None
+
         self.db.is_outdoors = True
+        self.db.environment = None
 
     appearance_template = """
 {header}

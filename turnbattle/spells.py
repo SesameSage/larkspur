@@ -34,5 +34,20 @@ class Firebolt(Spell):
         caster.location.msg_contents(f"A bolt of fire ignites in {caster.get_display_name()}'s hand and scorches "
                                      f"{target.get_display_name()} for {dmg_color(caster, target)}{fire_damage} fire damage!")
 
-        target.add_effect(DamageOverTime, [("effect_key", "Burning"), ("range", (1, 1)), ("duration", 15), ("damage_type", 4)])
+        target.add_effect(DamageOverTime,
+                          [("effect_key", "Burning"), ("range", (1, 1)), ("duration", 3 * SECS_PER_TURN), ("damage_type", 4)])
+        return True
+
+
+class BlindingBeam(Spell):
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.targeted = True
+        self.db.must_target_entity = True
+        self.db.cost = ("mana", 5)
+
+    def cast(self, caster: LivingEntity, target: Object = None):
+        if not super().cast(caster, target):
+            return False
+        target.add_effect(DurationEffect, [("effect_key", "Blinded"), ("duration", 3 * SECS_PER_TURN)])
         return True

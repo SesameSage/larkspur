@@ -47,7 +47,7 @@ from evennia import DefaultScript
 from evennia.utils import evtable
 
 from server import appearance
-from turnbattle.effects import EFFECT_SECS_PER_TURN
+from turnbattle.effects import SECS_PER_TURN
 from typeclasses.living.char_stats import CharAttrib
 
 """
@@ -298,10 +298,8 @@ class TurnHandler(DefaultScript):
             row = [fighter.get_display_name(capital=True), f"{fighter.db.hp} hp"]
             effects_str = ""
             for effect in fighter.db.effects:
-                turns_left = (fighter.db.effects[effect]["duration"] - fighter.db.effects[effect][
-                    "seconds passed"]) // EFFECT_SECS_PER_TURN
-                if fighter == character:
-                    turns_left -= 1
+                turns_left = ((fighter.db.effects[effect]["duration"] - fighter.db.effects[effect][
+                    "seconds passed"]) // SECS_PER_TURN) - 1
                 effects_str = effects_str + f"[{effect}({turns_left})] "
 
             if effects_str != "":
@@ -312,7 +310,7 @@ class TurnHandler(DefaultScript):
         if character.effect_active("Knocked Down"):
             character.location.msg_contents(character.get_display_name() + " loses precious time in battle clambering back to their feet!")
             self.spend_action(character, "all", "stand up")
-        character.tick_cooldowns(EFFECT_SECS_PER_TURN)
+        character.tick_cooldowns(SECS_PER_TURN)
         character.apply_effects()
 
 

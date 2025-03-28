@@ -158,8 +158,8 @@ def itemfunc_attack(item, user, target, **kwargs):
     # Account for "Accuracy Up" and "Accuracy Down" conditions
     if "Accuracy Up" in user.db.effects:
         attack_value += 25
-    if "Accuracy Down" in user.db.effects:
-        attack_value -= 25
+    if "Blinded" in user.db.effects:
+        attack_value -= attack_value / 2
 
     user.location.msg_contents("%s attacks %s with %s!" % (user, target, item))
     user.db.combat_turnhandler.resolve_attack(

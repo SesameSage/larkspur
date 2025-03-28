@@ -4,7 +4,7 @@ from random import randint
 from server import appearance
 from typeclasses.scripts.scripts import Script
 
-EFFECT_SECS_PER_TURN = 3
+SECS_PER_TURN = 3
 
 
 class DamageTypes(Enum):
@@ -57,7 +57,7 @@ class DurationEffect(EffectScript):
         self.check_duration()
 
     def add_seconds(self, in_combat=False):
-        self.db.seconds_passed += (EFFECT_SECS_PER_TURN if in_combat else 1)
+        self.db.seconds_passed += (SECS_PER_TURN if in_combat else 1)
         self.obj.db.effects[self.db.effect_key]["seconds passed"] = self.db.seconds_passed
 
     def reset_seconds(self, duration):
@@ -69,7 +69,8 @@ class DurationEffect(EffectScript):
     def check_duration(self):
         if self.db.seconds_passed >= self.db.duration:
             if self.db.effect_key not in ["Knocked Down"]:
-                self.obj.location.msg_contents(f"{self.obj.get_display_name()}'s {self.color()}{self.db.effect_key}|n has worn off.")
+                self.obj.location.msg_contents(
+                    f"{self.obj.get_display_name()}'s {self.color()}{self.db.effect_key}|n has worn off.")
             self.delete()
 
 
@@ -90,7 +91,7 @@ class PerSecEffect(DurationEffect):
         min, max = self.db.range
         amount = randint(min, max)
         if in_combat:
-            amount = amount * EFFECT_SECS_PER_TURN
+            amount = amount * SECS_PER_TURN
         return amount
 
     def increment(self, amount: int, in_combat=False):
@@ -121,7 +122,6 @@ class Regeneration(PerSecEffect):
         self.obj.cap_stats()
 
 
-
 class DamageOverTime(PerSecEffect):
 
     def pre_effect_add(self):
@@ -140,17 +140,17 @@ class DurationMod(DurationEffect):
 
     def pre_effect_add(self):
         super().pre_effect_add()
-        self.key = "Fixed Timed Effect"
+        self.key = "Temporary Mod"
         if hasattr(self, "amount"):
             self.obj.db.effects[self.db.effect_key]["amount"] = self.amount
 
 
 class KnockedDown(DurationEffect):
-    # Lose 2 turns getting up
+    # Take 50% more attack damage and lose 2 turns getting up (enough for single opponent to attack w/effect)
     def pre_effect_add(self):
         super().pre_effect_add()
         self.db.effect_key = "Knocked Down"
-        self.db.duration = 2 * EFFECT_SECS_PER_TURN  # Always lasts 2 turns
+        self.db.duration = 2 * SECS_PER_TURN  # Always lasts 2 turns
 
 
 class DamageMod(DurationMod):
@@ -162,16 +162,6 @@ class DamageMod(DurationMod):
     def at_script_creation(self):
         super().at_script_creation()
         self.obj.db.effects[self.db.effect_key]["damage_type"] = self.damage_type
-
-
-class AccuracyMod(DurationMod):
-    def __init__(self, duration: int, amount: int, *args, **kwargs):
-        if amount >= 0:
-            effect_key = "Accuracy Up"
-        else:
-            effect_key = "Accuracy Down"
-        super().__init__(effect_key, duration, *args, **kwargs)
-        self.amount = amount
 
 
 class DefenseMod(DurationMod):

@@ -1,4 +1,4 @@
-from turnbattle.effects import EFFECT_SECS_PER_TURN
+from turnbattle.effects import SECS_PER_TURN
 from typeclasses.scripts.scripts import Script
 
 
@@ -15,7 +15,7 @@ class TickCooldowns(Script):
                 if not self.db.incremented_this_turn:
                     for ability in self.obj.db.cooldowns:
                         if self.obj.db.cooldowns[ability] > 0:
-                            self.obj.db.cooldowns[ability] -= EFFECT_SECS_PER_TURN
+                            self.obj.db.cooldowns[ability] -= SECS_PER_TURN
                             if self.obj.db.cooldowns[ability] < 0:
                                 self.obj.db.cooldowns[ability] = 0
                     self.db.incremented_this_turn = True

@@ -42,22 +42,18 @@ class CombatHandler:
         if weapon:
             accuracy_bonus += weapon.db.accuracy_bonus
             attacker.location.more_info(f"+{accuracy_bonus} accuracy from {weapon.name} ({attacker.name})")
-        # If unarmed, use character's unarmed accuracy bonus.
-        else:
-            accuracy_bonus += attacker.db.unarmed_accuracy
         # Add the accuracy bonus to the attack roll."""
         attack_value += accuracy_bonus
 
-        buff = None
+        buff = 0
         # Add to the roll if the attacker has the "Accuracy Up" condition.
         if "Accuracy Up" in attacker.db.effects:
-            buff = attacker.db.effects["Accuracy Up"]["amount"]
+            buff += attacker.db.effects["Accuracy Up"]["amount"]
         # Subtract from the roll if the attack has the "Accuracy Down" condition.
-        if "Accuracy Down" in attacker.db.effects:
-            buff = attacker.db.effects["Accuracy Down"]["amount"]
-        if buff:
-            attack_value += buff
-            attacker.location.more_info(f"{"+" if buff > 0 else ""}{buff} accuracy ({attacker.name})")
+        if "Blinded" in attacker.db.effects:
+            buff -= (attack_value) // 2
+            attacker.location.more_info("-50% accuracy from Blinded")
+        attack_value += buff
 
         attacker.location.more_info(f"{attack_value} to hit ({attacker.name})")
         return attack_value
@@ -114,6 +110,13 @@ class CombatHandler:
             for damage_type in damage_values:
                 damage_values[damage_type] -= damage_penalty
                 attacker.location.more_info(f"-{damage_penalty} {damage_type} damage from effect ({attacker.name}")
+
+        if "Knocked Down" in defender.db.effects:
+            # Add 50% to damage
+            defender.location.more_info("+50% damage (Knocked Down)")
+            for damage_type in damage_values:
+                damage_values[damage_type] += damage_values[damage_type] // 2
+
 
         # If defender is armored, reduce incoming damage
         for damage_type in damage_values:
