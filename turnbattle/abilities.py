@@ -18,6 +18,10 @@ class Ability(Object):
         self.db.cooldown = 0
 
     def check(self, caster, target):
+        if self.db.cost:
+            if caster.attributes.get(self.db.cost[0]) < self.db.cost[1]:
+                caster.msg("Not enough " + self.db.cost[0] + "!")
+                return False
         if self.db.cooldown > 0:
             try:
                 if caster.db.cooldowns[self.key] > 0:
@@ -44,7 +48,13 @@ class Ability(Object):
         else:
             if self.db.cooldown > 0:
                 caster.db.cooldowns[self.key] = self.db.cooldown
-                return True
+            if self.db.cost:
+                match self.db.cost[0]:
+                    case "mana":
+                        caster.db.mana -= self.db.cost[1]
+                    case "stamina":
+                        caster.db.stamina -= self.db.cost[1]
+            return True
 
     def get_display_name(self, looker=None, capital=False, **kwargs):
         return appearance.ability + self.name
@@ -61,7 +71,7 @@ class Sweep(Ability):
         super().at_object_creation()
         self.db.targeted = True
         self.db.must_target_entity = True
-        self.db.cost = {"stamina": 1}
+        self.db.cost = ("stamina", 1)
         self.db.cooldown = 15
 
     def cast(self, caster: LivingEntity, target: Object = None):

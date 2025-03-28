@@ -16,7 +16,7 @@ class Firebolt(Spell):
         super().at_object_creation()
         self.db.targeted = True
         self.db.must_target_entity = False
-        self.db.cost = {"mana": 2}
+        self.db.cost = ("mana", 2)
         self.db.cooldown = 10
 
     def cast(self, caster: LivingEntity, target: Object = None):
