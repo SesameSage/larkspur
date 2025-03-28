@@ -1,6 +1,5 @@
 from evennia.utils import inherits_from
 
-from server import appearance
 from turnbattle.effects import *
 from typeclasses.base.objects import Object
 from typeclasses.living.char_stats import CharAttrib
@@ -63,14 +62,22 @@ class Sweep(Ability):
         self.db.targeted = True
         self.db.must_target_entity = True
         self.db.cost = {"stamina": 1}
-        self.db.cooldown = 5
+        self.db.cooldown = 15
 
     def cast(self, caster: LivingEntity, target: Object = None):
-        super().cast(caster, target)
-        duration = 10
-        duration += caster.get_attr(CharAttrib.STRENGTH) * Dec(0.25)
-        duration -= target.get_attr(CharAttrib.DEXTERITY) * Dec(0.25)
-        target.scripts.add(KnockedDown(duration))
+        if not super().cast(caster, target):
+            return False
+        weapon_weight = caster.get_weapon().db.weight if caster.get_weapon() else 0
+        if target.get_attr(CharAttrib.CONSTITUTION) > caster.get_attr(CharAttrib.STRENGTH) + weapon_weight:
+            caster.location.msg_contents(f"{target.get_display_name()} stands too strong for {caster.get_display_name()}'s"
+                                         f" sweep of the legs!")
+        elif target.get_attr(CharAttrib.DEXTERITY) > caster.get_attr(CharAttrib.DEXTERITY):
+            caster.location.msg_contents(f"{target.get_display_name()}'s quick footwork avoids {caster.get_display_name()}'s "
+                                         f"sweep!")
+        else:
+            target.location.msg_contents(f"{caster.get_display_name()} sweeps at {target.get_display_name()}'s legs, "
+                                         f"knocking them to the ground!")
+            target.add_effect(KnockedDown, (("effect_key", "Knocked Down"), ("duration", 6)))
         return True
 
 

@@ -6,6 +6,7 @@ from evennia.utils.evtable import EvTable
 
 from server import appearance
 from turnbattle.effects import DurationEffect
+from typeclasses.inanimate.items.weapons import Weapon
 from typeclasses.living.char_stats import CharAttrib
 
 MAX_HP_BASE = 100
@@ -164,6 +165,10 @@ class EquipmentEntity(DefaultCharacter):
             else ""
         )"""
 
+    def get_weapon(self):
+        primary_held = self.db.equipment["primary"]
+        if primary_held and isinstance(primary_held, Weapon):
+            return primary_held
 
 class TurnBattleEntity(EquipmentEntity):
     """
@@ -186,7 +191,6 @@ class TurnBattleEntity(EquipmentEntity):
                            CharAttrib.WISDOM: 1, CharAttrib.SPIRIT: 1}
 
         # TODO: When to implement calculations like max HP based on Constitution, max mana, etc
-        # TODO: Stat handler?
         self.db.max_hp = MAX_HP_BASE
         self.db.hp = self.db.max_hp
         self.db.hp_regen = 0
@@ -226,7 +230,6 @@ class TurnBattleEntity(EquipmentEntity):
             self.db.cooldowns[ability] -= secs
             if self.db.cooldowns[ability] < 0:
                 self.db.cooldowns[ability] = 0
-
 
     def is_in_combat(self):
         try:
@@ -283,19 +286,18 @@ class TurnBattleEntity(EquipmentEntity):
     def effect_active(self, effect_key, duration_for_reset=0):
         for script in self.scripts.all():
             if script.db.effect_key == effect_key:
-                if isinstance(script, DurationEffect):
-                    script.reset_seconds(duration_for_reset)
-                return True
+                return script
         return False
 
-    def add_effect(self, typeclass, attributes):
+    def add_effect(self, typeclass, attributes=()):
         for attribute in attributes:
             if attribute[0] == "effect_key":
                 effect_key = attribute[1]
             elif attribute[0] == "duration":
                 duration = attribute[1]
 
-        if self.effect_active(effect_key, duration):
+        if self.effect_active(effect_key):
+            self.effect_active(effect_key).reset_seconds(duration)
             self.location.msg_contents(f"{self.get_display_name()} regains {effect_key}.")
             return
         effect = evennia.create_script(typeclass=typeclass, obj=self, attributes=attributes)
@@ -304,7 +306,7 @@ class TurnBattleEntity(EquipmentEntity):
 
     def apply_effects(self):
         for script in self.scripts.all():
-            if inherits_from(script, DurationEffect):
+            if isinstance(script, DurationEffect):
                 try:
                     script.apply(in_combat=self.is_in_combat())
                 except TypeError:
@@ -408,12 +410,16 @@ class TurnBattleEntity(EquipmentEntity):
                 script.delete()
         self.update_stats()
         return True
+
     # TODO: Logic for who to give XP to
 
     def update_stats(self):
-        self.db.max_hp = MAX_HP_BASE + LVL_TO_MAXHP[self.db.level] + CON_TO_MAXHP[self.get_attr(CharAttrib.CONSTITUTION)]
-        self.db.max_stamina = MAX_STAM_BASE + LVL_TO_MAXSTAM[self.db.level] + STR_TO_MAXSTAM[self.get_attr(CharAttrib.STRENGTH)]
-        self.db.max_mana = MAX_MANA_BASE + LVL_TO_MAXMANA[self.db.level] + SPIRIT_TO_MAXMANA[self.get_attr(CharAttrib.SPIRIT)]
+        self.db.max_hp = MAX_HP_BASE + LVL_TO_MAXHP[self.db.level] + CON_TO_MAXHP[
+            self.get_attr(CharAttrib.CONSTITUTION)]
+        self.db.max_stamina = MAX_STAM_BASE + LVL_TO_MAXSTAM[self.db.level] + STR_TO_MAXSTAM[
+            self.get_attr(CharAttrib.STRENGTH)]
+        self.db.max_mana = MAX_MANA_BASE + LVL_TO_MAXMANA[self.db.level] + SPIRIT_TO_MAXMANA[
+            self.get_attr(CharAttrib.SPIRIT)]
 
         self.db.char_defense = CON_TO_DEFENSE[self.get_attr(CharAttrib.CONSTITUTION)]
         self.db.char_evasion = DEXT_TO_EVADE[self.get_attr(CharAttrib.DEXTERITY)]

@@ -38,26 +38,26 @@ class CombatHandler:
         attacker.location.more_info(f"Hitroll {attack_value} ({attacker.name})")
         accuracy_bonus = 0
         # If armed, add weapon's accuracy bonus.
-        if attacker.db.equipment["primary"]:
-            weapon = attacker.db.equipment["primary"]
+        weapon = attacker.get_weapon()
+        if weapon:
             accuracy_bonus += weapon.db.accuracy_bonus
             attacker.location.more_info(f"+{accuracy_bonus} accuracy from {weapon.name} ({attacker.name})")
         # If unarmed, use character's unarmed accuracy bonus.
-        """else:
+        else:
             accuracy_bonus += attacker.db.unarmed_accuracy
         # Add the accuracy bonus to the attack roll."""
         attack_value += accuracy_bonus
 
-        effect = None
+        buff = None
         # Add to the roll if the attacker has the "Accuracy Up" condition.
         if "Accuracy Up" in attacker.db.effects:
-            effect = attacker.db.effects["Accuracy Up"]["amount"]
+            buff = attacker.db.effects["Accuracy Up"]["amount"]
         # Subtract from the roll if the attack has the "Accuracy Down" condition.
         if "Accuracy Down" in attacker.db.effects:
-            effect = attacker.db.effects["Accuracy Down"]["amount"]
-        if effect:
-            attack_value += effect
-            attacker.location.more_info(f"{"+" if effect > 0 else ""}{effect} accuracy ({attacker.name})")
+            buff = attacker.db.effects["Accuracy Down"]["amount"]
+        if buff:
+            attack_value += buff
+            attacker.location.more_info(f"{"+" if buff > 0 else ""}{buff} accuracy ({attacker.name})")
 
         attacker.location.more_info(f"{attack_value} to hit ({attacker.name})")
         return attack_value
@@ -82,8 +82,8 @@ class CombatHandler:
         """
         damage_values = {}
         # Generate a damage value from wielded weapon if armed
-        if attacker.db.equipment["primary"]:
-            weapon = attacker.db.equipment["primary"]
+        weapon = attacker.get_weapon()
+        if weapon:
             for damage_type in weapon.db.damage_ranges:
                 # Roll between minimum and maximum damage
                 values = weapon.db.damage_ranges[damage_type]

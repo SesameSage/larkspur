@@ -13,7 +13,7 @@ POISON_DART = {
                 "script_key": "DamageOverTime",
                 "effect_key": "Poisoned",
                 "range": (1, 1),
-                "duration": 15,
+                "duration": 12,
                 "damage_type": 7
             }
         ]
@@ -55,9 +55,9 @@ HP_REGEN_POTION = {
             {
                 "script_key": "Regeneration",
                 "effect_key": "Regenerating HP",
-                "stat": "hp",
+                "stat": "HP",
                 "range": (1, 1),
-                "duration": 15
+                "duration": 12
             }
         ]
     },

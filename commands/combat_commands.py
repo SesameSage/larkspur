@@ -127,7 +127,7 @@ class CmdCast(Command):
         if len(args) < 1:
             self.caller.msg(f"Usage: {appearance.cmd}cast <ability> |n/ {appearance.cmd}cast <ability> <target>")
             return
-        ability_string = args[0]
+        ability_string = args[0].lower()
         try:
             target_string = args[1]
             target = self.caller.search(target_string)
@@ -139,7 +139,7 @@ class CmdCast(Command):
 
         valid_castables = []
         for ability in self.caller.db.abilities:
-            if ability.key.startswith(ability_string):
+            if ability.key.lower().startswith(ability_string):
                 valid_castables.append(ability)
         if len(valid_castables) == 0:
             self.caller.msg("No valid abilities found for " + ability_string)
