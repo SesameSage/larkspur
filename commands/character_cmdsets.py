@@ -5,7 +5,9 @@ from commands.permissions_cmdsets import BuildingCmdSet
 from commands.refiled_cmds import *
 from typeclasses.inanimate.containers import ContainerCmdSet
 from typeclasses.inanimate.portals import CmdTravel
+from typeclasses.living.char_stats import StatsCmdSet
 from typeclasses.living.talking_npc import TalkingCmdSet
+
 
 # TODO: Why doesn't moreinfo setting persist?
 class CmdMoreInfo(Command):
@@ -15,7 +17,8 @@ class CmdMoreInfo(Command):
     def func(self):
         self.caller.attributes.get("prefs", category="ooc")["more_info"] = \
             not self.caller.attributes.get("prefs", category="ooc")["more_info"]
-        self.caller.print_ambient(f"MoreInfo set to {self.caller.attributes.get("prefs", category="ooc")["more_info"]}.")
+        self.caller.print_ambient(
+            f"MoreInfo set to {self.caller.attributes.get("prefs", category="ooc")["more_info"]}.")
 
 
 class PlayerCmdSet(CmdSet):
@@ -27,6 +30,7 @@ class PlayerCmdSet(CmdSet):
         self.add(BuildingCmdSet)
         self.add(TalkingCmdSet)
         self.add(ContainerCmdSet)
+        self.add(StatsCmdSet)
 
         self.add(CmdMoreInfo)
         self.add(CmdTravel)

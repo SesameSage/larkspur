@@ -286,7 +286,7 @@ class TurnBattleEntity(EquipmentEntity):
         Hook called at the beginning of this character's turn in combat.
         """
         # Prompt the character for their turn and give some information.
-        self.msg("|wIt's your turn! You have %i HP remaining.|n" % self.db.hp)
+        self.msg()
 
         # Apply conditions that fire at the start of each turn.
 

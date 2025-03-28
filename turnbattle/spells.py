@@ -49,5 +49,7 @@ class BlindingBeam(Spell):
     def cast(self, caster: LivingEntity, target: Object = None):
         if not super().cast(caster, target):
             return False
+        caster.location.msg_contents(f"{caster.get_display_name()} aims a focused beam of blinding white light into "
+                                     f"{target.get_display_name()}'s eyes!")
         target.add_effect(DurationEffect, [("effect_key", "Blinded"), ("duration", 3 * SECS_PER_TURN)])
         return True
