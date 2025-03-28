@@ -1,10 +1,11 @@
+from decimal import Decimal as Dec
+
 import evennia
 from evennia import DefaultCharacter
 from evennia import TICKER_HANDLER as tickerhandler
 from evennia.utils import inherits_from
 from evennia.utils.evtable import EvTable
 
-from server import appearance
 from turnbattle.effects import DurationEffect
 from typeclasses.inanimate.items.weapons import Weapon
 from typeclasses.living.char_stats import CharAttrib
@@ -170,6 +171,7 @@ class EquipmentEntity(DefaultCharacter):
         if primary_held and isinstance(primary_held, Weapon):
             return primary_held
 
+
 class TurnBattleEntity(EquipmentEntity):
     """
     A character able to participate in turn-based combat. Has attributes for current
@@ -193,15 +195,18 @@ class TurnBattleEntity(EquipmentEntity):
         # TODO: When to implement calculations like max HP based on Constitution, max mana, etc
         self.db.max_hp = MAX_HP_BASE
         self.db.hp = self.db.max_hp
-        self.db.hp_regen = 0
+        self.db.hp_regen = round(Dec(0.2), 2)
+        self.db.hp_buildup = Dec(0.0)
 
-        self.db.max_stamina = MAX_STAM_BASE
-        self.db.stamina = self.db.max_stamina
-        self.db.stamina_regen = 0
+        self.db.max_stam = MAX_STAM_BASE
+        self.db.stamina = self.db.max_stam
+        self.db.stam_regen = round(Dec(0.2), 2)
+        self.db.stam_buildup = Dec(0.0)
 
         self.db.max_mana = MAX_MANA_BASE
         self.db.mana = self.db.max_mana
-        self.db.mana_regen = 0
+        self.db.mana_regen = round(Dec(0.2), 2)
+        self.db.mana_buildup = Dec(0.0)
         # TODO: Regen rates
 
         self.db.abilities = []
@@ -224,6 +229,8 @@ class TurnBattleEntity(EquipmentEntity):
         if not self.is_in_combat():
             self.apply_effects()
             self.tick_cooldowns()
+            if not self.is_in_combat():
+                self.regenerate()
 
     def tick_cooldowns(self, secs=1):
         for ability in self.db.cooldowns:
@@ -416,7 +423,7 @@ class TurnBattleEntity(EquipmentEntity):
     def update_stats(self):
         self.db.max_hp = MAX_HP_BASE + LVL_TO_MAXHP[self.db.level] + CON_TO_MAXHP[
             self.get_attr(CharAttrib.CONSTITUTION)]
-        self.db.max_stamina = MAX_STAM_BASE + LVL_TO_MAXSTAM[self.db.level] + STR_TO_MAXSTAM[
+        self.db.max_stam = MAX_STAM_BASE + LVL_TO_MAXSTAM[self.db.level] + STR_TO_MAXSTAM[
             self.get_attr(CharAttrib.STRENGTH)]
         self.db.max_mana = MAX_MANA_BASE + LVL_TO_MAXMANA[self.db.level] + SPIRIT_TO_MAXMANA[
             self.get_attr(CharAttrib.SPIRIT)]
@@ -424,3 +431,29 @@ class TurnBattleEntity(EquipmentEntity):
         self.db.char_defense = CON_TO_DEFENSE[self.get_attr(CharAttrib.CONSTITUTION)]
         self.db.char_evasion = DEXT_TO_EVADE[self.get_attr(CharAttrib.DEXTERITY)]
         self.db.char_resistance = WIS_TO_RESIST_FACTOR[self.get_attr(CharAttrib.WISDOM)]
+
+    def regenerate(self):
+        self.db.hp_buildup += self.db.hp_regen
+        self.db.mana_buildup += self.db.mana_regen
+        self.db.stam_buildup += self.db.stam_regen
+        if self.db.hp_buildup >= 1:
+            hp_gained = int(self.db.hp_buildup)
+            self.db.hp_buildup -= Dec(hp_gained)
+            self.db.hp += hp_gained
+        if self.db.mana_buildup >= 1:
+            mana_gained = int(self.db.mana_buildup)
+            self.db.mana_buildup -= Dec(mana_gained)
+            self.db.mana += mana_gained
+        if self.db.stam_buildup >= 1:
+            stam_gained = int(self.db.stam_buildup)
+            self.db.stam_buildup -= Dec(stam_gained)
+            self.db.stamina += stam_gained
+        self.cap_stats()
+
+    def cap_stats(self):
+        if self.db.hp > self.db.max_hp:
+            self.db.hp = self.db.max_hp
+        if self.db.mana > self.db.max_mana:
+            self.db.mana = self.db.max_mana
+        if self.db.stamina > self.db.max_stam:
+            self.db.stamina = self.db.max_stam

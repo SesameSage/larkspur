@@ -114,16 +114,12 @@ class Regeneration(PerSecEffect):
         match self.db.stat:
             case "HP":
                 self.obj.db.hp += amount
-                if self.obj.db.hp > self.obj.db.max_hp:
-                    self.obj.db.hp = self.obj.db.max_hp
             case "mana":
                 self.obj.db.mana += amount
-                if self.obj.db.mana > self.obj.db.max_mana:
-                    self.obj.db.mana = self.obj.db.max_mana
             case "stamina":
                 self.obj.db.stamina += amount
-                if self.obj.db.stamina > self.obj.db.max_stamina:
-                    self.obj.db.stamina = self.obj.db.max_stamina
+        self.obj.cap_stats()
+
 
 
 class DamageOverTime(PerSecEffect):
