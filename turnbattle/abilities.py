@@ -2,7 +2,6 @@ from evennia.utils import inherits_from
 
 from turnbattle.effects import *
 from typeclasses.base.objects import Object
-from typeclasses.living.char_stats import CharAttrib
 from typeclasses.living.living_entities import LivingEntity
 
 
@@ -78,10 +77,10 @@ class Sweep(Ability):
         if not super().cast(caster, target):
             return False
         weapon_weight = caster.get_weapon().db.weight if caster.get_weapon() else 0
-        if target.get_attr(CharAttrib.CONSTITUTION) > caster.get_attr(CharAttrib.STRENGTH) + weapon_weight:
+        if target.get_attr("con") > caster.get_attr("str") + weapon_weight:
             caster.location.msg_contents(f"{target.get_display_name()} stands too strong for {caster.get_display_name()}'s"
                                          f" sweep of the legs!")
-        elif target.get_attr(CharAttrib.DEXTERITY) > caster.get_attr(CharAttrib.DEXTERITY):
+        elif target.get_attr("dex") > caster.get_attr("dex"):
             caster.location.msg_contents(f"{target.get_display_name()}'s quick footwork avoids {caster.get_display_name()}'s "
                                          f"sweep!")
         else:

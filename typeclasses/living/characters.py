@@ -15,7 +15,6 @@ from commands.character_cmdsets import PlayerCmdSet
 from commands.refiled_cmds import RefiledCmdSet
 from typeclasses.inanimate import rooms
 from typeclasses.inanimate.items.items import Item
-from typeclasses.living.char_stats import CharAttrib
 from typeclasses.living.living_entities import *
 from typeclasses.living.talking_npc import TalkableNPC
 
@@ -223,7 +222,7 @@ class PlayerCharacter(Character):
 
     def update_stats(self):
         super().update_stats()
-        self.db.carry_weight = BASE_CARRY_WEIGHT + STR_TO_CARRY_WEIGHT[self.get_attr(CharAttrib.STRENGTH)]
+        self.db.carry_weight = BASE_CARRY_WEIGHT + STR_TO_CARRY_WEIGHT[self.get_attr("str")]
 
     def color(self):
         return appearance.player

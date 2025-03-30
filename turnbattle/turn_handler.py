@@ -48,7 +48,6 @@ from evennia.utils import evtable
 
 from server import appearance
 from turnbattle.effects import SECS_PER_TURN
-from typeclasses.living.char_stats import CharAttrib
 
 """
 ----------------------------------------------------------------------------
@@ -232,7 +231,7 @@ class TurnHandler(DefaultScript):
 
             This way, characters with a higher dexterity will go first more often.
         """
-        return randint(1, 20) + character.get_attr(CharAttrib.DEXTERITY)
+        return randint(1, 20) + character.get_attr("dex")
 
     def count_hostiles(self):
         hostiles_left = 0

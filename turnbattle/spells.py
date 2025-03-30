@@ -23,9 +23,9 @@ class Firebolt(Spell):
         if not super().cast(caster=caster, target=target):
             return False
         damage_mod = caster.db.mods["fire damage"] if "fire damage" in caster.db.mods else 1
-        fire_damage = caster.get_attr(CharAttrib.SPIRIT) * damage_mod
+        fire_damage = caster.get_attr("spirit") * damage_mod
         caster.location.more_info(f"{fire_damage} fire damage = "
-                                  f"{caster.get_attr(CharAttrib.SPIRIT)} Spirit * {damage_mod} mod")
+                                  f"{caster.get_attr("spirit")} Spirit * {damage_mod} mod")
         ignite_buildup = 0
 
         if not target.is_in_combat():

@@ -8,7 +8,6 @@ from evennia.utils.evtable import EvTable
 
 from turnbattle.effects import DurationEffect
 from typeclasses.inanimate.items.weapons import Weapon
-from typeclasses.living.char_stats import CharAttrib
 
 MAX_HP_BASE = 100
 LVL_TO_MAXHP = {
@@ -188,9 +187,9 @@ class TurnBattleEntity(EquipmentEntity):
 
         self.db.level = 1
         # TODO: How to utilize enemy level
-        self.db.attribs = {CharAttrib.STRENGTH: 1, CharAttrib.CONSTITUTION: 1,
-                           CharAttrib.DEXTERITY: 1, CharAttrib.PERCEPTION: 1, CharAttrib.INTELLIGENCE: 1,
-                           CharAttrib.WISDOM: 1, CharAttrib.SPIRIT: 1}
+        self.db.attribs = {"strength": 1, "constitution": 1,
+                           "dexterity": 1, "perception": 1, "intelligence": 1,
+                           "wisdom": 1, "spirit": 1}
 
         # TODO: When to implement calculations like max HP based on Constitution, max mana, etc
         self.db.max_hp = MAX_HP_BASE
@@ -319,19 +318,21 @@ class TurnBattleEntity(EquipmentEntity):
                 except TypeError:
                     pass
 
-    def get_attr(self, attribute: CharAttrib):
-        base_attr = self.db.attribs[attribute]
+    def get_attr(self, att_input: str):
+        for attribute in self.db.attribs:
+            if attribute.startswith(att_input):
+                att_input = attribute
+        base_attr = self.db.attribs[att_input]
 
         eq_bonus = 0
         for slot in self.db.equipment:
             equipment = self.db.equipment[slot]
 
         effect = 0
-        name = attribute.get_display_name()
-        if f"{name} Up" in self.db.effects:
-            effect = self.db.effects(f"{name} Up")["amount"]
-        if f"{name} Down" in self.db.effects:
-            effect = self.db.effects(f"{name} Down")["amount"]
+        if f"{att_input} Up".capitalize() in self.db.effects:
+            effect = self.db.effects(f"{att_input} Up".capitalize())["amount"]
+        if f"{att_input} Down".capitalize() in self.db.effects:
+            effect = self.db.effects(f"{att_input} Down".capitalize())["amount"]
 
         return base_attr + effect + eq_bonus
 
@@ -372,14 +373,14 @@ class TurnBattleEntity(EquipmentEntity):
             return eq_ev
 
         def effect_evasion():
-            effect = 0
+            effect_ev = 0
             if "Evasion Up" in self.db.effects:
-                effect += self.db.effects["Evasion Up"]["amount"]
+                effect_ev += self.db.effects["Evasion Up"]["amount"]
             if "Evasion Down" in self.db.effects:
-                effect += self.db.effects["Evasion Down"]["amount"]
-            if effect > 0:
-                self.location.more_info(f"{"+" if effect > 0 else ""}{effect} evasion from effect ({self.name})")
-            return effect
+                effect_ev += self.db.effects["Evasion Down"]["amount"]
+            if effect_ev > 0:
+                self.location.more_info(f"{"+" if effect_ev > 0 else ""}{effect_ev} evasion from effect ({self.name})")
+            return effect_ev
 
         total_evasion = self.db.char_evasion
         self.location.more_info(f"{total_evasion} base evasion ({self.name})")
@@ -388,6 +389,18 @@ class TurnBattleEntity(EquipmentEntity):
 
         self.location.more_info(f"{total_evasion} total evasion ({self.name})")
         return total_evasion
+
+    def get_resistance(self):
+        self.location.more_info(f"{self.db.char_resistance} base resistance ({self.name})")
+        eq_res = 0
+        for slot in self.db.equipment:
+            equipment = self.db.equipment[slot]
+            if equipment and hasattr(equipment, "resistance") and equipment.db.resistance:
+                eq_res += equipment.db.evasion
+        effect_res = 0
+        if "Resistance" in self.db.effects:
+            effect_res += self.db.effects["Resistance"]["amount"]
+        return self.db.char_resistance + eq_res + effect_res
 
     def apply_damage(self, damages):
         """
@@ -422,15 +435,15 @@ class TurnBattleEntity(EquipmentEntity):
 
     def update_stats(self):
         self.db.max_hp = MAX_HP_BASE + LVL_TO_MAXHP[self.db.level] + CON_TO_MAXHP[
-            self.get_attr(CharAttrib.CONSTITUTION)]
+            self.get_attr("con")]
         self.db.max_stam = MAX_STAM_BASE + LVL_TO_MAXSTAM[self.db.level] + STR_TO_MAXSTAM[
-            self.get_attr(CharAttrib.STRENGTH)]
+            self.get_attr("str")]
         self.db.max_mana = MAX_MANA_BASE + LVL_TO_MAXMANA[self.db.level] + SPIRIT_TO_MAXMANA[
-            self.get_attr(CharAttrib.SPIRIT)]
+            self.get_attr("spi")]
 
-        self.db.char_defense = CON_TO_DEFENSE[self.get_attr(CharAttrib.CONSTITUTION)]
-        self.db.char_evasion = DEXT_TO_EVADE[self.get_attr(CharAttrib.DEXTERITY)]
-        self.db.char_resistance = WIS_TO_RESIST_FACTOR[self.get_attr(CharAttrib.WISDOM)]
+        self.db.char_defense = CON_TO_DEFENSE[self.get_attr("con")]
+        self.db.char_evasion = DEXT_TO_EVADE[self.get_attr("dex")]
+        self.db.char_resistance = WIS_TO_RESIST_FACTOR[self.get_attr("wis")]
 
     def regenerate(self):
         self.db.hp_buildup += self.db.hp_regen
