@@ -4,6 +4,16 @@ from evennia import Command, CmdSet, EvTable
 
 
 class CmdHP(Command):
+    """
+        show current hitpoints
+
+        Usage:
+          hp (my hp)
+          hp <entity>
+
+        Get a combat entity's current hitpoints.
+        Hitpoints are analogous to health or life. You are defeated when your hp falls to zero.
+        """
     key = "hp"
     help_category = "character"
 
@@ -22,6 +32,15 @@ class CmdHP(Command):
 
 
 class CmdMana(Command):
+    """
+        show current mana
+
+        Usage:
+          mana (my stamina)
+          mana <entity>
+
+        Get a combat entity's current mana.
+        Mana is a resource used to cast spells."""
     key = "mana"
     aliases = "man"
     help_category = "character"
@@ -41,6 +60,16 @@ class CmdMana(Command):
 
 
 class CmdStamina(Command):
+    """
+    show current stamina
+
+    Usage:
+      stamina (my stamina)
+      stamina <entity>
+
+    Get a combat entity's current stamina.
+    Stamina is a resource used for physical abilities such as Sweep and Shield Bash.
+    """
     key = "stamina"
     aliases = "stam"
     help_category = "character"
@@ -60,6 +89,15 @@ class CmdStamina(Command):
 
 
 class CmdStats(Command):
+    """
+    show a combat entity's stats
+
+    Usage:
+      stats (your stats)
+      stats <entity>
+
+    Prints a table showing a combat entity's stats, such as hitpoints and strength.
+    """
     key = "stats"
     help_category = "character"
 
