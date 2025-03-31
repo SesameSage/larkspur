@@ -14,6 +14,7 @@ class LivingEntity(Object, TurnBattleEntity):
     """
     def at_object_creation(self):
         super().at_object_creation()
+        self.db.gold = 0
         self.appearance_template = """
 {header}
 |c{name}{extra_name_info}|n

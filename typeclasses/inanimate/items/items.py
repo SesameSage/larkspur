@@ -224,6 +224,39 @@ class CmdIdentify(Command):
         self.caller.msg(target.identify())
 
 
+class CmdShop(Command):
+    key = "shop"
+    help_category = "items"
+
+    def func(self):
+        vendor = None
+        for object in self.caller.location.contents:
+            if object.attributes.has("stock"):
+                vendor = object
+        if not vendor:
+            self.caller.msg("No one to buy from here!")
+            return
+        vendor.display_stock(self.caller)
+
+
+class CmdBuy(Command):
+    key = "buy"
+    help_category = "items"
+
+    def func(self):
+        vendor = None
+        for object in self.caller.location.contents:
+            if object.attributes.has("stock"):
+                vendor = object
+        if not vendor:
+            self.caller.msg("No one to buy from here!")
+            return
+        if not self.args:
+            self.caller.msg("Buy what?")
+            return
+        vendor.sell_item(player=self.caller, input=self.args)
+
+
 class LightItem(Item):
     def at_object_creation(self):
         super().at_object_creation()

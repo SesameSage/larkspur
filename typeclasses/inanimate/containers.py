@@ -208,6 +208,7 @@ class CmdContainerGet(CmdGet):
     """
 
     rhs_split = (" from ",)
+    help_category = "items"
 
     def func(self):
         caller = self.caller

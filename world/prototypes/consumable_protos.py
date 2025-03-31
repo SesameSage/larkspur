@@ -24,7 +24,7 @@ POISON_DART = {
 }
 ANTIDOTE = {
     "key": "antidote",
-    "typeclass": "typeclasses.inanimate.items.usables.Consumable",
+    "typeclass": "typeclasses.inanimate.items.usables.Potion",
     "desc": "An antidote to poison.",
     "item_func": "cure_condition",
     "item_uses": 1,
@@ -36,7 +36,7 @@ ANTIDOTE = {
 
 HEALTH_POTION = {
     "key": "health potion",
-    "typeclass": "typeclasses.inanimate.items.usables.Consumable",
+    "typeclass": "typeclasses.inanimate.items.usables.Potion",
     "desc": "A potion of health",
     "item_func": "heal",
     "item_uses": 1,
@@ -48,7 +48,7 @@ HEALTH_POTION = {
 
 HP_REGEN_POTION = {
     "key": "regeneration potion",
-    "typeclass": "typeclasses.inanimate.items.usables.Consumable",
+    "typeclass": "typeclasses.inanimate.items.usables.Potion",
     "desc": "A portion of life regeneration",
     "item_func": "add_effect",
     "item_uses": 1,

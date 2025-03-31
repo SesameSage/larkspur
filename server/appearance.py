@@ -21,6 +21,7 @@ player = "|340"
 enemy = "|510"
 
 item = "|545"
+gold = "|430"
 equipment = "|532"
 usable = "|535"
 ability = "|035"

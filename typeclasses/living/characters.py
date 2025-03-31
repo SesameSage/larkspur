@@ -9,6 +9,8 @@ creation commands.
 """
 from decimal import Decimal as Dec
 
+from evennia import EvTable
+from evennia.prototypes.spawner import spawn
 from evennia.utils import make_iter
 
 from commands.character_cmdsets import PlayerCmdSet
@@ -62,6 +64,9 @@ class Character(LivingEntity):
 
     def say(self, msg):
         self.at_say(message=msg, msg_self=True)
+
+    def say_to(self, character, msg):
+        self.at_say(message=msg, receivers=character)
 
     def at_say(self, message, msg_self=None, msg_location=None, receivers=None, msg_receivers=None, **kwargs):
         # Overridden formatting
@@ -273,6 +278,38 @@ class PlayerCharacter(Character):
 
 class NPC(Character, TalkableNPC):
     pass
+
+
+class Vendor(NPC):
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.stock = {}  # {Item: prototype_key}
+
+    def add_to_stock(self, prototype_key):
+        item = spawn(prototype_key)[0]
+        item.location = self
+        item.locks.add("get:perm(developer)")
+        self.db.stock[item] = prototype_key
+
+    def display_stock(self, player):
+        table = EvTable("Item", "Type", "Cost")
+        for item in self.db.stock:
+            table.add_row(item.get_display_name(), item.__class__.__name__, appearance.gold + str(item.db.avg_value))
+        player.msg(table)
+
+    def sell_item(self, player, input):
+        stock_item = self.search(input, candidates=self.db.stock.keys())
+        if not stock_item:
+            return False
+        if player.db.gold < stock_item.db.avg_value:
+            self.say_to(player, "That's not enough gold for that item.")
+            return False
+        item_to_sell = spawn(self.db.stock[stock_item])[0]
+        player.db.gold -= stock_item.db.avg_value
+        self.db.gold += stock_item.db.avg_value
+        item_to_sell.location = player
+        singular = item_to_sell.get_numbered_name(count=1, looker=player)[0]
+        player.msg("You receive " + singular + ".")
 
 
 class EnemyCharacter(Enemy, NPC):
