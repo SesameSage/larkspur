@@ -67,8 +67,9 @@ class Room(Object, DefaultRoom):
         for character in characters:
             if first_line:
                 string = character.color() + character.db.appear_string
+                first_line = False
             else:
-                string = string + "\n" + character.db.appear_string
+                string = string + "\n" + character.color() + character.db.appear_string
 
         return string
 

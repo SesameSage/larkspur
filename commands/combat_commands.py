@@ -81,17 +81,18 @@ class CmdAttack(Command):
 
         attacker = self.caller
 
+        valid_targets = []
+        for fighter in attacker.location.scripts.get("Combat Turn Handler")[0].db.fighters:
+            if fighter is not attacker and fighter.db.hp > 0:
+                valid_targets.append(fighter)
         if self.args == "":  # No valid target given.
-            valid_targets = []
-            for fighter in attacker.location.scripts.get("Combat Turn Handler")[0].db.fighters:
-                if fighter is not attacker:
-                    valid_targets.append(fighter)
             if len(valid_targets) > 1:
+                self.caller.msg("Attack whom? " + str(valid_targets))
                 return
             else:
                 defender = valid_targets[0]
         else:
-            defender = self.caller.search(self.args)
+            defender = self.caller.search(self.args, candidates=valid_targets)
             if not defender:
                 self.caller.msg("Can't find " + self.args)
                 return

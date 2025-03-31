@@ -1,3 +1,5 @@
+import random
+
 from turnbattle.effects import SECS_PER_TURN
 from typeclasses.scripts.scripts import Script
 
@@ -44,8 +46,9 @@ class SimpleAttack(Script):
     def at_repeat(self, **kwargs):
         if self.obj.is_in_combat():
             if self.obj.is_turn():
+                targets = []
                 for fighter in self.obj.location.scripts.get("Combat Turn Handler")[0].db.fighters:
-                    if fighter != self.obj:
-                        target = fighter
-                        break
+                    if fighter.db.hostile != self.obj.db.hostile and fighter.db.hp > 0:
+                        targets.append(fighter)
+                target = random.choice(targets)
                 self.obj.execute_cmd("attack " + target.key)

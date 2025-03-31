@@ -7,6 +7,7 @@ notify = "|530"
 attention = "|550"
 warning = "|[100|500"
 moreinfo = "|=g"
+highlight = "|353"
 
 say = "|145"
 whisper = "|525"

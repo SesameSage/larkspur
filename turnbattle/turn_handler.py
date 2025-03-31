@@ -307,11 +307,11 @@ class TurnHandler(DefaultScript):
         character.msg(table)
 
         if character.effect_active("Knocked Down"):
-            character.location.msg_contents(character.get_display_name() + " loses precious time in battle clambering back to their feet!")
+            character.location.msg_contents(
+                character.get_display_name() + " loses precious time in battle clambering back to their feet!")
             self.spend_action(character, "all", "stand up")
         character.tick_cooldowns(SECS_PER_TURN)
         character.apply_effects()
-
 
     def is_turn(self, character):
         """
@@ -388,10 +388,13 @@ class TurnHandler(DefaultScript):
 
         # Cycle to the next turn.
         currentchar = self.db.fighters[self.db.turn]
-        self.db.turn += 1  # Go to the next in the turn order.
-        if self.db.turn > len(self.db.fighters) - 1:
-            self.db.turn = 0  # Go back to the first in the turn order once you reach the end.
-        newchar = self.db.fighters[self.db.turn]  # Note the new character
+        while True:
+            self.db.turn += 1  # Go to the next in the turn order.
+            if self.db.turn > len(self.db.fighters) - 1:
+                self.db.turn = 0  # Go back to the first in the turn order once you reach the end.
+            newchar = self.db.fighters[self.db.turn]  # Note the new character
+            if newchar.db.hp > 0:
+                break
         self.db.timer = TURN_TIMEOUT + self.time_until_next_repeat()  # Reset the timer.
         self.db.timeout_warning_given = False  # Reset the timeout warning.
 
