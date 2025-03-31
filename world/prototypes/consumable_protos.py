@@ -43,7 +43,7 @@ HEALTH_POTION = {
     "kwargs": {
         "heal_range": (20, 30)
     },
-    "weight": Dec(1)
+    "weight": round(Dec(1), 1),
 }
 
 HP_REGEN_POTION = {
@@ -63,6 +63,6 @@ HP_REGEN_POTION = {
             }
         ]
     },
-    "weight": Dec(1),
+    "weight": round(Dec(1), 1),
 }
 

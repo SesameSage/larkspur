@@ -18,8 +18,6 @@ from typeclasses.inanimate.items.items import Item
 from typeclasses.living.living_entities import *
 from typeclasses.living.talking_npc import TalkableNPC
 
-# TODO: Command Stats
-
 XP_THRESHOLDS = {
     2: 100
 }

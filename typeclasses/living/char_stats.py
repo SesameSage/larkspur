@@ -97,6 +97,9 @@ class CmdStats(Command):
       stats <entity>
 
     Prints a table showing a combat entity's stats, such as hitpoints and strength.
+
+    Values such as resistance and constitution display the active value first, taking
+    equipment and effects into account, then display the base character value in parentheses.
     """
     key = "stats"
     help_category = "character"

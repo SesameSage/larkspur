@@ -224,6 +224,10 @@ class Object(ObjectParent, DefaultObject):
     {footer}
         """
 
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.long_desc = None
+
     def color(self):
         return ""
 

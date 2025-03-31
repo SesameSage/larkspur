@@ -206,7 +206,6 @@ class TurnBattleEntity(EquipmentEntity):
         self.db.mana = self.db.max_mana
         self.db.mana_regen = round(Dec(0.2), 2)
         self.db.mana_buildup = Dec(0.0)
-        # TODO: Regen rates
 
         self.db.abilities = []
 

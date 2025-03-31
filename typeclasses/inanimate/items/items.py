@@ -1,6 +1,7 @@
 from random import randint
 from decimal import Decimal as Dec
 
+from evennia import Command, EvTable
 from evennia.utils import inherits_from
 
 from server import appearance
@@ -179,7 +180,6 @@ ITEMFUNCS = {
 }
 
 
-# TODO: Command identify
 class Item(Object):
 
     def at_object_creation(self):
@@ -190,6 +190,38 @@ class Item(Object):
 
     def color(self):
         return appearance.item
+
+    def identify(self):
+        table = EvTable(self.get_display_name(), self.__class__.__name__)
+        table.add_row(f"Weight: {self.db.weight}")
+        table.add_row(f"Average value: {self.db.avg_value}")
+        return table
+
+
+class CmdIdentify(Command):
+    """
+    View stats and details on an item.
+
+    Usage:
+      id <item>
+    """
+    key = "identify"
+    aliases = "id"
+    help_category = "items"
+
+    def func(self):
+        if self.args:
+            target = self.caller.search(self.args)
+            if not target:
+                self.caller.msg(f"Can't find '{self.args}' here")
+                return
+            if not isinstance(target, Item):
+                self.caller.msg(f"{target.name.capitalize()} is not an item!")
+                return
+        else:
+            self.caller.msg(f"Usage: {appearance.cmd}id <item>")
+            return
+        self.caller.msg(target.identify())
 
 
 class LightItem(Item):

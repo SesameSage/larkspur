@@ -97,6 +97,24 @@ class Equipment(Item):
 
         self.db.equipped = False
 
+    def identify(self):
+        table = EvTable()
+        table.add_column(f"Weight: {self.db.weight}",
+                         f"Average value: {self.db.avg_value}", header=self.get_display_name())
+        table.add_column(f"Equip slot: {self.db.equipment_slot}",
+                         f"Lvl req: {self.db.required_level}",
+                         f"Requires: {self.db.required_stat}",
+                         header=self.__class__.__name__)
+        stats = []
+        if self.db.defense:
+            stats.append(f"Defense: {self.db.defense}")
+        if self.db.evasion:
+            stats.append(f"Evasion: {self.db.evasion}")
+        if self.db.resistance:
+            stats.append(f"Resistance: {self.db.resistance}")
+        table.table[0].add_rows(*stats)
+        return table
+
     def color(self):
         return appearance.equipment
 
