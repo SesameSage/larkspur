@@ -20,7 +20,7 @@ POISON_DART = {
             }
         ]
     },
-    "weight": round(Dec(0.1), 1),
+    "weight": round(Dec(0.5), 1),
 }
 ANTIDOTE = {
     "key": "antidote",

@@ -30,7 +30,7 @@ class Usable(Item):
 
         table.add_column(f"Num. Uses: {self.db.item_uses}",
                          f"Function: {func_str}",
-            header=self.__class__.__name__)
+                         header=self.__class__.__name__)
         return table
 
 
