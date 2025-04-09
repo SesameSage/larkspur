@@ -20,13 +20,18 @@ class CmdDigDoor(Command):
     help_category = "building"
 
     def func(self):
+        # TODO: Catch if the tunnel command fails
         self.execute_cmd("tunnel " + self.args)
+
+        # Get the last two objects created, which should be the two new mirroring exits
         from typeclasses.base.objects import Object
         recent_objects = Object.objects.order_by("-db_date_created")[:2]
 
+        # Turn both exits into doors
         self.execute_cmd(f"@type/update #{recent_objects[0].id} = typeclasses.inanimate.exits.Door")
         self.execute_cmd(f"@type/update #{recent_objects[1].id} = typeclasses.inanimate.exits.Door")
 
+        # Set them as each other's return exit
         recent_objects[1].db.return_exit = recent_objects[0]
         recent_objects[0].db.return_exit = recent_objects[1]
 

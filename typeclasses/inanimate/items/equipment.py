@@ -98,6 +98,7 @@ class Equipment(Item):
         self.db.equipped = False
 
     def identify(self):
+        """Return a table containing details on the item such as its stats and effects."""
         table = EvTable()
         table.add_column(f"Weight: {self.db.weight}",
                          f"Average value: {self.db.avg_value}", header=self.get_display_name())
@@ -120,10 +121,10 @@ class Equipment(Item):
 
     def equip(self, wearer, quiet=False):
         """
-        Sets clothes to 'worn' and optionally echoes to the room.
+        Sets equipment to equipped, and optionally echoes to the room.
 
         Args:
-            wearer (obj): character object wearing this clothing object
+            wearer (obj): character object wearing this equipment object
 
         Keyword Args:
             quiet (bool): If false, does not message the room
@@ -133,7 +134,7 @@ class Equipment(Item):
         if prev_item:
             prev_item.unequip(wearer=wearer, quiet=True)
 
-        # Set clothing as worn
+        # Fill slot and set to equipped
         wearer.db.equipment[self.db.equipment_slot] = self
         self.db.equipped = True
 
@@ -144,19 +145,21 @@ class Equipment(Item):
 
     def unequip(self, wearer, quiet=False):
         """
-        Removes worn clothes and optionally echoes to the room.
+        Removes worn equipment and optionally echoes to the room.
 
         Args:
-            wearer (obj): character object wearing this clothing object
+            wearer (obj): character object wearing this equipment object
 
         Keyword Args:
             quiet (bool): If false, does not message the room
         """
+        # Check if item is actually occupying its equipment slot
         slot = wearer.db.equipment[self.db.equipment_slot]
         if slot != self:
             wearer.msg(f"{appearance.warning}Not wearing {self.name} - cannot unequip!")
             return False
 
+        # Remove and set to unequipped
         wearer.db.equipment[self.db.equipment_slot] = None
         self.db.equipped = False
 
@@ -165,7 +168,7 @@ class Equipment(Item):
             remove_message = f"$You() $conj(unequip) {self.get_display_name()}."
             wearer.location.msg_contents(remove_message, from_obj=wearer)
 
-        if wearer.db.equipment[self.db.equipment_slot] == self:
+        if wearer.db.equipment[self.db.equipment_slot] != self:  # If successful
             return True
         else:
             return False
@@ -197,7 +200,8 @@ class CmdEquip(MuxCommand):
     Puts on an item of clothing you are holding.
 
     Usage:
-      equip <obj> [=] [wear style]
+      equip <obj>
+      equip    (show equipped items)
 
     Examples:
       equip boots
@@ -210,6 +214,7 @@ class CmdEquip(MuxCommand):
 
     def func(self):
         if not self.args:
+            # Show equipment
             self.caller.msg(self.caller.show_equipment())
             return
         if not self.rhs:
@@ -318,7 +323,6 @@ class CmdInventory(MuxCommand):
             self.caller.msg("You are not carrying or wearing anything.")
             return
 
-        # carried items
         self.caller.msg(self.caller.get_display_things(looker=self.caller))
         self.caller.msg(" ")
 

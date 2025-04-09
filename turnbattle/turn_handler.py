@@ -234,6 +234,7 @@ class TurnHandler(DefaultScript):
         return randint(1, 20) + character.get_attr("dex")
 
     def count_hostiles(self):
+        """Returns a tuple with the numbers of hostiles and nonhostiles remaining in battle."""
         hostiles_left = 0
         nonhostiles_left = 0
         for fighter in self.db.fighters:
@@ -400,7 +401,7 @@ class TurnHandler(DefaultScript):
 
         self.all_defeat_check()
 
-        self.start_turn(newchar)  # Start the new character's turn.
+        self.start_turn(newchar)
 
         if not self.id:
             return
@@ -430,6 +431,7 @@ class TurnHandler(DefaultScript):
         return True
 
     def all_defeat_check(self):
+        """Check if all fighters on one 'side' are defeated - either no hostiles left or no nonhostiles left"""
         if not self.id:
             return
         # Check if all left standing are either hostile or friendly

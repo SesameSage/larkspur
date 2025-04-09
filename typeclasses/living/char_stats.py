@@ -20,7 +20,7 @@ class CmdHP(Command):
     help_category = "character"
 
     def func(self):
-        if self.args:
+        if self.args:  # Target given
             target = self.caller.search(
                 self.args, candidates=[content for content in self.caller.location.contents if content.db.hp])
             if not target:
@@ -30,7 +30,7 @@ class CmdHP(Command):
                 self.caller.msg(f"{target.name.capitalize()} doesn't have hitpoints!")
                 return
             self.caller.msg(f"{target.name.capitalize()} HP: {target.db.hp}")
-        else:
+        else:  # Show self HP
             self.caller.msg(f"Your HP: {self.caller.db.hp}")
 
 
@@ -49,7 +49,7 @@ class CmdMana(Command):
     help_category = "character"
 
     def func(self):
-        if self.args:
+        if self.args:  # Target given
             target = self.caller.search(
                 self.args, candidates=[content for content in self.caller.location.contents if content.db.mana])
             if not target:
@@ -59,7 +59,7 @@ class CmdMana(Command):
                 self.caller.msg(f"{target.name.capitalize()} doesn't have mana!")
                 return
             self.caller.msg(f"{target.name.capitalize()} mana: {target.db.mana}")
-        else:
+        else:  # Show self mana
             self.caller.msg(f"Your mana: {self.caller.db.mana}")
 
 
@@ -79,7 +79,7 @@ class CmdStamina(Command):
     help_category = "character"
 
     def func(self):
-        if self.args:
+        if self.args:  # Target given
             target = self.caller.search(
                 self.args, candidates=[content for content in self.caller.location.contents if content.db.stamina])
             if not target:
@@ -89,7 +89,7 @@ class CmdStamina(Command):
                 self.caller.msg(f"{target.name.capitalize()} doesn't have stamina!")
                 return
             self.caller.msg(f"{target.name.capitalize()} stamina: {target.db.stamina}")
-        else:
+        else:  # Show self stamina
             self.caller.msg(f"Your stamina: {self.caller.db.stamina}")
 
 
@@ -111,7 +111,7 @@ class CmdStats(Command):
     help_category = "character"
 
     def func(self):
-        if self.args:
+        if self.args:  # Target given
             target = self.caller.search(
                 self.args, candidates=[content for content in self.caller.location.contents if content.db.hp])
             if not target:
@@ -120,7 +120,7 @@ class CmdStats(Command):
             if not target.db.hp:
                 self.caller.msg(f"{target.name.capitalize()} doesn't have relevant stats!")
                 return
-        else:
+        else:  # Show self stats
             target = self.caller
 
         table = EvTable()

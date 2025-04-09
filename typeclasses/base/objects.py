@@ -239,6 +239,9 @@ class Object(ObjectParent, DefaultObject):
 
 
 class Fixture(Object):
+    """
+    Key room features that appear in their own line in the room description and are immovable
+    """
     def at_object_creation(self):
         super().at_object_creation()
         self.locks.add("get:false()")

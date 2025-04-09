@@ -12,6 +12,7 @@ class SustainedSpell(SustainedAbility, Spell):
 
 
 class Firebolt(Spell):
+    """Causes fire damage and inflicts Burning, adding more damage over time."""
     def at_object_creation(self):
         super().at_object_creation()
         self.db.targeted = True
@@ -22,6 +23,7 @@ class Firebolt(Spell):
     def cast(self, caster: LivingEntity, target: Object = None):
         if not super().cast(caster=caster, target=target):
             return False
+
         damage_mod = caster.db.mods["fire damage"] if "fire damage" in caster.db.mods else 1
         fire_damage = caster.get_attr("spirit") * damage_mod
         caster.location.more_info(f"{fire_damage} fire damage = "
@@ -40,6 +42,7 @@ class Firebolt(Spell):
 
 
 class BlindingBeam(Spell):
+    """Causes Blindness, halving target's hitrolls."""
     def at_object_creation(self):
         super().at_object_creation()
         self.db.targeted = True

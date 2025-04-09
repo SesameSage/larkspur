@@ -18,20 +18,30 @@ class Ability(Object):
         self.db.cooldown = 0
 
     def check(self, caster, target):
-        if self.db.cost:
-            if caster.attributes.get(self.db.cost[0]) < self.db.cost[1]:
+        """
+        Checks whether an ability/spell can be cast and is being cast properly before running any casting logic.
+        Args:
+            caster: Entity calling the ability/spell.
+            target: Entity targeted, if any.
+
+        Returns:
+            Boolean whether the check passed.
+        """
+        if self.db.cost:  # If ability costs mana/stamina
+            if caster.attributes.get(self.db.cost[0]) < self.db.cost[1]:  # If caster doesn't have enough
                 caster.msg("Not enough " + self.db.cost[0] + "!")
                 return False
-        if self.db.cooldown > 0:
+        if self.db.cooldown > 0:  # If ability has a cooldown
             try:
-                if caster.db.cooldowns[self.key] > 0:
+                if caster.db.cooldowns[self.key] > 0:  # If caster has cooldown time remaining
                     caster.msg(
                         f"{appearance.notify}{caster.db.cooldowns[self.key]} seconds cooldown remaining to cast {self.key}")
                     return False
             except KeyError:
                 caster.db.cooldowns[self.key] = 0
-        if self.db.targeted:
+        if self.db.targeted:  # If ability targets a player
             if target and target is not None:
+                # This may cause a circular import eventually to not work around
                 if self.db.must_target_entity:
                     if inherits_from(target, LivingEntity):
                         return True
@@ -43,7 +53,17 @@ class Ability(Object):
                 return False
         return True
 
+    # TODO: I bet we want this being done in an at-pre-cast or the spell function called something else
     def cast(self, caster: LivingEntity, target: Object = None):
+        """
+        Runs the check, pays the cost, restarts the cooldown, then performs the ability's function.
+        Args:
+            caster: Entity calling the ability/spell.
+            target: Entity targeted, if any
+
+        Returns:
+            Boolean whether ability was successfully cast.
+        """
         if not self.check(caster, target):
             return False
         else:
@@ -51,6 +71,9 @@ class Ability(Object):
             return True
 
     def adjust_cooldowns_stats(self, caster):
+        """
+        Reset ability cooldown on caster, and remove cost from their mana/stamina.
+        """
         if self.db.cooldown > 0:
             caster.db.cooldowns[self.key] = self.db.cooldown
         if self.db.cost:
@@ -107,7 +130,9 @@ class SpellCompAbility(Ability):
         self.adjust_cooldowns_stats(caster)
         return True
 
+
 class Sweep(Ability):
+    """Attempts to knock an opponent down."""
     def at_object_creation(self):
         super().at_object_creation()
         self.db.targeted = True

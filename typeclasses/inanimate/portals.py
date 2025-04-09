@@ -14,31 +14,44 @@ class Portal(Fixture):
 
 
 class CmdTravel(Command):
+    """
+        jump to another portal
+
+        Usage:
+          id <item>
+
+        Use a portal to travel to another portal, or show available destinations if none given.
+        """
     key = "travel"
     aliases = "port", "tp", "trav"
     help_category = "navigation"
 
     def func(self):
+        # Look for a portal here
         portal = self.caller.search("portal", quiet=True)
         if not portal:
             self.caller.msg("There is no portal here!")
             return
-        # If args are empty, show available locations you have portal keys to
+
+        # If called without destination, show available locations you have portal keys to
         if not self.args:
             self.caller.msg("|wAvailable locations:")
             for i, portal_key in enumerate(self.caller.db.portal_keys):
                 self.caller.msg(f"{i}. {portal_key}")
-        else:
-            try:
+
+        else:  # Destination given
+            # Look in caller's portal keys
+            try:  # Try interpreting as a number
                 dest_name = None
                 dest_name = self.caller.db.portal_keys[int(self.args)]
-            except ValueError:
+            except ValueError:  # Look for a name match
                 for portal_key in self.caller.db.portal_keys:
                     if self.args.strip().lower() in portal_key.lower():
                         dest_name = portal_key
             if not dest_name:
                 self.caller.msg("No available destination matching that name!")
             else:
+                # TODO: Invoke move instead of changing location
                 self.caller.print_ambient("You are enveloped in a cold flash of white light, and feel your innards lurch.")
                 self.caller.location = PORTAL_KEY_TO_ROOM[dest_name]
                 self.caller.execute_cmd("look")

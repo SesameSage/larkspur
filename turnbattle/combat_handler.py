@@ -10,28 +10,18 @@ from typeclasses.inanimate.items.usables import Consumable
 
 
 class CombatHandler:
-    """
-    Stores all combat rules and helper methods.
-
-    """
 
     def get_attack(self, attacker, defender):
         """
-        Returns a value for an attack roll.
+        Returns an accuracy for an attack, applying only the attacker's stat modifications to a hitroll.
 
         Args:
             attacker (obj): Character doing the attacking
             defender (obj): Character being attacked
 
         Returns:
-            attack_value (int): Attack roll value, compared against a defense value
+            attack_value (int): Accuracy value to be compared against a defense value
                 to determine whether an attack hits or misses.
-
-        Notes:
-            In this example, a weapon's accuracy bonus is factored into the attack
-            roll. Lighter weapons are more accurate but less damaging, and heavier
-            weapons are less accurate but deal more damage. Of course, you can
-            change this paradigm completely in your own game.
         """
         # Start with a roll from 1 to 100.
         attack_value = randint(1, 100)
@@ -42,14 +32,12 @@ class CombatHandler:
         if weapon:
             accuracy_bonus += weapon.db.accuracy_bonus
             attacker.location.more_info(f"+{accuracy_bonus} accuracy from {weapon.name} ({attacker.name})")
-        # Add the accuracy bonus to the attack roll."""
         attack_value += accuracy_bonus
 
+        # Apply attacker's hitroll buffs and debuffs.
         buff = 0
-        # Add to the roll if the attacker has the "Accuracy Up" condition.
         if "Accuracy Up" in attacker.db.effects:
             buff += attacker.db.effects["Accuracy Up"]["amount"]
-        # Subtract from the roll if the attack has the "Accuracy Down" condition.
         if "Blinded" in attacker.db.effects:
             buff -= (attack_value) // 2
             attacker.location.more_info("-50% accuracy from Blinded")
@@ -70,11 +58,6 @@ class CombatHandler:
         Returns:
             damage_values (dict): Damage types and values, which is to be deducted from the defending
                 character's HP.
-
-        Notes:
-            Damage is determined by the attacker's wielded weapon, or the attacker's
-            unarmed damage range if no weapon is wielded. Incoming damage is reduced
-            by the defender's armor.
         """
         damage_values = {}
         # Generate a damage value from wielded weapon if armed
@@ -90,7 +73,7 @@ class CombatHandler:
                 if damage_values[damage_type] < 0:
                     damage_values[damage_type] = 0
 
-        # Use attacker's unarmed damage otherwise
+        # If not armed, use unarmed damage
         else:
             damage_values[DamageTypes.BLUNT] = randint(
                 attacker.db.unarmed_damage_range[0], attacker.db.unarmed_damage_range[1]
@@ -100,6 +83,7 @@ class CombatHandler:
         attacker.location.more_info(str([f"{damage_type.get_display_name()}: {damage_values[damage_type]}"
                                          for damage_type in damage_values]))
 
+        # Apply attacker's relevant effects
         if "Damage Up" in attacker.db.effects:
             damage_boost = attacker.db.effects["Damage Up"]["amount"]
             for damage_type in damage_values:
@@ -111,12 +95,12 @@ class CombatHandler:
                 damage_values[damage_type] -= damage_penalty
                 attacker.location.more_info(f"-{damage_penalty} {damage_type} damage from effect ({attacker.name}")
 
+        # Apply defender's relevant effects
         if "Knocked Down" in defender.db.effects:
             # Add 50% to damage
             defender.location.more_info("+50% damage (Knocked Down)")
             for damage_type in damage_values:
                 damage_values[damage_type] += damage_values[damage_type] // 2
-
 
         # If defender is armored, reduce incoming damage
         for damage_type in damage_values:
@@ -156,23 +140,28 @@ class CombatHandler:
         if attacker.db.equipment["primary"]:
             weapon = attacker.db.equipment["primary"]
             attackers_weapon = weapon.get_display_name()
+
         # Get an attack roll from the attacker.
         if not attack_value:
             attack_value = self.get_attack(attacker, defender)
+
         # Get an evasion value from the defender.
         if not evasion_value:
             evasion_value = defender.get_evasion()
+
         # If the attack value is lower than the defense value, miss. Otherwise, hit.
         if attack_value < evasion_value:
             attacker.location.more_info(f"{attack_value} hit < {evasion_value} evasion (miss)")
             attacker.location.msg_contents(
                 "%s's %s misses %s!" % (attacker.get_display_name(), attackers_weapon, defender.get_display_name())
             )
+
         else:
             attacker.location.more_info(f"{attack_value} hit > {evasion_value} evasion (success)")
-            damage_values = self.get_damage(attacker, defender)  # Calculate damage values
+
+            damage_values = self.get_damage(attacker, defender)
             damage_values = {key: value for key, value in damage_values.items() if value > 0}
-            # Announce damage dealt and apply damage.
+
             msg = "%s's %s strikes %s for " % (
                 attacker.get_display_name(), attackers_weapon, defender.get_display_name())
 
@@ -182,21 +171,22 @@ class CombatHandler:
                         if msg[-1] != " ":
                             msg = msg + " "
                         msg = msg + "and "
-                    elif len(damage_values) > 2:
+                    elif len(damage_values) > 2:  # If there are more to list
                         msg = msg + ", "
                     msg = msg + f"{dmg_color(attacker, defender)}{damage_values[damage_type]} {damage_type.get_display_name()}|n"
+
                 msg = msg + f"{dmg_color(attacker, defender)} damage!|n"
                 attacker.location.msg_contents(msg)
-            else:
+            else:  # No damage dealt
                 attacker.location.msg_contents(
                     "%s's %s bounces harmlessly off %s!" % (
                         attacker.get_display_name(), attackers_weapon, defender.get_display_name())
                 )
 
             defender.apply_damage(damage_values)
-            # Inflict conditions on hit, if any specified
+            """# Inflict conditions on hit, if any specified
             for condition in inflict_condition:
-                self.add_effect(defender, attacker, condition[0], condition[1])
+                self.add_effect(defender, attacker, condition[0], condition[1])"""
 
     # ITEM RULES
 

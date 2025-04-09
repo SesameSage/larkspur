@@ -50,9 +50,7 @@ WIS_TO_RESIST_FACTOR = {
 
 class EquipmentEntity(DefaultCharacter):
     """
-    Character that displays worn clothing when looked at. You can also
-    just copy the return_appearance hook defined below to your own game's
-    character typeclass.
+    A living thing that can equip things and has defense, evasion, and resistance
     """
 
     def at_object_creation(self):
@@ -82,6 +80,7 @@ class EquipmentEntity(DefaultCharacter):
         self.db.unarmed_accuracy = 30
 
     def show_equipment(self, looker=None):
+        """Returns a table of the entity's equipment slots and what occuipes each."""
         if not looker:
             looker = self
         wear_table = EvTable(border="header")
@@ -166,6 +165,7 @@ class EquipmentEntity(DefaultCharacter):
         )"""
 
     def get_weapon(self):
+        """Returns the primary held weapon, or None."""
         primary_held = self.db.equipment["primary"]
         if primary_held and isinstance(primary_held, Weapon):
             return primary_held
@@ -224,6 +224,7 @@ class TurnBattleEntity(EquipmentEntity):
         self.update_stats()
 
     def at_tick(self):
+        """Executes every second when out of combat, allowing finer control of its effects in combat."""
         if not self.is_in_combat():
             self.apply_effects()
             self.tick_cooldowns()
@@ -231,12 +232,14 @@ class TurnBattleEntity(EquipmentEntity):
                 self.regenerate()
 
     def tick_cooldowns(self, secs=1):
+        """Increments any active cooldowns down by 1 or the given number of seconds."""
         for ability in self.db.cooldowns:
             self.db.cooldowns[ability] -= secs
             if self.db.cooldowns[ability] < 0:
                 self.db.cooldowns[ability] = 0
 
     def is_in_combat(self):
+        """Returns true if this entity is currently in combat."""
         try:
             if self.db.combat_turnhandler.is_in_combat(self):
                 return True
@@ -246,6 +249,7 @@ class TurnBattleEntity(EquipmentEntity):
             return False
 
     def is_turn(self):
+        """Returns true if this entity is in combat and it is currently this entity's turn."""
         try:
             if self.db.combat_turnhandler.is_turn(self):
                 return True
@@ -289,12 +293,15 @@ class TurnBattleEntity(EquipmentEntity):
         # Apply conditions that fire at the start of each turn.
 
     def effect_active(self, effect_key, duration_for_reset=0):
+        """If this entity currently has this effect, returns the corresponding script. If this entity does not already
+        have an effect with the given key, returns False."""
         for script in self.scripts.all():
             if script.db.effect_key == effect_key:
                 return script
         return False
 
     def add_effect(self, typeclass, attributes=()):
+        """Adds or resets an effect with the given typeclass and attributes."""
         for attribute in attributes:
             if attribute[0] == "effect_key":
                 effect_key = attribute[1]
@@ -310,6 +317,7 @@ class TurnBattleEntity(EquipmentEntity):
         self.location.msg_contents(f"{self.get_display_name()} gains {effect.color()}{effect_key}.")
 
     def apply_effects(self):
+        """Apply/increment all active effect scripts on this entity."""
         for script in self.scripts.all():
             if isinstance(script, DurationEffect):
                 try:
@@ -318,6 +326,7 @@ class TurnBattleEntity(EquipmentEntity):
                     pass
 
     def get_attr(self, att_input: str):
+        """Gets the current effective Strength, Intelligence, etc. for this entity by attribute name."""
         for attribute in self.db.attribs:
             if attribute.startswith(att_input):
                 att_input = attribute
@@ -339,6 +348,7 @@ class TurnBattleEntity(EquipmentEntity):
     # Defense and evasion can also depend on attacker; max hp and mana may just be changed by spells
 
     def get_defense(self):
+        """Returns the current effective defense for this entity, including equipment and effects."""
         total_defense = self.db.char_defense
         self.location.more_info(f"{total_defense} base defense ({self.name})")
 
@@ -361,7 +371,7 @@ class TurnBattleEntity(EquipmentEntity):
         return total_defense
 
     def get_evasion(self):
-
+        """Returns the current effective evasion for this entity, including equipment and effects."""
         def equipment_evasion():
             eq_ev = 0
             for slot in self.db.equipment:
@@ -390,6 +400,7 @@ class TurnBattleEntity(EquipmentEntity):
         return total_evasion
 
     def get_resistance(self):
+        """Returns the current effective resistance for this entity, including equipment and effects."""
         self.location.more_info(f"{self.db.char_resistance} base resistance ({self.name})")
         eq_res = 0
         for slot in self.db.equipment:
@@ -407,7 +418,6 @@ class TurnBattleEntity(EquipmentEntity):
         minimum of 0.
 
         Args:
-            defender (obj): Character taking damage
             damages (dict): Types and amounts of damage being taken
         """
         # TODO: Effects of different damage types
@@ -423,7 +433,9 @@ class TurnBattleEntity(EquipmentEntity):
                 self.at_defeat()
 
     def at_defeat(self):
+        """Called when entity is defeated."""
         self.location.msg_contents("|w|[110%s has been defeated!" % self.name)
+        # End all timed buffs and debuffs
         for script in self.scripts.all():
             if inherits_from(script, DurationEffect):
                 script.delete()
@@ -433,6 +445,7 @@ class TurnBattleEntity(EquipmentEntity):
     # TODO: Logic for who to give XP to
 
     def update_stats(self):
+        """Recalculates derived stats like max hp and base evasion."""
         self.db.max_hp = MAX_HP_BASE + LVL_TO_MAXHP[self.db.level] + CON_TO_MAXHP[
             self.get_attr("con")]
         self.db.max_stam = MAX_STAM_BASE + LVL_TO_MAXSTAM[self.db.level] + STR_TO_MAXSTAM[
@@ -445,6 +458,19 @@ class TurnBattleEntity(EquipmentEntity):
         self.db.char_resistance = WIS_TO_RESIST_FACTOR[self.get_attr("wis")]
 
     def regenerate(self):
+        """
+        Increments hp, mana, and stamina by their per-second regen values from this entity's stats.
+
+        These regen values may be less than 1 hp/mana/stamina per second, but the target stats work in whole numbers.
+        Consequently, fractional progress toward the next point gained is stored in a buildup counter on the entity.
+
+        For example, if a player's hp_regen is 0.25, they heal 1 hp every 4 seconds. Their hp_buildup will progress
+        0 > 0.25 > 0.50 > 0.75 > 1.00. On the 4th second, upon reaching 1.00, the player's hp will increase by 1, and
+        the hp_buildup will lose that 1.00, carrying any overflow fraction with it (so 1.15 becomes 0.15 buildup).
+
+        The buildup also carries fractional overflow for regen values over 1, for example handling the additional point
+        added every 4 seconds for a regen value of 2.25, while still accurately incrementing the regular 2 per second.
+        """
         self.db.hp_buildup += self.db.hp_regen
         self.db.mana_buildup += self.db.mana_regen
         self.db.stam_buildup += self.db.stam_regen
@@ -463,6 +489,7 @@ class TurnBattleEntity(EquipmentEntity):
         self.cap_stats()
 
     def cap_stats(self):
+        """Ensure entity's hp, mana, and stamina are not greater than their maximum set values."""
         if self.db.hp > self.db.max_hp:
             self.db.hp = self.db.max_hp
         if self.db.mana > self.db.max_mana:

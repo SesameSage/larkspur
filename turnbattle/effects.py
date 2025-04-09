@@ -29,9 +29,12 @@ class EffectScript(Script):
         return appearance.effect
 
     def pre_effect_add(self):
+        """Called at the beginning of adding the effect to a target."""
+        # Add dict entry on target's effects attribute
         self.obj.db.effects[self.db.effect_key] = {}
 
     def at_script_delete(self):
+        # Remove entry from object's effects attributes, if still present
         try:
             del self.obj.db.effects[self.db.effect_key]
         except KeyError:
@@ -43,8 +46,10 @@ class EffectScript(Script):
 
 
 class DurationEffect(EffectScript):
+    """An effect that lasts for a set number of seconds. In combat, 3 seconds pass per turn."""
 
     def pre_effect_add(self):
+        """Called at the beginning of adding the effect to a target."""
         super().pre_effect_add()
         if not self.db.duration:
             self.db.duration = 3
@@ -53,20 +58,27 @@ class DurationEffect(EffectScript):
         self.obj.db.effects[self.db.effect_key]["seconds passed"] = self.db.seconds_passed
 
     def apply(self, in_combat=False):
+        """Increments the timer, checks if still active, and applies the effect."""
         self.add_seconds(in_combat=in_combat)
         self.check_duration()
 
     def add_seconds(self, in_combat=False):
+        """Increment the timer on how many seconds have passed since the effect was inflicted."""
         self.db.seconds_passed += (SECS_PER_TURN if in_combat else 1)
         self.obj.db.effects[self.db.effect_key]["seconds passed"] = self.db.seconds_passed
 
     def reset_seconds(self, duration):
+        """
+        Restarts the timer on an effect when re-inflicted while still active.
+        Args:
+            duration: Duration of new effect determined by cause
+        """
         self.db.seconds_passed = 0
-        if duration > self.db.duration:
-            self.db.duration = duration
+        self.db.duration = duration
         self.obj.db.effects[self.db.effect_key]["seconds passed"] = self.db.seconds_passed
 
     def check_duration(self):
+        """Check if the effect has worn off, and remove if so."""
         if self.db.seconds_passed >= self.db.duration:
             if self.db.effect_key not in ["Knocked Down"]:
                 self.obj.location.msg_contents(
@@ -75,17 +87,19 @@ class DurationEffect(EffectScript):
 
 
 class PerSecEffect(DurationEffect):
+    """An effect that increments per second or every given number of seconds."""
 
     def pre_effect_add(self):
+        """Called at the beginning of adding the effect to a target."""
         super().pre_effect_add()
         if not self.db.range:
             self.db.range = (1, 1)
         self.obj.db.effects[self.db.effect_key]["range"] = self.db.range
 
     def apply(self, in_combat=False):
+        """Increments the timer, checks if still active, and applies the effect."""
         self.increment(amount=self.get_amount(in_combat=in_combat), in_combat=in_combat)
-        self.add_seconds(in_combat=in_combat)
-        self.check_duration()
+        super().apply(in_combat)
 
     def get_amount(self, in_combat=False):
         min, max = self.db.range
@@ -95,12 +109,15 @@ class PerSecEffect(DurationEffect):
         return amount
 
     def increment(self, amount: int, in_combat=False):
+        """Applies an effect that changes a stat per second."""
         pass
 
 
 class Regeneration(PerSecEffect):
+    """Regenerate far more HP, mana, or stamina over time."""
 
     def pre_effect_add(self):
+        """Called at the beginning of adding the effect to a target."""
         super().pre_effect_add()
         if not self.db.stat:
             self.db.stat = "HP"
@@ -108,6 +125,7 @@ class Regeneration(PerSecEffect):
         self.obj.db.effects[self.db.effect_key]["stat"] = self.db.stat
 
     def increment(self, amount: int, in_combat=False):
+        """Increase the stat by the given amount."""
         if in_combat:
             self.obj.location.msg_contents(f"{self.obj.get_display_name()} "
                                            f"recovers {amount} {self.db.stat} from regeneration.")
@@ -125,11 +143,13 @@ class Regeneration(PerSecEffect):
 class DamageOverTime(PerSecEffect):
 
     def pre_effect_add(self):
+        """Called at the beginning of adding the effect to a target."""
         super().pre_effect_add()
         if not self.db.damage_type:
             self.db.damage_type = DamageTypes.POISON
 
     def increment(self, amount: int, in_combat=False):
+        """Apply the damages."""
         if in_combat:
             self.obj.location.msg_contents(f"{self.obj.get_display_name()} "
                                            f"takes {appearance.dmg_color(None, self.obj)}{amount} damage|n from {self.color()}{self.db.effect_key}.")
@@ -137,6 +157,7 @@ class DamageOverTime(PerSecEffect):
 
 
 class DurationMod(DurationEffect):
+    """Modifies a stat such as accuracy or defense for a set amount of time."""
 
     def pre_effect_add(self):
         super().pre_effect_add()
@@ -146,7 +167,7 @@ class DurationMod(DurationEffect):
 
 
 class KnockedDown(DurationEffect):
-    # Take 50% more attack damage and lose 2 turns getting up (enough for single opponent to attack w/effect)
+    """Take 50% more attack damage and lose 2 turns getting up (enough for single opponent to attack w/effect)"""
     def pre_effect_add(self):
         super().pre_effect_add()
         self.db.effect_key = "Knocked Down"

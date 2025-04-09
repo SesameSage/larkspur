@@ -3,7 +3,7 @@ from typeclasses.inanimate.items.equipment import Equipment
 
 class Apparel(Equipment):
     """
-    A set of armor which can be worn with the 'don' command.
+    Wearable, non-weapon equipment. May carry defense, evasion, resistance
     """
 
     def at_object_creation(self):
@@ -36,6 +36,7 @@ class Apparel(Equipment):
 
 
 class Shield(Apparel):
+    """Secondary hand equipment for blocking damage."""
     def at_object_creation(self):
         super().at_object_creation()
         self.db.equipment_slot = "secondary"

@@ -192,6 +192,7 @@ class Item(Object):
         return appearance.item
 
     def identify(self):
+        """Return a table containing details on the item such as its stats and effects."""
         table = EvTable(self.get_display_name(), self.__class__.__name__)
         table.add_row(f"Weight: {self.db.weight}")
         table.add_row(f"Average value: {self.db.avg_value}")
@@ -200,10 +201,12 @@ class Item(Object):
 
 class CmdIdentify(Command):
     """
-    View stats and details on an item.
+    view item details
 
     Usage:
       id <item>
+
+    View stats and details on an item.
     """
     key = "identify"
     aliases = "id"
@@ -225,10 +228,16 @@ class CmdIdentify(Command):
 
 
 class CmdShop(Command):
+    """
+    view purchaseables
+
+    List items available for purchase here.
+    """
     key = "shop"
     help_category = "items"
 
     def func(self):
+        # Look for a vendor here
         vendor = None
         for object in self.caller.location.contents:
             if object.attributes.has("stock"):
@@ -236,10 +245,19 @@ class CmdShop(Command):
         if not vendor:
             self.caller.msg("No one to buy from here!")
             return
+        # Show their wares to the caller
         vendor.display_stock(self.caller)
 
 
 class CmdBuy(Command):
+    """
+    buy an item from shop
+
+    Usage:
+      buy <item>
+
+    Exchange your gold for an item shown in the shop.
+    """
     key = "buy"
     help_category = "items"
 
@@ -258,6 +276,7 @@ class CmdBuy(Command):
 
 
 class LightItem(Item):
+    """An item that provides light."""
     def at_object_creation(self):
         super().at_object_creation()
         self.db.desc = "An item that provides light."

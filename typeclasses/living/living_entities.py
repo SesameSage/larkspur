@@ -5,12 +5,7 @@ from typeclasses.living.combat_character import TurnBattleEntity
 
 class LivingEntity(Object, TurnBattleEntity):
     """
-    The Character just re-implements some of the Object's methods and hooks
-    to represent a Character entity in-game.
-
-    See mygame/typeclasses/objects.py for a list of
-    properties and methods available on all Object child classes like this.
-
+    Somthing that can move around and be killed.
     """
     def at_object_creation(self):
         super().at_object_creation()
@@ -25,11 +20,13 @@ class LivingEntity(Object, TurnBattleEntity):
         self.db.appear_string = f"A {self.name} is here."
 
     def announce_move_from(self, destination, msg=None, mapping=None, move_type="move", **kwargs):
+        # TODO: Make this work for non cardinal exits
         string = "{object}|=j leaves {exit}."
         super().announce_move_from(destination=destination, mapping=mapping, move_type=move_type, msg=string, **kwargs)
 
 
 class Enemy(LivingEntity):
+    """An entity hostile to players, appearing red in text."""
     def at_object_creation(self):
         super().at_object_creation()
         self.db.hostile = True

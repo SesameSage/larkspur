@@ -1,10 +1,8 @@
 from typeclasses.inanimate.items.items import Item
 
 
-
-
-
 class SpellComp(Item):
+    """Ingredients used in spells and crafting."""
     def at_object_creation(self):
         super().at_object_creation()
         self.db.desc = "An ingredient used in spells and crafting."

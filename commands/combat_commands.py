@@ -8,9 +8,10 @@ from turnbattle.combat_handler import COMBAT
 from typeclasses.inanimate.items.usables import Usable, Consumable
 from typeclasses.inanimate.items.weapons import Weapon
 
+
 class CmdFight(Command):
     """
-    Starts a fight with everyone in the same room as you.
+    start a fight in this location
 
     Usage:
       fight
@@ -55,7 +56,7 @@ class CmdFight(Command):
 
 class CmdAttack(Command):
     """
-    Attacks another character.
+    attack another entity
 
     Usage:
       attack <target>
@@ -118,26 +119,40 @@ class CmdAttack(Command):
 
 
 class CmdCast(Command):
-    """"""
+    """
+    cast an ability or spell
+
+    Usage:
+      cast <ability/spell>
+      cast <ability/spell> <target>
+
+    This attempts to pay the cost and execute one of your abilities or spells by name.
+    If a target is required, it must be provided.
+    """
     key = "cast"
     aliases = ["cas", "ca", "c"]
     help_category = "combat"
 
     def func(self):
+        # Separate args given after "cast"
         args = self.args.split()
-        if len(args) < 1:
+        if len(args) < 1:  # If no args given
             self.caller.msg(f"Usage: {appearance.cmd}cast <ability> |n/ {appearance.cmd}cast <ability> <target>")
             return
+        # First arg is ability/spell name
+        # TODO: Accommodate giving two word ability names in cast args
         ability_string = args[0].lower()
-        try:
+        try:  # Finding target by name via 2nd arg
             target_string = args[1]
             target = self.caller.search(target_string)
             if not target:
                 self.caller.msg("No valid target found for " + target_string)
                 return
-        except IndexError:
+        except IndexError:  # If no target arg given
             target = None
+            # Ability's check function (called with its cast func) will fail if a target is required
 
+        # Find ability/spell by name
         valid_castables = []
         for ability in self.caller.db.abilities:
             if ability.key.lower().startswith(ability_string):
@@ -149,14 +164,15 @@ class CmdCast(Command):
             self.caller.msg("Multiple abilities found for " + ability_string)
             return
         if 0 < len(valid_castables) < 2:
-            if valid_castables[0].cast(caster=self.caller, target=target):
+            if valid_castables[0].cast(caster=self.caller, target=target):  # If successfully cast
+                # Spend an action if in combat
                 if self.caller.is_in_combat():
                     self.caller.db.combat_turnhandler.spend_action(character=self.caller, actions=1, action_name="cast")
 
 
 class CmdPass(Command):
     """
-    Passes on your turn.
+    pass your turn
 
     Usage:
       pass
@@ -194,7 +210,7 @@ class CmdPass(Command):
 
 class CmdDisengage(Command):
     """
-    Passes your turn and attempts to end combat.
+    pass turn and attempt to end combat
 
     Usage:
       disengage
@@ -235,7 +251,7 @@ class CmdDisengage(Command):
 
 class CmdRest(Command):
     """
-    Recovers damage.
+    recover hp faster
 
     Usage:
       rest
@@ -291,7 +307,7 @@ class CmdCombatHelp(CmdHelp):
 
 class CmdUse(MuxCommand):
     """
-    Use an item.
+    use a usable item
 
     Usage:
       use <item> [= target]
@@ -308,6 +324,7 @@ class CmdUse(MuxCommand):
         """
         This performs the actual command.
         """
+        # TODO: Remove = requirement as done in cast command
         # Search for item in caller's inv
         item = self.caller.search(self.lhs, candidates=self.caller.contents)
         if not item:

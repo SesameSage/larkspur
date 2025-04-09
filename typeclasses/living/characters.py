@@ -47,12 +47,7 @@ DEX_TO_CARRY_COUNT = {
 
 class Character(LivingEntity):
     """
-    The Character just re-implements some of the Object's methods and hooks
-    to represent a Character entity in-game.
-
-    See mygame/typeclasses/objects.py for a list of
-    properties and methods available on all Object child classes like this.
-
+    A sentient living thing that can speak.
     """
 
     def at_object_creation(self):
@@ -207,6 +202,7 @@ class Character(LivingEntity):
 
 
 class PlayerCharacter(Character):
+    """A character intended to be played by a user. """
     def at_object_creation(self):
         super().at_object_creation()
         self.permissions.add("Player")
@@ -281,23 +277,27 @@ class NPC(Character, TalkableNPC):
 
 
 class Vendor(NPC):
+    """An NPC who can sell items to players."""
     def at_object_creation(self):
         super().at_object_creation()
         self.db.stock = {}  # {Item: prototype_key}
 
     def add_to_stock(self, prototype_key):
+        """Add a prototype to the vendor's wares."""
         item = spawn(prototype_key)[0]
         item.location = self
         item.locks.add("get:perm(developer)")
         self.db.stock[item] = prototype_key
 
     def display_stock(self, player):
+        """Returns a table of items being sold by the vendor."""
         table = EvTable("Item", "Type", "Cost")
         for item in self.db.stock:
             table.add_row(item.get_display_name(), item.__class__.__name__, appearance.gold + str(item.db.avg_value))
         player.msg(table)
 
     def sell_item(self, player, input):
+        """Takes gold from a player, spawns one of the items selected, and gives it to the player."""
         stock_item = self.search(input, candidates=self.db.stock.keys())
         if not stock_item:
             return False

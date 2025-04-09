@@ -6,6 +6,7 @@ from evennia.commands.default.general import CmdSay, CmdWhisper, CmdGet, CmdDrop
     CmdAccess, CmdSetDesc
 from evennia.contrib.game_systems.containers.containers import CmdPut
 from evennia.contrib.grid.ingame_map_display.ingame_map_display import CmdMap
+from evennia.contrib.grid.simpledoor.simpledoor import CmdOpenCloseDoor
 
 
 class MyCmdSay(CmdSay):
@@ -73,6 +74,7 @@ class RefiledCmdSet(CmdSet):
         self.add(MyCmdMap)
         self.add(MyCmdAccess)
         self.add(MyCmdSetDesc)
+        self.add(MyCmdOpenDoor)
 
 
 class MyCmdColor(CmdColorTest):
@@ -109,3 +111,7 @@ class MyCmdOOC(CmdOOC):
 
 class MyCmdOption(CmdOption):
     help_category = "account"
+
+
+class MyCmdOpenDoor(CmdOpenCloseDoor):
+    help_category = "navigation"

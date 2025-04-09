@@ -5,6 +5,7 @@ from typeclasses.inanimate.items.items import Item
 
 
 class Usable(Item):
+    """An item with an itemfunc that can be used with the use command."""
     def at_object_creation(self):
         super().at_object_creation()
         self.item_func = None
@@ -13,6 +14,7 @@ class Usable(Item):
         return appearance.usable
 
     def identify(self):
+        """Return a table containing details on the item such as its stats and effects."""
         table = EvTable()
         table.add_column(f"Weight: {self.db.weight}",
                          f"Average value: {self.db.avg_value}", header=self.get_display_name())
@@ -35,10 +37,12 @@ class Usable(Item):
 
 
 class Consumable(Usable):
+    """A usable item that is destroyed after a set number of uses."""
     def at_object_creation(self):
         super().at_object_creation()
         self.item_uses = 0
 
 
 class Potion(Consumable):
+    """A liquid consumable used on the holder for a beneficial effect."""
     pass

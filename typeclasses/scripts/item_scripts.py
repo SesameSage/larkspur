@@ -4,6 +4,7 @@ from typeclasses.scripts.scripts import Script
 
 
 class TemporarilyHide(Script):
+    """Hides an item for 60 seconds."""
     def at_script_creation(self):
         self.interval = 60
         # Only triggers once, but this seems the only way to use remaining_repeats and actually wait the interval
@@ -19,6 +20,9 @@ class TemporarilyHide(Script):
 
 
 class ReplenishItem(Script):
+    """Spawns a new item from the given item's from_prototype when the given item has been removed from its original
+    location."""
+    # TODO: This breaks if the object is destroyed or cleared of scripts before the interval
     def at_script_creation(self):
         self.interval = 10
         self.location = self.obj.location
