@@ -2,8 +2,7 @@ from decimal import Decimal as Dec
 
 LEATHER_VEST = {
     "key": "leather vest",
-    "typeclass": "typeclasses.inanimate.items.apparel.Apparel",
-    "equipment_slot": "torso",
+    "typeclass": "typeclasses.inanimate.items.apparel.Torsowear",
     "weight": Dec(7),
 
     "defense": 10,
@@ -11,8 +10,7 @@ LEATHER_VEST = {
 }
 KINETIC_FOOTWRAPS = {
     "key": "kinetic footwraps",
-    "typeclass": "typeclasses.inanimate.items.apparel.Apparel",
-    "equipment_slot": "feet",
+    "typeclass": "typeclasses.inanimate.items.apparel.Footwraps",
     "weight": Dec(0.5),
 
     "defense": 2,
@@ -20,8 +18,7 @@ KINETIC_FOOTWRAPS = {
 }
 HIDE_BRACERS = {
     "key": "hide bracers",
-    "typeclass": "typeclasses.inanimate.items.apparel.Apparel",
-    "equipment_slot": "arms",
+    "typeclass": "typeclasses.inanimate.items.apparel.Armwear",
     "weight": Dec(2),
 
     "defense": 6,
