@@ -43,14 +43,16 @@ class Ability(Object):
                     return False
             except KeyError:
                 caster.db.cooldowns[self.key] = 0
-        if self.db.targeted:  # If ability targets a player
+        if self.db.targeted:  # If ability is meant to target something
             if target and target is not None:
                 # This may cause a circular import eventually to not work around
                 if self.db.must_target_entity:
-                    if inherits_from(target, LivingEntity):
-                        return True
-                    else:
+                    if not inherits_from(target, LivingEntity):
                         caster.msg(f"{self.name} must target a living thing")
+                        return False
+                if target.attributes.has("hp"):
+                    if target.db.hp < 1 and self.__class__.__name__ != "Revive":
+                        caster.msg(f"{target.name} has been defeated!")
                         return False
             else:
                 caster.msg(f"{self.name} must have a target")

@@ -145,7 +145,7 @@ class CmdCast(Command):
         try:  # Finding target by name via 2nd arg
             target_string = args[1]
             target = self.caller.search(target_string,
-                                        candidates=[content for content in self.caller.location.contents if content.db.hp])
+                                        candidates=[content for content in self.caller.location.contents if content.attributes.has("hp")])
             if not target:
                 self.caller.msg("No valid target found for " + target_string)
                 return

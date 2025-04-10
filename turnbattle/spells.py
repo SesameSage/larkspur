@@ -11,6 +11,24 @@ class SustainedSpell(SustainedAbility, Spell):
     pass
 
 
+class BlindingBeam(Spell):
+    """Causes Blindness, halving target's hitrolls."""
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.targeted = True
+        self.db.must_target_entity = True
+        self.db.cost = ("mana", 5)
+
+    def cast(self, caster: LivingEntity, target: Object = None):
+        if not super().cast(caster, target):
+            return False
+        caster.location.msg_contents(f"{caster.get_display_name()} aims a focused beam of blinding white light into "
+                                     f"{target.get_display_name()}'s eyes!")
+        target.add_effect(DurationEffect, [("effect_key", "Blinded"), ("duration", 3 * SECS_PER_TURN)])
+        return True
+
+
 class Firebolt(Spell):
     """Causes fire damage and inflicts Burning, adding more damage over time."""
 
@@ -42,24 +60,6 @@ class Firebolt(Spell):
         return True
 
 
-class BlindingBeam(Spell):
-    """Causes Blindness, halving target's hitrolls."""
-
-    def at_object_creation(self):
-        super().at_object_creation()
-        self.db.targeted = True
-        self.db.must_target_entity = True
-        self.db.cost = ("mana", 5)
-
-    def cast(self, caster: LivingEntity, target: Object = None):
-        if not super().cast(caster, target):
-            return False
-        caster.location.msg_contents(f"{caster.get_display_name()} aims a focused beam of blinding white light into "
-                                     f"{target.get_display_name()}'s eyes!")
-        target.add_effect(DurationEffect, [("effect_key", "Blinded"), ("duration", 3 * SECS_PER_TURN)])
-        return True
-
-
 class Freeze(Spell):
     def at_object_creation(self):
         super().at_object_creation()
@@ -74,3 +74,30 @@ class Freeze(Spell):
 
         target.add_effect(Frozen, [("duration", 2 * SECS_PER_TURN)])
         return True
+
+
+class Revive(Spell):
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.targeted = True
+        self.db.must_target_entity = True
+        self.db.cost = ("mana", 12)
+        self.db.cooldown = 10 * SECS_PER_TURN
+
+    def check(self, caster, target):
+        if not super().check(caster, target):
+            return False
+
+        if target.db.hp > 0:
+            caster.msg(target.name + " isn't knocked out!")
+            return False
+
+        return True
+
+    def cast(self, caster: LivingEntity, target: Object = None):
+        if not super().cast(caster, target):
+            return False
+
+        target.db.hp = 50
+        target.location.msg_contents(target.get_display_name() + " has been revived!")
+
