@@ -231,7 +231,7 @@ def itemfunc_attack(item, user, target, **kwargs):
     user.db.combat_turnhandler.resolve_attack(
         user,
         target,
-        attack_value=attack_value,
+        accuracy=attack_value,
         damage_values=damage_ranges,
         inflict_condition=effects_inflicted,
     )

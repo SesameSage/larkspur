@@ -1,9 +1,9 @@
 from server import appearance
 from typeclasses.base.objects import Object
-from combat.combat_character import TurnBattleEntity
+from combat.combat_character import CombatEntity
 
 
-class LivingEntity(Object, TurnBattleEntity):
+class LivingEntity(Object, CombatEntity):
     """
     Somthing that can move around and be killed.
     """

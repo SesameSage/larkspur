@@ -165,13 +165,15 @@ class EquipmentEntity(DefaultCharacter):
         )"""
 
     def get_weapon(self):
-        """Returns the primary held weapon, or None."""
+        """Returns the primary held weapon, or unarmed attack name."""
         primary_held = self.db.equipment["primary"]
         if primary_held and isinstance(primary_held, Weapon):
             return primary_held
+        else:
+            return self.db.unarmed_attack
 
 
-class TurnBattleEntity(EquipmentEntity):
+class CombatEntity(EquipmentEntity):
     """
     A character able to participate in turn-based combat. Has attributes for current
     and maximum HP, and access to combat commands.

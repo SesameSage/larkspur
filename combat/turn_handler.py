@@ -108,6 +108,7 @@ class TurnHandler(DefaultScript):
     remaining participants choose to end the combat with the 'disengage' command.
     """
 
+# TODO: Fight starter gets to take action at the start
     def at_script_creation(self):
         """
         Called once, when the script is created.

@@ -2,8 +2,8 @@ from combat.abilities.abilities import *
 
 
 class Spell(Ability):
-    def get_display_name(self, looker=None, capital=False, **kwargs):
-        return appearance.spell + self.name
+    def color(self):
+        return appearance.spell
 
 
 class SustainedSpell(SustainedAbility, Spell):

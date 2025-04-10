@@ -105,7 +105,8 @@ class CmdAttack(Command):
             self.caller.msg("You can't attack yourself!")
             return
 
-        COMBAT.resolve_attack(attacker, defender)
+        COMBAT.resolve_attack(attacker, defender, attack=self.caller.get_weapon())
+        # Resolve attack (get_weapon_damage)
         self.turn_handler.spend_action(self.caller, 1, action_name="attack")  # Use up one action.
 
     def confirm_in_combat(self):

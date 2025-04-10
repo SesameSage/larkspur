@@ -91,8 +91,8 @@ class Ability(Object):
                 case "stamina":
                     caster.db.stamina -= self.db.cost[1]
 
-    def get_display_name(self, looker=None, capital=False, **kwargs):
-        return appearance.ability + self.name
+    def color(self):
+        return appearance.ability
 
 
 class SustainedAbility(Ability):
