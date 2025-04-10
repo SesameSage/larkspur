@@ -34,8 +34,12 @@ class Ability(Object):
         if self.db.cooldown > 0:  # If ability has a cooldown
             try:
                 if caster.db.cooldowns[self.key] > 0:  # If caster has cooldown time remaining
+                    if caster.is_in_combat():  # Convert seconds to turns
+                        amount_string = f"{int(caster.db.cooldowns[self.key] // SECS_PER_TURN)} turns"
+                    else:
+                        amount_string = f"{caster.db.cooldowns[self.key]} seconds"
                     caster.msg(
-                        f"{appearance.notify}{caster.db.cooldowns[self.key]} seconds cooldown remaining to cast {self.key}")
+                        f"{appearance.notify}{amount_string} cooldown remaining to cast {self.key}")
                     return False
             except KeyError:
                 caster.db.cooldowns[self.key] = 0
@@ -133,6 +137,7 @@ class SpellCompAbility(Ability):
 
 class Sweep(Ability):
     """Attempts to knock an opponent down."""
+
     def at_object_creation(self):
         super().at_object_creation()
         self.db.targeted = True
