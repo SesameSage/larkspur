@@ -307,7 +307,8 @@ class Vendor(NPC):
         item_to_sell = spawn(self.db.stock[stock_item])[0]
         player.db.gold -= stock_item.db.avg_value
         self.db.gold += stock_item.db.avg_value
-        item_to_sell.location = player
+        # TODO: Use move_type and announce_move_to instead of messaging here
+        item_to_sell.move_to(destination=player, quiet=True, move_type="purchase")
         singular = item_to_sell.get_numbered_name(count=1, looker=player)[0]
         player.msg("You receive " + singular + ".")
 

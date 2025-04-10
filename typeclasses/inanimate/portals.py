@@ -51,7 +51,6 @@ class CmdTravel(Command):
             if not dest_name:
                 self.caller.msg("No available destination matching that name!")
             else:
-                # TODO: Invoke move instead of changing location
                 self.caller.print_ambient("You are enveloped in a cold flash of white light, and feel your innards lurch.")
-                self.caller.location = PORTAL_KEY_TO_ROOM[dest_name]
+                self.caller.move_to(destination=PORTAL_KEY_TO_ROOM[dest_name], move_type="teleport")
                 self.caller.execute_cmd("look")
