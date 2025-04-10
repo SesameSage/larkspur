@@ -39,7 +39,31 @@ HEALTH_POTION = {
     "item_func": "heal",
     "item_uses": 1,
     "kwargs": {
-        "heal_range": (20, 30)
+        "range": (20, 30)
+    },
+    "weight": round(Dec(1), 1),
+}
+
+MANA_POTION = {
+    "key": "mana potion",
+    "typeclass": "typeclasses.inanimate.items.usables.Potion",
+    "desc": "A potion of mana",
+    "item_func": "restore_mana",
+    "item_uses": 1,
+    "kwargs": {
+        "range": (20, 30)
+    },
+    "weight": round(Dec(1), 1),
+}
+
+STAMINA_POTION = {
+    "key": "stamina potion",
+    "typeclass": "typeclasses.inanimate.items.usables.Potion",
+    "desc": "A potion of stamina",
+    "item_func": "restore_stamina",
+    "item_uses": 1,
+    "kwargs": {
+        "range": (20, 30)
     },
     "weight": round(Dec(1), 1),
 }

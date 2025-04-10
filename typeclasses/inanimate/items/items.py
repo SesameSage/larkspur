@@ -30,18 +30,83 @@ def itemfunc_heal(item, user, target, **kwargs):
         return False
 
     # Retrieve healing range from kwargs, if present
-    if "heal_range" in kwargs:
-        min_healing = kwargs["heal_range"][0]
-        max_healing = kwargs["heal_range"][1]
+    if "range" in kwargs:
+        min_healing = kwargs["range"][0]
+        max_healing = kwargs["range"][1]
 
     amt_to_heal = randint(min_healing, max_healing)
-    if target.db.hp + amt_to_heal > target.db.max_hp:
-        amt_to_heal = target.db.max_hp - target.db.hp  # Cap healing to max HP
     target.db.hp += amt_to_heal
+    target.cap_stats()
 
     user.location.msg_contents(
         "%s uses %s! %s regains %i HP!" % (
             user.get_display_name(capital=True), item.get_display_name(), target, amt_to_heal))
+
+
+def itemfunc_restore_mana(item, user, target, **kwargs):
+    """
+    Item function that restores mana.
+
+    kwargs:
+        min_recovered(int): Minimum amount of mana recovered
+        max_recovered(int): Maximum amount of mana recovered
+    """
+    if not target:
+        target = user  # Target user if none specified
+
+    if not target.attributes.has("max_mana"):  # Has no mana to speak of
+        user.msg("You can't use %s on that." % item)
+        return False  # Returning false aborts the item use
+
+    if target.db.mana >= target.db.max_mana:
+        user.msg("%s is already at full health." % target)
+        return False
+
+    # Retrieve healing range from kwargs, if present
+    if "range" in kwargs:
+        min_recovered = kwargs["range"][0]
+        max_recovered = kwargs["range"][1]
+
+    amt_to_recover = randint(min_recovered, max_recovered)
+    target.db.mana += amt_to_recover
+    target.cap_stats()
+
+    user.location.msg_contents(
+        "%s uses %s! %s regains %i mana!" % (
+            user.get_display_name(capital=True), item.get_display_name(), target, amt_to_recover))
+
+
+def itemfunc_restore_stamina(item, user, target, **kwargs):
+    """
+    Item function that restores stamina.
+
+    kwargs:
+        min_recovered(int): Minimum amount of stamina recovered
+        max_recovered(int): Maximum amount of stamina recovered
+    """
+    if not target:
+        target = user  # Target user if none specified
+
+    if not target.attributes.has("max_stam"):  # Has no mana to speak of
+        user.msg("You can't use %s on that." % item)
+        return False  # Returning false aborts the item use
+
+    if target.db.stamina >= target.db.max_stam:
+        user.msg("%s is already at full health." % target)
+        return False
+
+    # Retrieve healing range from kwargs, if present
+    if "range" in kwargs:
+        min_recovered = kwargs["range"][0]
+        max_recovered = kwargs["range"][1]
+
+    amt_to_recover = randint(min_recovered, max_recovered)
+    target.db.stamina += amt_to_recover
+    target.cap_stats()
+
+    user.location.msg_contents(
+        "%s uses %s! %s regains %i stamina!" % (
+            user.get_display_name(capital=True), item.get_display_name(), target, amt_to_recover))
 
 
 def itemfunc_add_effect(item, user, target, **kwargs):
@@ -177,6 +242,8 @@ ITEMFUNCS = {
     "attack": itemfunc_attack,
     "add_effect": itemfunc_add_effect,
     "cure_condition": itemfunc_cure_condition,
+    "restore_mana": itemfunc_restore_mana,
+    "restore_stamina": itemfunc_restore_stamina,
 }
 
 
@@ -277,6 +344,7 @@ class CmdBuy(Command):
 
 class LightItem(Item):
     """An item that provides light."""
+
     def at_object_creation(self):
         super().at_object_creation()
         self.db.desc = "An item that provides light."
