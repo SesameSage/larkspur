@@ -86,6 +86,7 @@ class DurationEffect(EffectScript):
             self.delete()
 
 
+# <editor-fold desc="Per second effects">
 class PerSecEffect(DurationEffect):
     """An effect that increments per second or every given number of seconds."""
 
@@ -141,6 +142,7 @@ class Regeneration(PerSecEffect):
 
 
 class DamageOverTime(PerSecEffect):
+    """Implemented by Burning and Poison."""
 
     def pre_effect_add(self):
         """Called at the beginning of adding the effect to a target."""
@@ -156,6 +158,21 @@ class DamageOverTime(PerSecEffect):
         self.obj.apply_damage({self.db.damage_type: amount})
 
 
+# </editor-fold>
+
+
+class KnockedDown(DurationEffect):
+    """Take 50% more attack damage and lose 2 turns getting up (enough for single opponent to attack w/effect)"""
+    effect_key = "Knocked Down"
+    duration = 2 * SECS_PER_TURN  # Always lasts 2 turns
+
+    def pre_effect_add(self):
+        super().pre_effect_add()
+        self.db.effect_key = self.effect_key
+        self.db.duration = self.duration
+
+
+# <editor-fold desc="Stat modifier effects">
 class DurationMod(DurationEffect):
     """Modifies a stat such as accuracy or defense for a set amount of time."""
 
@@ -164,14 +181,6 @@ class DurationMod(DurationEffect):
         self.key = "Temporary Mod"
         if hasattr(self, "amount"):
             self.obj.db.effects[self.db.effect_key]["amount"] = self.amount
-
-
-class KnockedDown(DurationEffect):
-    """Take 50% more attack damage and lose 2 turns getting up (enough for single opponent to attack w/effect)"""
-    def pre_effect_add(self):
-        super().pre_effect_add()
-        self.db.effect_key = "Knocked Down"
-        self.db.duration = 2 * SECS_PER_TURN  # Always lasts 2 turns
 
 
 class DamageMod(DurationMod):
@@ -203,6 +212,9 @@ class EvasionMod(DurationMod):
             effect_key = "Evasion Down"
         super().__init__(effect_key, duration, *args, **kwargs)
         self.amount = amount
+
+
+# </editor-fold>
 
 
 """
@@ -254,80 +266,4 @@ HEALTH_POTION = {
     "item_uses": 1,
     "item_consumable": "GLASS_BOTTLE",
     "item_kwargs": {"healing_range": (35, 50)},
-}
-
-REGEN_POTION = {
-    "key": "a regeneration potion",
-    "desc": "A glass bottle full of a mystical potion that regenerates wounds over time.",
-    "item_func": "add_condition",
-    "item_uses": 1,
-    "item_consumable": "GLASS_BOTTLE",
-    "item_kwargs": {"conditions": [("Regeneration", 10)]},
-}
-
-HASTE_POTION = {
-    "key": "a haste potion",
-    "desc": "A glass bottle full of a mystical potion that hastens its user.",
-    "item_func": "add_condition",
-    "item_uses": 1,
-    "item_consumable": "GLASS_BOTTLE",
-    "item_kwargs": {"conditions": [("Haste", 10)]},
-}
-
-BOMB = {
-    "key": "a rotund bomb",
-    "desc": "A large black sphere with a fuse at the end. Can be used on enemies in combat.",
-    "item_func": "attack",
-    "item_uses": 1,
-    "item_consumable": True,
-    "item_kwargs": {"damage_range": (25, 40), "accuracy": 25},
-}
-
-TASER = {
-    "key": "a taser",
-    "desc": "A device that can be used to paralyze enemies in combat.",
-    "item_func": "attack",
-    "item_kwargs": {
-        "damage_range": (10, 20),
-        "accuracy": 0,
-        "inflict_condition": [("Paralyzed", 1)],
-    },
-}
-
-GHOST_GUN = {
-    "key": "a ghost gun",
-    "desc": "A gun that fires scary ghosts at people. Anyone hit by a ghost becomes frightened.",
-    "item_func": "attack",
-    "item_uses": 6,
-    "item_kwargs": {
-        "damage_range": (5, 10),
-        "accuracy": 15,
-        "inflict_condition": [("Frightened", 1)],
-    },
-}
-
-ANTIDOTE_POTION = {
-    "key": "an antidote potion",
-    "desc": "A glass bottle full of a mystical potion that cures poison when used.",
-    "item_func": "cure_condition",
-    "item_uses": 1,
-    "item_consumable": "GLASS_BOTTLE",
-    "item_kwargs": {"to_cure": ["Poisoned"]},
-}
-
-AMULET_OF_MIGHT = {
-    "key": "The Amulet of Might",
-    "desc": "The one who holds this amulet can call upon its power to gain great strength.",
-    "item_func": "add_condition",
-    "item_selfonly": True,
-    "item_kwargs": {"conditions": [("Damage Up", 3), ("Accuracy Up", 3), ("Defense Up", 3)]},
-}
-
-AMULET_OF_WEAKNESS = {
-    "key": "The Amulet of Weakness",
-    "desc": "The one who holds this amulet can call upon its power to gain great weakness. "
-            "It's not a terribly useful artifact.",
-    "item_func": "add_condition",
-    "item_selfonly": True,
-    "item_kwargs": {"conditions": [("Damage Down", 3), ("Accuracy Down", 3), ("Defense Down", 3)]},
 }

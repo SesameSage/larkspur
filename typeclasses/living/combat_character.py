@@ -6,7 +6,7 @@ from evennia import TICKER_HANDLER as tickerhandler
 from evennia.utils import inherits_from
 from evennia.utils.evtable import EvTable
 
-from turnbattle.effects import DurationEffect
+from turnbattle.effects import DurationEffect, KnockedDown
 from typeclasses.inanimate.items.weapons import Weapon
 
 MAX_HP_BASE = 100
@@ -300,8 +300,10 @@ class TurnBattleEntity(EquipmentEntity):
                 return script
         return False
 
-    def add_effect(self, typeclass, attributes=()):
+    def add_effect(self, typeclass, attributes=None):
         """Adds or resets an effect with the given typeclass and attributes."""
+        if not attributes:
+            attributes = [("effect_key", typeclass.effect_key), ("duration", typeclass.duration)]
         for attribute in attributes:
             if attribute[0] == "effect_key":
                 effect_key = attribute[1]
