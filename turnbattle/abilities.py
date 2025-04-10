@@ -31,7 +31,7 @@ class Ability(Object):
             if caster.attributes.get(self.db.cost[0]) < self.db.cost[1]:  # If caster doesn't have enough
                 caster.msg("Not enough " + self.db.cost[0] + "!")
                 return False
-        if self.db.cooldown > 0:  # If ability has a cooldown
+        if self.db.cooldown > 0 and not caster.is_superuser:  # If ability has a cooldown
             try:
                 if caster.db.cooldowns[self.key] > 0:  # If caster has cooldown time remaining
                     if caster.is_in_combat():  # Convert seconds to turns
