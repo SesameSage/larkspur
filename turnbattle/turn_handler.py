@@ -431,6 +431,8 @@ class TurnHandler(DefaultScript):
             defeated.db.hp = 0
         defeated.at_defeat()
         defeated.location.scripts.get("Combat Turn Handler")[0].all_defeat_check()
+        if defeated.is_turn():
+            self.spend_action(defeated, actions="all")
         return True
 
     def all_defeat_check(self):
