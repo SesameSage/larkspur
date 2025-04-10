@@ -395,6 +395,7 @@ class TurnBattleEntity(EquipmentEntity):
 
         return self.db.char_evasion + eq_ev + effect_ev
 
+    # TODO: Specific damage resistance
     def get_resistance(self):
         """Returns the current effective resistance for this entity, including equipment and effects."""
         self.location.more_info(f"{self.db.char_resistance} base resistance ({self.name})")

@@ -102,9 +102,13 @@ class CombatHandler:
             for damage_type in damage_values:
                 damage_values[damage_type] += damage_values[damage_type] // 2
 
-        # If defender is armored, reduce incoming damage
+        # TODO: Specific damage resistances
+        # Apply defense and resistance
         for damage_type in damage_values:
-            damage_values[damage_type] -= defender.get_defense()
+            if damage_type in [DamageTypes.BLUNT, DamageTypes.SLASHING, DamageTypes.PIERCING]:
+                damage_values[damage_type] -= defender.get_defense()
+            elif damage_type in [DamageTypes.FIRE, DamageTypes.COLD, DamageTypes.SHOCK, DamageTypes.POISON]:
+                damage_values[damage_type] -= defender.get_resistance()
 
         return damage_values
 
