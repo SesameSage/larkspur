@@ -303,7 +303,10 @@ class TurnBattleEntity(EquipmentEntity):
     def add_effect(self, typeclass, attributes=None):
         """Adds or resets an effect with the given typeclass and attributes."""
         if not attributes:
-            attributes = [("effect_key", typeclass.effect_key), ("duration", typeclass.duration)]
+            attributes = []
+        if hasattr(typeclass, "fixed_attributes"):
+            attributes.extend(typeclass.fixed_attributes)
+
         for attribute in attributes:
             if attribute[0] == "effect_key":
                 effect_key = attribute[1]
@@ -314,6 +317,7 @@ class TurnBattleEntity(EquipmentEntity):
             self.effect_active(effect_key).reset_seconds(duration)
             self.location.msg_contents(f"{self.get_display_name()} regains {effect_key}.")
             return
+
         effect = evennia.create_script(typeclass=typeclass, obj=self, attributes=attributes)
         effect.pre_effect_add()
         self.location.msg_contents(f"{self.get_display_name()} gains {effect.color()}{effect_key}.")

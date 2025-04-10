@@ -144,12 +144,6 @@ class Regeneration(PerSecEffect):
 class DamageOverTime(PerSecEffect):
     """Implemented by Burning and Poison."""
 
-    def pre_effect_add(self):
-        """Called at the beginning of adding the effect to a target."""
-        super().pre_effect_add()
-        if not self.db.damage_type:
-            self.db.damage_type = DamageTypes.POISON
-
     def increment(self, amount: int, in_combat=False):
         """Apply the damages."""
         if in_combat:
@@ -158,18 +152,29 @@ class DamageOverTime(PerSecEffect):
         self.obj.apply_damage({self.db.damage_type: amount})
 
 
+class Burning(DamageOverTime):
+    fixed_attributes = [
+        ("effect_key", "Burning"),
+        ("damage_type", 4)
+    ]
+
+
+class Poisoned(DamageOverTime):
+    fixed_attributes = [
+        ("effect_key", "Poisoned"),
+        ("damage_type", 7)
+    ]
+
+
 # </editor-fold>
 
 
 class KnockedDown(DurationEffect):
     """Take 50% more attack damage and lose 2 turns getting up (enough for single opponent to attack w/effect)"""
-    effect_key = "Knocked Down"
-    duration = 2 * SECS_PER_TURN  # Always lasts 2 turns
-
-    def pre_effect_add(self):
-        super().pre_effect_add()
-        self.db.effect_key = self.effect_key
-        self.db.duration = self.duration
+    fixed_attributes = [
+        ("effect_key", "Knocked Down"),
+        ("duration", 2 * SECS_PER_TURN)  # Always lasts 2 turns
+    ]
 
 
 # <editor-fold desc="Stat modifier effects">

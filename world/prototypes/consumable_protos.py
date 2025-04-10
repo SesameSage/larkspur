@@ -12,11 +12,9 @@ POISON_DART = {
     "kwargs": {
         "effects": [
             {
-                "script_key": "DamageOverTime",
-                "effect_key": "Poisoned",
+                "script_key": "Poisoned",
                 "range": (1, 1),
                 "duration": 3 * SECS_PER_TURN,
-                "damage_type": 7
             }
         ]
     },

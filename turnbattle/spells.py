@@ -36,8 +36,8 @@ class Firebolt(Spell):
         caster.location.msg_contents(f"A bolt of fire ignites in {caster.get_display_name()}'s hand and scorches "
                                      f"{target.get_display_name()} for {dmg_color(caster, target)}{fire_damage} fire damage!")
 
-        target.add_effect(DamageOverTime,
-                          [("effect_key", "Burning"), ("range", (1, 1)), ("duration", 3 * SECS_PER_TURN), ("damage_type", 4)])
+        target.add_effect(Burning,
+                          [("range", (1, 1)), ("duration", 3 * SECS_PER_TURN)])
         return True
 
 
