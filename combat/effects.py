@@ -209,9 +209,8 @@ class DurationMod(DurationEffect):
 
     def pre_effect_add(self):
         super().pre_effect_add()
-        self.key = "Temporary Mod"
-        if hasattr(self, "amount"):
-            self.obj.db.effects[self.db.effect_key]["amount"] = self.amount
+        if self.db.amount:
+            self.obj.db.effects[self.db.effect_key]["amount"] = self.db.amount
 
 
 class DamageMod(DurationMod):

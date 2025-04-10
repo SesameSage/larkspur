@@ -6,6 +6,8 @@ from typeclasses.inanimate.items.spellcomp import SpellComp
 from typeclasses.living.living_entities import LivingEntity
 
 
+# TODO: Show abilities
+
 class Ability(Object):
 
     def at_object_creation(self):
@@ -135,5 +137,3 @@ class SpellCompAbility(Ability):
         caster.msg(f"Used: {[item.name for item in items_to_use]}")
         self.adjust_cooldowns_stats(caster)
         return True
-
-

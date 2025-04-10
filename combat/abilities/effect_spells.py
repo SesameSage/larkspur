@@ -12,6 +12,7 @@ class BlindingBeam(Spell):
         self.db.targeted = True
         self.db.must_target_entity = True
         self.db.cost = ("mana", 5)
+        self.db.cooldown = 6 * SECS_PER_TURN
 
     def cast(self, caster: LivingEntity, target: Object = None):
         if not super().cast(caster, target):

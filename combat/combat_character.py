@@ -355,67 +355,65 @@ class TurnBattleEntity(EquipmentEntity):
 
     def get_defense(self):
         """Returns the current effective defense for this entity, including equipment and effects."""
-        total_defense = self.db.char_defense
-        self.location.more_info(f"{total_defense} base defense ({self.name})")
+        self.location.more_info(f"{self.db.char_defense} base defense ({self.name})")
 
+        eq_def = 0
         for slot in self.db.equipment:
             equipment = self.db.equipment[slot]
             if equipment and hasattr(equipment.db, "defense") and equipment.db.defense:
-                total_defense += equipment.db.defense
+                eq_def += equipment.db.defense
                 self.location.more_info(f"+{equipment.db.defense} defense from {equipment.name} ({self.name})")
 
-        effect = None
-        if "Defense Up" in self.db.effects:
-            effect = self.db.effects["Defense Up"]["amount"]
-        if "Defense Down" in self.db.effects:
-            effect = self.db.effects["Defense Down"]["amount"]
-        if effect:
-            total_defense += effect
-            self.location.more_info(f"{"+" if effect > 0 else ""}{effect} defense from effect ({self.name})")
+        effect_def = 0
+        if "+Defense" in self.db.effects:
+            effect_def += self.db.effects["+Defense"]["amount"]
+        if "-Defense" in self.db.effects:
+            effect_def += self.db.effects["-Defense"]["amount"]
+        if effect_def > 0:
+            self.location.more_info(f"{"+" if effect_def > 0 else ""}{effect_def} defense from effects ({self.name})")
 
-        self.location.more_info(f"{total_defense} total defense ({self.name})")
-        return total_defense
+        return self.db.char_defense + eq_def + effect_def
 
     def get_evasion(self):
         """Returns the current effective evasion for this entity, including equipment and effects."""
-        def equipment_evasion():
-            eq_ev = 0
-            for slot in self.db.equipment:
-                equipment = self.db.equipment[slot]
-                if equipment and hasattr(equipment.db, "evasion") and equipment.db.evasion:
-                    eq_ev += equipment.db.evasion
-                    self.location.more_info(f"+{equipment.db.evasion} evasion from {equipment.name} ({self.name})")
-            return eq_ev
+        self.location.more_info(f"{self.db.char_evasion} base evasion ({self.name})")
 
-        def effect_evasion():
-            effect_ev = 0
-            if "Evasion Up" in self.db.effects:
-                effect_ev += self.db.effects["Evasion Up"]["amount"]
-            if "Evasion Down" in self.db.effects:
-                effect_ev += self.db.effects["Evasion Down"]["amount"]
-            if effect_ev > 0:
-                self.location.more_info(f"{"+" if effect_ev > 0 else ""}{effect_ev} evasion from effect ({self.name})")
-            return effect_ev
+        eq_ev = 0
+        for slot in self.db.equipment:
+            equipment = self.db.equipment[slot]
+            if equipment and hasattr(equipment.db, "evasion") and equipment.db.evasion:
+                eq_ev += equipment.db.evasion
+                self.location.more_info(f"+{equipment.db.evasion} evasion from {equipment.name} ({self.name})")
 
-        total_evasion = self.db.char_evasion
-        self.location.more_info(f"{total_evasion} base evasion ({self.name})")
-        total_evasion += equipment_evasion()
-        total_evasion += effect_evasion()
+        effect_ev = 0
+        if "+Evasion" in self.db.effects:
+            effect_ev += self.db.effects["+Evasion"]["amount"]
+        if "-Evasion" in self.db.effects:
+            effect_ev += self.db.effects["-Evasion"]["amount"]
+        if effect_ev > 0:
+            self.location.more_info(f"{"+" if effect_ev > 0 else ""}{effect_ev} evasion from effect ({self.name})")
 
-        self.location.more_info(f"{total_evasion} total evasion ({self.name})")
-        return total_evasion
+        return self.db.char_evasion + eq_ev + effect_ev
 
     def get_resistance(self):
         """Returns the current effective resistance for this entity, including equipment and effects."""
         self.location.more_info(f"{self.db.char_resistance} base resistance ({self.name})")
+
         eq_res = 0
         for slot in self.db.equipment:
             equipment = self.db.equipment[slot]
             if equipment and hasattr(equipment, "resistance") and equipment.db.resistance:
-                eq_res += equipment.db.evasion
+                eq_res += equipment.db.resistance
+                self.location.more_info(f"{equipment.db.resistance} resistance from {equipment.name}")
+
         effect_res = 0
-        if "Resistance" in self.db.effects:
-            effect_res += self.db.effects["Resistance"]["amount"]
+        if "+Resistance" in self.db.effects:
+            effect_res += self.db.effects["+Resistance"]["amount"]
+        if "-Resistance" in self.db.effects:
+            effect_res += self.db.effects["-Resistance"]["amount"]
+        if effect_res > 0:
+            self.location.more_info(f"{"+" if effect_res > 0 else ""}{effect_res} resistance from effect ({self.name})")
+
         return self.db.char_resistance + eq_res + effect_res
 
     def apply_damage(self, damages):
