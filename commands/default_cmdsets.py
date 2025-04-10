@@ -19,7 +19,7 @@ from evennia.contrib.grid.simpledoor import SimpleDoorCmdSet
 
 import commands.combat_commands
 from commands.refiled_cmds import *
-from typeclasses.inanimate.items.equipment import EquipmentCharacterCmdSet
+from typeclasses.inanimate.items.equipment.equipment import EquipmentCharacterCmdSet
 
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):

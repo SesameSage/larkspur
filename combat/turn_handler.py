@@ -47,7 +47,7 @@ from evennia import DefaultScript
 from evennia.utils import evtable
 
 from server import appearance
-from turnbattle.effects import SECS_PER_TURN
+from combat.effects import SECS_PER_TURN
 
 """
 ----------------------------------------------------------------------------

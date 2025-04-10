@@ -1,6 +1,6 @@
 from decimal import Decimal as Dec
 
-from turnbattle.effects import SECS_PER_TURN
+from combat.effects import SECS_PER_TURN
 
 POISON_DART = {
     "key": "poison dart",

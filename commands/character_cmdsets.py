@@ -3,7 +3,7 @@ from evennia.contrib.grid.ingame_map_display import MapDisplayCmdSet
 
 from commands.permissions_cmdsets import BuildingCmdSet
 from commands.refiled_cmds import *
-from typeclasses.inanimate.containers import ContainerCmdSet
+from typeclasses.inanimate.items.containers import ContainerCmdSet
 from typeclasses.inanimate.items.items import CmdIdentify, CmdBuy, CmdShop
 from typeclasses.inanimate.portals import CmdTravel
 from typeclasses.living.char_stats import StatsCmdSet

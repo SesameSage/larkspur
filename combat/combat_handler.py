@@ -4,7 +4,7 @@ from evennia.prototypes.spawner import spawn
 
 from server import appearance
 from server.appearance import dmg_color
-from turnbattle.effects import DamageTypes
+from combat.effects import DamageTypes
 from typeclasses.inanimate.items.items import ITEMFUNCS
 from typeclasses.inanimate.items.usables import Consumable
 

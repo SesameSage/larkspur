@@ -1,5 +1,5 @@
-from typeclasses.inanimate.items.apparel import Shield
-from typeclasses.inanimate.items.weapons import *
+from typeclasses.inanimate.items.equipment.apparel import Shield
+from typeclasses.inanimate.items.equipment.weapons import *
 from typeclasses.scripts.scripts import Script
 
 

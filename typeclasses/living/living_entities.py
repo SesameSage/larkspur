@@ -1,6 +1,6 @@
 from server import appearance
 from typeclasses.base.objects import Object
-from typeclasses.living.combat_character import TurnBattleEntity
+from combat.combat_character import TurnBattleEntity
 
 
 class LivingEntity(Object, TurnBattleEntity):

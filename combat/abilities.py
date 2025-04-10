@@ -1,6 +1,6 @@
 from evennia.utils import inherits_from
 
-from turnbattle.effects import *
+from combat.effects import *
 from typeclasses.base.objects import Object
 from typeclasses.inanimate.items.spellcomp import SpellComp
 from typeclasses.living.living_entities import LivingEntity

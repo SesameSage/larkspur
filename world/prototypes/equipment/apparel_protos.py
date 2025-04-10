@@ -2,7 +2,7 @@ from decimal import Decimal as Dec
 
 WILLOW_COROLLA = {
     "key": "willow corolla",
-    "typeclass": "typeclasses.inanimate.items.apparel.Circlet",
+    "typeclass": "typeclasses.inanimate.items.equipment.apparel.Circlet",
     "weight": Dec(3),
 
     "resistance": 10,

@@ -1,6 +1,6 @@
 import random
 
-from turnbattle.effects import SECS_PER_TURN
+from combat.effects import SECS_PER_TURN
 from typeclasses.scripts.scripts import Script
 
 

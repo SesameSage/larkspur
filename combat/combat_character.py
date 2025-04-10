@@ -6,8 +6,8 @@ from evennia import TICKER_HANDLER as tickerhandler
 from evennia.utils import inherits_from
 from evennia.utils.evtable import EvTable
 
-from turnbattle.effects import DurationEffect, KnockedDown
-from typeclasses.inanimate.items.weapons import Weapon
+from combat.effects import DurationEffect
+from typeclasses.inanimate.items.equipment.weapons import Weapon
 
 MAX_HP_BASE = 100
 LVL_TO_MAXHP = {

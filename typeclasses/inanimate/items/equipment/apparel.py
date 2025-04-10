@@ -1,4 +1,4 @@
-from typeclasses.inanimate.items.equipment import Equipment
+from typeclasses.inanimate.items.equipment.equipment import Equipment
 
 
 class Apparel(Equipment):

@@ -10,7 +10,7 @@ LEATHER_VEST = {
 }
 KINETIC_FOOTWRAPS = {
     "key": "kinetic footwraps",
-    "typeclass": "typeclasses.inanimate.items.apparel.Footwraps",
+    "typeclass": "typeclasses.inanimate.items.equipment.apparel.Footwraps",
     "weight": Dec(0.5),
 
     "defense": 2,
@@ -18,7 +18,7 @@ KINETIC_FOOTWRAPS = {
 }
 HIDE_BRACERS = {
     "key": "hide bracers",
-    "typeclass": "typeclasses.inanimate.items.apparel.Armwear",
+    "typeclass": "typeclasses.inanimate.items.equipment.apparel.Armwear",
     "weight": Dec(2),
 
     "defense": 6,

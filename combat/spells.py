@@ -1,5 +1,5 @@
 from server.appearance import dmg_color
-from turnbattle.abilities import *
+from combat.abilities import *
 
 
 class Spell(Ability):

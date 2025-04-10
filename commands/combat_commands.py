@@ -3,10 +3,9 @@ from evennia.commands.default.help import CmdHelp
 from evennia.commands.default.muxcommand import MuxCommand
 
 from server import appearance
-from turnbattle.turn_handler import TurnHandler
-from turnbattle.combat_handler import COMBAT
+from combat.turn_handler import TurnHandler
+from combat.combat_handler import COMBAT
 from typeclasses.inanimate.items.usables import Usable, Consumable
-from typeclasses.inanimate.items.weapons import Weapon
 
 
 class CmdFight(Command):

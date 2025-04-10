@@ -1,6 +1,6 @@
 from decimal import Decimal as Dec
 
-from turnbattle.effects import DamageTypes
+from combat.effects import DamageTypes
 
 TRAINING_WEAPON = {
     "desc": "Simplified, flimsy, and poorly balanced, but effective for learning one's way around a weapon type.",
@@ -11,7 +11,7 @@ TRAINING_WEAPON = {
 TRAINING_QUARTERSTAFF = {
     "key": "training quarterstaff",
     "prototype_parent": "TRAINING_WEAPON",
-    "typeclass": "typeclasses.inanimate.items.weapons.Quarterstaff",
+    "typeclass": "typeclasses.inanimate.items.equipment.weapons.Quarterstaff",
     "damage_ranges": {DamageTypes.BLUNT: (5, 10)},
     "weight": Dec(4),
 }
