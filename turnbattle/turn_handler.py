@@ -307,6 +307,9 @@ class TurnHandler(DefaultScript):
             table.add_row(*row)
         character.msg(table)
 
+        if character.effect_active("Frozen"):
+            character.location.msg_contents(character.get_display_name() + " is frozen solid and cannot act!")
+            self.spend_action(character, "all")
         if character.effect_active("Knocked Down"):
             character.location.msg_contents(
                 character.get_display_name() + " loses precious time in battle clambering back to their feet!")

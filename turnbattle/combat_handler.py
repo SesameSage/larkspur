@@ -96,7 +96,7 @@ class CombatHandler:
                 attacker.location.more_info(f"-{damage_penalty} {damage_type} damage from effect ({attacker.name}")
 
         # Apply defender's relevant effects
-        if "Knocked Down" in defender.db.effects:
+        if defender.effect_active("Knocked Down"):
             # Add 50% to damage
             defender.location.more_info("+50% damage (Knocked Down)")
             for damage_type in damage_values:

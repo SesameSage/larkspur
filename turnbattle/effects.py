@@ -25,6 +25,9 @@ class DamageTypes(Enum):
 
 class EffectScript(Script):
 
+    def at_script_creation(self):
+        self.key = self.__class__.__name__
+
     def color(self):
         return appearance.effect
 
@@ -88,7 +91,12 @@ class DurationEffect(EffectScript):
 
 # <editor-fold desc="Per second effects">
 class PerSecEffect(DurationEffect):
-    """An effect that increments per second or every given number of seconds."""
+    """
+    An effect that increments per second or every given number of seconds.
+
+    Attributes:
+        self.db.range (tuple): minimum and maximum amount to increment per second
+    """
 
     def pre_effect_add(self):
         """Called at the beginning of adding the effect to a target."""
@@ -142,7 +150,12 @@ class Regeneration(PerSecEffect):
 
 
 class DamageOverTime(PerSecEffect):
-    """Implemented by Burning and Poison."""
+    """
+    Damages the user per second.
+
+        Attributes:
+            self.db.damage_type (DamageType): Type of damage to deal
+    """
 
     def increment(self, amount: int, in_combat=False):
         """Apply the damages."""
@@ -157,6 +170,12 @@ class Burning(DamageOverTime):
         ("effect_key", "Burning"),
         ("damage_type", 4)
     ]
+
+    def pre_effect_add(self):
+        super().pre_effect_add()
+        if self.obj.effect_active("Frozen"):
+            self.obj.location.msg_contents(f"{self.obj.get_display_name()} thaws out!")
+            self.obj.scripts.get("Frozen")[0].delete()
 
 
 class Poisoned(DamageOverTime):
@@ -174,6 +193,13 @@ class KnockedDown(DurationEffect):
     fixed_attributes = [
         ("effect_key", "Knocked Down"),
         ("duration", 2 * SECS_PER_TURN)  # Always lasts 2 turns
+    ]
+
+
+class Frozen(DurationEffect):
+    """Can’t attack, cast, or use items. Quickened by fire damage, cancelled by burning."""
+    fixed_attributes = [
+        ("effect_key", "Frozen")
     ]
 
 
