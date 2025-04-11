@@ -6,7 +6,7 @@ from evennia import TICKER_HANDLER as tickerhandler
 from evennia.utils import inherits_from
 from evennia.utils.evtable import EvTable
 
-from combat.effects import DurationEffect
+from combat.effects import DurationEffect, DamageTypes
 from typeclasses.inanimate.items.equipment.weapons import Weapon
 
 MAX_HP_BASE = 100
@@ -58,8 +58,8 @@ class EquipmentEntity(DefaultCharacter):
         self.permissions.remove("player")
 
         self.db.char_evasion = 0
-        self.db.char_defense = 0
-        self.db.char_resistance = 0
+        self.db.char_defenses = {None: 0, DamageTypes.BLUNT: 0, DamageTypes.SLASHING: 0, DamageTypes.PIERCING: 0}
+        self.db.char_resistances = {None: 0, DamageTypes.FIRE: 0, DamageTypes.COLD: 0, DamageTypes.SHOCK: 0, DamageTypes.POISON: 0}
 
         self.db.equipment = {
             "primary": None,
@@ -355,9 +355,14 @@ class CombatEntity(EquipmentEntity):
     # TODO: Should other stats be in a get_ function like these, or calculated as in update_stats (faster)?
     # Defense and evasion can also depend on attacker; max hp and mana may just be changed by spells
 
-    def get_defense(self):
+    def get_defense(self, damage_type=None):
         """Returns the current effective defense for this entity, including equipment and effects."""
-        self.location.more_info(f"{self.db.char_defense} base defense ({self.name})")
+        base_def = self.db.char_defenses[None]
+        self.location.more_info(f"{base_def} base defense ({self.name})")
+        dt_def = 0
+        if damage_type:
+            dt_def = self.db.char_defenses[damage_type]
+            self.location.more_info(f"{dt_def} {damage_type.get_display_name()} resistance ({self.name})")
 
         eq_def = 0
         for slot in self.db.equipment:
@@ -374,7 +379,7 @@ class CombatEntity(EquipmentEntity):
         if effect_def > 0:
             self.location.more_info(f"{"+" if effect_def > 0 else ""}{effect_def} defense from effects ({self.name})")
 
-        return self.db.char_defense + eq_def + effect_def
+        return base_def + dt_def + eq_def + effect_def
 
     def get_evasion(self):
         """Returns the current effective evasion for this entity, including equipment and effects."""
@@ -397,27 +402,33 @@ class CombatEntity(EquipmentEntity):
 
         return self.db.char_evasion + eq_ev + effect_ev
 
-    # TODO: Specific damage resistance
-    def get_resistance(self):
+    def get_resistance(self, damage_type="resistance"):
         """Returns the current effective resistance for this entity, including equipment and effects."""
-        self.location.more_info(f"{self.db.char_resistance} base resistance ({self.name})")
+        base_resist = self.db.char_resistances[None]
+        self.location.more_info(f"{base_resist} base resistance ({self.name})")
+        dt_resist = 0
+        if damage_type is not "resistance":
+            dt_resist = self.db.char_resistances[damage_type]
+            self.location.more_info(f"{dt_resist} {damage_type.get_display_name()} resistance ({self.name})")
 
-        eq_res = 0
+        # TODO: Specific damage type resistances for equipment
+        eq_resist = 0
         for slot in self.db.equipment:
             equipment = self.db.equipment[slot]
             if equipment and hasattr(equipment, "resistance") and equipment.db.resistance:
-                eq_res += equipment.db.resistance
+                eq_resist += equipment.db.resistance
                 self.location.more_info(f"{equipment.db.resistance} resistance from {equipment.name}")
 
-        effect_res = 0
+        # TODO: Specific damage type resistances from effects
+        effect_resist = 0
         if "+Resistance" in self.db.effects:
-            effect_res += self.db.effects["+Resistance"]["amount"]
+            effect_resist += self.db.effects["+Resistance"]["amount"]
         if "-Resistance" in self.db.effects:
-            effect_res += self.db.effects["-Resistance"]["amount"]
-        if effect_res > 0:
-            self.location.more_info(f"{"+" if effect_res > 0 else ""}{effect_res} resistance from effect ({self.name})")
+            effect_resist += self.db.effects["-Resistance"]["amount"]
+        if effect_resist > 0:
+            self.location.more_info(f"{"+" if effect_resist > 0 else ""}{effect_resist} resistance from effect ({self.name})")
 
-        return self.db.char_resistance + eq_res + effect_res
+        return base_resist + dt_resist + eq_resist + effect_resist
 
     def apply_damage(self, damages):
         """
@@ -460,9 +471,9 @@ class CombatEntity(EquipmentEntity):
         self.db.max_mana = MAX_MANA_BASE + LVL_TO_MAXMANA[self.db.level] + SPIRIT_TO_MAXMANA[
             self.get_attr("spi")]
 
-        self.db.char_defense = CON_TO_DEFENSE[self.get_attr("con")]
+        self.db.char_defenses[None] = CON_TO_DEFENSE[self.get_attr("con")]
         self.db.char_evasion = DEXT_TO_EVADE[self.get_attr("dex")]
-        self.db.char_resistance = WIS_TO_RESIST_FACTOR[self.get_attr("wis")]
+        self.db.char_resistances[None] = WIS_TO_RESIST_FACTOR[self.get_attr("wis")]
 
     def regenerate(self):
         """

@@ -14,6 +14,7 @@ class DamageTypes(Enum):
     FIRE = 4
     COLD = 5
     SHOCK = 6
+    # WIND?
     POISON = 7
 
     def get_display_name(self, capital=False):

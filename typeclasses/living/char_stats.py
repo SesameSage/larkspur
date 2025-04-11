@@ -135,9 +135,10 @@ class CmdStats(Command):
                          f"|500{target.db.hp}/{target.db.max_hp}|n\n"
                          f"|125{target.db.mana}/{target.db.max_mana}|n\n"
                          f"|030{target.db.stamina}/{target.db.max_stam}|n\n\n"
-                         f"{appearance.highlight}{target.get_defense()}|n ({target.db.char_defense})\n"
+                         f"{appearance.highlight}{target.get_defense()}|n ({target.db.char_defenses[None]})\n"
                          f"{appearance.highlight}{target.get_evasion()}|n ({target.db.char_evasion})\n"
-                         f"{appearance.highlight}{target.get_resistance()}|n ({target.db.char_resistance})"
+                         f"{appearance.highlight}{target.get_resistance()}|n ({target.db.char_resistances[None]})"
+                         # TODO: Display specific damage resistances
                          )
         table.add_column(f"Strength:\n"
                          f"Constitution:\n"

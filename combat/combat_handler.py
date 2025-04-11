@@ -131,9 +131,15 @@ class CombatHandler:
         # Apply defense and resistance
         for damage_type in damage_values:
             if damage_type in [DamageTypes.BLUNT, DamageTypes.SLASHING, DamageTypes.PIERCING]:
-                damage_values[damage_type] -= defender.get_defense()
+                defense = defender.get_defense(damage_type)
+                damage_values[damage_type] -= defense
+                if defense> 0:
+                    defender.location.more_info(f"-{defense} {damage_type.get_display_name()} damage from defense")
             elif damage_type in [DamageTypes.FIRE, DamageTypes.COLD, DamageTypes.SHOCK, DamageTypes.POISON]:
-                damage_values[damage_type] -= defender.get_resistance()
+                resistance = defender.get_resistance(damage_type)
+                damage_values[damage_type] -= resistance
+                if resistance > 0:
+                    defender.location.more_info(f"-{resistance} {damage_type.get_display_name()} damage from resistance")
             # Make sure minimum damage is 0
             if damage_values[damage_type] < 0:
                 damage_values[damage_type] = 0
