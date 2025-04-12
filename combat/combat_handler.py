@@ -206,12 +206,6 @@ class CombatHandler:
             attack_name = attack
         else:
             attack_name = attack.get_display_name()
-        if not damage_values:
-            # If attacking with weapon or unarmed
-            if isinstance(attack, Weapon) or isinstance(attack, str):
-                damage_values = self.get_weapon_damage(attacker, defender)
-            else:  # Attacking with ability
-                damage_values = attack.get_damage(attacker)
 
         # Check if hit or miss
         attack_landed = True
@@ -220,6 +214,14 @@ class CombatHandler:
             attacker.location.msg_contents(
                 "%s's %s misses %s!" % (attacker.get_display_name(), attack_name, defender.get_display_name())
             )
+            return attack_landed
+
+        if not damage_values:
+            # If attacking with weapon or unarmed
+            if isinstance(attack, Weapon) or isinstance(attack, str):
+                damage_values = self.get_weapon_damage(attacker, defender)
+            else:  # Attacking with ability
+                damage_values = attack.get_damage(attacker)
 
         damage_values = self.adjust_attack_damage(attacker, defender, damage_values)
         damage_values = self.get_damage_taken(defender, damage_values)
