@@ -150,7 +150,7 @@ class CombatHandler:
             # Craft grammatically accurate one-line list of damages i.e. "5 blunt, 3 piercing, and 2 fire damage!"
             if not msg:
                 msg = "%s's %s strikes %s for " % (
-                    attacker.get_display_name(), attack_name, defender.get_display_name())
+                    attacker.get_display_name(capital=True), attack_name, defender.get_display_name())
             for i, damage_type in enumerate(damage_values):
                 if i == len(damage_values) - 1 and len(damage_values) > 1:  # If at the last damage type to list
                     # Precede with " and "
@@ -212,7 +212,7 @@ class CombatHandler:
         if not self.hit_successful(attacker, defender, accuracy, evasion):
             attack_landed = False
             attacker.location.msg_contents(
-                "%s's %s misses %s!" % (attacker.get_display_name(), attack_name, defender.get_display_name())
+                "%s's %s misses %s!" % (attacker.get_display_name(capital=True), attack_name, defender.get_display_name())
             )
             return attack_landed
 

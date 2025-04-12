@@ -138,7 +138,7 @@ class TurnHandler(DefaultScript):
         self.db.fighters = ordered_by_roll
 
         # Announce the turn order.
-        self.obj.msg_contents("Turn order is: %s " % ", ".join(obj.get_display_name() for obj in self.db.fighters))
+        self.obj.msg_contents("Turn order is: %s " % ", ".join(obj.get_display_name(capital=True) for obj in self.db.fighters))
 
         # Start first fighter's turn.
         self.start_turn(self.db.fighters[0])
@@ -287,7 +287,7 @@ class TurnHandler(DefaultScript):
             msg = "|[100"
         else:
             msg = "|[010"
-        msg = msg + ("~~~ %s's Turn ~~~" % (character.name))
+        msg = msg + ("~~~ %s's Turn ~~~" % (character.name.capitalize()))
         for obj in other_fighters:
             obj.msg(msg)
 

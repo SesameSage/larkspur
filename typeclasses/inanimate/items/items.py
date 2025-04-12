@@ -157,7 +157,7 @@ def itemfunc_cure_condition(item, user, target, **kwargs):
     if "effects_cured" in kwargs:
         effects_cured = kwargs["effects_cured"]
 
-    user.location.msg_contents("%s uses %s! " % (user, item.get_display_name()))
+    user.location.msg_contents("%s uses %s! " % (user.get_display_name(capital=True), item.get_display_name()))
 
     for script in target.scripts.all():
         if inherits_from(script, EffectScript):

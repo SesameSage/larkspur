@@ -101,7 +101,7 @@ class Equipment(Item):
         """Return a table containing details on the item such as its stats and effects."""
         table = EvTable()
         table.add_column(f"Weight: {self.db.weight}",
-                         f"Average value: {self.db.avg_value}", header=self.get_display_name())
+                         f"Average value: {self.db.avg_value}", header=self.get_display_name(capital=True))
         table.add_column(f"Equip slot: {self.db.equipment_slot}",
                          f"Lvl req: {self.db.required_level}",
                          f"Requires: {self.db.required_stat}",
@@ -244,7 +244,7 @@ class CmdEquip(MuxCommand):
             self.caller.msg(f"Can't find '{self.args}'")
             return
         if not item_equipping.db.equipment_slot:
-            self.caller.msg(f"{item_equipping.get_display_name().capitalize()} isn't something you can equip.")
+            self.caller.msg(f"{item_equipping.get_display_name(capital=True)} isn't something you can equip.")
             return
 
         if self.caller.db.equipment[item_equipping.db.equipment_slot] == item_equipping:
