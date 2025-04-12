@@ -127,7 +127,6 @@ class CombatHandler:
         return damage_values
 
     def get_damage_taken(self, defender, damage_values):
-        # TODO: Specific damage resistances
         # Apply defense and resistance
         for damage_type in damage_values:
             if damage_type in [DamageTypes.BLUNT, DamageTypes.SLASHING, DamageTypes.PIERCING]:

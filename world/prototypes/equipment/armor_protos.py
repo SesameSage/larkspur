@@ -1,11 +1,13 @@
 from decimal import Decimal as Dec
 
+from combat.effects import DamageTypes
+
 LEATHER_VEST = {
     "key": "leather vest",
-    "typeclass": "typeclasses.inanimate.items.apparel.Torsowear",
+    "typeclass": "typeclasses.inanimate.items.equipment.apparel.Torsowear",
     "weight": Dec(7),
 
-    "defense": 10,
+    "defense": {None: 5, DamageTypes.SLASHING: 4, DamageTypes.PIERCING: 2},
     "evasion": 15
 }
 KINETIC_FOOTWRAPS = {
@@ -13,7 +15,7 @@ KINETIC_FOOTWRAPS = {
     "typeclass": "typeclasses.inanimate.items.equipment.apparel.Footwraps",
     "weight": Dec(0.5),
 
-    "defense": 2,
+    "defense": {None: 1},
     "evasion": 15,
 }
 HIDE_BRACERS = {
@@ -21,6 +23,6 @@ HIDE_BRACERS = {
     "typeclass": "typeclasses.inanimate.items.equipment.apparel.Armwear",
     "weight": Dec(2),
 
-    "defense": 6,
+    "defense": {None: 3, DamageTypes.SLASHING: 2, DamageTypes.PIERCING: 1},
     "evasion": 8
 }

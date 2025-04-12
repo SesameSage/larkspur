@@ -58,8 +58,8 @@ class EquipmentEntity(DefaultCharacter):
         self.permissions.remove("player")
 
         self.db.char_evasion = 0
-        self.db.char_defenses = {None: 0, DamageTypes.BLUNT: 0, DamageTypes.SLASHING: 0, DamageTypes.PIERCING: 0}
-        self.db.char_resistances = {None: 0, DamageTypes.FIRE: 0, DamageTypes.COLD: 0, DamageTypes.SHOCK: 0, DamageTypes.POISON: 0}
+        self.db.char_defense = {None: 0, DamageTypes.BLUNT: 0, DamageTypes.SLASHING: 0, DamageTypes.PIERCING: 0}
+        self.db.char_resistance = {None: 0, DamageTypes.FIRE: 0, DamageTypes.COLD: 0, DamageTypes.SHOCK: 0, DamageTypes.POISON: 0}
 
         self.db.equipment = {
             "primary": None,
@@ -357,19 +357,35 @@ class CombatEntity(EquipmentEntity):
 
     def get_defense(self, damage_type=None):
         """Returns the current effective defense for this entity, including equipment and effects."""
-        base_def = self.db.char_defenses[None]
+        base_def = self.db.char_defense[None]
         self.location.more_info(f"{base_def} base defense ({self.name})")
         dt_def = 0
         if damage_type:
-            dt_def = self.db.char_defenses[damage_type]
+            dt_def = self.db.char_defense[damage_type]
             self.location.more_info(f"{dt_def} {damage_type.get_display_name()} resistance ({self.name})")
 
-        eq_def = 0
+        eq_defense = 0
         for slot in self.db.equipment:
+            this_eq_def = 0
             equipment = self.db.equipment[slot]
-            if equipment and hasattr(equipment.db, "defense") and equipment.db.defense:
-                eq_def += equipment.db.defense
-                self.location.more_info(f"+{equipment.db.defense} defense from {equipment.name} ({self.name})")
+            if equipment and equipment.attributes.has("defense"):
+                try:
+                    if equipment.db.defense[None] != 0:
+                        this_eq_def += equipment.db.defense[None]
+                        self.location.more_info(f"{this_eq_def} defense from {equipment.name}")
+                except KeyError:
+                    pass
+                if damage_type is not None:
+                    try:
+                        if equipment.db.defense[damage_type] != 0:
+                            this_eq_def += equipment.db.defense[damage_type]
+                            self.location.more_info(f"{equipment.db.defense[damage_type]} "
+                                                    f"{damage_type.get_display_name()} "
+                                                    f"defense from {equipment.name}")
+                    except KeyError:
+                        pass
+                if this_eq_def != 0:
+                    eq_defense += this_eq_def
 
         effect_def = 0
         if "+Defense" in self.db.effects:
@@ -379,7 +395,7 @@ class CombatEntity(EquipmentEntity):
         if effect_def > 0:
             self.location.more_info(f"{"+" if effect_def > 0 else ""}{effect_def} defense from effects ({self.name})")
 
-        return base_def + dt_def + eq_def + effect_def
+        return base_def + dt_def + eq_defense + effect_def
 
     def get_evasion(self):
         """Returns the current effective evasion for this entity, including equipment and effects."""
@@ -402,22 +418,37 @@ class CombatEntity(EquipmentEntity):
 
         return self.db.char_evasion + eq_ev + effect_ev
 
-    def get_resistance(self, damage_type="resistance"):
+    def get_resistance(self, damage_type=None):
         """Returns the current effective resistance for this entity, including equipment and effects."""
-        base_resist = self.db.char_resistances[None]
+        base_resist = self.db.char_resistance[None]
         self.location.more_info(f"{base_resist} base resistance ({self.name})")
         dt_resist = 0
-        if damage_type is not "resistance":
-            dt_resist = self.db.char_resistances[damage_type]
+        if damage_type:
+            dt_resist = self.db.char_resistance[damage_type]
             self.location.more_info(f"{dt_resist} {damage_type.get_display_name()} resistance ({self.name})")
 
-        # TODO: Specific damage type resistances for equipment
         eq_resist = 0
         for slot in self.db.equipment:
+            this_eq_res = 0
             equipment = self.db.equipment[slot]
-            if equipment and hasattr(equipment, "resistance") and equipment.db.resistance:
-                eq_resist += equipment.db.resistance
-                self.location.more_info(f"{equipment.db.resistance} resistance from {equipment.name}")
+            if equipment and equipment.attributes.has("resistance"):
+                try:
+                    if equipment.db.resistance[None] != 0:
+                        this_eq_res += equipment.db.resistance[None]
+                        self.location.more_info(f"{this_eq_res} resistance from {equipment.name}")
+                except KeyError:
+                    pass
+                if damage_type is not None:
+                    try:
+                        if equipment.db.resistance[damage_type] != 0:
+                            this_eq_res += equipment.db.resistance[damage_type]
+                            self.location.more_info(f"{equipment.db.resistance[damage_type]} "
+                                                    f"{damage_type.get_display_name()} "
+                                                    f"resistance from {equipment.name}")
+                    except KeyError:
+                        pass
+                if this_eq_res != 0:
+                    eq_resist += this_eq_res
 
         # TODO: Specific damage type resistances from effects
         effect_resist = 0
@@ -471,9 +502,9 @@ class CombatEntity(EquipmentEntity):
         self.db.max_mana = MAX_MANA_BASE + LVL_TO_MAXMANA[self.db.level] + SPIRIT_TO_MAXMANA[
             self.get_attr("spi")]
 
-        self.db.char_defenses[None] = CON_TO_DEFENSE[self.get_attr("con")]
+        self.db.char_defense[None] = CON_TO_DEFENSE[self.get_attr("con")]
         self.db.char_evasion = DEXT_TO_EVADE[self.get_attr("dex")]
-        self.db.char_resistances[None] = WIS_TO_RESIST_FACTOR[self.get_attr("wis")]
+        self.db.char_resistance[None] = WIS_TO_RESIST_FACTOR[self.get_attr("wis")]
 
     def regenerate(self):
         """

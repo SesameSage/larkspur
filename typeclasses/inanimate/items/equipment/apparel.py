@@ -1,3 +1,4 @@
+from combat.effects import DamageTypes
 from typeclasses.inanimate.items.equipment.equipment import Equipment
 
 
@@ -12,9 +13,10 @@ class Apparel(Equipment):
         normal hook to overload for most object types.
         """
         super().at_object_creation()
-        self.db.base_evasion = 0
-        self.db.defense = 0
-        self.db.resistance = 0
+        self.db.evasion = 0
+        self.db.defense = {None: 0, DamageTypes.BLUNT: 0, DamageTypes.SLASHING: 0, DamageTypes.PIERCING: 0}
+        self.db.resistance = {None: 0, DamageTypes.FIRE: 0, DamageTypes.COLD: 0, DamageTypes.SHOCK: 0,
+                              DamageTypes.POISON: 0}
 
     def at_pre_drop(self, dropper, **kwargs):
         """
@@ -49,6 +51,10 @@ class Headwear(Apparel):
     def at_object_creation(self):
         super().at_object_creation()
         self.db.equipment_slot = "head"
+
+
+class Circlet(Headwear):
+    pass
 
 
 class Neckwear(Apparel):

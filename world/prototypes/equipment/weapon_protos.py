@@ -16,3 +16,11 @@ TRAINING_QUARTERSTAFF = {
     "weight": Dec(4),
 }
 
+TRAINING_SWORD = {
+    "key": "training sword",
+    "prototype_parent": "TRAINING_WEAPON",
+    "typeclass": "typeclasses.inanimate.items.equipment.weapons.Sword",
+    "damage_ranges": {DamageTypes.SLASHING: (5, 10)},
+    "weight": Dec(4),
+}
+

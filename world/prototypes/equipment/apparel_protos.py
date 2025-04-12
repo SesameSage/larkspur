@@ -5,7 +5,7 @@ WILLOW_COROLLA = {
     "typeclass": "typeclasses.inanimate.items.equipment.apparel.Circlet",
     "weight": Dec(3),
 
-    "resistance": 10,
-    "evasion": 4,
+    "resistance": {None: 2},
+    "evasion": 2,
     # TODO: Spellcaster buffs
 }
