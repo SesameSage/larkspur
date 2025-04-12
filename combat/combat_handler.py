@@ -84,8 +84,8 @@ class CombatHandler:
         if not isinstance(weapon, str):
             for damage_type in weapon.db.damage_ranges:
                 # Roll between minimum and maximum damage
-                values = weapon.db.damage_ranges[damage_type]
-                damage_values[damage_type] = randint(values[0], values[1])
+                range = weapon.db.damage_ranges[damage_type]
+                damage_values[damage_type] = randint(range[0], range[1])
                 attacker.location.more_info(
                     f"+{damage_values[damage_type]} {damage_type.get_display_name()} damage from {weapon.name} ({attacker.name})")
                 # Make sure minimum damage is 0
@@ -94,12 +94,12 @@ class CombatHandler:
 
         # If not armed, use unarmed damage
         else:
-            damage_values[DamageTypes.BLUNT] = randint(
-                attacker.db.unarmed_damage_range[0], attacker.db.unarmed_damage_range[1]
-            )
+            for damage_type in attacker.db.unarmed_damage:
+                range = attacker.db.unarmed_damage[damage_type]
+                damage_values[damage_type] = randint(range[0], range[1])
 
         attacker.location.more_info(f"Damage roll ({attacker.name}):")
-        attacker.location.more_info(str([f"{damage_type.get_display_name()}: {damage_values[damage_type]}"
+        attacker.location.more_info(str([f"{damage_type.get_display_name() if damage_type else "Physical Damage"}: {damage_values[damage_type]}"
                                          for damage_type in damage_values]))
 
         return damage_values

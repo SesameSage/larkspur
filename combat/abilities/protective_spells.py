@@ -9,6 +9,7 @@ class Ward(Spell):
 
     def at_object_creation(self):
         super().at_object_creation()
+        self.key = "Ward"
         self.db.targeted = True
         self.db.must_target_entity = True
         self.db.cost = ("mana", 5)

@@ -42,10 +42,10 @@ class Room(Object, DefaultRoom):
         first_line = True
         for fixture in fixtures:
             if first_line:
-                string = "|244" + fixture.db.desc
+                string = "|244" + fixture.db.desc + "|n"
                 first_line = False
             else:
-                string = string + "\n" + fixture.db.desc
+                string = string + "\n" + fixture.db.desc + "|n"
         return string
 
     def get_display_characters(self, looker, **kwargs):
@@ -66,10 +66,10 @@ class Room(Object, DefaultRoom):
         first_line = True
         for character in characters:
             if first_line:
-                string = character.color() + character.db.appear_string
+                string = character.db.appear_string
                 first_line = False
             else:
-                string = string + "\n" + character.color() + character.db.appear_string
+                string = string + "\n" + character.db.appear_string
 
         return string
 

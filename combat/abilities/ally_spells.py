@@ -7,6 +7,7 @@ from typeclasses.living.living_entities import LivingEntity
 class Revive(Spell):
     def at_object_creation(self):
         super().at_object_creation()
+        self.key = "Revive"
         self.db.targeted = True
         self.db.must_target_entity = True
         self.db.cost = ("mana", 12)

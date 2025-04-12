@@ -76,7 +76,7 @@ class EquipmentEntity(DefaultCharacter):
         }
 
         self.db.unarmed_attack = "attack"
-        self.db.unarmed_damage_range = (5, 15)
+        self.db.unarmed_damage = {DamageTypes.BLUNT: (1, 5)}
         self.db.unarmed_accuracy = 30
 
     def show_equipment(self, looker=None):
@@ -361,8 +361,11 @@ class CombatEntity(EquipmentEntity):
         self.location.more_info(f"{base_def} base defense ({self.name})")
         dt_def = 0
         if damage_type:
-            dt_def = self.db.char_defense[damage_type]
-            self.location.more_info(f"{dt_def} {damage_type.get_display_name()} resistance ({self.name})")
+            try:
+                dt_def = self.db.char_defense[damage_type]
+                self.location.more_info(f"{dt_def} {damage_type.get_display_name()} resistance ({self.name})")
+            except KeyError:
+                pass
 
         eq_defense = 0
         for slot in self.db.equipment:
@@ -424,8 +427,11 @@ class CombatEntity(EquipmentEntity):
         self.location.more_info(f"{base_resist} base resistance ({self.name})")
         dt_resist = 0
         if damage_type:
-            dt_resist = self.db.char_resistance[damage_type]
-            self.location.more_info(f"{dt_resist} {damage_type.get_display_name()} resistance ({self.name})")
+            try:
+                dt_resist = self.db.char_resistance[damage_type]
+                self.location.more_info(f"{dt_resist} {damage_type.get_display_name()} resistance ({self.name})")
+            except KeyError:
+                pass
 
         eq_resist = 0
         for slot in self.db.equipment:

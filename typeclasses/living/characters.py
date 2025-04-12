@@ -15,8 +15,10 @@ from evennia.utils import make_iter
 
 from commands.character_cmdsets import PlayerCmdSet
 from commands.refiled_cmds import RefiledCmdSet
+from server import appearance
 from typeclasses.inanimate import rooms
 from typeclasses.inanimate.items.items import Item
+from typeclasses.living.enemies import Enemy
 from typeclasses.living.living_entities import *
 from typeclasses.living.talking_npc import TalkableNPC
 
@@ -52,7 +54,7 @@ class Character(LivingEntity):
 
     def at_object_creation(self):
         super().at_object_creation()
-        self.db.appear_string = f"{self.name} is here."
+        self.db.appear_string = f"{self.get_display_name()} is here."
 
     def color(self):
         return appearance.character

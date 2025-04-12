@@ -7,6 +7,7 @@ class LivingEntity(Object, CombatEntity):
     """
     Somthing that can move around and be killed.
     """
+
     def at_object_creation(self):
         super().at_object_creation()
         self.db.gold = 0
@@ -17,22 +18,17 @@ class LivingEntity(Object, CombatEntity):
 {things}
 {footer}
     """
-        self.db.appear_string = f"A {self.name} is here."
+        self.db.appear_string = f"A {self.get_display_name()} is here."
+
+    def color(self):
+        if self.db.hostile:
+            return appearance.enemy
+        else:
+            return appearance.character
 
     def announce_move_from(self, destination, msg=None, mapping=None, move_type="move", **kwargs):
         # TODO: Make this work for non cardinal exits
         string = "{object}|=j leaves {exit}."
         super().announce_move_from(destination=destination, mapping=mapping, move_type=move_type, msg=string, **kwargs)
-
-
-class Enemy(LivingEntity):
-    """An entity hostile to players, appearing red in text."""
-    def at_object_creation(self):
-        super().at_object_creation()
-        self.db.hostile = True
-        # TODO: Hostility to specific characters
-
-    def color(self):
-        return appearance.enemy
 
 

@@ -9,6 +9,7 @@ class Sweep(Ability):
 
     def at_object_creation(self):
         super().at_object_creation()
+        self.key = "Sweep"
         self.db.targeted = True
         self.db.must_target_entity = True
         self.db.cost = ("stamina", 1)

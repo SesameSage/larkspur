@@ -11,6 +11,7 @@ class Firebolt(Spell):
 
     def at_object_creation(self):
         super().at_object_creation()
+        self.key = "Firebolt"
         self.db.targeted = True
         self.db.must_target_entity = False
         self.db.cost = ("mana", 2)

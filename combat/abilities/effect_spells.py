@@ -9,6 +9,7 @@ class BlindingBeam(Spell):
 
     def at_object_creation(self):
         super().at_object_creation()
+        self.key = "Blinding Beam"
         self.db.targeted = True
         self.db.must_target_entity = True
         self.db.cost = ("mana", 5)
@@ -26,6 +27,7 @@ class BlindingBeam(Spell):
 class Freeze(Spell):
     def at_object_creation(self):
         super().at_object_creation()
+        self.key = "Freeze"
         self.db.targeted = True
         self.db.must_target_entity = False
         self.db.cost = ("mana", 12)
