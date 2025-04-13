@@ -108,8 +108,8 @@ class Character(LivingEntity):
             msg_receivers = appearance.whisper + msg_receivers
             msg_location = None
         else:
-            msg_self = appearance.say + '{self} say: {speech}' if msg_self is True else msg_self
-            msg_location = msg_location or '{object}' + appearance.say + ' says: {speech}'
+            msg_self = self.get_display_name(capital=True) + appearance.say + ' say: {speech}' if msg_self is True else msg_self
+            msg_location = msg_location or self.get_display_name(capital=True) + appearance.say + ' says: {speech}'
             msg_receivers = msg_receivers or message
             msg_receivers = appearance.say + msg_receivers
 
