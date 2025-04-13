@@ -226,13 +226,29 @@ class Object(ObjectParent, DefaultObject):
 
     def at_object_creation(self):
         super().at_object_creation()
-        self.db.unique_name = False
+        self.db.unique_name = False  # For now, largely just affects capitalization
         self.db.long_desc = None
 
     def color(self):
+        """Return the markup string for the color/appearance of objects of this type.
+        Called by get_display_name and similar methods."""
         return ""
 
     def get_display_name(self, looker=None, capital=False, article=False, **kwargs):
+        """
+                Displays the appearance-formatted name of the object in a viewer-aware manner.
+
+                Args:
+                    looker (DefaultObject): The object or account that is looking at or getting information
+                        for this object.
+                    capital (bool): Whether the name should be capitalized if not already a capitalized proper name.
+                    article (bool): Whether an article should be added when applicable; i.e. "hellhound" becomes
+                    "a hellhound"
+
+                Returns:
+                    str: A name to display for this object. Usually adds appearance to object name.
+
+                """
         # If not a unique name, display i.e. "a hellhound" instead of "hellhound" when article is True
         if article and not self.db.unique_name:
             name = self.get_numbered_name(count=1, looker=looker)[0]
@@ -249,7 +265,7 @@ class Object(ObjectParent, DefaultObject):
 
 class Fixture(Object):
     """
-    Key room features that appear in their own line in the room description and are immovable
+    Key immovable room features that appear in their own line in the room description.
     """
     def at_object_creation(self):
         super().at_object_creation()

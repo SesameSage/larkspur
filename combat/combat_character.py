@@ -61,6 +61,7 @@ class EquipmentEntity(DefaultCharacter):
         self.db.char_defense = {None: 0, DamageTypes.BLUNT: 0, DamageTypes.SLASHING: 0, DamageTypes.PIERCING: 0}
         self.db.char_resistance = {None: 0, DamageTypes.FIRE: 0, DamageTypes.COLD: 0, DamageTypes.SHOCK: 0, DamageTypes.POISON: 0}
 
+        # TODO: Keep equipment on type reset
         self.db.equipment = {
             "primary": None,
             "secondary": None,
@@ -294,6 +295,8 @@ class CombatEntity(EquipmentEntity):
 
         # Apply conditions that fire at the start of each turn.
 
+    # TODO: Effect handler?
+
     def effect_active(self, effect_key, duration_for_reset=0):
         """If this entity currently has this effect, returns the corresponding script. If this entity does not already
         have an effect with the given key, returns False."""
@@ -304,24 +307,26 @@ class CombatEntity(EquipmentEntity):
 
     def add_effect(self, typeclass, attributes=None):
         """Adds or resets an effect with the given typeclass and attributes."""
-        if not attributes:
-            attributes = []
-        if hasattr(typeclass, "fixed_attributes"):
+        if not attributes:  # If attributes not given in call
+            attributes = []  # Make sure initialized as a list
+        if hasattr(typeclass, "fixed_attributes"):  # If typeclass has fixed attributes, like always the same duration
             attributes.extend(typeclass.fixed_attributes)
 
+        # Extract effect key and duration for effect_active check
         for attribute in attributes:
             if attribute[0] == "effect_key":
                 effect_key = attribute[1]
             elif attribute[0] == "duration":
                 duration = attribute[1]
 
-        if self.effect_active(effect_key):
-            self.effect_active(effect_key).reset_seconds(duration)
+        if self.effect_active(effect_key):  # If this effect is already active on this entity
+            self.effect_active(effect_key).reset_seconds(duration)  # Restart timer, with this version's duration
             self.location.msg_contents(f"{self.get_display_name(capital=True)} regains {effect_key}.")
             return
 
+        # Create effect script attached to this entity
         effect = evennia.create_script(typeclass=typeclass, obj=self, attributes=attributes)
-        effect.pre_effect_add()
+        effect.pre_effect_add()  # Call pre_effect_add on the effect script
         self.location.msg_contents(f"{self.get_display_name(capital=True)} gains {effect.color()}{effect_key}.")
 
     def apply_effects(self):
@@ -335,15 +340,19 @@ class CombatEntity(EquipmentEntity):
 
     def get_attr(self, att_input: str):
         """Gets the current effective Strength, Intelligence, etc. for this entity by attribute name."""
+        # Base attribute tied to the character's stats
         for attribute in self.db.attribs:
             if attribute.startswith(att_input):
                 att_input = attribute
         base_attr = self.db.attribs[att_input]
 
+        # Bonus from equipment
         eq_bonus = 0
         for slot in self.db.equipment:
             equipment = self.db.equipment[slot]
+        # TODO: Attribute bonuses from equipment
 
+        # Bonus from effects
         effect = 0
         if f"{att_input} Up".capitalize() in self.db.effects:
             effect = self.db.effects(f"{att_input} Up".capitalize())["amount"]
@@ -357,38 +366,44 @@ class CombatEntity(EquipmentEntity):
 
     def get_defense(self, damage_type=None):
         """Returns the current effective defense for this entity, including equipment and effects."""
+        # Untyped defense
         base_def = self.db.char_defense[None]
-        self.location.more_info(f"{base_def} base defense ({self.name})")
+        self.location.more_info(f"{base_def} untyped defense ({self.name})")
+
+        # Typed defense
         dt_def = 0
-        if damage_type:
+        if damage_type:  # If we are getting defense from a specific damage type
             try:
                 dt_def = self.db.char_defense[damage_type]
                 self.location.more_info(f"{dt_def} {damage_type.get_display_name()} resistance ({self.name})")
-            except KeyError:
+            except KeyError:  # Move on if we don't have defense of this type
                 pass
 
+        # Defense from equipment
         eq_defense = 0
         for slot in self.db.equipment:
-            this_eq_def = 0
+            this_eq_def = 0  # Total defense from this piece of equipment, for display
             equipment = self.db.equipment[slot]
-            if equipment and equipment.attributes.has("defense"):
+            if equipment and equipment.attributes.has("defense"):  # If equipment found with defense attr to access
+                # Add equipment's untyped defense if present
                 try:
                     if equipment.db.defense[None] != 0:
                         this_eq_def += equipment.db.defense[None]
                         self.location.more_info(f"{this_eq_def} defense from {equipment.name}")
-                except KeyError:
+                except KeyError:  # Move on if it provides no untyped defense (only typed)
                     pass
-                if damage_type is not None:
+
+                if damage_type is not None:  # If we are getting defense from a specific damage type
                     try:
                         if equipment.db.defense[damage_type] != 0:
-                            this_eq_def += equipment.db.defense[damage_type]
+                            this_eq_def += equipment.db.defense[damage_type]  # Add eq's defense against this type
                             self.location.more_info(f"{equipment.db.defense[damage_type]} "
                                                     f"{damage_type.get_display_name()} "
                                                     f"defense from {equipment.name}")
-                    except KeyError:
+                    except KeyError:  # Move on if this equipment doesn't provide defense against this damage type
                         pass
                 if this_eq_def != 0:
-                    eq_defense += this_eq_def
+                    eq_defense += this_eq_def  # Add this equipment piece's total defense from this damage
 
         effect_def = 0
         if "+Defense" in self.db.effects:
@@ -402,8 +417,10 @@ class CombatEntity(EquipmentEntity):
 
     def get_evasion(self):
         """Returns the current effective evasion for this entity, including equipment and effects."""
+        # Base evasion on character
         self.location.more_info(f"{self.db.char_evasion} base evasion ({self.name})")
 
+        # Equipment evasion bonuses
         eq_ev = 0
         for slot in self.db.equipment:
             equipment = self.db.equipment[slot]
@@ -411,6 +428,7 @@ class CombatEntity(EquipmentEntity):
                 eq_ev += equipment.db.evasion
                 self.location.more_info(f"+{equipment.db.evasion} evasion from {equipment.name} ({self.name})")
 
+        # Evasion bonuses from effects
         effect_ev = 0
         if "+Evasion" in self.db.effects:
             effect_ev += self.db.effects["+Evasion"]["amount"]
@@ -423,38 +441,43 @@ class CombatEntity(EquipmentEntity):
 
     def get_resistance(self, damage_type=None):
         """Returns the current effective resistance for this entity, including equipment and effects."""
+        # Untyped resistance
         base_resist = self.db.char_resistance[None]
         self.location.more_info(f"{base_resist} base resistance ({self.name})")
+
+        # Typed resistance
         dt_resist = 0
-        if damage_type:
+        if damage_type:  # If we are getting resistance for a specific damage type
             try:
                 dt_resist = self.db.char_resistance[damage_type]
                 self.location.more_info(f"{dt_resist} {damage_type.get_display_name()} resistance ({self.name})")
-            except KeyError:
+            except KeyError:  # Move on if we don't have resistance of this type
                 pass
 
+        # Resistance from equipment
         eq_resist = 0
         for slot in self.db.equipment:
-            this_eq_res = 0
+            this_eq_res = 0  # Total defense from this piece of equipment, for display
             equipment = self.db.equipment[slot]
-            if equipment and equipment.attributes.has("resistance"):
+            if equipment and equipment.attributes.has("resistance"):  # If equipment found with resist attr to access
+                # Add equipment's untyped defense if present
                 try:
                     if equipment.db.resistance[None] != 0:
                         this_eq_res += equipment.db.resistance[None]
                         self.location.more_info(f"{this_eq_res} resistance from {equipment.name}")
-                except KeyError:
+                except KeyError:  # Move on if it provides no untyped defense (only typed)
                     pass
-                if damage_type is not None:
+                if damage_type is not None:  # If we are getting resistance for a specific damage type
                     try:
                         if equipment.db.resistance[damage_type] != 0:
-                            this_eq_res += equipment.db.resistance[damage_type]
+                            this_eq_res += equipment.db.resistance[damage_type]  # Add eq's resist against this type
                             self.location.more_info(f"{equipment.db.resistance[damage_type]} "
                                                     f"{damage_type.get_display_name()} "
                                                     f"resistance from {equipment.name}")
-                    except KeyError:
+                    except KeyError:  # Move on if this equipment doesn't provide resistance against this damage type
                         pass
                 if this_eq_res != 0:
-                    eq_resist += this_eq_res
+                    eq_resist += this_eq_res  # Add this equipment piece's total resistance to this damage
 
         # TODO: Specific damage type resistances from effects
         effect_resist = 0
@@ -467,6 +490,7 @@ class CombatEntity(EquipmentEntity):
 
         return base_resist + dt_resist + eq_resist + effect_resist
 
+    # TODO: Move this to combat handler?
     def apply_damage(self, damages):
         """
         Applies damage to a target, reducing their HP by the damage amount to a
@@ -488,7 +512,8 @@ class CombatEntity(EquipmentEntity):
                 self.at_defeat()
 
     def at_defeat(self):
-        """Called when entity is defeated."""
+        """Called when entity is defeated. This is a method on entities instead of the combat handler so that it can
+        be overridden with different behavior by different kinds of entities."""
         self.location.msg_contents("|w|[110%s has been defeated!" % self.name)
         # End all timed buffs and debuffs
         for script in self.scripts.all():

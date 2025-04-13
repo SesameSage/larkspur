@@ -40,6 +40,7 @@ class Room(Object, DefaultRoom):
         """
 
     def get_display_footer(self, looker, **kwargs):
+        """Describes room fixtures like portals."""
         fixtures = self.filter_visible([content for content in self.contents if isinstance(content, Fixture)], looker,
                                        **kwargs)
         string = ""
@@ -52,6 +53,7 @@ class Room(Object, DefaultRoom):
                 string = string + "\n" + fixture.db.desc + "|n"
         return string
 
+    # Overridden to use appear_string
     def get_display_characters(self, looker, **kwargs):
         """
         Get the 'characters' component of the object description. Called by `return_appearance`.
@@ -77,6 +79,7 @@ class Room(Object, DefaultRoom):
 
         return string
 
+    # Overridden to add color
     def get_display_exits(self, looker, **kwargs):
         """
         Get the 'exits' component of the object description. Called by `return_appearance`.
@@ -116,6 +119,7 @@ class Room(Object, DefaultRoom):
 
         return f"|wExits:|n {exit_names}" if exit_names else ""
 
+    # Overridden to exclude Fixtures
     def get_display_things(self, looker, **kwargs):
         """
         Get the 'things' component of the object description. Called by `return_appearance`.

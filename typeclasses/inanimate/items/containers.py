@@ -266,7 +266,6 @@ class CmdContainerGet(CmdGet):
             singular, _ = obj.get_numbered_name(1, caller)
             if location == caller.location:
                 # we're picking it up from the area
-
                 caller.location.msg_contents(f"$You(capitalize=True) $conj(pick) up {singular}.", from_obj=caller)
             else:
                 # we're getting it from somewhere else
