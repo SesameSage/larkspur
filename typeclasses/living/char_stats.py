@@ -112,6 +112,44 @@ class CmdStats(Command):
     help_category = "character"
 
     def func(self):
+
+        def display_resistances(target):
+            string = ""
+
+            # Display base character defense, evasion, and resistance
+            stat_mapping = {target.get_defense: target.db.char_defense[None],
+                         target.get_evasion: target.db.char_evasion,
+                         target.get_resistance: target.db.char_resistance[None]}
+            for stat_func in stat_mapping:
+                string = string + f"{appearance.highlight}{stat_func()}|n "
+                try:
+                    char_stat = stat_mapping[stat_func]
+                except KeyError:
+                    char_stat = 0
+                string = string + f"({char_stat})\n"
+
+            # Add separation and extra line to align with "Resists:" subheader
+            string = string + "\n\n"
+
+            # Display specific resistances
+            for damage_type in DamageTypes:
+
+                if damage_type in [DamageTypes.BLUNT, DamageTypes.SLASHING, DamageTypes.PIERCING]:
+                    stat = target.db.char_defense
+                    stat_method = target.get_defense
+                elif damage_type in [DamageTypes.FIRE, DamageTypes.COLD, DamageTypes.SHOCK, DamageTypes.POISON]:
+                    stat = target.db.char_resistance
+                    stat_method = target.get_resistance
+
+                string = string + f"{appearance.highlight}{stat_method(damage_type, type_only=True)}|n "
+                try:
+                    char_stat = stat[damage_type]
+                except KeyError:
+                    char_stat = 0
+                string = string + f"({char_stat})\n"
+
+            return string
+
         if self.args:  # Target given
             target = self.caller.search(
                 self.args, candidates=[content for content in self.caller.location.contents if content.db.hp])
@@ -130,7 +168,7 @@ class CmdStats(Command):
                          f"Mana:\n"
                          f"Stamina:\n\n"
                          
-                         , header=f"{target.get_display_name()}")
+                         , header=f"{target.get_display_name(capital=True)}")
 
         table.add_column(f"|w{target.db.level}|n\n"
                          f"|500{target.db.hp}/{target.db.max_hp}|n\n"
@@ -170,38 +208,11 @@ class CmdStats(Command):
                          f"|=oPiercing: \n"
                          f"|=oFire: \n"
                          f"|=oCold: \n"
-                         f"|=oFire: \n"
                          f"|=oShock: \n"
                          f"|=oPoison: \n")
 
         # TODO: Could format this with a loop to auto-fix types
-        table.add_column(f"{appearance.highlight}{target.get_defense()}|n ({target.db.char_defense[None]})\n"
-                         f"{appearance.highlight}{target.get_evasion()}|n ({target.db.char_evasion})\n"
-                         f"{appearance.highlight}{target.get_resistance()}|n ({target.db.char_resistance[None]})\n\n\n"
-                         
-                         f"{appearance.highlight}{target.get_defense(DamageTypes.BLUNT, type_only=True)}|n "
-                         f"({target.db.char_defense[DamageTypes.BLUNT]})\n"
-                         
-                         f"{appearance.highlight}{target.get_defense(DamageTypes.SLASHING, type_only=True)}|n "
-                         f"({target.db.char_defense[DamageTypes.SLASHING]})\n"
-                         
-                         f"{appearance.highlight}{target.get_defense(DamageTypes.PIERCING, type_only=True)}|n "
-                         f"({target.db.char_defense[DamageTypes.PIERCING]})\n"
-                         
-                         f"{appearance.highlight}{target.get_resistance(DamageTypes.FIRE, type_only=True)}|n "
-                         f"({target.db.char_resistance[DamageTypes.FIRE]})\n"
-                         
-                         f"{appearance.highlight}{target.get_resistance(DamageTypes.COLD, type_only=True)}|n "
-                         f"({target.db.char_resistance[DamageTypes.COLD]})\n"
-                         
-                         f"{appearance.highlight}{target.get_resistance(DamageTypes.FIRE, type_only=True)}|n "
-                         f"({target.db.char_resistance[DamageTypes.FIRE]})\n"
-                         
-                         f"{appearance.highlight}{target.get_resistance(DamageTypes.SHOCK, type_only=True)}|n "
-                         f"({target.db.char_resistance[DamageTypes.SHOCK]})\n"
-                         
-                         f"{appearance.highlight}{target.get_resistance(DamageTypes.POISON, type_only=True)}|n "
-                         f"({target.db.char_resistance[DamageTypes.POISON]})")
+        table.add_column(f"{display_resistances(target)}")
 
         self.caller.msg(table)
 

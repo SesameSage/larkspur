@@ -59,7 +59,8 @@ class EquipmentEntity(DefaultCharacter):
 
         self.db.char_evasion = 0
         self.db.char_defense = {None: 0, DamageTypes.BLUNT: 0, DamageTypes.SLASHING: 0, DamageTypes.PIERCING: 0}
-        self.db.char_resistance = {None: 0, DamageTypes.FIRE: 0, DamageTypes.COLD: 0, DamageTypes.SHOCK: 0, DamageTypes.POISON: 0}
+        self.db.char_resistance = {None: 0, DamageTypes.FIRE: 0, DamageTypes.COLD: 0, DamageTypes.SHOCK: 0,
+                                   DamageTypes.POISON: 0}
 
         # TODO: Keep equipment on type reset
         self.db.equipment = {
