@@ -261,7 +261,7 @@ class CombatHandler:
         if not damage_values:
             # If attacking with weapon or unarmed
             if isinstance(attack, Weapon) or isinstance(attack, str):
-                damage_values = self.get_weapon_damage(attacker, defender)
+                damage_values = self.get_weapon_damage(attacker)
             else:  # Attacking with ability
                 damage_values = attack.get_damage(attacker)
 
