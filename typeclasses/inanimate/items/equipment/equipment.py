@@ -1,85 +1,11 @@
-"""
-Clothing - Provides a typeclass and commands for wearable clothing,
-which is appended to a character's description when worn.
-
-Evennia contribution - Tim Ashley Jenkins 2017
-
-Clothing items, when worn, are added to the character's description
-in a list. For example, if wearing the following clothing items:
-
-    a thin and delicate necklace
-    a pair of regular ol' shoes
-    one nice hat
-    a very pretty dress
-
-A character's description may look like this:
-
-    Superuser(#1)
-    This is User #1.
-
-    Superuser is wearing one nice hat, a thin and delicate necklace,
-    a very pretty dress and a pair of regular ol' shoes.
-
-Characters can also specify the style of wear for their clothing - I.E.
-to wear a scarf 'tied into a tight knot around the neck' or 'draped
-loosely across the shoulders' - to add an easy avenue of customization.
-For example, after entering:
-
-    wear scarf draped loosely across the shoulders
-
-The garment appears like so in the description:
-
-    Superuser(#1)
-    This is User #1.
-
-    Superuser is wearing a fanciful-looking scarf draped loosely
-    across the shoulders.
-
-Items of clothing can be used to cover other items, and many options
-are provided to define your own clothing types and their limits and
-behaviors. For example, to have undergarments automatically covered
-by outerwear, or to put a limit on the number of each type of item
-that can be worn. The system as-is is fairly freeform - you
-can cover any garment with almost any other, for example - but it
-can easily be made more restrictive, and can even be tied into a
-system for armor or other equipment.
-
-To install, import this module and have your default character
-inherit from ClothedCharacter in your game's characters.py file:
-
-    from evennia.contrib.game_systems.clothing import ClothedCharacter
-
-    class Character(ClothedCharacter):
-
-And then add ClothedCharacterCmdSet in your character set in your
-game's commands/default_cmdsets.py:
-
-    from evennia.contrib.game_systems.clothing import ClothedCharacterCmdSet
-
-    class CharacterCmdSet(default_cmds.CharacterCmdSet):
-         ...
-         at_cmdset_creation(self):
-
-             super().at_cmdset_creation()
-             ...
-             self.add(ClothedCharacterCmdSet)    # <-- add this
-
-From here, you can use the default builder commands to create clothes
-with which to test the system:
-
-    @create a pretty shirt : evennia.contrib.game_systems.clothing.ContribClothing
-    @set shirt/clothing_type = 'top'
-    wear shirt
-
-"""
-
-from evennia import default_cmds
+from evennia import default_cmds, DefaultCharacter
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils import (
     at_search_result,
 )
 from evennia.utils.evtable import EvTable
 
+from combat.effects import DamageTypes
 from server import appearance
 from typeclasses.inanimate.items.items import Item
 
@@ -192,9 +118,134 @@ class Equipment(Item):
             giver.location.msg_contents("%s unequips %s." % (giver, self))
 
 
-# COMMANDS START HERE
+class EquipmentEntity(DefaultCharacter):
+    """
+    A living thing that can equip things and has defense, evasion, and resistance
+    """
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.permissions.remove("player")
+
+        self.db.char_evasion = 0
+        self.db.char_defense = {None: 0, DamageTypes.BLUNT: 0, DamageTypes.SLASHING: 0, DamageTypes.PIERCING: 0}
+        self.db.char_resistance = {None: 0, DamageTypes.FIRE: 0, DamageTypes.COLD: 0, DamageTypes.SHOCK: 0,
+                                   DamageTypes.POISON: 0}
+
+        # TODO: Keep equipment on type reset
+        self.db.equipment = {
+            "primary": None,
+            "secondary": None,
+            "head": None,
+            "neck": None,
+            "torso": None,
+            "about body": None,
+            "arms": None,
+            # TODO: Rings
+            "waist": None,
+            "legs": None,
+            "feet": None
+        }
+
+        self.db.unarmed_attack = "attack"
+        self.db.unarmed_damage = {DamageTypes.BLUNT: (1, 5)}
+        self.db.unarmed_accuracy = 30
+
+    def show_equipment(self, looker=None):
+        """Returns a table of the entity's equipment slots and what occuipes each."""
+        if not looker:
+            looker = self
+        wear_table = EvTable(border="header")
+        wear_table.add_row("\n|wEquipped:|n")
+        for slot in self.db.equipment:
+            if self.db.equipment[slot]:
+                equipment = self.db.equipment[slot].get_display_name()
+            else:
+                equipment = "|=j---|n"
+            wear_table.add_row(slot + ": ", equipment)
+        return wear_table
+
+    def get_display_desc(self, looker, **kwargs):
+        """
+        Get the 'desc' component of the object description. Called by `return_appearance`.
+
+        Args:
+            looker (Object): Object doing the looking.
+            **kwargs: Arbitrary data for use when overriding.
+        Returns:
+            str: The desc display string.
+        """
+        desc = self.db.desc
+
+        # Create outfit string
+        msg = self.show_equipment(looker=looker)
+
+        # Add on to base description
+        if desc:
+            desc += f"\n\n{msg}"
+        else:
+            desc = msg
+
+        return desc
+
+    def get_display_things(self, looker, **kwargs):
+        """
+        Get the 'things' component of the object's contents. Called by `return_appearance`.
+
+        Args:
+            looker (Object): Object doing the looking.
+            **kwargs: Arbitrary data for use when overriding.
+        Returns:
+            str: A string describing the things in object.
+        """
+
+        def _filter_visible(obj_list):
+            return (
+                obj
+                for obj in obj_list
+                if obj != looker and obj.access(looker, "view") and not obj.db.worn
+            )
+
+        # sort and handle same-named things
+        things = _filter_visible(self.contents_get(content_type="object"))
+
+        carried = [item for item in things if not item.db.equipped]
+        carry_table = EvTable(border="header")
+        carry_table.add_row("\n|wCarrying:|n")
+        for item in carried:
+            carry_table.add_row(item.get_display_name(), item.get_display_desc(looker=looker))
+        if carry_table.nrows <= 1:
+            carry_table.add_row("Nothing.")
+
+        return carry_table
+
+        """grouped_things = defaultdict(list)
+        for thing in things:
+            grouped_things[thing.get_display_name(looker, **kwargs)].append(thing)
+
+        thing_names = []
+        for thingname, thinglist in sorted(grouped_things.items()):
+            nthings = len(thinglist)
+            thing = thinglist[0]
+            singular, plural = thing.get_numbered_name(nthings, looker, key=thingname)
+            thing_names.append(singular if nthings == 1 else plural)
+        thing_names = iter_to_str(thing_names)
+        return (
+            f"\n{self.get_display_name(looker, **kwargs)} is carrying {thing_names}"
+            if thing_names
+            else ""
+        )"""
+
+    def get_weapon(self):
+        """Returns the primary held weapon, or unarmed attack name."""
+        primary_held = self.db.equipment["primary"]
+        if primary_held and primary_held.attributes.has("damage_ranges"):
+            return primary_held
+        else:
+            return self.db.unarmed_attack
 
 
+# <editor-fold desc="Commands">
 class CmdEquip(MuxCommand):
     """
     Puts on an item of clothing you are holding.
@@ -350,3 +401,5 @@ class EquipmentCharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdEquip())
         self.add(CmdUnequip())
         self.add(CmdInventory())
+
+# </editor-fold>

@@ -1,13 +1,11 @@
 from decimal import Decimal as Dec
 
 import evennia
-from evennia import DefaultCharacter
 from evennia import TICKER_HANDLER as tickerhandler
 from evennia.utils import inherits_from
-from evennia.utils.evtable import EvTable
 
-from combat.effects import DurationEffect, DamageTypes
-from typeclasses.inanimate.items.equipment.weapons import Weapon
+from combat.effects import DurationEffect
+from typeclasses.inanimate.items.equipment.equipment import EquipmentEntity
 
 MAX_HP_BASE = 100
 LVL_TO_MAXHP = {
@@ -49,131 +47,6 @@ WIS_TO_RESIST_FACTOR = {
 
 
 # TODO: Move to equipment.py
-class EquipmentEntity(DefaultCharacter):
-    """
-    A living thing that can equip things and has defense, evasion, and resistance
-    """
-
-    def at_object_creation(self):
-        super().at_object_creation()
-        self.permissions.remove("player")
-
-        self.db.char_evasion = 0
-        self.db.char_defense = {None: 0, DamageTypes.BLUNT: 0, DamageTypes.SLASHING: 0, DamageTypes.PIERCING: 0}
-        self.db.char_resistance = {None: 0, DamageTypes.FIRE: 0, DamageTypes.COLD: 0, DamageTypes.SHOCK: 0,
-                                   DamageTypes.POISON: 0}
-
-        # TODO: Keep equipment on type reset
-        self.db.equipment = {
-            "primary": None,
-            "secondary": None,
-            "head": None,
-            "neck": None,
-            "torso": None,
-            "about body": None,
-            "arms": None,
-            # TODO: Rings
-            "waist": None,
-            "legs": None,
-            "feet": None
-        }
-
-        self.db.unarmed_attack = "attack"
-        self.db.unarmed_damage = {DamageTypes.BLUNT: (1, 5)}
-        self.db.unarmed_accuracy = 30
-
-    def show_equipment(self, looker=None):
-        """Returns a table of the entity's equipment slots and what occuipes each."""
-        if not looker:
-            looker = self
-        wear_table = EvTable(border="header")
-        wear_table.add_row("\n|wEquipped:|n")
-        for slot in self.db.equipment:
-            if self.db.equipment[slot]:
-                equipment = self.db.equipment[slot].get_display_name()
-            else:
-                equipment = "|=j---|n"
-            wear_table.add_row(slot + ": ", equipment)
-        return wear_table
-
-    def get_display_desc(self, looker, **kwargs):
-        """
-        Get the 'desc' component of the object description. Called by `return_appearance`.
-
-        Args:
-            looker (Object): Object doing the looking.
-            **kwargs: Arbitrary data for use when overriding.
-        Returns:
-            str: The desc display string.
-        """
-        desc = self.db.desc
-
-        # Create outfit string
-        msg = self.show_equipment(looker=looker)
-
-        # Add on to base description
-        if desc:
-            desc += f"\n\n{msg}"
-        else:
-            desc = msg
-
-        return desc
-
-    def get_display_things(self, looker, **kwargs):
-        """
-        Get the 'things' component of the object's contents. Called by `return_appearance`.
-
-        Args:
-            looker (Object): Object doing the looking.
-            **kwargs: Arbitrary data for use when overriding.
-        Returns:
-            str: A string describing the things in object.
-        """
-
-        def _filter_visible(obj_list):
-            return (
-                obj
-                for obj in obj_list
-                if obj != looker and obj.access(looker, "view") and not obj.db.worn
-            )
-
-        # sort and handle same-named things
-        things = _filter_visible(self.contents_get(content_type="object"))
-
-        carried = [item for item in things if not item.db.equipped]
-        carry_table = EvTable(border="header")
-        carry_table.add_row("\n|wCarrying:|n")
-        for item in carried:
-            carry_table.add_row(item.get_display_name(), item.get_display_desc(looker=looker))
-        if carry_table.nrows <= 1:
-            carry_table.add_row("Nothing.")
-
-        return carry_table
-
-        """grouped_things = defaultdict(list)
-        for thing in things:
-            grouped_things[thing.get_display_name(looker, **kwargs)].append(thing)
-
-        thing_names = []
-        for thingname, thinglist in sorted(grouped_things.items()):
-            nthings = len(thinglist)
-            thing = thinglist[0]
-            singular, plural = thing.get_numbered_name(nthings, looker, key=thingname)
-            thing_names.append(singular if nthings == 1 else plural)
-        thing_names = iter_to_str(thing_names)
-        return (
-            f"\n{self.get_display_name(looker, **kwargs)} is carrying {thing_names}"
-            if thing_names
-            else ""
-        )"""
-
-    def get_weapon(self):
-        """Returns the primary held weapon, or unarmed attack name."""
-        primary_held = self.db.equipment["primary"]
-        if primary_held and isinstance(primary_held, Weapon):
-            return primary_held
-        else:
-            return self.db.unarmed_attack
 
 
 class CombatEntity(EquipmentEntity):
@@ -499,7 +372,6 @@ class CombatEntity(EquipmentEntity):
 
         return base_resist + dt_resist + eq_resist + effect_resist
 
-    # TODO: Move this to combat handler?
     def apply_damage(self, damages):
         """
         Applies damage to a target, reducing their HP by the damage amount to a
