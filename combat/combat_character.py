@@ -48,6 +48,7 @@ WIS_TO_RESIST_FACTOR = {
 }
 
 
+# TODO: Move to equipment.py
 class EquipmentEntity(DefaultCharacter):
     """
     A living thing that can equip things and has defense, evasion, and resistance

@@ -168,6 +168,9 @@ class CmdStats(Command):
                          f"Mana:\n"
                          f"Stamina:\n\n"
                          
+                         f"Gold:\n"
+                         f"Carried items:\n"
+                         f"Carry weight:\n"
                          , header=f"{target.get_display_name(capital=True)}")
 
         table.add_column(f"|w{target.db.level}|n\n"
@@ -175,8 +178,9 @@ class CmdStats(Command):
                          f"|125{target.db.mana}/{target.db.max_mana}|n\n"
                          f"|030{target.db.stamina}/{target.db.max_stam}|n\n\n"
                          
-
-                         )
+                         f"{appearance.gold}{target.db.gold}|n\n"
+                         f"{target.carried_count()} / {target.db.max_carry_count}\n"
+                         f"{target.encumbrance()} / {target.db.carry_weight}\n")
 
         table.add_column(f"Strength:\n"
                          f"Constitution:\n"
@@ -184,19 +188,14 @@ class CmdStats(Command):
                          f"Perception:\n"
                          f"Intelligence:\n"
                          f"Wisdom:\n"
-                         f"Spirit:\n\n"
-                         
-                         )
-
+                         f"Spirit:\n\n")
         table.add_column(f"{appearance.highlight}{target.get_attr("str")}|n ({target.db.attribs["strength"]})\n"
                          f"{appearance.highlight}{target.get_attr("con")}|n ({target.db.attribs["constitution"]})\n"
                          f"{appearance.highlight}{target.get_attr("dex")}|n ({target.db.attribs["dexterity"]})\n"
                          f"{appearance.highlight}{target.get_attr("per")}|n ({target.db.attribs["perception"]})\n"
                          f"{appearance.highlight}{target.get_attr("int")}|n ({target.db.attribs["intelligence"]})\n"
                          f"{appearance.highlight}{target.get_attr("wis")}|n ({target.db.attribs["wisdom"]})\n"
-                         f"{appearance.highlight}{target.get_attr("spi")}|n ({target.db.attribs["spirit"]})\n\n"
-                         
-                         )
+                         f"{appearance.highlight}{target.get_attr("spi")}|n ({target.db.attribs["spirit"]})\n\n")
 
         table.add_column(f"Defense:\n"
                          f"Evasion:\n"
@@ -210,8 +209,6 @@ class CmdStats(Command):
                          f"|=oCold: \n"
                          f"|=oShock: \n"
                          f"|=oPoison: \n")
-
-        # TODO: Could format this with a loop to auto-fix types
         table.add_column(f"{display_resistances(target)}")
 
         self.caller.msg(table)

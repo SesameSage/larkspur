@@ -326,10 +326,7 @@ class CmdInventory(MuxCommand):
         self.caller.msg(self.caller.get_display_things(looker=self.caller))
         self.caller.msg(" ")
 
-        table = EvTable(border=None)
-        table.add_row(self.caller.carried_count(), "/", self.caller.db.max_carry_count, "items")
-        table.add_row(format(self.caller.encumbrance(), ".2g"), "/", self.caller.db.carry_weight, "weight")
-        self.caller.msg(table)
+        self.caller.msg(self.caller.table_carry_limits())
 
 
 class EquipmentCharacterCmdSet(default_cmds.CharacterCmdSet):
