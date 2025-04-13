@@ -266,12 +266,13 @@ class CmdContainerGet(CmdGet):
             singular, _ = obj.get_numbered_name(1, caller)
             if location == caller.location:
                 # we're picking it up from the area
-                caller.location.msg_contents(f"$You() $conj(pick) up {singular}.", from_obj=caller)
+
+                caller.location.msg_contents(f"$You(capitalize=True) $conj(pick) up {singular}.", from_obj=caller)
             else:
                 # we're getting it from somewhere else
                 container_name, _ = location.get_numbered_name(1, caller)
                 caller.location.msg_contents(
-                    f"$You() $conj(get) {singular} from {container_name}.", from_obj=caller
+                    f"$You(capitalize=True) $conj(get) {singular} from {container_name}.", from_obj=caller
                 )
             # calling at_get hook method
             obj.at_get(caller)

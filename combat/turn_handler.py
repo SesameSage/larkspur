@@ -169,7 +169,7 @@ class TurnHandler(DefaultScript):
 
         if self.db.timer <= 0:
             # Force current character to disengage if timer runs out.
-            self.obj.msg_contents("%s's turn timed out!" % currentchar.get_display_name())
+            self.obj.msg_contents("%s's turn timed out!" % currentchar.get_display_name(capital=True))
             self.spend_action(
                 currentchar, "all", action_name="disengage"
             )  # Spend all remaining actions.

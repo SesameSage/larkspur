@@ -226,15 +226,24 @@ class Object(ObjectParent, DefaultObject):
 
     def at_object_creation(self):
         super().at_object_creation()
+        self.db.unique_name = False
         self.db.long_desc = None
 
     def color(self):
         return ""
 
-    def get_display_name(self, looker=None, capital=False, **kwargs):
-        name = self.name
-        if capital:
+    def get_display_name(self, looker=None, capital=False, article=False, **kwargs):
+        # If not a unique name, display i.e. "a hellhound" instead of "hellhound" when article is True
+        if article and not self.db.unique_name:
+            name = self.get_numbered_name(count=1, looker=looker)[0]
+        else:
+            name = self.name
+
+        # Capitalize if required
+        if capital and not self.db.unique_name:  # Most proper names will have their own capitalization
             name = name.capitalize()
+
+        # Add color
         return self.color() + name + "|n"
 
 

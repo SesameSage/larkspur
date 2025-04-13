@@ -18,7 +18,7 @@ class LivingEntity(Object, CombatEntity):
 {things}
 {footer}
     """
-        self.db.appear_string = f"A {self.get_display_name()} is here."
+        self.db.appear_string = f"{self.get_display_name(article=True).capitalize()} is here."
 
     def color(self):
         if self.db.hostile:

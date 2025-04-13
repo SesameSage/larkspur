@@ -317,12 +317,12 @@ class CombatEntity(EquipmentEntity):
 
         if self.effect_active(effect_key):
             self.effect_active(effect_key).reset_seconds(duration)
-            self.location.msg_contents(f"{self.get_display_name()} regains {effect_key}.")
+            self.location.msg_contents(f"{self.get_display_name(capital=True)} regains {effect_key}.")
             return
 
         effect = evennia.create_script(typeclass=typeclass, obj=self, attributes=attributes)
         effect.pre_effect_add()
-        self.location.msg_contents(f"{self.get_display_name()} gains {effect.color()}{effect_key}.")
+        self.location.msg_contents(f"{self.get_display_name(capital=True)} gains {effect.color()}{effect_key}.")
 
     def apply_effects(self):
         """Apply/increment all active effect scripts on this entity."""

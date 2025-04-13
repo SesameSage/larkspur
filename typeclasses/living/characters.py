@@ -207,6 +207,7 @@ class PlayerCharacter(Character):
     """A character intended to be played by a user. """
     def at_object_creation(self):
         super().at_object_creation()
+        self.db.unique_name = True
         self.permissions.add("Player")
 
         self.db.xp = 0
@@ -282,6 +283,7 @@ class Vendor(NPC):
     """An NPC who can sell items to players."""
     def at_object_creation(self):
         super().at_object_creation()
+        self.db.unique_name = True
         self.db.stock = {}  # {Item: prototype_key}
 
     def add_to_stock(self, prototype_key):

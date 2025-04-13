@@ -40,7 +40,7 @@ def itemfunc_heal(item, user, target, **kwargs):
 
     user.location.msg_contents(
         "%s uses %s! %s regains %i HP!" % (
-            user.get_display_name(capital=True), item.get_display_name(), target, amt_to_heal))
+            user.get_display_name(capital=True), item.get_display_name(article=True), target, amt_to_heal))
 
 
 def itemfunc_restore_mana(item, user, target, **kwargs):
@@ -73,7 +73,7 @@ def itemfunc_restore_mana(item, user, target, **kwargs):
 
     user.location.msg_contents(
         "%s uses %s! %s regains %i mana!" % (
-            user.get_display_name(capital=True), item.get_display_name(), target, amt_to_recover))
+            user.get_display_name(capital=True), item.get_display_name(article=True), target, amt_to_recover))
 
 
 def itemfunc_restore_stamina(item, user, target, **kwargs):
@@ -106,7 +106,7 @@ def itemfunc_restore_stamina(item, user, target, **kwargs):
 
     user.location.msg_contents(
         "%s uses %s! %s regains %i stamina!" % (
-            user.get_display_name(capital=True), item.get_display_name(), target, amt_to_recover))
+            user.get_display_name(capital=True), item.get_display_name(article=True), target, amt_to_recover))
 
 
 def itemfunc_add_effect(item, user, target, **kwargs):
@@ -134,7 +134,7 @@ def itemfunc_add_effect(item, user, target, **kwargs):
     if "effects" in kwargs:
         item_effects = kwargs["effects"]
 
-    user.location.msg_contents("%s uses %s!" % (user.get_display_name(), item.get_display_name()))
+    user.location.msg_contents("%s uses %s!" % (user.get_display_name(capital=True), item.get_display_name(article=True)))
 
     # Add conditions to the target
     attr_list = []
@@ -157,7 +157,7 @@ def itemfunc_cure_condition(item, user, target, **kwargs):
     if "effects_cured" in kwargs:
         effects_cured = kwargs["effects_cured"]
 
-    user.location.msg_contents("%s uses %s! " % (user.get_display_name(capital=True), item.get_display_name()))
+    user.location.msg_contents("%s uses %s! " % (user.get_display_name(capital=True), item.get_display_name(article=True)))
 
     for script in target.scripts.all():
         if inherits_from(script, EffectScript):

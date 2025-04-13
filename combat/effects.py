@@ -86,7 +86,7 @@ class DurationEffect(EffectScript):
         if self.db.seconds_passed >= self.db.duration:
             if self.db.effect_key not in ["Knocked Down"]:
                 self.obj.location.msg_contents(
-                    f"{self.obj.get_display_name()}'s {self.color()}{self.db.effect_key}|n has worn off.")
+                    f"{self.obj.get_display_name(capital=True)}'s {self.color()}{self.db.effect_key}|n has worn off.")
             self.delete()
 
 
@@ -137,7 +137,7 @@ class Regeneration(PerSecEffect):
     def increment(self, amount: int, in_combat=False):
         """Increase the stat by the given amount."""
         if in_combat:
-            self.obj.location.msg_contents(f"{self.obj.get_display_name()} "
+            self.obj.location.msg_contents(f"{self.obj.get_display_name(capital=True)} "
                                            f"recovers {amount} {self.db.stat} from regeneration.")
 
         match self.db.stat:
