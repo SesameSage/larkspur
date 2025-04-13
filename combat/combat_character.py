@@ -364,11 +364,13 @@ class CombatEntity(EquipmentEntity):
     # TODO: Should other stats be in a get_ function like these, or calculated as in update_stats (faster)?
     # Defense and evasion can also depend on attacker; max hp and mana may just be changed by spells
 
-    def get_defense(self, damage_type=None):
+    def get_defense(self, damage_type=None, type_only=False):
         """Returns the current effective defense for this entity, including equipment and effects."""
         # Untyped defense
-        base_def = self.db.char_defense[None]
-        self.location.more_info(f"{base_def} untyped defense ({self.name})")
+        base_def = 0
+        if not type_only:
+            base_def = self.db.char_defense[None]
+            self.location.more_info(f"{base_def} untyped defense ({self.name})")
 
         # Typed defense
         dt_def = 0
@@ -386,12 +388,13 @@ class CombatEntity(EquipmentEntity):
             equipment = self.db.equipment[slot]
             if equipment and equipment.attributes.has("defense"):  # If equipment found with defense attr to access
                 # Add equipment's untyped defense if present
-                try:
-                    if equipment.db.defense[None] != 0:
-                        this_eq_def += equipment.db.defense[None]
-                        self.location.more_info(f"{this_eq_def} defense from {equipment.name}")
-                except KeyError:  # Move on if it provides no untyped defense (only typed)
-                    pass
+                if not type_only:
+                    try:
+                        if equipment.db.defense[None] != 0:
+                            this_eq_def += equipment.db.defense[None]
+                            self.location.more_info(f"{this_eq_def} defense from {equipment.name}")
+                    except KeyError:  # Move on if it provides no untyped defense (only typed)
+                        pass
 
                 if damage_type is not None:  # If we are getting defense from a specific damage type
                     try:
@@ -439,11 +442,13 @@ class CombatEntity(EquipmentEntity):
 
         return self.db.char_evasion + eq_ev + effect_ev
 
-    def get_resistance(self, damage_type=None):
+    def get_resistance(self, damage_type=None, type_only=False):
         """Returns the current effective resistance for this entity, including equipment and effects."""
         # Untyped resistance
-        base_resist = self.db.char_resistance[None]
-        self.location.more_info(f"{base_resist} base resistance ({self.name})")
+        base_resist = 0
+        if not type_only:
+            base_resist = self.db.char_resistance[None]
+            self.location.more_info(f"{base_resist} base resistance ({self.name})")
 
         # Typed resistance
         dt_resist = 0
@@ -461,12 +466,14 @@ class CombatEntity(EquipmentEntity):
             equipment = self.db.equipment[slot]
             if equipment and equipment.attributes.has("resistance"):  # If equipment found with resist attr to access
                 # Add equipment's untyped defense if present
-                try:
-                    if equipment.db.resistance[None] != 0:
-                        this_eq_res += equipment.db.resistance[None]
-                        self.location.more_info(f"{this_eq_res} resistance from {equipment.name}")
-                except KeyError:  # Move on if it provides no untyped defense (only typed)
-                    pass
+                if not type_only:
+                    try:
+                        if equipment.db.resistance[None] != 0:
+                            this_eq_res += equipment.db.resistance[None]
+                            self.location.more_info(f"{this_eq_res} resistance from {equipment.name}")
+                    except KeyError:  # Move on if it provides no untyped defense (only typed)
+                        pass
+
                 if damage_type is not None:  # If we are getting resistance for a specific damage type
                     try:
                         if equipment.db.resistance[damage_type] != 0:

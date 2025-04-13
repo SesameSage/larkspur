@@ -2,6 +2,7 @@ from enum import Enum
 
 from evennia import Command, CmdSet, EvTable
 
+from combat.effects import DamageTypes
 from server import appearance
 
 
@@ -128,32 +129,80 @@ class CmdStats(Command):
                          f"HP:\n"
                          f"Mana:\n"
                          f"Stamina:\n\n"
-                         f"Defense:\n"
-                         f"Evasion:\n"
-                         f"Resistance:", header=f"{target.get_display_name()}")
+                         
+                         , header=f"{target.get_display_name()}")
+
         table.add_column(f"|w{target.db.level}|n\n"
                          f"|500{target.db.hp}/{target.db.max_hp}|n\n"
                          f"|125{target.db.mana}/{target.db.max_mana}|n\n"
                          f"|030{target.db.stamina}/{target.db.max_stam}|n\n\n"
-                         f"{appearance.highlight}{target.get_defense()}|n ({target.db.char_defense[None]})\n"
-                         f"{appearance.highlight}{target.get_evasion()}|n ({target.db.char_evasion})\n"
-                         f"{appearance.highlight}{target.get_resistance()}|n ({target.db.char_resistance[None]})"
-                         # TODO: Display specific damage resistances
+                         
+
                          )
+
         table.add_column(f"Strength:\n"
                          f"Constitution:\n"
                          f"Dexterity:\n"
                          f"Perception:\n"
                          f"Intelligence:\n"
                          f"Wisdom:\n"
-                         f"Spirit:")
+                         f"Spirit:\n\n"
+                         
+                         )
+
         table.add_column(f"{appearance.highlight}{target.get_attr("str")}|n ({target.db.attribs["strength"]})\n"
                          f"{appearance.highlight}{target.get_attr("con")}|n ({target.db.attribs["constitution"]})\n"
                          f"{appearance.highlight}{target.get_attr("dex")}|n ({target.db.attribs["dexterity"]})\n"
                          f"{appearance.highlight}{target.get_attr("per")}|n ({target.db.attribs["perception"]})\n"
                          f"{appearance.highlight}{target.get_attr("int")}|n ({target.db.attribs["intelligence"]})\n"
                          f"{appearance.highlight}{target.get_attr("wis")}|n ({target.db.attribs["wisdom"]})\n"
-                         f"{appearance.highlight}{target.get_attr("spi")}|n ({target.db.attribs["spirit"]})")
+                         f"{appearance.highlight}{target.get_attr("spi")}|n ({target.db.attribs["spirit"]})\n\n"
+                         
+                         )
+
+        table.add_column(f"Defense:\n"
+                         f"Evasion:\n"
+                         f"Resistance:\n\n"
+                         
+                         f"|wResists:|n\n"  
+                         f"|=oBlunt: \n"
+                         f"|=oSlashing: \n"
+                         f"|=oPiercing: \n"
+                         f"|=oFire: \n"
+                         f"|=oCold: \n"
+                         f"|=oFire: \n"
+                         f"|=oShock: \n"
+                         f"|=oPoison: \n")
+
+        # TODO: Could format this with a loop to auto-fix types
+        table.add_column(f"{appearance.highlight}{target.get_defense()}|n ({target.db.char_defense[None]})\n"
+                         f"{appearance.highlight}{target.get_evasion()}|n ({target.db.char_evasion})\n"
+                         f"{appearance.highlight}{target.get_resistance()}|n ({target.db.char_resistance[None]})\n\n\n"
+                         
+                         f"{appearance.highlight}{target.get_defense(DamageTypes.BLUNT, type_only=True)}|n "
+                         f"({target.db.char_defense[DamageTypes.BLUNT]})\n"
+                         
+                         f"{appearance.highlight}{target.get_defense(DamageTypes.SLASHING, type_only=True)}|n "
+                         f"({target.db.char_defense[DamageTypes.SLASHING]})\n"
+                         
+                         f"{appearance.highlight}{target.get_defense(DamageTypes.PIERCING, type_only=True)}|n "
+                         f"({target.db.char_defense[DamageTypes.PIERCING]})\n"
+                         
+                         f"{appearance.highlight}{target.get_resistance(DamageTypes.FIRE, type_only=True)}|n "
+                         f"({target.db.char_resistance[DamageTypes.FIRE]})\n"
+                         
+                         f"{appearance.highlight}{target.get_resistance(DamageTypes.COLD, type_only=True)}|n "
+                         f"({target.db.char_resistance[DamageTypes.COLD]})\n"
+                         
+                         f"{appearance.highlight}{target.get_resistance(DamageTypes.FIRE, type_only=True)}|n "
+                         f"({target.db.char_resistance[DamageTypes.FIRE]})\n"
+                         
+                         f"{appearance.highlight}{target.get_resistance(DamageTypes.SHOCK, type_only=True)}|n "
+                         f"({target.db.char_resistance[DamageTypes.SHOCK]})\n"
+                         
+                         f"{appearance.highlight}{target.get_resistance(DamageTypes.POISON, type_only=True)}|n "
+                         f"({target.db.char_resistance[DamageTypes.POISON]})")
+
         self.caller.msg(table)
 
 
