@@ -74,8 +74,8 @@ class LivingEntity(Object, CombatEntity):
 
     def table_carry_limits(self):
         table = EvTable(border=None)
-        table.add_row(self.caller.carried_count(), "/", self.caller.db.max_carry_count, "items")
-        table.add_row(format(self.caller.encumbrance(), ".2g"), "/", self.caller.db.carry_weight, "weight")
+        table.add_row(str(self.carried_count()), "/", self.db.max_carry_count, "items")
+        table.add_row(format(self.encumbrance(), ".2g"), "/", self.db.carry_weight, "weight")
         return table
 
     def announce_move_from(self, destination, msg=None, mapping=None, move_type="move", **kwargs):
