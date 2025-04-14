@@ -242,6 +242,9 @@ class CombatHandler:
                         ability.get_damage
                    inflict_condition (list): Conditions to inflict upon hit, a list of tuples
                         formatted as (condition(str), duration(int))
+
+                Returns (bool, dict):
+                    Tuple of boolean whether the hit landed, and the final damage values taken by the defender.
                """
         # Extract attack name
         if isinstance(attack, str):
@@ -256,7 +259,7 @@ class CombatHandler:
             attacker.location.msg_contents(
                 "%s's %s misses %s!" % (attacker.get_display_name(capital=True), attack_name, defender.get_display_name(article=True))
             )
-            return attack_landed
+            return attack_landed, {}
 
         if not damage_values:
             # If attacking with weapon or unarmed
@@ -277,7 +280,7 @@ class CombatHandler:
         for condition in inflict_condition:
             self.add_effect(defender, attacker, condition[0], condition[1])"""
 
-        return attack_landed
+        return attack_landed, damage_values
 
     # ITEM RULES
 

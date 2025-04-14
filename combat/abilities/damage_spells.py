@@ -34,9 +34,10 @@ class Firebolt(Spell):
 
         announce_msg = (f"A bolt of fire ignites in {caster.get_display_name()}'s hand and scorches "
                         f"{target.get_display_name()} for ")
-        if COMBAT.resolve_attack(attacker=caster, defender=target, attack=self, announce_msg=announce_msg):
-            # Inflict burning only if Firebolt hits
-            # TODO: Should Burning only be inflicted if the fire damage is not fully resisted?
+        hit_result, damage_values = COMBAT.resolve_attack(attacker=caster, defender=target, attack=self, announce_msg=announce_msg)
+        if hit_result and DamageTypes.FIRE in damage_values and damage_values[DamageTypes.FIRE] > 0:
+            # Inflict burning only if the fire damage is not fully resisted
+            # TODO: Should immunity to effects be separate?
             target.add_effect(Burning,
                               [("range", (1, 1)), ("duration", 3 * SECS_PER_TURN)])
         return True
