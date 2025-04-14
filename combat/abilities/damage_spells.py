@@ -6,6 +6,8 @@ from typeclasses.base.objects import Object
 from typeclasses.living.living_entities import LivingEntity
 
 
+# TODO: Help entries for abilities
+
 class Firebolt(Spell):
     """Causes fire damage and inflicts Burning, adding more damage over time."""
 
@@ -34,7 +36,8 @@ class Firebolt(Spell):
 
         announce_msg = (f"A bolt of fire ignites in {caster.get_display_name()}'s hand and scorches "
                         f"{target.get_display_name()} for ")
-        hit_result, damage_values = COMBAT.resolve_attack(attacker=caster, defender=target, attack=self, announce_msg=announce_msg)
+        hit_result, damage_values = COMBAT.resolve_attack(attacker=caster, defender=target, attack=self,
+                                                          announce_msg=announce_msg)
         if hit_result and DamageTypes.FIRE in damage_values and damage_values[DamageTypes.FIRE] > 0:
             # Inflict burning only if the fire damage is not fully resisted
             # TODO: Should immunity to effects be separate?

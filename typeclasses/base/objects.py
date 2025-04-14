@@ -234,7 +234,7 @@ class Object(ObjectParent, DefaultObject):
         Called by get_display_name and similar methods."""
         return ""
 
-    def get_display_name(self, looker=None, capital=False, article=False, **kwargs):
+    def get_display_name(self, looker=None, capital=False, article=False, color=True, **kwargs):
         """
                 Displays the appearance-formatted name of the object in a viewer-aware manner.
 
@@ -244,6 +244,7 @@ class Object(ObjectParent, DefaultObject):
                     capital (bool): Whether the name should be capitalized if not already a capitalized proper name.
                     article (bool): Whether an article should be added when applicable; i.e. "hellhound" becomes
                     "a hellhound"
+                    color: Whether to format the output with color.
 
                 Returns:
                     str: A name to display for this object. Usually adds appearance to object name.
@@ -260,7 +261,10 @@ class Object(ObjectParent, DefaultObject):
             name = name.capitalize()
 
         # Add color
-        return self.color() + name + "|n"
+        if color:
+            return self.color() + name + "|n"
+        else:
+            return name
 
 
 class Fixture(Object):
