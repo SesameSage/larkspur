@@ -198,7 +198,8 @@ class PlayerCharacter(Character):
         self.db.max_carry_count = BASE_CARRY_COUNT
         # TODO: Story point and portal key handler
 
-        self.attributes.add(key="prefs", value={"more_info": False}, category="ooc")
+        if not self.attributes.has("prefs", category="ooc"):
+            self.attributes.add(key="prefs", value={"more_info": False}, category="ooc")
 
         self.cmdset.add(PlayerCmdSet, persistent=True)
         self.cmdset.add(RefiledCmdSet, persistent=True)  # Override player cmds where necessary
