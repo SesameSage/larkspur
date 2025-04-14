@@ -163,7 +163,8 @@ class CmdStats(Command):
             target = self.caller
 
         table = EvTable()
-        table.add_column(f"Level:\n"
+        table.add_column(f"Class:\n"
+                         f"Level:\n"
                          f"HP:\n"
                          f"Mana:\n"
                          f"Stamina:\n\n"
@@ -173,7 +174,8 @@ class CmdStats(Command):
                          f"Carry weight:\n"
                          , header=f"{target.get_display_name(capital=True)}")
 
-        table.add_column(f"|w{target.db.level}|n\n"
+        table.add_column(f"(Class)\n"
+                         f"|w{target.db.level}|n\n"
                          f"|500{target.db.hp}/{target.db.max_hp}|n\n"
                          f"|125{target.db.mana}/{target.db.max_mana}|n\n"
                          f"|030{target.db.stamina}/{target.db.max_stam}|n\n\n"

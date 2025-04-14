@@ -132,20 +132,15 @@ class EquipmentEntity(DefaultCharacter):
         self.db.char_resistance = {None: 0, DamageTypes.FIRE: 0, DamageTypes.COLD: 0, DamageTypes.SHOCK: 0,
                                    DamageTypes.POISON: 0}
 
-        # TODO: Keep equipment on type reset
-        self.db.equipment = {
-            "primary": None,
-            "secondary": None,
-            "head": None,
-            "neck": None,
-            "torso": None,
-            "about body": None,
-            "arms": None,
-            # TODO: Rings
-            "waist": None,
-            "legs": None,
-            "feet": None
-        }
+        # TODO: Rings
+        if not self.db.equipment:
+            self.db.equipment = {}
+        slots = ["primary", "secondary", "head", "neck", "torso", "about body", "arms", "waist", "legs", "feet"]
+        for slot in slots:
+            try:
+                self.db.equipment[slot]
+            except (KeyError, TypeError):
+                self.db.equipment[slot] = None
 
         self.db.unarmed_attack = "attack"
         self.db.unarmed_damage = {DamageTypes.BLUNT: (1, 5)}

@@ -46,9 +46,6 @@ WIS_TO_RESIST_FACTOR = {
 }
 
 
-# TODO: Move to equipment.py
-
-
 class CombatEntity(EquipmentEntity):
     """
     A character able to participate in turn-based combat. Has attributes for current
