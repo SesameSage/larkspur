@@ -260,9 +260,9 @@ class Item(Object):
 
     def identify(self):
         """Return a table containing details on the item such as its stats and effects."""
-        table = EvTable(self.get_display_name(), self.__class__.__name__)
+        table = EvTable(self.get_display_name(), (self.color() + self.__class__.__name__))
         table.add_row(f"Weight: {self.db.weight}")
-        table.add_row(f"Average value: {self.db.avg_value}")
+        table.add_row(f"Average value: {appearance.gold}{self.db.avg_value}|n")
         return table
 
 

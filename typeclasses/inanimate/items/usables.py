@@ -17,7 +17,7 @@ class Usable(Item):
         """Return a table containing details on the item such as its stats and effects."""
         table = EvTable()
         table.add_column(f"Weight: {self.db.weight}",
-                         f"Average value: {self.db.avg_value}", header=self.get_display_name())
+                         f"Average value: {appearance.gold}{self.db.avg_value}", header=self.get_display_name())
         item_func = self.db.item_func
         func_str = ""
         match item_func:
@@ -32,7 +32,7 @@ class Usable(Item):
 
         table.add_column(f"Num. Uses: {self.db.item_uses}",
                          f"Function: {func_str}",
-                         header=self.__class__.__name__)
+                         header=self.color() + self.__class__.__name__)
         return table
 
 

@@ -27,19 +27,33 @@ class Equipment(Item):
         """Return a table containing details on the item such as its stats and effects."""
         table = EvTable()
         table.add_column(f"Weight: {self.db.weight}",
-                         f"Average value: {self.db.avg_value}", header=self.get_display_name(capital=True))
+                         f"Average value: {appearance.gold}{self.db.avg_value}|n", header=self.get_display_name(capital=True))
         table.add_column(f"Equip slot: {self.db.equipment_slot}",
                          f"Lvl req: {self.db.required_level}",
                          f"Requires: {self.db.required_stat}",
-                         header=self.__class__.__name__)
-        stats = []
-        if self.db.defense:
-            stats.append(f"Defense: {self.db.defense}")
-        if self.db.evasion:
-            stats.append(f"Evasion: {self.db.evasion}")
-        if self.db.resistance:
-            stats.append(f"Resistance: {self.db.resistance}")
-        table.table[0].add_rows(*stats)
+                         header=self.color() + self.__class__.__name__)
+        defensive_stats = []
+        if self.attributes.has("evasion") and self.db.evasion != 0:
+            defensive_stats.append(f"Evasion: {self.db.evasion}")
+
+        if self.attributes.has("defense"):
+            for damage_type in self.db.defense:
+                if self.db.defense[damage_type] != 0:
+                    if damage_type is None:
+                        defensive_stats.append(f"Defense: {self.db.defense[damage_type]}")
+                    else:
+                        defensive_stats.append(f"{damage_type.get_display_name(capital=True)}: {self.db.defense[damage_type]}")
+
+        if self.attributes.has("resistance"):
+            for damage_type in self.db.resistance:
+                if self.db.resistance[damage_type] != 0:
+                    if damage_type is None:
+                        defensive_stats.append(f"Resistance: {self.db.resistance[damage_type]}")
+                    else:
+                        defensive_stats.append(
+                        f"{damage_type.get_display_name()} resist: {self.db.resistance[damage_type]}")
+
+        table.table[0].add_rows(*defensive_stats)
         return table
 
     def color(self):
