@@ -186,8 +186,13 @@ class PlayerCharacter(Character):
         self.db.unique_name = True
         self.permissions.add("Player")
 
-        self.db.xp = 0
-        self.db.portal_keys = []
+        if not self.attributes.has("xp"):
+            self.db.xp = 0
+        if not self.attributes.has("attr_points"):
+            self.db.attr_points = 0
+
+        if not self.attributes.has("portal_keys"):
+            self.db.portal_keys = []
 
         self.db.carry_weight = BASE_CARRY_WEIGHT
         self.db.max_carry_count = BASE_CARRY_COUNT
@@ -198,6 +203,8 @@ class PlayerCharacter(Character):
 
         self.cmdset.add(PlayerCmdSet, persistent=True)
         self.cmdset.add(RefiledCmdSet, persistent=True)  # Override player cmds where necessary
+
+        self.update_base_stats()
 
     def update_base_stats(self):
         super().update_base_stats()

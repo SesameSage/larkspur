@@ -1,7 +1,17 @@
-from evennia import Command, CmdSet, EvTable
+from evennia import Command, CmdSet
+from evennia.utils.evmenu import EvMenu
+from evennia.utils.evtable import EvTable
 
 from combat.effects import DamageTypes
 from server import appearance
+
+ATTRIBUTES = {"strength": "",
+              "constitution": "",
+              "dexterity": "",
+              "perception": "",
+              "intelligence": "",
+              "wisdom": "",
+              "spirit": ""}
 
 XP_THRESHOLD_INCREASES = [
     (2, 100),
@@ -10,6 +20,13 @@ XP_THRESHOLD_INCREASES = [
     (5, 350),
     (6, 500),
 ]
+POINTS_GAINED_BY_LEVEL = {
+    2: {"attribute": 1},
+    3: {},
+    4: {"attribute": 1},
+    5: {},
+    6: {"attribute": 1},
+}
 
 
 def xp_threshold(level: int):
@@ -28,6 +45,53 @@ def xp_remaining(character, level: int):
     current_xp = character.db.xp
     toward_next_level = current_xp - last_threshold
     return needed - toward_next_level
+
+
+def level_up(character):
+    character.msg("You reflect on your experience and how your endeavors have honed your skills and traits.")
+    character.db.level += 1
+    new_level = character.db.level
+    character.msg(f"{appearance.notify}You are now level {new_level}!")
+    for attribute, amt in character.db.rpg_class.LEVEL_TO_ATTRIBUTES[new_level]:
+        character.db.attribs[attribute.lower()] += amt
+        character.msg(f"{appearance.notify}Your {attribute} has increased by {amt}.")
+
+    attr_points_gained = POINTS_GAINED_BY_LEVEL[new_level]
+    if attr_points_gained:
+        character.db.attr_points += attr_points_gained
+        character.msg(f"You have {attr_points_gained} new attribute points!")
+
+    spend_attribute_points(character)
+
+
+def spend_attribute_points(character):
+    menu_data = {"choose_attribute": choose_attribute, "end_node": end_node}
+    EvMenu(caller=character, menudata=menu_data, startnode="choose_attribute")
+
+
+def choose_attribute(character):
+    text = "Select which attribute to increase:"
+    options = []
+    for attribute in ATTRIBUTES:
+        options.append({"key": attribute.capitalize(),
+                        "desc": ATTRIBUTES[attribute],
+                        "goto": (_increase_attribute, {"attribute": attribute})})
+    options.append({"key": "cancel",
+                    "goto": "end_node"})
+    options = tuple(options)
+    return text, options
+
+
+def _increase_attribute(character, **kwargs):
+    attribute = kwargs.get("attribute")
+    character.msg(f"attribute = {attribute}")
+    character.db.attribs[attribute] += 1
+    character.msg(f"{attribute.capitalize()} increased to {character.db.attribs[attribute]}.")
+    return "end_node"
+
+
+def end_node(character, input, **kwargs):
+    return
 
 
 class CmdHP(Command):
@@ -279,14 +343,6 @@ class CmdLevelUp(Command):
         if caller.db.xp < xp_threshold(caller.db.level + 1):
             caller.msg("You do not have enough experience to level up!")
             return
-
-        caller.msg("You reflect on your experience and how your endeavors have honed your skills and traits.")
-
-        caller.db.level += 1
-        caller.msg(f"{appearance.notify}You are now level {caller.db.level}!")
-        for attribute, amt in caller.db.rpg_class.LEVEL_TO_ATTRIBUTES[caller.db.level]:
-            caller.db.attribs[attribute.lower()] += amt
-            caller.msg(f"{appearance.notify}Your {attribute} has increased by {amt}.")
 
 
 class StatsCmdSet(CmdSet):
