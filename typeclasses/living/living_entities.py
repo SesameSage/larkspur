@@ -58,6 +58,8 @@ class LivingEntity(Object, CombatEntity):
         carried_count = 0
         for item in self.contents:
             if isinstance(item, Item):
+                if item.attributes.has("equipped") and item.db.equipped:
+                    continue
                 carried_count += 1
         return carried_count
 
@@ -65,6 +67,8 @@ class LivingEntity(Object, CombatEntity):
         encumbrance = Dec(0)
         for item in self.contents:
             if isinstance(item, Item):
+                if item.attributes.has("equipped") and item.db.equipped:
+                    continue
                 if item.contents:
                     for content in item.contents:
                         encumbrance += content.db.weight
