@@ -121,7 +121,7 @@ class CmdStats(Command):
                          target.get_evasion: target.db.char_evasion,
                          target.get_resistance: target.db.char_resistance[None]}
             for stat_func in stat_mapping:
-                string = string + f"{appearance.highlight}{stat_func()}|n "
+                string = string + f"{appearance.highlight}{stat_func(quiet=True)}|n "
                 try:
                     char_stat = stat_mapping[stat_func]
                 except KeyError:
@@ -141,7 +141,7 @@ class CmdStats(Command):
                     stat = target.db.char_resistance
                     stat_method = target.get_resistance
 
-                string = string + f"{appearance.highlight}{stat_method(damage_type, type_only=True)}|n "
+                string = string + f"{appearance.highlight}{stat_method(damage_type, type_only=True, quiet=True)}|n "
                 try:
                     char_stat = stat[damage_type]
                 except KeyError:

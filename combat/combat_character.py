@@ -230,20 +230,22 @@ class CombatEntity(EquipmentEntity):
 
         return base_attr + effect
 
-    def get_defense(self, damage_type=None, type_only=False):
+    def get_defense(self, damage_type=None, type_only=False, quiet=False):
         """Returns the current effective defense for this entity, including equipment and effects."""
         # Untyped defense
         base_def = 0
         if not type_only:
             base_def = self.db.char_defense[None]
-            self.location.more_info(f"{base_def} untyped defense ({self.name})")
+            if not quiet:
+                self.location.more_info(f"{base_def} untyped defense ({self.name})")
 
         # Typed defense
         dt_def = 0
         if damage_type:  # If we are getting defense from a specific damage type
             try:
                 dt_def = self.db.char_defense[damage_type]
-                self.location.more_info(f"{dt_def} {damage_type.get_display_name()} resistance ({self.name})")
+                if not quiet:
+                    self.location.more_info(f"{dt_def} {damage_type.get_display_name()} resistance ({self.name})")
             except KeyError:  # Move on if we don't have defense of this type
                 pass
 
@@ -258,7 +260,8 @@ class CombatEntity(EquipmentEntity):
                     try:
                         if equipment.db.defense[None] != 0:
                             this_eq_def += equipment.db.defense[None]
-                            self.location.more_info(f"{this_eq_def} defense from {equipment.name}")
+                            if not quiet:
+                                self.location.more_info(f"{this_eq_def} defense from {equipment.name}")
                     except KeyError:  # Move on if it provides no untyped defense (only typed)
                         pass
 
@@ -266,9 +269,10 @@ class CombatEntity(EquipmentEntity):
                     try:
                         if equipment.db.defense[damage_type] != 0:
                             this_eq_def += equipment.db.defense[damage_type]  # Add eq's defense against this type
-                            self.location.more_info(f"{equipment.db.defense[damage_type]} "
-                                                    f"{damage_type.get_display_name()} "
-                                                    f"defense from {equipment.name}")
+                            if not quiet:
+                                self.location.more_info(f"{equipment.db.defense[damage_type]} "
+                                                        f"{damage_type.get_display_name()} "
+                                                        f"defense from {equipment.name}")
                     except KeyError:  # Move on if this equipment doesn't provide defense against this damage type
                         pass
                 if this_eq_def != 0:
@@ -279,15 +283,16 @@ class CombatEntity(EquipmentEntity):
             effect_def += self.db.effects["+Defense"]["amount"]
         if "-Defense" in self.db.effects:
             effect_def += self.db.effects["-Defense"]["amount"]
-        if effect_def > 0:
+        if effect_def > 0 and not quiet:
             self.location.more_info(f"{"+" if effect_def > 0 else ""}{effect_def} defense from effects ({self.name})")
 
         return base_def + dt_def + eq_defense + effect_def
 
-    def get_evasion(self):
+    def get_evasion(self, quiet=False):
         """Returns the current effective evasion for this entity, including equipment and effects."""
         # Base evasion on character
-        self.location.more_info(f"{self.db.char_evasion} base evasion ({self.name})")
+        if not quiet:
+            self.location.more_info(f"{self.db.char_evasion} base evasion ({self.name})")
 
         # Equipment evasion bonuses
         eq_ev = 0
@@ -295,7 +300,8 @@ class CombatEntity(EquipmentEntity):
             equipment = self.db.equipment[slot]
             if equipment and hasattr(equipment.db, "evasion") and equipment.db.evasion:
                 eq_ev += equipment.db.evasion
-                self.location.more_info(f"+{equipment.db.evasion} evasion from {equipment.name} ({self.name})")
+                if not quiet:
+                    self.location.more_info(f"+{equipment.db.evasion} evasion from {equipment.name} ({self.name})")
 
         # Evasion bonuses from effects
         effect_ev = 0
@@ -303,25 +309,27 @@ class CombatEntity(EquipmentEntity):
             effect_ev += self.db.effects["+Evasion"]["amount"]
         if "-Evasion" in self.db.effects:
             effect_ev += self.db.effects["-Evasion"]["amount"]
-        if effect_ev > 0:
+        if effect_ev > 0 and not quiet:
             self.location.more_info(f"{"+" if effect_ev > 0 else ""}{effect_ev} evasion from effect ({self.name})")
 
         return self.db.char_evasion + eq_ev + effect_ev
 
-    def get_resistance(self, damage_type=None, type_only=False):
+    def get_resistance(self, damage_type=None, type_only=False, quiet=False):
         """Returns the current effective resistance for this entity, including equipment and effects."""
         # Untyped resistance
         base_resist = 0
         if not type_only:
             base_resist = self.db.char_resistance[None]
-            self.location.more_info(f"{base_resist} base resistance ({self.name})")
+            if not quiet:
+                self.location.more_info(f"{base_resist} base resistance ({self.name})")
 
         # Typed resistance
         dt_resist = 0
         if damage_type:  # If we are getting resistance for a specific damage type
             try:
                 dt_resist = self.db.char_resistance[damage_type]
-                self.location.more_info(f"{dt_resist} {damage_type.get_display_name()} resistance ({self.name})")
+                if not quiet:
+                    self.location.more_info(f"{dt_resist} {damage_type.get_display_name()} resistance ({self.name})")
             except KeyError:  # Move on if we don't have resistance of this type
                 pass
 
@@ -336,7 +344,8 @@ class CombatEntity(EquipmentEntity):
                     try:
                         if equipment.db.resistance[None] != 0:
                             this_eq_res += equipment.db.resistance[None]
-                            self.location.more_info(f"{this_eq_res} resistance from {equipment.name}")
+                            if not quiet:
+                                self.location.more_info(f"{this_eq_res} resistance from {equipment.name}")
                     except KeyError:  # Move on if it provides no untyped defense (only typed)
                         pass
 
@@ -358,8 +367,9 @@ class CombatEntity(EquipmentEntity):
             effect_resist += self.db.effects["+Resistance"]["amount"]
         if "-Resistance" in self.db.effects:
             effect_resist += self.db.effects["-Resistance"]["amount"]
-        if effect_resist > 0:
-            self.location.more_info(f"{"+" if effect_resist > 0 else ""}{effect_resist} resistance from effect ({self.name})")
+        if effect_resist > 0 and not quiet:
+            self.location.more_info(
+                f"{"+" if effect_resist > 0 else ""}{effect_resist} resistance from effect ({self.name})")
 
         return base_resist + dt_resist + eq_resist + effect_resist
 
