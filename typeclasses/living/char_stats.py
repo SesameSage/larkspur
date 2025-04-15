@@ -5,13 +5,37 @@ from evennia.utils.evtable import EvTable
 from combat.effects import DamageTypes
 from server import appearance
 
-ATTRIBUTES = {"strength": "",
-              "constitution": "",
-              "dexterity": "",
-              "perception": "",
-              "intelligence": "",
-              "wisdom": "",
-              "spirit": ""}
+ATTRIBUTES = {
+    "strength": {
+        "long_desc": "",
+        "affects": "Affects: melee damage, carry weight, stamina, and use of heavy equipment"
+    },
+    "constitution": {
+        "long_desc": "",
+        "affects": "Affects: physical defense, hitpoints, and stamina"
+    },
+    "dexterity": {
+        "long_desc": "",
+        "affects": "Affects: evasion, maximum items carried, use of small and ranged weapons, and turn order"
+    },
+    "perception": {
+        "long_desc": "",
+        "affects": "Affects: attack accuracy and detection of sneaking enemies, traps, deception, hidden items, etc."
+    },
+    "intelligence": {
+        "long_desc": "",
+        "affects": "Affects: capability to use abilities, lockpicking, alchemy, trapmaking, deception, and deception "
+                   "detection"
+        # TODO: Attribute requirements for spells
+    },
+    "wisdom": {
+        "long_desc": "",
+        "affects": "Affects: capability to use spells, magic resistance, mana regeneration, amount healed"
+    },
+    "spirit": {
+        "long_desc": "",
+        "affects": "Affects: spell power, maximum mana, hitpoint regeneration, and enchanting"
+    }}
 
 XP_THRESHOLD_INCREASES = [
     (2, 100),
@@ -56,27 +80,28 @@ def level_up(character):
         character.db.attribs[attribute.lower()] += amt
         character.msg(f"{appearance.notify}Your {attribute} has increased by {amt}.")
 
-    attr_points_gained = POINTS_GAINED_BY_LEVEL[new_level]
+    attr_points_gained = POINTS_GAINED_BY_LEVEL[new_level]["attribute"]
     if attr_points_gained:
         character.db.attr_points += attr_points_gained
-        character.msg(f"You have {attr_points_gained} new attribute points!")
+        character.msg(f"{appearance.notify}You have {attr_points_gained} new attribute points!")
 
     spend_attribute_points(character)
 
 
 def spend_attribute_points(character):
     menu_data = {"choose_attribute": choose_attribute, "end_node": end_node}
-    EvMenu(caller=character, menudata=menu_data, startnode="choose_attribute")
+    EvMenu(caller=character, menudata=menu_data, startnode="choose_attribute", cmdset_mergetype='Union')
 
 
 def choose_attribute(character):
     text = "Select which attribute to increase:"
     options = []
     for attribute in ATTRIBUTES:
-        options.append({"key": attribute.capitalize(),
-                        "desc": ATTRIBUTES[attribute],
+        options.append({"key": (attribute.capitalize(), attribute[:3]),
+                        "desc": f"({appearance.highlight}{character.db.attribs[attribute]}|n) "
+                                f"|=m{ATTRIBUTES[attribute]["affects"]}\n",
                         "goto": (_increase_attribute, {"attribute": attribute})})
-    options.append({"key": "cancel",
+    options.append({"key": "Cancel",
                     "goto": "end_node"})
     options = tuple(options)
     return text, options
@@ -84,9 +109,9 @@ def choose_attribute(character):
 
 def _increase_attribute(character, **kwargs):
     attribute = kwargs.get("attribute")
-    character.msg(f"attribute = {attribute}")
     character.db.attribs[attribute] += 1
-    character.msg(f"{attribute.capitalize()} increased to {character.db.attribs[attribute]}.")
+    character.msg(f"{appearance.notify}{attribute.capitalize()} increased to {character.db.attribs[attribute]}.")
+    character.db.attr_points -= 1
     return "end_node"
 
 
@@ -343,6 +368,8 @@ class CmdLevelUp(Command):
         if caller.db.xp < xp_threshold(caller.db.level + 1):
             caller.msg("You do not have enough experience to level up!")
             return
+        else:
+            level_up(caller)
 
 
 class StatsCmdSet(CmdSet):
