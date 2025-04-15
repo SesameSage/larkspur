@@ -44,10 +44,10 @@ in your game and using it as-is.
 from random import randint
 
 from evennia import DefaultScript
-from evennia.utils import evtable
+from evennia.utils import evtable, inherits_from
 
 from server import appearance
-from combat.effects import SECS_PER_TURN
+from combat.effects import SECS_PER_TURN, DurationEffect
 
 """
 ----------------------------------------------------------------------------
@@ -299,9 +299,10 @@ class TurnHandler(DefaultScript):
             row = [fighter.get_display_name(capital=True), f"{fighter.db.hp} hp"]
             effects_str = ""
             for effect in fighter.db.effects:
-                turns_left = ((fighter.db.effects[effect]["duration"] - fighter.db.effects[effect][
-                    "seconds passed"]) // SECS_PER_TURN) - 1
-                effects_str = effects_str + f"[{effect}({turns_left})] "
+                if inherits_from(effect, DurationEffect):
+                    turns_left = ((fighter.db.effects[effect]["duration"] - fighter.db.effects[effect][
+                        "seconds passed"]) // SECS_PER_TURN) - 1
+                    effects_str = effects_str + f"[{effect}({turns_left})] "
 
             if effects_str != "":
                 row.append(effects_str)

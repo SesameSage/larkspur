@@ -34,3 +34,29 @@ class Sweep(Ability):
                                          f"knocking them to the ground!")
             target.add_effect(KnockedDown)
         return True
+
+
+class NeutralizingHum(Ability):
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.targeted = False
+        self.db.cost = ("mana", 10)
+        self.db.cooldown = 10 * SECS_PER_TURN
+
+    def cast(self, caster: LivingEntity, target: Object = None):
+        if not super().cast(caster, target):
+            return False
+
+        caster.location.msg_contents(f"{caster.get_display_name(capital=True)} emits a low, guttural throat-singing tone.")
+
+        for entity in caster.location.contents:
+            if entity.attributes.has("hostile") and entity.db.hostile != caster.db.hostile:
+                if entity.get_resistance(None) < 20:
+                    entity.db.mana -= 25
+                    if entity.db.mana < 0:
+                        entity.db.mana = 0
+                    entity.location.msg_contents(f"{entity.get_display_name(capital=True)}'s mana has been drained!")
+                else:
+                    entity.location.msg_contents(f"{entity.get_display_name(capital=True)} resists {self.get_display_name()}!")
+
+        return True

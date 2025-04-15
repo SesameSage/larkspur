@@ -11,11 +11,12 @@ from typeclasses.living.living_entities import LivingEntity
 class Ability(Object):
 
     def at_object_creation(self):
+        self.key = self.__class__.__name__
         self.locks.add("view:false()")
         self.db.desc = ""
         self.db.action_text = ""
         self.db.targeted = False
-        self.db.must_target_entity = True
+        self.db.must_target_entity = False
         self.db.cost = None
         self.db.cooldown = 0
 
