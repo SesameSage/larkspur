@@ -53,10 +53,6 @@ class Headwear(Apparel):
         self.db.equipment_slot = "head"
 
 
-class Circlet(Headwear):
-    pass
-
-
 class Neckwear(Apparel):
     """Worn in the 'neck' equipment slot."""
 
