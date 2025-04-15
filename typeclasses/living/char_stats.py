@@ -1,9 +1,33 @@
-from enum import Enum
-
 from evennia import Command, CmdSet, EvTable
 
 from combat.effects import DamageTypes
 from server import appearance
+
+XP_THRESHOLD_INCREASES = [
+    (2, 100),
+    (3, 150),
+    (4, 225),
+    (5, 350),
+    (6, 500),
+]
+
+
+def xp_threshold(level: int):
+    threshold = 0
+    for i_level, increase in XP_THRESHOLD_INCREASES:
+        if i_level > level:
+            break
+        threshold += increase
+    return threshold
+
+
+def xp_remaining(character, level: int):
+    threshold = xp_threshold(level)
+    last_threshold = xp_threshold(character.db.level)
+    needed = threshold - last_threshold
+    current_xp = character.db.xp
+    toward_next_level = current_xp - last_threshold
+    return needed - toward_next_level
 
 
 class CmdHP(Command):
@@ -118,8 +142,8 @@ class CmdStats(Command):
 
             # Display base character defense, evasion, and resistance
             stat_mapping = {target.get_defense: target.db.char_defense[None],
-                         target.get_evasion: target.db.char_evasion,
-                         target.get_resistance: target.db.char_resistance[None]}
+                            target.get_evasion: target.db.char_evasion,
+                            target.get_resistance: target.db.char_resistance[None]}
             for stat_func in stat_mapping:
                 string = string + f"{appearance.highlight}{stat_func(quiet=True)}|n "
                 try:
@@ -168,7 +192,7 @@ class CmdStats(Command):
                          f"HP:\n"
                          f"Mana:\n"
                          f"Stamina:\n\n"
-                         
+
                          f"Gold:\n"
                          f"Carried items:\n"
                          f"Carry weight:\n"
@@ -179,7 +203,7 @@ class CmdStats(Command):
                          f"|500{target.db.hp}/{target.get_max("hp")}|n\n"
                          f"|125{target.db.mana}/{target.get_max("mana")}|n\n"
                          f"|030{target.db.stamina}/{target.db.max_stam}|n\n\n"
-                         
+
                          f"{appearance.gold}{target.db.gold}|n\n"
                          f"{target.carried_count()}/{target.db.max_carry_count}\n"
                          f"{target.encumbrance()}/{target.db.carry_weight}\n")
@@ -202,8 +226,8 @@ class CmdStats(Command):
         table.add_column(f"Defense:\n"
                          f"Evasion:\n"
                          f"Resistance:\n\n"
-                         
-                         f"|wResists:|n\n"  
+
+                         f"|wResists:|n\n"
                          f"|=oBlunt: \n"
                          f"|=oSlashing: \n"
                          f"|=oPiercing: \n"
@@ -216,6 +240,55 @@ class CmdStats(Command):
         self.caller.msg(table)
 
 
+class CmdXP(Command):
+    key = "xp"
+    help_category = "character"
+
+    def func(self):
+        """
+            show xp to next level
+
+            Usage:
+              xp
+
+            Displays your total experience points gained, and your progress toward leveling up.
+            """
+        total = self.caller.db.xp
+        next_level = self.caller.db.level + 1
+        remaining = xp_remaining(self.caller, next_level)
+        self.caller.msg(f"You have amassed {total} experience points.")
+        self.caller.msg(f"You need {remaining} more XP to reach level {next_level}.")
+
+
+class CmdLevelUp(Command):
+    key = "level up"
+    aliases = "level", "lev"
+    help_category = "character"
+
+    def func(self):
+        """
+            gain a level and increase stats
+
+            Usage:
+              level up
+
+            When you have enough experience (XP) to increase your character's level, your character's stats will raise
+            according to your character's class and your choices after performing this command.
+            """
+        caller = self.caller
+        if caller.db.xp < xp_threshold(caller.db.level + 1):
+            caller.msg("You do not have enough experience to level up!")
+            return
+
+        caller.msg("You reflect on your experience and how your endeavors have honed your skills and traits.")
+
+        caller.db.level += 1
+        caller.msg(f"{appearance.notify}You are now level {caller.db.level}!")
+        for attribute, amt in caller.db.rpg_class.LEVEL_TO_ATTRIBUTES[caller.db.level]:
+            caller.db.attribs[attribute.lower()] += amt
+            caller.msg(f"{appearance.notify}Your {attribute} has increased by {amt}.")
+
+
 class StatsCmdSet(CmdSet):
     key = "PlayerCharacter"
 
@@ -225,3 +298,5 @@ class StatsCmdSet(CmdSet):
         self.add(CmdMana)
         self.add(CmdStamina)
         self.add(CmdStats)
+        self.add(CmdXP)
+        self.add(CmdLevelUp)

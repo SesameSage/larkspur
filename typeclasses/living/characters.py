@@ -7,7 +7,6 @@ is set up to be the "default" character type created by the default
 creation commands.
 
 """
-from decimal import Decimal as Dec
 
 from evennia import EvTable
 from evennia.prototypes.spawner import spawn
@@ -15,16 +14,12 @@ from evennia.utils import make_iter
 
 from commands.character_cmdsets import PlayerCmdSet
 from commands.refiled_cmds import RefiledCmdSet
-from server import appearance
 from typeclasses.inanimate import rooms
-from typeclasses.inanimate.items.items import Item
+from typeclasses.living.char_stats import xp_threshold
 from typeclasses.living.enemies import Enemy
 from typeclasses.living.living_entities import *
 from typeclasses.living.talking_npc import TalkableNPC
-
-XP_THRESHOLDS = {
-    2: 100
-}
+from typeclasses.scripts.player_scripts import LevelUpReminder
 
 
 class Character(LivingEntity):
@@ -232,8 +227,8 @@ class PlayerCharacter(Character):
     def gain_xp(self, amt):
         self.db.xp += amt
         self.msg(f"You gain {amt} experience.")
-        if self.db.xp >= XP_THRESHOLDS[(self.db.level + 1)]:
-            self.level_up()
+        if self.db.xp >= xp_threshold(self.db.level + 1):
+            self.scripts.add(LevelUpReminder())
 
     def level_up(self):
         self.update_base_stats()

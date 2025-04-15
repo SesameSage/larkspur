@@ -60,6 +60,7 @@ class CombatEntity(EquipmentEntity):
         super().at_object_creation()
         # TODO: Speed?
 
+        self.db.rpg_class = None
         self.db.level = 1
         # TODO: How to utilize enemy level
         self.db.attribs = {"strength": 1, "constitution": 1,
