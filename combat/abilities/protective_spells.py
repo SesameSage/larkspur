@@ -18,5 +18,8 @@ class Ward(Spell):
         if not super().cast(caster, target):
             return False
 
+        caster.location.msg_contents(f"{caster.get_display_name(capital=True)} draws an arc of magical protection"
+                                     f"around {target.get_display_name(article=True)}.")
+
         target.add_effect(TimedStatMod, [("effect_key", "+Resistance"), ("amount", 10), ("duration", 5 * SECS_PER_TURN)])
         return True
