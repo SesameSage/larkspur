@@ -9,6 +9,8 @@ from typeclasses.inanimate.items.equipment.weapons import Weapon
 from typeclasses.inanimate.items.items import ITEMFUNCS
 from typeclasses.inanimate.items.usables import Consumable
 
+HITROLL_PERCEPTION_BONUS = 2
+
 
 class CombatHandler:
 
@@ -34,6 +36,9 @@ class CombatHandler:
             accuracy_bonus += weapon.db.accuracy_bonus
             attacker.location.more_info(f"+{accuracy_bonus} accuracy from {weapon.name} ({attacker.name})")
         hitroll += accuracy_bonus
+
+        # Add Perception bonus
+        hitroll += attacker.get_attr("perception") * HITROLL_PERCEPTION_BONUS
 
         # Apply attacker's hitroll buffs and debuffs.
         buff = 0

@@ -41,7 +41,7 @@ DEXT_TO_EVADE = {
     1: 0,
     2: 5,
 }
-WIS_TO_RESIST_FACTOR = {
+WIS_TO_RESIST = {
     1: 0,
 }
 
@@ -308,7 +308,6 @@ class CombatEntity(EquipmentEntity):
                 if not quiet:
                     self.location.more_info(f"{weight_ev} evasion from equipment weight")
 
-
         # Evasion bonuses from effects
         effect_ev = 0
         if "+Evasion" in self.db.effects:
@@ -451,7 +450,7 @@ class CombatEntity(EquipmentEntity):
 
         self.db.char_defense[None] = CON_TO_DEFENSE[self.get_attr("con")]
         self.db.char_evasion = DEXT_TO_EVADE[self.get_attr("dex")]
-        self.db.char_resistance[None] = WIS_TO_RESIST_FACTOR[self.get_attr("wis")]
+        self.db.char_resistance[None] = WIS_TO_RESIST[self.get_attr("wis")]
 
     def regenerate(self):
         """
