@@ -98,7 +98,6 @@ class Equipment(Item):
                 amount = self.db.equip_effects[effect]
                 wearer.add_effect(StatMod, [("effect_key", effect), ("amount", amount),], quiet=True)
 
-
     def unequip(self, wearer, quiet=False):
         """
         Removes worn equipment and optionally echoes to the room.

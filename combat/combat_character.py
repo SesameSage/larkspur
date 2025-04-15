@@ -296,12 +296,18 @@ class CombatEntity(EquipmentEntity):
 
         # Equipment evasion bonuses
         eq_ev = 0
+        weight_ev = 0
         for slot in self.db.equipment:
             equipment = self.db.equipment[slot]
-            if equipment and hasattr(equipment.db, "evasion") and equipment.db.evasion:
-                eq_ev += equipment.db.evasion
+            if equipment:
+                if hasattr(equipment.db, "evasion") and equipment.db.evasion:
+                    eq_ev += equipment.db.evasion
+                    if not quiet:
+                        self.location.more_info(f"+{equipment.db.evasion} evasion from {equipment.name} ({self.name})")
+                weight_ev -= equipment.db.weight
                 if not quiet:
-                    self.location.more_info(f"+{equipment.db.evasion} evasion from {equipment.name} ({self.name})")
+                    self.location.more_info(f"{weight_ev} evasion from equipment weight")
+
 
         # Evasion bonuses from effects
         effect_ev = 0
@@ -312,7 +318,7 @@ class CombatEntity(EquipmentEntity):
         if effect_ev > 0 and not quiet:
             self.location.more_info(f"{"+" if effect_ev > 0 else ""}{effect_ev} evasion from effect ({self.name})")
 
-        return self.db.char_evasion + eq_ev + effect_ev
+        return self.db.char_evasion + weight_ev + eq_ev + effect_ev
 
     def get_resistance(self, damage_type=None, type_only=False, quiet=False):
         """Returns the current effective resistance for this entity, including equipment and effects."""
