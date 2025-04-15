@@ -479,10 +479,17 @@ class CombatEntity(EquipmentEntity):
         self.cap_stats()
 
     def cap_stats(self):
-        """Ensure entity's hp, mana, and stamina are not greater than their maximum set values."""
+        """Ensure entity's hp, mana, and stamina are not greater than their maximum set values, or less than 0."""
         if self.db.hp > self.get_max("hp"):
             self.db.hp = self.get_max("hp")
         if self.db.mana > self.get_max("mana"):
             self.db.mana = self.get_max("mana")
         if self.db.stamina > self.get_max("stam"):
             self.db.stamina = self.get_max("stam")
+
+        if self.db.hp < 0:
+            self.db.hp = 0
+        if self.db.mana < 0:
+            self.db.mana = 0
+        if self.db.stamina < 0:
+            self.db.stamina = 0

@@ -222,6 +222,7 @@ class Poisoned(DamageOverTime):
 
 class KnockedDown(DurationEffect):
     """Take 50% more attack damage and lose 2 turns getting up (enough for single opponent to attack w/effect)"""
+    # TODO: Change knockdown behavior
     fixed_attributes = [
         ("effect_key", "Knocked Down"),
         ("duration", 2 * SECS_PER_TURN)  # Always lasts 2 turns

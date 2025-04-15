@@ -368,6 +368,7 @@ class TurnHandler(DefaultScript):
             self.all_defeat_check()
             if not self.id:
                 return
+            character.cap_stats()
             self.next_turn()
             return
 
