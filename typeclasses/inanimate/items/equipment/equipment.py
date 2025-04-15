@@ -1,11 +1,11 @@
 from evennia import default_cmds, DefaultCharacter
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils import (
-    at_search_result,
+    at_search_result, inherits_from,
 )
 from evennia.utils.evtable import EvTable
 
-from combat.effects import DamageTypes
+from combat.effects import DamageTypes, StatMod
 from server import appearance
 from typeclasses.inanimate.items.items import Item
 
@@ -19,7 +19,7 @@ class Equipment(Item):
 
         self.db.required_level = 0
         self.db.required_stat = None
-        self.db.equip_effect = None
+        self.db.equip_effects = {}
 
         self.db.equipped = False
 
@@ -27,7 +27,8 @@ class Equipment(Item):
         """Return a table containing details on the item such as its stats and effects."""
         table = EvTable()
         table.add_column(f"Weight: {self.db.weight}",
-                         f"Average value: {appearance.gold}{self.db.avg_value}|n", header=self.get_display_name(capital=True))
+                         f"Average value: {appearance.gold}{self.db.avg_value}|n",
+                         header=self.get_display_name(capital=True))
         table.add_column(f"Equip slot: {self.db.equipment_slot}",
                          f"Lvl req: {self.db.required_level}",
                          f"Requires: {self.db.required_stat}",
@@ -42,7 +43,8 @@ class Equipment(Item):
                     if damage_type is None:
                         defensive_stats.append(f"Defense: {self.db.defense[damage_type]}")
                     else:
-                        defensive_stats.append(f"{damage_type.get_display_name(capital=True)}: {self.db.defense[damage_type]}")
+                        defensive_stats.append(
+                            f"{damage_type.get_display_name(capital=True)}: {self.db.defense[damage_type]}")
 
         if self.attributes.has("resistance"):
             for damage_type in self.db.resistance:
@@ -51,7 +53,7 @@ class Equipment(Item):
                         defensive_stats.append(f"Resistance: {self.db.resistance[damage_type]}")
                     else:
                         defensive_stats.append(
-                        f"{damage_type.get_display_name()} resist: {self.db.resistance[damage_type]}")
+                            f"{damage_type.get_display_name()} resist: {self.db.resistance[damage_type]}")
 
         table.table[0].add_rows(*defensive_stats)
         return table
@@ -83,6 +85,20 @@ class Equipment(Item):
             message = f"$You() $conj(equip) {self.name}."
             wearer.location.msg_contents(message, from_obj=wearer)
 
+        eq_mods_mapping = {"Max HP": wearer.db.max_hp,
+                           "Max Stamina": wearer.db.max_stam,
+                           "Max Mana": wearer.db.max_mana,
+                           "HP Regen": wearer.db.hp_regen,
+                           "Stamina Regen": wearer.db.stam_regen,
+                           "Mana Regen": wearer.db.mana_regen}
+
+        if len(self.db.equip_effects) > 0:
+            for effect in self.db.equip_effects:
+                # Currently, all equip_effects are Stat Mods
+                amount = self.db.equip_effects[effect]
+                wearer.add_effect(StatMod, [("effect_key", effect), ("amount", amount),], quiet=True)
+
+
     def unequip(self, wearer, quiet=False):
         """
         Removes worn equipment and optionally echoes to the room.
@@ -102,6 +118,19 @@ class Equipment(Item):
         # Remove and set to unequipped
         wearer.db.equipment[self.db.equipment_slot] = None
         self.db.equipped = False
+
+        if self.db.equip_effects:
+            for equip_effect in self.db.equip_effects:
+                found = False
+                for script in wearer.scripts.all():
+                    if (script.attributes.has("effect_key")
+                            and script.db.effect_key == equip_effect
+                            and script.db.amount == self.db.equip_effects[equip_effect]):
+                        script.delete()
+                        found = True
+                        break
+                if not found:
+                    wearer.msg(appearance.warning + "No script on wearer matching this equipment's equip effect")
 
         # Echo a message to the room
         if not quiet:
@@ -317,7 +346,6 @@ class CmdEquip(MuxCommand):
             return
 
         item_equipping.equip(self.caller)
-        self.caller.update_stats()
 
 
 class CmdUnequip(MuxCommand):
@@ -347,14 +375,13 @@ class CmdUnequip(MuxCommand):
         if not self.caller.db.equipment[clothing.db.equipment_slot] == clothing:
             self.caller.msg(f"You're not wearing {clothing.get_display_name()}!")
             return
-        if self.caller.encumbrance() + clothing.weight > self.caller.carry_weight:
+        if self.caller.encumbrance() + clothing.db.weight > self.caller.db.carry_weight:
             self.caller.msg("You can't carry that much!")
             return
         if self.caller.carried_count() + 1 > self.caller.db.max_carry_count:
             self.caller.msg("You can't carry that many items!")
             return
         clothing.unequip(self.caller)
-        self.caller.update_stats()
 
 
 class CmdInventory(MuxCommand):

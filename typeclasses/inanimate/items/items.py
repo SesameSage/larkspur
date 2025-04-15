@@ -25,7 +25,7 @@ def itemfunc_heal(item, user, target, **kwargs):
         user.msg("You can't use %s on that." % item)
         return False  # Returning false aborts the item use
 
-    if target.db.hp >= target.db.max_hp:
+    if target.db.hp >= target.get_max("hp"):
         user.msg("%s is already at full health." % target)
         return False
 
@@ -58,7 +58,7 @@ def itemfunc_restore_mana(item, user, target, **kwargs):
         user.msg("You can't use %s on that." % item)
         return False  # Returning false aborts the item use
 
-    if target.db.mana >= target.db.max_mana:
+    if target.db.mana >= target.get_max("mana"):
         user.msg("%s is already at full health." % target)
         return False
 

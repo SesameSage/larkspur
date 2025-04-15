@@ -88,3 +88,23 @@ HP_REGEN_POTION = {
     "weight": round(Dec(1), 1),
 }
 
+VITALITY_POTION = {
+    "key": "vitality potion",
+    "typeclass": "typeclasses.inanimate.items.usables.Potion",
+    "desc": "A portion increasing maximum hitpoints",
+    "item_func": "add_effect",
+    "item_uses": 1,
+    "kwargs": {
+        "effects": [
+            {
+                "script_key": "TimedStatMod",
+                "effect_key": "Max HP",
+                "stat": "HP",
+                "amount": 10,
+                "duration": 20 * SECS_PER_TURN
+            }
+        ]
+    },
+    "weight": round(Dec(1), 1),
+}
+

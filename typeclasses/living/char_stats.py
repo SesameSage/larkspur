@@ -176,13 +176,13 @@ class CmdStats(Command):
 
         table.add_column(f"(Class)\n"
                          f"|w{target.db.level}|n\n"
-                         f"|500{target.db.hp}/{target.db.max_hp}|n\n"
-                         f"|125{target.db.mana}/{target.db.max_mana}|n\n"
+                         f"|500{target.db.hp}/{target.get_max("hp")}|n\n"
+                         f"|125{target.db.mana}/{target.get_max("mana")}|n\n"
                          f"|030{target.db.stamina}/{target.db.max_stam}|n\n\n"
                          
                          f"{appearance.gold}{target.db.gold}|n\n"
-                         f"{target.carried_count()} / {target.db.max_carry_count}\n"
-                         f"{target.encumbrance()} / {target.db.carry_weight}\n")
+                         f"{target.carried_count()}/{target.db.max_carry_count}\n"
+                         f"{target.encumbrance()}/{target.db.carry_weight}\n")
 
         table.add_column(f"Strength:\n"
                          f"Constitution:\n"

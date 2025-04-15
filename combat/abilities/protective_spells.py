@@ -18,5 +18,5 @@ class Ward(Spell):
         if not super().cast(caster, target):
             return False
 
-        target.add_effect(DurationMod, [("effect_key", "+Resistance"), ("amount", 10), ("duration", 5 * SECS_PER_TURN)])
+        target.add_effect(TimedStatMod, [("effect_key", "+Resistance"), ("amount", 10), ("duration", 5 * SECS_PER_TURN)])
         return True

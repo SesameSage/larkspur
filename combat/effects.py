@@ -90,6 +90,37 @@ class DurationEffect(EffectScript):
             self.delete()
 
 
+# <editor-fold desc="Stat modifier effects">
+class StatMod(EffectScript):
+    def pre_effect_add(self):
+        super().pre_effect_add()
+        if self.db.amount:
+            try:
+                self.obj.db.effects[self.db.effect_key]["amount"] += self.db.amount
+            except KeyError:
+                self.obj.db.effects[self.db.effect_key]["amount"] = self.db.amount
+        if not self.attributes.has("stat"):
+            self.db.stat = None
+
+    def at_script_delete(self):
+        # Remove entry from object's effects attributes, if still present
+        try:
+            if self.obj.db.effects[self.db.effect_key]["amount"] <= self.db.amount:
+                del self.obj.db.effects[self.db.effect_key]
+            else:
+                self.obj.db.effects[self.db.effect_key] -= self.db.amount
+        except KeyError:
+            pass
+        return True
+
+
+class TimedStatMod(StatMod, DurationEffect):
+    """Modifies a stat such as accuracy or defense for a set amount of time."""
+    pass
+
+
+# </editor-fold>
+
 # <editor-fold desc="Per second effects">
 class PerSecEffect(DurationEffect):
     """
@@ -202,50 +233,6 @@ class Frozen(DurationEffect):
     fixed_attributes = [
         ("effect_key", "Frozen")
     ]
-
-
-# <editor-fold desc="Stat modifier effects">
-class DurationMod(DurationEffect):
-    """Modifies a stat such as accuracy or defense for a set amount of time."""
-
-    def pre_effect_add(self):
-        super().pre_effect_add()
-        if self.db.amount:
-            self.obj.db.effects[self.db.effect_key]["amount"] = self.db.amount
-
-
-class DamageMod(DurationMod):
-    def __init__(self, effect_key: str, duration: int, damage_type: str, amount: int, *args, **kwargs):
-        super().__init__(effect_key=effect_key, duration=duration, *args, **kwargs)
-        self.damage_type = damage_type
-        self.amount = amount
-
-    def at_script_creation(self):
-        super().at_script_creation()
-        self.obj.db.effects[self.db.effect_key]["damage_type"] = self.damage_type
-
-
-class DefenseMod(DurationMod):
-    def __init__(self, duration: int, amount: int, *args, **kwargs):
-        if amount > 0:
-            effect_key = "Defense Up"
-        else:
-            effect_key = "Defense Down"
-        super().__init__(effect_key, duration, *args, **kwargs)
-        self.amount = amount
-
-
-class EvasionMod(DurationMod):
-    def __init__(self, duration: int, amount: int, *args, **kwargs):
-        if amount > 0:
-            effect_key = "Evasion Up"
-        else:
-            effect_key = "Evasion Down"
-        super().__init__(effect_key, duration, *args, **kwargs)
-        self.amount = amount
-
-
-# </editor-fold>
 
 
 """

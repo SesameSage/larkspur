@@ -96,7 +96,7 @@ class CombatEntity(EquipmentEntity):
         # tickerhandler.add(NONCOMBAT_TURN_TIME, self.at_update, idstring="update")
         tickerhandler.add(1, self.at_tick, idstring="tick_effects")
 
-        self.update_stats()
+        self.update_base_stats()
 
     def at_tick(self):
         """Executes every second when out of combat, allowing finer control of its effects in combat."""
@@ -177,8 +177,9 @@ class CombatEntity(EquipmentEntity):
                 return script
         return False
 
-    def add_effect(self, typeclass, attributes=None):
+    def add_effect(self, typeclass, attributes=None, quiet=False):
         """Adds or resets an effect with the given typeclass and attributes."""
+        # TODO: Allow some effects with amounts to stack, like max hp
         if not attributes:  # If attributes not given in call
             attributes = []  # Make sure initialized as a list
         if hasattr(typeclass, "fixed_attributes"):  # If typeclass has fixed attributes, like always the same duration
@@ -199,7 +200,8 @@ class CombatEntity(EquipmentEntity):
         # Create effect script attached to this entity
         effect = evennia.create_script(typeclass=typeclass, obj=self, attributes=attributes)
         effect.pre_effect_add()  # Call pre_effect_add on the effect script
-        self.location.msg_contents(f"{self.get_display_name(capital=True)} gains {effect.color()}{effect_key}.")
+        if not quiet:
+            self.location.msg_contents(f"{self.get_display_name(capital=True)} gains {effect.color()}{effect_key}.")
 
     def apply_effects(self):
         """Apply/increment all active effect scripts on this entity."""
@@ -212,29 +214,21 @@ class CombatEntity(EquipmentEntity):
 
     def get_attr(self, att_input: str):
         """Gets the current effective Strength, Intelligence, etc. for this entity by attribute name."""
-        # Base attribute tied to the character's stats
+        # Standardize to full capitalized name
         for attribute in self.db.attribs:
             if attribute.startswith(att_input):
-                att_input = attribute
-        base_attr = self.db.attribs[att_input]
+                break
 
-        # Bonus from equipment
-        eq_bonus = 0
-        for slot in self.db.equipment:
-            equipment = self.db.equipment[slot]
-        # TODO: Attribute bonuses from equipment
+        # Base attribute tied to the character's stats
+        base_attr = self.db.attribs[attribute]
 
+        attribute = attribute.capitalize()
         # Bonus from effects
         effect = 0
-        if f"{att_input} Up".capitalize() in self.db.effects:
-            effect = self.db.effects(f"{att_input} Up".capitalize())["amount"]
-        if f"{att_input} Down".capitalize() in self.db.effects:
-            effect = self.db.effects(f"{att_input} Down".capitalize())["amount"]
+        if attribute in self.db.effects:
+            effect = self.db.effects[attribute]["amount"]
 
-        return base_attr + effect + eq_bonus
-
-    # TODO: Should other stats be in a get_ function like these, or calculated as in update_stats (faster)?
-    # Defense and evasion can also depend on attacker; max hp and mana may just be changed by spells
+        return base_attr + effect
 
     def get_defense(self, damage_type=None, type_only=False):
         """Returns the current effective defense for this entity, including equipment and effects."""
@@ -369,6 +363,34 @@ class CombatEntity(EquipmentEntity):
 
         return base_resist + dt_resist + eq_resist + effect_resist
 
+    def get_max(self, stat_input):
+        stats = {"HP": self.db.max_hp, "Stamina": self.db.max_stam, "Mana": self.db.max_mana}
+        for i_stat in stats:
+            if i_stat.lower().startswith(stat_input):
+                stat = i_stat
+
+        base = stats[stat]
+
+        effect = 0
+        if "Max " + stat in self.db.effects:
+            effect = self.db.effects["Max " + stat]["amount"]
+
+        return base + effect
+
+    def get_regen(self, stat_input):
+        stats = {"HP": self.db.hp_regen, "Stamina": self.db.stam_regen, "Mana": self.db.mana_regen}
+        for i_stat in stats:
+            if i_stat.lower().startswith(stat_input):
+                stat = i_stat
+
+        base = stats[stat]
+
+        effect = 0
+        if stat + "Regen" in self.db.effects:
+            effect = self.db.effects(stat + "Regen")["amount"]
+
+        return base + effect
+
     def apply_damage(self, damages):
         """
         Applies damage to a target, reducing their HP by the damage amount to a
@@ -397,12 +419,12 @@ class CombatEntity(EquipmentEntity):
         for script in self.scripts.all():
             if inherits_from(script, DurationEffect):
                 script.delete()
-        self.update_stats()
+        self.update_base_stats()
         return True
 
     # TODO: Logic for who to give XP to
 
-    def update_stats(self):
+    def update_base_stats(self):
         """Recalculates derived stats like max hp and base evasion."""
         self.db.max_hp = MAX_HP_BASE + LVL_TO_MAXHP[self.db.level] + CON_TO_MAXHP[
             self.get_attr("con")]
@@ -429,9 +451,9 @@ class CombatEntity(EquipmentEntity):
         The buildup also carries fractional overflow for regen values over 1, for example handling the additional point
         added every 4 seconds for a regen value of 2.25, while still accurately incrementing the regular 2 per second.
         """
-        self.db.hp_buildup += self.db.hp_regen
-        self.db.mana_buildup += self.db.mana_regen
-        self.db.stam_buildup += self.db.stam_regen
+        self.db.hp_buildup += self.get_regen("hp")
+        self.db.mana_buildup += self.get_regen("mana")
+        self.db.stam_buildup += self.get_regen("stam")
         if self.db.hp_buildup >= 1:
             hp_gained = int(self.db.hp_buildup)
             self.db.hp_buildup -= Dec(hp_gained)
@@ -448,9 +470,9 @@ class CombatEntity(EquipmentEntity):
 
     def cap_stats(self):
         """Ensure entity's hp, mana, and stamina are not greater than their maximum set values."""
-        if self.db.hp > self.db.max_hp:
-            self.db.hp = self.db.max_hp
-        if self.db.mana > self.db.max_mana:
-            self.db.mana = self.db.max_mana
-        if self.db.stamina > self.db.max_stam:
-            self.db.stamina = self.db.max_stam
+        if self.db.hp > self.get_max("hp"):
+            self.db.hp = self.get_max("hp")
+        if self.db.mana > self.get_max("mana"):
+            self.db.mana = self.get_max("mana")
+        if self.db.stamina > self.get_max("stam"):
+            self.db.stamina = self.get_max("stam")

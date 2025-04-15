@@ -204,8 +204,8 @@ class PlayerCharacter(Character):
         self.cmdset.add(PlayerCmdSet, persistent=True)
         self.cmdset.add(RefiledCmdSet, persistent=True)  # Override player cmds where necessary
 
-    def update_stats(self):
-        super().update_stats()
+    def update_base_stats(self):
+        super().update_base_stats()
         self.db.carry_weight = BASE_CARRY_WEIGHT + STR_TO_CARRY_WEIGHT[self.get_attr("str")]
 
     def color(self):
@@ -236,7 +236,7 @@ class PlayerCharacter(Character):
             self.level_up()
 
     def level_up(self):
-        self.update_stats()
+        self.update_base_stats()
 
 
 class NPC(Character, TalkableNPC):
