@@ -5,6 +5,7 @@ from evennia import TICKER_HANDLER as tickerhandler
 from evennia.utils import inherits_from
 
 from combat.effects import DurationEffect
+from server import appearance
 from typeclasses.inanimate.items.equipment.equipment import EquipmentEntity
 
 MAX_HP_BASE = 100
@@ -62,12 +63,10 @@ class CombatEntity(EquipmentEntity):
 
         self.db.rpg_class = None
         self.db.level = 1
-        # TODO: How to utilize enemy level
         self.db.attribs = {"strength": 1, "constitution": 1,
                            "dexterity": 1, "perception": 1, "intelligence": 1,
                            "wisdom": 1, "spirit": 1}
 
-        # TODO: When to implement calculations like max HP based on Constitution, max mana, etc
         self.db.max_hp = MAX_HP_BASE
         self.db.hp = self.db.max_hp
         self.db.hp_regen = round(Dec(0.2), 2)
@@ -202,7 +201,7 @@ class CombatEntity(EquipmentEntity):
                 return
             else:
                 self.effect_active(effect_key).reset_seconds(duration)  # Restart timer, with this version's duration
-                self.location.msg_contents(f"{self.get_display_name(capital=True)} regains {effect_key}.")
+                self.location.msg_contents(f"{self.get_display_name(capital=True)} regains {appearance.effect}{effect_key}.")
                 return
 
         # Create effect script attached to this entity
@@ -374,15 +373,28 @@ class CombatEntity(EquipmentEntity):
                 if this_eq_res != 0:
                     eq_resist += this_eq_res  # Add this equipment piece's total resistance to this damage
 
-        # TODO: Specific damage type resistances from effects
         effect_resist = 0
         if "+Resistance" in self.db.effects:
-            effect_resist += self.db.effects["+Resistance"]["amount"]
+            amount = self.db.effects["+Resistance"]["amount"]
+            effect_resist += amount
+            if not quiet:
+                self.location.more_info(f"{amount} resistance from effect")
         if "-Resistance" in self.db.effects:
             effect_resist += self.db.effects["-Resistance"]["amount"]
-        if effect_resist > 0 and not quiet:
-            self.location.more_info(
-                f"{"+" if effect_resist > 0 else ""}{effect_resist} resistance from effect ({self.name})")
+            if not quiet:
+                self.location.more_info(f"{amount} resistance from effect")
+        if damage_type:
+            dmg_typ_name = damage_type.get_display_name(capital=True)
+            if f"+{dmg_typ_name} Resist" in self.db.effects:
+                amount = self.db.effects[f"+{dmg_typ_name} Resist"]["amount"]
+                effect_resist += amount
+                if not quiet:
+                    self.location.more_info(f"{amount} {dmg_typ_name} resistance from effect")
+            if f"-{damage_type.get_display_name} Resist" in self.db.effects:
+                amount = self.db.effects[f"-{dmg_typ_name} Resist"]["amount"]
+                effect_resist -= amount
+                if not quiet:
+                    self.location.more_info(f"{amount} {dmg_typ_name} resistance from effect")
 
         return base_resist + dt_resist + eq_resist + effect_resist
 

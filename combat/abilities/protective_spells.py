@@ -45,3 +45,32 @@ class ArmorOfThorns(Spell):
         ]
         target.add_effect(typeclass=TimedStatMod, attributes=attributes)
         return True
+
+
+class ThermalSink(Spell):
+    """+10 Fire and Cold resistance"""
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.key = "Thermal Sink"
+        self.db.targeted = True
+        self.db.must_target_entity = False
+        self.db.cost = ("mana", 15)
+
+    def cast(self, caster: LivingEntity, target: Object = None):
+        if not super().cast(caster, target):
+            return False
+
+        attributes = [
+            ("amount", 10),
+            ("duration", 6 * SECS_PER_TURN)
+        ]
+        fire_attributes = attributes + [
+            ("effect_key", "+Fire Resist"),
+            ("damage_type", DamageTypes.FIRE)]
+        cold_attributes =attributes + [
+            ("effect_key", "+Cold Resist"),
+            ("damage_type", DamageTypes.COLD)]
+        target.add_effect(typeclass=TimedStatMod, attributes=fire_attributes)
+        target.add_effect(typeclass=TimedStatMod, attributes=cold_attributes)
+
+        return True

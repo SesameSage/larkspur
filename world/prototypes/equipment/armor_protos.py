@@ -10,6 +10,7 @@ LEATHER_VEST = {
     "defense": {None: 5, DamageTypes.SLASHING: 4, DamageTypes.PIERCING: 2},
     "evasion": 15
 }
+# TODO: Fix "a kinetic footwaps"
 KINETIC_FOOTWRAPS = {
     "key": "kinetic footwraps",
     "typeclass": "typeclasses.inanimate.items.equipment.apparel.Footwear",
