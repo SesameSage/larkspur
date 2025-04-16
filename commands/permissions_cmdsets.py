@@ -1,6 +1,8 @@
 from evennia import CmdSet, Command
 from evennia.commands.default.general import CmdHome
 
+from typeclasses.base.objects import Object
+
 
 class CmdDigDoor(Command):
     """
@@ -20,12 +22,20 @@ class CmdDigDoor(Command):
     help_category = "building"
 
     def func(self):
-        # TODO: Catch if the tunnel command fails
         self.execute_cmd("tunnel " + self.args)
 
         # Get the last two objects created, which should be the two new mirroring exits
-        from typeclasses.base.objects import Object
         recent_objects = Object.objects.order_by("-db_date_created")[:2]
+
+        tunnel_executed_properly = True
+        if not recent_objects[0].destination or not recent_objects[1].destination:
+            tunnel_executed_properly = False
+        if recent_objects[1].location != self.caller.location:
+            tunnel_executed_properly = False
+
+        if not tunnel_executed_properly:
+            self.caller.msg("Tunnel command did not execute properly - skipped exit type updating")
+            return
 
         # Turn both exits into doors
         self.execute_cmd(f"@type/update #{recent_objects[0].id} = typeclasses.inanimate.exits.Door")

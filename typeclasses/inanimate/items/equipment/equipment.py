@@ -326,7 +326,7 @@ class CmdEquip(MuxCommand):
             if not item_equipping:
                 item_equipping = self.caller.search(self.lhs, candidates=self.caller.location.contents, quiet=True)
                 if item_equipping:
-                    self.caller.excute_cmd("get " + self.lhs)
+                    self.caller.execute_cmd("get " + self.lhs)
 
         if not item_equipping:
             self.caller.msg(f"Can't find '{self.args}'")
