@@ -83,10 +83,16 @@ class DurationEffect(EffectScript):
 
     def check_duration(self):
         """Check if the effect has worn off, and remove if so."""
+        effect_key = self.db.effect_key
         if self.db.seconds_passed >= self.db.duration:
-            if self.db.effect_key not in ["Knocked Down"]:
+            if effect_key not in ["Knocked Down"]:
                 self.obj.location.msg_contents(
-                    f"{self.obj.get_display_name(capital=True)}'s {self.color()}{self.db.effect_key}|n has worn off.")
+                    f"{self.obj.get_display_name(capital=True)}'s {self.color()}{effect_key}|n has worn off.")
+            try:
+                if self.obj.db.effects[effect_key]["amount"] > self.db.amount:
+                    self.obj.db.effects[effect_key]["amount"] -= self.db.amount
+            except KeyError:  # Isn't an effect with an amount
+                pass
             self.delete()
 
 
@@ -192,7 +198,7 @@ class DamageOverTime(PerSecEffect):
     def increment(self, amount: int, in_combat=False):
         """Apply the damages."""
         if in_combat:
-            self.obj.location.msg_contents(f"{self.obj.get_display_name()} "
+            self.obj.location.msg_contents(f"{self.obj.get_display_name(capital=True)} "
                                            f"takes {appearance.dmg_color(None, self.obj)}{amount} damage|n from {self.color()}{self.db.effect_key}.")
         self.obj.apply_damage({self.db.damage_type: amount})
 

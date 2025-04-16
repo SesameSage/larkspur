@@ -143,7 +143,7 @@ def itemfunc_add_effect(item, user, target, **kwargs):
             if entry[0] != "script_key":
                 attr_list.append(entry)
         effect_script = getattr(effects, effect["script_key"])
-        target.add_effect(typeclass=effect_script, attributes=attr_list)
+        target.add_effect(typeclass=effect_script, attributes=attr_list, stack=True)
 
 
 def itemfunc_cure_condition(item, user, target, **kwargs):

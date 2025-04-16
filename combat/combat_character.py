@@ -178,7 +178,7 @@ class CombatEntity(EquipmentEntity):
                 return script
         return False
 
-    def add_effect(self, typeclass, attributes=None, quiet=False):
+    def add_effect(self, typeclass, attributes=None, quiet=False, stack=False):
         """Adds or resets an effect with the given typeclass and attributes."""
         # TODO: Allow some effects with amounts to stack, like max hp
         if not attributes:  # If attributes not given in call
@@ -192,11 +192,18 @@ class CombatEntity(EquipmentEntity):
                 effect_key = attribute[1]
             elif attribute[0] == "duration":
                 duration = attribute[1]
+            elif attribute[0] == "amount":
+                amount = attribute[1]
 
-        if self.effect_active(effect_key):  # If this effect is already active on this entity
-            self.effect_active(effect_key).reset_seconds(duration)  # Restart timer, with this version's duration
-            self.location.msg_contents(f"{self.get_display_name(capital=True)} regains {effect_key}.")
-            return
+        script = self.effect_active(effect_key)
+        if script:  # If this effect is already active on this entity
+            if stack:
+                self.db.effects[effect_key]["amount"] += amount
+                return
+            else:
+                self.effect_active(effect_key).reset_seconds(duration)  # Restart timer, with this version's duration
+                self.location.msg_contents(f"{self.get_display_name(capital=True)} regains {effect_key}.")
+                return
 
         # Create effect script attached to this entity
         effect = evennia.create_script(typeclass=typeclass, obj=self, attributes=attributes)
@@ -430,7 +437,8 @@ class CombatEntity(EquipmentEntity):
     def at_defeat(self):
         """Called when entity is defeated. This is a method on entities instead of the combat handler so that it can
         be overridden with different behavior by different kinds of entities."""
-        self.location.msg_contents("|w|[110%s has been defeated!" % self.name)
+        self.location.msg_contents("|w|[110%s has been defeated!" % self.get_display_name(capital=True, color=False,
+                                                                                          article=True))
         # End all timed buffs and debuffs
         for script in self.scripts.all():
             if inherits_from(script, DurationEffect):
