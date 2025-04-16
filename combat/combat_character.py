@@ -179,7 +179,6 @@ class CombatEntity(EquipmentEntity):
 
     def add_effect(self, typeclass, attributes=None, quiet=False, stack=False):
         """Adds or resets an effect with the given typeclass and attributes."""
-        # TODO: Allow some effects with amounts to stack, like max hp
         if not attributes:  # If attributes not given in call
             attributes = []  # Make sure initialized as a list
         if hasattr(typeclass, "fixed_attributes"):  # If typeclass has fixed attributes, like always the same duration

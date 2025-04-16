@@ -83,6 +83,7 @@ class Armwear(Apparel):
     def at_object_creation(self):
         super().at_object_creation()
         self.db.equipment_slot = "arms"
+        self.db.plural_name = True
 
 
 class Waistwear(Apparel):
@@ -107,3 +108,4 @@ class Footwear(Apparel):
     def at_object_creation(self):
         super().at_object_creation()
         self.db.equipment_slot = "feet"
+        self.db.plural_name = True

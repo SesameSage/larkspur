@@ -227,6 +227,7 @@ class Object(ObjectParent, DefaultObject):
     def at_object_creation(self):
         super().at_object_creation()
         self.db.unique_name = False  # For now, largely just affects capitalization
+        self.db.plural_name = False
         self.db.long_desc = None
 
     def color(self):
@@ -265,6 +266,13 @@ class Object(ObjectParent, DefaultObject):
             return self.color() + name + "|n"
         else:
             return name
+
+    def get_numbered_name(self, count, looker, **kwargs):
+        no_article = True if self.db.plural_name else False
+        singular, plural = super().get_numbered_name(count, looker, no_article=no_article, **kwargs)
+        if count > 1:
+            plural = plural[:-1]
+        return singular, plural
 
 
 class Fixture(Object):

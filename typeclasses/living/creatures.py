@@ -12,7 +12,6 @@ class Creature(LivingEntity):
 class Beast(Creature):
     def at_object_creation(self):
         super().at_object_creation()
-        # TODO: How do we scale things like this for level?
         # Natural armor and agility
         self.db.char_defense = {None: 10}
         self.db.char_evasion = 20
