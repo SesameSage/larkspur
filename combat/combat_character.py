@@ -312,7 +312,7 @@ class CombatEntity(EquipmentEntity):
                     eq_ev += equipment.db.evasion
                     if not quiet:
                         self.location.more_info(f"+{equipment.db.evasion} evasion from {equipment.name} ({self.name})")
-                weight_ev -= equipment.db.weight
+                weight_ev -= equipment.db.weight / 2  # May need to scale with level
                 if not quiet:
                     self.location.more_info(f"{weight_ev} evasion from equipment weight")
 

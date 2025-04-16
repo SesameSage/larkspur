@@ -1,5 +1,3 @@
-from evennia.prototypes import spawner
-
 from typeclasses.scripts.scripts import Script
 
 
@@ -19,18 +17,3 @@ class TemporarilyHide(Script):
             self.delete()
 
 
-class ReplenishItem(Script):
-    """Spawns a new item from the given item's from_prototype when the given item has been removed from its original
-    location."""
-    # TODO: This breaks if the object is destroyed or cleared of scripts before the interval
-    def at_script_creation(self):
-        self.interval = 10
-        self.location = self.obj.location
-
-    def at_repeat(self, **kwargs):
-        if self.obj not in self.location.contents:
-            prototype = self.obj.tags.get(category="from_prototype")
-            new_obj = spawner.spawn(prototype)[0]
-            new_obj.scripts.add(TemporarilyHide())
-            new_obj.scripts.add(ReplenishItem())
-            self.delete()
