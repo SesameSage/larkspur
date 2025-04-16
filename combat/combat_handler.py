@@ -281,6 +281,14 @@ class CombatHandler:
         self.announce_damage(attacker=attacker, defender=defender, attack_name=attack_name, damage_values=damage_values, msg=announce_msg)
         if bool(damage_values):
             defender.apply_damage(damage_values)
+
+        if defender.effect_active("Retaliation"):
+            effect = defender.db.effects["Retaliation"]
+            retal_damage = self.get_damage_taken(attacker, {effect["damage_type"]: effect["amount"]})
+            attacker.apply_damage(retal_damage)
+            defender.location.msg_contents(f"{attacker.get_display_name(capital=True)} takes "
+                                           f"{retal_damage[effect["damage_type"]]} damage from "
+                                           f"{defender.get_display_name()}'s {appearance.effect}Retaliation|n!")
         """# Inflict conditions on hit, if any specified
         for condition in inflict_condition:
             self.add_effect(defender, attacker, condition[0], condition[1])"""

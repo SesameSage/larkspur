@@ -18,8 +18,6 @@ def update_weather(region):
 class ReplenishItem(Script):
     """Spawns a new item from the given item's from_prototype when the given item has been removed from its original
     location."""
-
-    # TODO: This breaks if the object is destroyed or cleared of scripts before the interval
     def at_script_creation(self):
         self.interval = 10
         self.db.item = None

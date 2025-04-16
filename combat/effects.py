@@ -28,6 +28,7 @@ class EffectScript(Script):
 
     def at_script_creation(self):
         self.key = self.__class__.__name__
+        self.db.damage_type = None
 
     def color(self):
         return appearance.effect
@@ -36,6 +37,8 @@ class EffectScript(Script):
         """Called at the beginning of adding the effect to a target."""
         # Add dict entry on target's effects attribute
         self.obj.db.effects[self.db.effect_key] = {}
+        if self.db.damage_type:
+            self.obj.db.effects[self.db.effect_key]["damage_type"] = self.db.damage_type
 
     def at_script_delete(self):
         # Remove entry from object's effects attributes, if still present
