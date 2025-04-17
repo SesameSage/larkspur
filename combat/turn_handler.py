@@ -306,7 +306,6 @@ class TurnHandler(DefaultScript):
                 except KeyError:
                     pass
 
-
             if effects_str != "":
                 row.append(effects_str)
             table.add_row(*row)
