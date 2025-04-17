@@ -35,8 +35,8 @@ class Freeze(Spell):
         if target.effect_active("Burning"):
             target.scripts.get("Burning").delete()
 
-        target.location.msg_contents(f"{caster.get_display_name(capital=True)} raises nearby water with downturned"
-                                     f"fingers, pulls it together to engulf {target.get_display_name(article=True)},"
+        target.location.msg_contents(f"{caster.get_display_name(capital=True)} raises nearby water with downturned "
+                                     f"fingers, pulls it together to engulf {target.get_display_name(article=True)}, "
                                      f"and separates their hands again in a rapid slicing motion.")
 
         target.add_effect(Frozen, [("duration", 2 * SECS_PER_TURN)])

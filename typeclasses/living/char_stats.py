@@ -329,6 +329,37 @@ class CmdStats(Command):
         self.caller.msg(table)
 
 
+class CmdEffects(Command):
+    key = "effects"
+    aliases = "effect", "eff", "ef"
+    help_category = "character"
+
+    def func(self):
+        if self.args:  # Target given
+            target = self.caller.search(
+                self.args, candidates=[content for content in self.caller.location.contents if content.db.hp])
+            if not target:
+                self.caller.msg(f"Can't find '{self.args}' here")
+                return
+            if not target.db.effects:
+                self.caller.msg(f"{target.name.capitalize()} isn't affected by combat conditions!")
+                return
+        else:  # Show self effects
+            target = self.caller
+
+        table = EvTable("|wEffect", "|wAmount", "|wDuration")
+
+        for effect in target.db.effects:
+            name = effect
+            effect = target.db.effects[effect]
+            amount = effect["amount"] if "amount" in effect else "--"
+            duration = effect["duration"] if "duration" in effect else "-"
+            seconds_passed = effect["seconds passed"] if "seconds passed" in effect else "-"
+            table.add_row(name, amount, f"{seconds_passed}/{duration}")
+
+        self.caller.msg(table)
+
+
 class CmdXP(Command):
     key = "xp"
     help_category = "character"
@@ -381,5 +412,6 @@ class StatsCmdSet(CmdSet):
         self.add(CmdMana)
         self.add(CmdStamina)
         self.add(CmdStats)
+        self.add(CmdEffects)
         self.add(CmdXP)
         self.add(CmdLevelUp)
