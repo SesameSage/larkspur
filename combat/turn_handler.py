@@ -315,7 +315,7 @@ class TurnHandler(DefaultScript):
         if character.effect_active("Frozen"):
             character.location.msg_contents(character.get_display_name() + " is frozen solid and cannot act!")
             self.spend_action(character, "all")
-        if character.effect_active("Knocked Down"):
+        if character.effect_active("Knocked Down") and character.db.effects["Knocked Down"]["seconds passed"] < 3:
             character.location.msg_contents(
                 character.get_display_name() + " loses precious time in battle clambering back to their feet!")
             self.spend_action(character, "all", "stand up")
