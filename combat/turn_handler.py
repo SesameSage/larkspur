@@ -302,7 +302,8 @@ class TurnHandler(DefaultScript):
                 try:
                     turns_left = ((fighter.db.effects[effect]["duration"] - fighter.db.effects[effect][
                         "seconds passed"]) // SECS_PER_TURN) - 1
-                    effects_str = effects_str + f"[{appearance.effect}{effect}|n({turns_left}t)] "
+                    color = appearance.good_effect if fighter.db.effects[effect]["positive"] else appearance.bad_effect
+                    effects_str = effects_str + f"{color}{effect}|n({turns_left}t)  "
                 except KeyError:
                     pass
 

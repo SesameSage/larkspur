@@ -192,6 +192,8 @@ class CombatEntity(EquipmentEntity):
                 duration = attribute[1]
             elif attribute[0] == "amount":
                 amount = attribute[1]
+            elif attribute[0] == "positive":
+                positive = attribute[1]
 
         script = self.effect_active(effect_key)
         if script:  # If this effect is already active on this entity
@@ -200,7 +202,8 @@ class CombatEntity(EquipmentEntity):
                 return
             else:
                 self.effect_active(effect_key).reset_seconds(duration)  # Restart timer, with this version's duration
-                self.location.msg_contents(f"{self.get_display_name(capital=True)} regains {appearance.effect}{effect_key}.")
+                color = appearance.good_effect if positive else appearance.bad_effect
+                self.location.msg_contents(f"{self.get_display_name(capital=True)} regains {color}{effect_key}.")
                 return
 
         # Create effect script attached to this entity

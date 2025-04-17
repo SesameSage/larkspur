@@ -1,8 +1,12 @@
 from enum import Enum
 from random import randint
 
+from evennia.utils import inherits_from
+
 from server import appearance
 from typeclasses.scripts.scripts import Script
+
+# TODO: Effects command for full details
 
 SECS_PER_TURN = 3
 
@@ -31,7 +35,10 @@ class EffectScript(Script):
         self.db.damage_type = None
 
     def color(self):
-        return appearance.effect
+        if self.db.positive:
+            return appearance.good_effect
+        else:
+            return appearance.bad_effect
 
     def pre_effect_add(self):
         """Called at the beginning of adding the effect to a target."""
@@ -39,6 +46,13 @@ class EffectScript(Script):
         self.obj.db.effects[self.db.effect_key] = {}
         if self.db.damage_type:
             self.obj.db.effects[self.db.effect_key]["damage_type"] = self.db.damage_type
+
+        # Determine whether the effect is positive after all script creation keys have already been run
+        if inherits_from(self, StatMod) and self.db.amount > 0:
+            self.db.positive = True
+        else:
+            self.db.positive = False
+        self.obj.db.effects[self.db.effect_key]["positive"] = self.db.positive
 
     def at_script_delete(self):
         # Remove entry from object's effects attributes, if still present

@@ -15,6 +15,8 @@ whisper = "|525"
 good_damage = "|440"
 bad_damage = "|510"
 effect = "|405"
+good_effect = "|452"
+bad_effect = "|411"
 
 character = "|553"
 player = "|340"
