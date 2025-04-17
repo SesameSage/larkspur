@@ -20,6 +20,14 @@ class Ability(Object):
         self.db.cost = None
         self.db.cooldown = 0
 
+    def cast(self, caster: LivingEntity, target: Object = None):
+        if not self.check(caster, target):
+            return False
+        else:
+            self.adjust_cooldowns_stats(caster)
+            self.func(caster, target)
+            return True
+
     def check(self, caster, target):
         """
         Checks whether an ability/spell can be cast and is being cast properly before running any casting logic.
@@ -62,22 +70,14 @@ class Ability(Object):
                 return False
         return True
 
-    # TODO: I bet we want this being done in an at-pre-cast or the spell function called something else
-    def cast(self, caster: LivingEntity, target: Object = None):
+    def func(self, caster: LivingEntity, target: Object = None):
         """
-        Runs the check, pays the cost, restarts the cooldown, then performs the ability's function.
+        Performs the ability's function.
         Args:
             caster: Entity calling the ability/spell.
             target: Entity targeted, if any
-
-        Returns:
-            Boolean whether ability was successfully cast.
         """
-        if not self.check(caster, target):
-            return False
-        else:
-            self.adjust_cooldowns_stats(caster)
-            return True
+        pass
 
     def adjust_cooldowns_stats(self, caster):
         """
@@ -129,9 +129,7 @@ class SpellCompAbility(Ability):
         else:
             return False
 
-    def cast(self, caster: LivingEntity, target: Object = None):
-        if not self.check(caster, target):
-            return False
+    def func(self, caster: LivingEntity, target: Object = None):
         items_to_use = self.check(caster, target)
         for item in items_to_use:
             item.delete()

@@ -15,9 +15,7 @@ class BlindingBeam(Spell):
         self.db.cost = ("mana", 5)
         self.db.cooldown = 6 * SECS_PER_TURN
 
-    def cast(self, caster: LivingEntity, target: Object = None):
-        if not super().cast(caster, target):
-            return False
+    def func(self, caster: LivingEntity, target: Object = None):
         caster.location.msg_contents(f"{caster.get_display_name()} aims a focused beam of blinding white light into "
                                      f"{target.get_display_name()}'s eyes!")
         target.add_effect(DurationEffect, [("effect_key", "Blinded"), ("duration", 3 * SECS_PER_TURN)])
@@ -33,10 +31,7 @@ class Freeze(Spell):
         self.db.cost = ("mana", 12)
         self.db.cooldown = 6 * SECS_PER_TURN
 
-    def cast(self, caster: LivingEntity, target: Object = None):
-        if not super().cast(caster=caster, target=target):
-            return False
-
+    def func(self, caster: LivingEntity, target: Object = None):
         if target.effect_active("Burning"):
             target.scripts.get("Burning").delete()
 

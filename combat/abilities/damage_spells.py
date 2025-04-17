@@ -26,9 +26,7 @@ class Firebolt(Spell):
                                   f"{caster.get_attr("spirit")} Spirit * {damage_mod} mod")
         return {DamageTypes.FIRE: fire_damage}
 
-    def cast(self, caster: LivingEntity, target: Object = None):
-        if not super().cast(caster=caster, target=target):
-            return False
+    def func(self, caster: LivingEntity, target: Object = None):
         ignite_buildup = 0
 
         if not target.is_in_combat():

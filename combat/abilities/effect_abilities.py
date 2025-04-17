@@ -15,11 +15,7 @@ class Sweep(Ability):
         self.db.cost = ("stamina", 1)
         self.db.cooldown = 5 * SECS_PER_TURN
 
-    def cast(self, caster: LivingEntity, target: Object = None):
-        if not self.check(caster, target):
-            return False
-        if not super().cast(caster, target):
-            return False
+    def func(self, caster: LivingEntity, target: Object = None):
         weapon_weight = caster.get_weapon().db.weight if caster.get_weapon() else 0
         if target.get_attr("con") > caster.get_attr("str") + weapon_weight:
             caster.location.msg_contents(
@@ -43,10 +39,7 @@ class NeutralizingHum(Ability):
         self.db.cost = ("mana", 10)
         self.db.cooldown = 10 * SECS_PER_TURN
 
-    def cast(self, caster: LivingEntity, target: Object = None):
-        if not super().cast(caster, target):
-            return False
-
+    def func(self, caster: LivingEntity, target: Object = None):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} emits a low, guttural throat-singing tone.")
 
         for entity in caster.location.contents:

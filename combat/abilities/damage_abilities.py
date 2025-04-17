@@ -18,10 +18,7 @@ class Scratch(Ability):
         damage = 5 + caster.get_attr("str")
         return {DamageTypes.SLASHING: damage}
 
-    def cast(self, caster: LivingEntity, target: Object = None):
-        if not super().cast(caster, target):
-            return False
-
+    def func(self, caster: LivingEntity, target: Object = None):
         COMBAT.resolve_attack(caster, target, self)
         return True
 

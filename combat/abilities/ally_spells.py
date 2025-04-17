@@ -23,9 +23,6 @@ class Revive(Spell):
 
         return True
 
-    def cast(self, caster: LivingEntity, target: Object = None):
-        if not super().cast(caster, target):
-            return False
-
+    def func(self, caster: LivingEntity, target: Object = None):
         target.db.hp = 50
         target.location.msg_contents(target.get_display_name() + " has been revived!")
