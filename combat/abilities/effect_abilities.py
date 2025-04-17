@@ -16,14 +16,14 @@ class Sweep(Ability):
         self.db.cooldown = 5 * SECS_PER_TURN
 
     def func(self, caster: LivingEntity, target: Object = None):
-        weapon_weight = caster.get_weapon().db.weight if caster.get_weapon() else 0
+        weapon_weight = caster.get_weapon().db.weight if not isinstance(caster.get_weapon(), str) else 0
         if target.get_attr("con") > caster.get_attr("str") + weapon_weight:
             caster.location.msg_contents(
-                f"{target.get_display_name()} stands too strong for {caster.get_display_name()}'s"
+                f"{target.get_display_name(capital=True)} stands too strong for {caster.get_display_name(article=True)}'s"
                 f" sweep of the legs!")
         elif target.get_attr("dex") > caster.get_attr("dex"):
             caster.location.msg_contents(
-                f"{target.get_display_name()}'s quick footwork avoids {caster.get_display_name()}'s "
+                f"{target.get_display_name(capital=True)}'s quick footwork avoids {caster.get_display_name(article=True)}'s "
                 f"sweep!")
         else:
             target.location.msg_contents(f"{caster.get_display_name()} sweeps at {target.get_display_name()}'s legs, "
