@@ -299,10 +299,13 @@ class TurnHandler(DefaultScript):
             row = [fighter.get_display_name(capital=True), f"{fighter.db.hp} hp"]
             effects_str = ""
             for effect in fighter.db.effects:
-                if inherits_from(effect, DurationEffect):
+                try:
                     turns_left = ((fighter.db.effects[effect]["duration"] - fighter.db.effects[effect][
                         "seconds passed"]) // SECS_PER_TURN) - 1
-                    effects_str = effects_str + f"[{effect}({turns_left})] "
+                    effects_str = effects_str + f"[{appearance.effect}{effect}|n({turns_left}t)] "
+                except KeyError:
+                    pass
+
 
             if effects_str != "":
                 row.append(effects_str)
