@@ -24,12 +24,11 @@ class Room(Object, DefaultRoom):
 
     def at_object_creation(self):
         self.db.area = None
-        self.db.locality = None
-        self.db.zone = None
-        self.db.region = None
 
         self.db.is_outdoors = True
         self.db.environment = None
+
+        self.db.current_weather = None
 
     appearance_template = """
 {header}
@@ -282,3 +281,9 @@ class Room(Object, DefaultRoom):
             )
 
             receiver.msg(text=(outmessage, outkwargs), from_obj=from_obj, **kwargs)
+
+    def update_weather(self, weather):
+        self.db.current_weather = weather
+        self.print_ambient(weather["start_msg"])
+        if weather["effect"]:
+            pass

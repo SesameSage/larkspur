@@ -2,7 +2,7 @@ import time
 from evennia import CmdSet, Command
 
 from server import appearance
-from typeclasses.inanimate.exits import Door
+from typeclasses.inanimate.locations.exits import Door
 from typeclasses.scripts.scene import Scene
 
 global lofthus

@@ -41,17 +41,26 @@ MAX_NR_CHARACTERS = 10
 BASE_ACCOUNT_TYPECLASS = "typeclasses.ooc.accounts.Account"
 BASE_OBJECT_TYPECLASS = "typeclasses.base.objects.Object"
 BASE_CHARACTER_TYPECLASS = "typeclasses.living.characters.PlayerCharacter"
-BASE_ROOM_TYPECLASS = "typeclasses.inanimate.rooms.Room"
-BASE_EXIT_TYPECLASS = "typeclasses.inanimate.exits.Exit"
+BASE_ROOM_TYPECLASS = "typeclasses.inanimate.locations.rooms.Room"
+BASE_EXIT_TYPECLASS = "typeclasses.inanimate.locations.exits.Exit"
 BASE_SCRIPT_TYPECLASS = "typeclasses.scripts.scripts.Script"
 BASE_CHANNEL_TYPECLASS = "typeclasses.ooc.channels.Channel"
+
 PROTOTYPE_MODULES = ["world.prototypes.prototypes", "world.prototypes.entity_protos", "world.prototypes.item_protos",
                      "world.prototypes.equipment.weapon_protos", "world.prototypes.consumable_protos",
                      "world.prototypes.equipment.armor_protos", "world.prototypes.equipment.apparel_protos",
                      "world.prototypes.equipment.equipment_protos", "world.prototypes.spellcomp_protos"]
-
 FILE_HELP_ENTRY_MODULES = ["world.help_entries", "combat.help_combat", "typclasses.living.help_characters",
                            "typeclasses.inanimate.items.help_items", "typeclasses.ooc.help_ooc", "combat.help_magic",]
+
+REGIONS = {
+    "The First Region": {
+        "typeclass": "typeclasses.inanimate.locations.regions.Region",
+        "desc": "",
+        "attributes": [("minimum_rec_level", 1)],
+    }
+}
+GLOBAL_SCRIPTS = REGIONS
 
 ######################################################################
 # Settings given in secret_settings.py override those in this file.

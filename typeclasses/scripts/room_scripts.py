@@ -6,18 +6,11 @@ from typeclasses.scripts.item_scripts import TemporarilyHide
 from typeclasses.scripts.scripts import Script
 
 
-def update_weather(region):
-    weather = random.choice(region.weathers)
-    for area in region.areas:
-        for room in area:
-            if room.db.outdoors:
-                room.print_ambient(weather["desc"])
-
-
 # TODO: Time of day
 class ReplenishItem(Script):
     """Spawns a new item from the given item's from_prototype when the given item has been removed from its original
     location."""
+
     def at_script_creation(self):
         self.interval = 10
         self.db.item = None
