@@ -1,4 +1,5 @@
 from evennia import Command
+from evennia.commands.default.muxcommand import MuxCommand
 
 from commands.permissions_cmdsets import BuildingCmdSet
 from commands.refiled_cmds import *
@@ -19,6 +20,7 @@ class CmdMoreInfo(Command):
         self.caller.print_ambient(
             f"MoreInfo set to {self.caller.attributes.get("prefs", category="ooc")["more_info"]}.")
 
+
 class CmdHere(Command):
     key = "here"
     help_category = "navigation"
@@ -37,6 +39,26 @@ class CmdHere(Command):
                         f"|wRegion:|n {region}\n")
 
 
+class CmdClasses(MuxCommand):
+    key = "classes"
+    help_category = "character"
+
+    def func(self):
+        show_all = False
+        if self.lhs and self.lhs == "all":
+            show_all = True
+
+        trainer = None
+        for object in self.caller.location.contents:
+            if object.attributes.has("classes"):
+                trainer = object
+        if not trainer:
+            self.caller.msg("No one to train with here!")
+            return
+
+        trainer.display_classes(self.caller, show_all)
+
+
 class PlayerCmdSet(CmdSet):
     key = "DefaultCharacter"
 
@@ -49,6 +71,8 @@ class PlayerCmdSet(CmdSet):
 
         self.add(CmdMoreInfo)
         self.add(CmdHere)
+        self.add(CmdClasses)
+
         self.add(CmdTravel)
         self.add(CmdIdentify)
         self.add(CmdBuy)

@@ -33,7 +33,7 @@ or implement the same locks/hooks in your own typeclasses.
 from collections import defaultdict
 
 from django.conf import settings
-from evennia import AttributeProperty, CmdSet, DefaultObject, EvTable
+from evennia import CmdSet, DefaultObject, EvTable
 from evennia.commands.default.general import CmdDrop, CmdGet, CmdLook
 from evennia.utils import class_from_module
 
@@ -247,7 +247,7 @@ class CmdContainerGet(CmdGet):
             else:
                 self.msg("You can't get that.")
             return
-        if self.caller.encumbrance() + obj.db.weight > self.caller.db.carry_weight:
+        if obj.db.weight and self.caller.encumbrance() + obj.db.weight > self.caller.db.carry_weight:
             self.msg("You can't carry that much!")
             return
         if self.caller.carried_count() + 1 > self.caller.db.max_carry_count:
@@ -263,6 +263,8 @@ class CmdContainerGet(CmdGet):
         if not success:
             self.msg("This can't be picked up.")
         else:
+            from evennia import set_trace;
+            set_trace()
             singular, _ = obj.get_numbered_name(1, caller)
             if location == caller.location:
                 # we're picking it up from the area

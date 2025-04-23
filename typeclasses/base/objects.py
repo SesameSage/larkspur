@@ -268,8 +268,18 @@ class Object(ObjectParent, DefaultObject):
             return name
 
     def get_numbered_name(self, count, looker, **kwargs):
+        if self.db.unique_name:
+            if kwargs.get("return_string"):
+                return self.name
+            else:
+                return self.name, self.name
         no_article = True if self.db.plural_name else False
-        singular, plural = super().get_numbered_name(count, looker, no_article=no_article, **kwargs)
+        result = super().get_numbered_name(count, looker, no_article=no_article, **kwargs)
+        if isinstance(result, tuple):
+            singular, plural = result
+        else:
+            singular = result
+            return singular
         if count > 1:
             plural = plural[:-1]
         return singular, plural

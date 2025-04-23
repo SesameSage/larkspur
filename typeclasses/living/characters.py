@@ -103,7 +103,8 @@ class Character(LivingEntity):
             msg_receivers = appearance.whisper + msg_receivers
             msg_location = None
         else:
-            msg_self = self.get_display_name(capital=True) + appearance.say + ' say: {speech}' if msg_self is True else msg_self
+            msg_self = self.get_display_name(
+                capital=True) + appearance.say + ' say: {speech}' if msg_self is True else msg_self
             msg_location = msg_location or self.get_display_name(capital=True) + appearance.say + ' says: {speech}'
             msg_receivers = msg_receivers or message
             msg_receivers = appearance.say + msg_receivers
@@ -240,6 +241,26 @@ class PlayerCharacter(Character):
     def level_up(self):
         self.update_base_stats()
 
+    def is_correct_class(self, target):
+        # Abilities
+        if target.db.cooldown:
+            ability_tree = self.db.rpg_class.ability_tree
+            for level in ability_tree:
+                if type(target) in ability_tree[level]:
+                    return True
+            return False
+
+    def meets_level_requirement(self, target):
+        # Abilities
+        if target.db.cooldown:
+            ability_tree = self.db.rpg_class.ability_tree
+            for level in range(self.db.level + 1):
+                if level == 0:
+                    continue
+                if type(target) in ability_tree[level]:
+                    return True
+            return False
+
 
 class NPC(Character, TalkableNPC):
     pass
@@ -281,6 +302,39 @@ class Vendor(NPC):
         item_to_sell.move_to(destination=player, quiet=True, move_type="purchase")
         singular = item_to_sell.get_numbered_name(count=1, looker=player)[0]
         player.msg("You receive " + singular + ".")
+
+
+class Trainer(NPC):
+    """An NPC who can teach the player abilities."""
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.unique_name = True
+        self.db.classes = {}  # Ability, price
+
+    def display_classes(self, player, all=False):
+        table = EvTable("Ability", "Cost")
+        shown = []
+
+        for ability in self.db.classes:
+            if player.meets_level_requirement(ability):
+                color = "|450"
+                shown.append((ability, color))
+            elif player.is_correct_class(ability):
+                color = "|w"
+                if all:
+                    shown.append((ability, color))
+            else:
+                color = "|=k"
+                if all:
+                    shown.append((ability, color))
+
+        for ability, color in shown:
+            price = self.db.classes[ability]
+            table.add_row(color + ability.key, appearance.gold + str(price))
+
+        player.msg(f"{self.get_display_name(capital=True)} can teach:")
+        player.msg(table)
 
 
 class EnemyCharacter(Enemy, NPC):
