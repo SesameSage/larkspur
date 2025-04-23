@@ -30,6 +30,18 @@ class Room(Object, DefaultRoom):
 
         self.db.current_weather = None
 
+    def locality(self):
+        if self.db.area:
+            return self.db.area.db.locality
+
+    def zone(self):
+        if self.locality():
+            return self.locality().db.zone
+
+    def region(self):
+        if self.zone():
+            return self.zone().db.region
+
     appearance_template = """
 {header}
 |350{name}{extra_name_info}|n
