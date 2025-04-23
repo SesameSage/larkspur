@@ -1,7 +1,7 @@
 from collections import defaultdict
 
 from evennia.objects.objects import DefaultRoom
-from evennia.utils import iter_to_str, is_iter, make_iter
+from evennia.utils import iter_to_str, is_iter, make_iter, lazy_property
 
 from server import appearance
 from server.funcparser import MyFuncParser, MY_ACTOR_STANCE_CALLABLES
@@ -24,11 +24,24 @@ class Room(Object, DefaultRoom):
 
     def at_object_creation(self):
         self.db.area = None
+        self.db.coordinates = ()
 
         self.db.is_outdoors = True
         self.db.environment = None
 
         self.db.current_weather = None
+
+    @lazy_property
+    def x(self):
+        return self.db.coordinates[0]
+
+    @lazy_property
+    def y(self):
+        return self.db.coordinates[1]
+
+    @lazy_property
+    def z(self):
+        return self.db.coordinates[2]
 
     def locality(self):
         if self.db.area:

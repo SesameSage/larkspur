@@ -1,5 +1,5 @@
 import evennia
-from evennia import CmdSet, Command
+from evennia import CmdSet
 from evennia.commands.default.building import CmdDig, CmdTunnel
 from evennia.commands.default.general import CmdHome
 from evennia.commands.default.muxcommand import MuxCommand
@@ -11,7 +11,7 @@ from typeclasses.inanimate.locations.regions import Region
 from typeclasses.inanimate.locations.zones import Zone
 
 
-# TODO: Tunnel to existing rooms (probably with xyzgrid)
+# TODO: Show exits with directional aliases (not just keys) in ingame map display
 
 # Extended to add new room to current area unless using "delocalize" switch
 class MyCmdDig(CmdDig):
@@ -271,6 +271,13 @@ class MyCmdTunnel(CmdTunnel):
         exitname, backshort = self.directions[exitshort]
         backname = self.directions[backshort][0]
 
+        backstring = ""
+        if "oneway" not in self.switches:
+            backstring = f", {backname};{backshort}"
+        telswitch = ""
+        if "tel" in self.switches:
+            telswitch = "/teleport"
+
         # if we received a typeclass for the exit, add it to the alias(short name)
         if ":" in self.lhs:
             # limit to only the first : character
@@ -280,24 +287,46 @@ class MyCmdTunnel(CmdTunnel):
             exitshort += exit_typeclass
             backshort += exit_typeclass
 
-        roomname = "Some place"
-        if self.rhs:
-            roomname = self.rhs  # this may include aliases; that's fine.
+        # Get the new room's coordinates based on direction from current room
+        current_room_coords = self.caller.location.db.coordinates
+        x, y, z = current_room_coords
+        match exitshort:
+            case "n":
+                y += 1
+            case "s":
+                y -= 1
+            case "e":
+                x += 1
+            case "w":
+                x -= 1
+            case "u":
+                z += 1
+            case "d":
+                z -= 1
+            case _:
+                self.caller.msg("NOTICE: No coordinates automatically generated for new room.")
 
-        telswitch = ""
-        if "tel" in self.switches:
-            telswitch = "/teleport"
-        backstring = ""
-        if "oneway" not in self.switches:
-            backstring = f", {backname};{backshort}"
+        existing_room = self.caller.location.zone().get_room(x, y, z)
+        if existing_room:  # Execute @open
+            openstring = f"@open {exitname};{exitshort}{backstring} = #{existing_room.dbid}"
+            self.execute_cmd(openstring)
+        else:  # Execute @dig
+            roomname = "Some place"
+            if self.rhs:
+                roomname = self.rhs  # this may include aliases; that's fine.
 
-        # build the string we will use to call dig
-        delocalize = "/delocalize" if "delocalize" in self.switches else ""
-        digstring = f"@dig{telswitch}{delocalize} {roomname} = {exitname};{exitshort}{backstring}"
-        self.execute_cmd(digstring)
+            # build the string we will use to call dig
+            delocalize = "/delocalize" if "delocalize" in self.switches else ""
+            digstring = f"@dig{telswitch}{delocalize} {roomname} = {exitname};{exitshort}{backstring}"
+            self.execute_cmd(digstring)
+
+            new_room = (self.caller.search(exitname,
+                                           candidates=[obj for obj in self.caller.location.contents if obj.destination])
+                        .destination)
+            new_room.db.coordinates = (x, y, z)
 
 
-class CmdDigDoor(Command):
+class CmdDigDoor(MuxCommand):
     """
     Tunnel a new room with a door in between.
 
@@ -333,8 +362,8 @@ class CmdDigDoor(Command):
             return
 
         # Turn both exits into doors
-        self.execute_cmd(f"@type/update #{recent_objects[0].id} = typeclasses.inanimate.exits.Door")
-        self.execute_cmd(f"@type/update #{recent_objects[1].id} = typeclasses.inanimate.exits.Door")
+        self.execute_cmd(f"@type/update #{recent_objects[0].id} = typeclasses.inanimate.locations.exits.Door")
+        self.execute_cmd(f"@type/update #{recent_objects[1].id} = typeclasses.inanimate.locations.exits.Door")
 
         # Set them as each other's return exit
         recent_objects[1].db.return_exit = recent_objects[0]

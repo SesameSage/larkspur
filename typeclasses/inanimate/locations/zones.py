@@ -1,4 +1,3 @@
-import evennia
 from evennia.utils.create import create_script
 
 from typeclasses.scripts.weather import *
@@ -24,6 +23,14 @@ class Zone(Script):
                 for room in area:
                     if room.db.outdoors:
                         room.update_weather(weather)
+
+    def get_room(self, x, y, z):
+        coordinates = (x, y, z)
+        for locality in self.db.localities:
+            for area in locality.db.areas:
+                for room in area.db.rooms:
+                    if room.db.coordinates == coordinates:
+                        return room
 
 
 ZONES = {
