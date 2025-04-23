@@ -9,7 +9,6 @@ class Ward(Spell):
 
     def at_object_creation(self):
         super().at_object_creation()
-        self.key = "Ward"
         self.db.targeted = True
         self.db.must_target_entity = True
         self.db.cost = ("mana", 5)
@@ -24,6 +23,8 @@ class Ward(Spell):
 
 
 class ArmorOfThorns(Spell):
+    key = "Armor of Thorns"
+
     def at_object_creation(self):
         super().at_object_creation()
         self.key = "Armor of Thorns"
@@ -44,6 +45,8 @@ class ArmorOfThorns(Spell):
 
 class ThermalSink(Spell):
     """+10 Fire and Cold resistance"""
+    key = "Thermal Sink"
+
     def at_object_creation(self):
         super().at_object_creation()
         self.key = "Thermal Sink"
@@ -59,7 +62,7 @@ class ThermalSink(Spell):
         fire_attributes = attributes + [
             ("effect_key", "+Fire Resist"),
             ("damage_type", DamageTypes.FIRE)]
-        cold_attributes =attributes + [
+        cold_attributes = attributes + [
             ("effect_key", "+Cold Resist"),
             ("damage_type", DamageTypes.COLD)]
         target.add_effect(typeclass=TimedStatMod, attributes=fire_attributes)

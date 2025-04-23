@@ -1,5 +1,3 @@
-from evennia.utils import inherits_from
-
 from combat.effects import *
 from typeclasses.base.objects import Object
 from typeclasses.inanimate.items.spellcomp import SpellComp
@@ -11,7 +9,8 @@ from typeclasses.living.living_entities import LivingEntity
 class Ability(Object):
 
     def at_object_creation(self):
-        self.key = self.__class__.__name__
+        if not self.key:
+            self.key = self.__class__.__name__
         self.locks.add("view:false()")
         self.db.desc = ""
         self.db.action_text = ""

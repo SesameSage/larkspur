@@ -6,6 +6,7 @@ from typeclasses.living.living_entities import LivingEntity
 
 class BlindingBeam(Spell):
     """Causes Blindness, halving target's hitrolls."""
+    key = "Blinding Beam"
 
     def at_object_creation(self):
         super().at_object_creation()
