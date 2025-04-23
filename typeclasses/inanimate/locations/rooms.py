@@ -10,7 +10,6 @@ from typeclasses.base.objects import Object, Fixture
 _MSG_CONTENTS_PARSER = MyFuncParser(MY_ACTOR_STANCE_CALLABLES)
 
 
-# TODO: CmdHere
 class Room(Object, DefaultRoom):
     """
     Rooms are like any Object, except their location is None
@@ -30,6 +29,10 @@ class Room(Object, DefaultRoom):
         self.db.environment = None
 
         self.db.current_weather = None
+
+    def at_object_delete(self):
+        if self.db.area:
+            self.db.area.remove(self)
 
     @lazy_property
     def x(self):

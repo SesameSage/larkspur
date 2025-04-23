@@ -540,6 +540,16 @@ class CmdLocations(MuxCommand):
                     self.caller.msg(f"Region of {zone.name} set to " + script.name)
 
 
+class CmdEnv(MuxCommand):
+    key = "env"
+    locks = "cmd:perm(locations) or perm(Builder)"
+    help_category = "building"
+
+    def func(self):
+        self.caller.location.db.environment = self.lhs
+        self.caller.msg(f"Set {self.caller.location.name} to environment: {self.lhs}")
+
+
 class MyCmdHome(CmdHome):
     locks = "cmd:perm(Builder)"
     help_category = "navigation"
@@ -554,3 +564,4 @@ class BuildingCmdSet(CmdSet):
         self.add(CmdDigDoor())
         self.add(MyCmdHome)
         self.add(CmdLocations)
+        self.add(CmdEnv)
