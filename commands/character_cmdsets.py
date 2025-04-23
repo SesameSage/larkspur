@@ -44,10 +44,11 @@ class CmdHere(Command):
 
 class CmdClasses(MuxCommand):
     key = "classes"
-    switch_options = ("add", "remove")
+    switch_options = ("add", "remove", "cost")
     help_category = "character"
 
     def func(self):
+        # Find the trainer in the room
         trainer = None
         for obj in self.caller.location.contents:
             if obj.attributes.has("classes"):
@@ -57,67 +58,98 @@ class CmdClasses(MuxCommand):
             self.caller.msg("No one to train with here!")
             return
 
-        if "add" in self.switches:
+        # If using a switch to attempt to alter class list
+        if len(self.switches) > 0:
+            # Check that caller has permission
             if not self.caller.permissions.check("Builder"):
                 self.caller.msg("Only builders can alter class lists!")
-            else:
-                if not self.lhs:
-                    self.caller.msg("Add what ability?")
-                    return
-                elif not self.rhs:
-                    self.caller.msg(f"Remember to include class cost! {appearance.cmd}classes/add <ability> = <price>")
-                    return
-                else:
-                    try:
-                        cost = int(self.rhs)
-                    except ValueError:
-                        self.caller.msg("Couldn't interpret  " + self.rhs + " as an integer.")
-                        return
+                return
 
-                    ability_input = self.lhs
-                    ability = all_abilities.get(ability_input)
-                    if not ability:
-                        self.caller.msg("No ability found for " + ability_input)
-                        return
+            # Get ability name input
+            if not self.lhs:
+                self.caller.msg("What ability?")
+                return
+            ability_input = self.lhs
 
-                    obj = create_object(typeclass=ability, key=ability.key, location=trainer)
+            # Find ability class
+            ability = all_abilities.get(ability_input)
+            if not ability:
+                self.caller.msg("No ability found for " + ability_input)
+                return
 
-                    trainer.db.classes[obj] = cost
-                    self.caller.msg(f"Successfully added {ability.key} as a class taught by {trainer.name}.")
-        elif "remove" in self.switches:
-            if not self.caller.permissions.check("Builder"):
-                self.caller.msg("Only builders can alter class lists!")
-            else:
-                if not self.lhs:
-                    self.caller.msg("Remove what class?")
-                    return
-                class_input = self.lhs
-                clss = all_abilities.get(class_input)
-                if not clss:
-                    self.caller.msg("No ability found for " + class_input)
-                    return
-                key = clss.key if isinstance(clss.key, str) else clss.__name__
-                if clss not in [type(ability) for ability in trainer.db.classes]:
-                    self.caller.msg(f"{trainer.name} doesn't seem to teach {key}.")
-                    return
+            # Get ability key
+            key = ability.key if isinstance(ability.key, str) else ability.__name__
 
-                ability_obj = trainer.search(key)
-                del trainer.db.classes[ability_obj]
-                try:
-                    trainer.db.classes[ability_obj]
-                    self.caller.msg("Class removal was not successful.")
-                    return
-                except KeyError:
-                    self.caller.msg("Class successfully removed.")
-                if ability_obj.delete():
-                    self.caller.msg("Successfully deleted ability object.")
+            # Get ability types taught by trainer
+            abilities_taught = [type(ability) for ability in trainer.db.classes]
 
+        # Standard command for non-builders (display classes)
         else:
             show_all = False
             if self.lhs and self.lhs == "all":
                 show_all = True
 
             trainer.display_classes(self.caller, show_all)
+            return
+
+        # Builder options
+        if "add" in self.switches:
+            if not self.rhs:
+                self.caller.msg(f"Remember to include class cost! {appearance.cmd}classes/add <ability> = <price>")
+                return
+            else:
+                try:
+                    cost = int(self.rhs)
+                except ValueError:
+                    self.caller.msg("Couldn't interpret  " + self.rhs + " as an integer.")
+                    return
+
+                # Give an instance of the ability to the trainer
+                obj = create_object(typeclass=ability, key=ability.key, location=trainer)
+
+                # Add the abiltiy and its cost to the trainer's class list
+                trainer.db.classes[obj] = cost
+                self.caller.msg(f"Successfully added {ability.key} as a class taught by {trainer.name}.")
+
+        elif "remove" in self.switches:
+            if not ability:
+                self.caller.msg("No ability found for " + ability_input)
+                return
+            if ability not in abilities_taught:
+                self.caller.msg(f"{trainer.name} doesn't seem to teach {key}.")
+                return
+
+            ability_obj = trainer.search(key)
+            del trainer.db.classes[ability_obj]
+            try:
+                trainer.db.classes[ability_obj]
+                self.caller.msg("Class removal was not successful.")
+                return
+            except KeyError:
+                self.caller.msg("Class successfully removed.")
+            if ability_obj.delete():
+                self.caller.msg("Successfully deleted ability object.")
+
+        elif "cost" in self.switches:
+            if not self.rhs:
+                self.caller.msg(f"Remember to include class cost! {appearance.cmd}classes/cost <ability> = <price>")
+                return
+            if ability not in abilities_taught:
+                self.caller.msg(f"{trainer.name} doesn't seem to teach {key}.")
+            else:
+                try:
+                    cost = int(self.rhs)
+                except ValueError:
+                    self.caller.msg("Couldn't interpret  " + self.rhs + " as an integer.")
+                    return
+
+                ability_obj = trainer.search(key)
+                if not ability_obj:
+                    self.caller.msg("Couldn't find ability object in trainer's contents.")
+                    return
+                trainer.db.classes[ability_obj] = cost
+                if trainer.db.classes[ability_obj] == cost:
+                    self.caller.msg("Successfully changed class cost for " + key)
 
 
 class CmdLearn(MuxCommand):
