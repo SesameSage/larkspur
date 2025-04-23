@@ -63,6 +63,7 @@ from django.conf import settings
 from evennia.commands.default.muxcommand import MuxCommand
 
 from server import appearance
+from typeclasses.inanimate.locations.exits import Door
 
 _BASIC_MAP_SIZE = settings.BASIC_MAP_SIZE if hasattr(settings, "BASIC_MAP_SIZE") else 2
 _MAX_MAP_SIZE = settings.BASIC_MAP_SIZE if hasattr(settings, "MAX_MAP_SIZE") else 10
@@ -208,7 +209,8 @@ class Map(object):
             if not ex_name:
                 continue
 
-            ex_character = room_colors(room)[0] + ("   " if ex_name in ("south", "north") else " ") + "|n"
+            exit_color = appearance.door if isinstance(ex, Door) else room_colors(room)[0]
+            ex_character = exit_color + ("   " if ex_name in ("south", "north") else " ") + "|n"
             exit_x = room_x + int(_COMPASS_DIRECTIONS[ex_name][1] / 3)
             exit_y = room_y + int(_COMPASS_DIRECTIONS[ex_name][0] / 3)
 
@@ -255,6 +257,8 @@ class Map(object):
             char (str): Defaults to none, a special character depicting the room.
         """
         bg_color, fg_color, player_color = room_colors(room)
+        if not player_color:
+            player_color = "|r"
         player_appearance = bg_color + player_color
         wall_appearance = fg_color + bg_color
 

@@ -32,10 +32,12 @@ exit = "|353"
 container = "|440"
 
 environments = {
-    "grass": {"bg": "|[250", "fg": "|=a", "player": "|300"},
-    "water": {"bg": "|[004", "fg": "", "player": "|r"},
-    "stone": "|[=g",
+    "grass": {"bg": "|[250", "fg": "|030", "player": "|503"},
+    "water": {"bg": "|[004", "fg": "|015", "player": "|r"},
+    "stone": {"bg": "|[=g", "fg": "|=e", "player": "|r"},
+    "forest": {"bg": "|[020", "fg": "|320", "player": "|502"}
 }
+door = "|[210"
 
 
 def dmg_color(attacker, defender):
