@@ -68,6 +68,8 @@ from typeclasses.inanimate.locations.exits import Door
 _BASIC_MAP_SIZE = settings.BASIC_MAP_SIZE if hasattr(settings, "BASIC_MAP_SIZE") else 2
 _MAX_MAP_SIZE = settings.BASIC_MAP_SIZE if hasattr(settings, "MAX_MAP_SIZE") else 10
 
+# TODO: Show only one grid space worth of exits between each room
+
 # _COMPASS_DIRECTIONS specifies which way to move the pointer on the x/y axes and what characters to use to depict the exits on the map.
 _COMPASS_DIRECTIONS = {
     "north": (0, -3, " | "),
@@ -84,10 +86,12 @@ _COMPASS_DIRECTIONS = {
 
 
 def room_colors(room):
-    environment = room.db.environment
-    bg = appearance.environments[environment]["bg"] if environment else ""
-    lines = appearance.environments[environment]["fg"] if environment else ""
-    player = appearance.environments[environment]["player"] if environment else ""
+    color_dict = room.room_appearance()
+    if not color_dict:
+        return "", "", ""
+    bg = color_dict["bg"] if color_dict else ""
+    lines = color_dict["fg"] if color_dict else ""
+    player = color_dict["player"] if color_dict else ""
     return bg, lines, player
 
 

@@ -34,8 +34,10 @@ container = "|440"
 environments = {
     "grass": {"bg": "|[250", "fg": "|030", "player": "|503"},
     "water": {"bg": "|[004", "fg": "|015", "player": "|r"},
-    "stone": {"bg": "|[=g", "fg": "|=e", "player": "|r"},
-    "forest": {"bg": "|[020", "fg": "|320", "player": "|502"}
+    "rock": {"bg": "|[=g", "fg": "|=e", "player": "|r"},
+    "foliage": {"bg": "|[020", "fg": "|320", "player": "|502"},
+    "wood": {"bg": "|[320", "fg": "|[100", "player": "|r"},
+    "stone": {"bg": "|[=s", "fg": "|=m", "player": "|r"},
 }
 door = "|[210"
 

@@ -312,3 +312,19 @@ class Room(Object, DefaultRoom):
         self.print_ambient(weather["start_msg"])
         if weather["effect"]:
             pass
+
+    def room_appearance(self):
+        if not self.db.environment:
+            return
+        colortype_environments = {
+            "grass": ["field", "meadow", "garden"],
+            "water": ["river", "ocean", "pond", "lake"],
+            "rock": ["rock", "cave"],
+            "foliage": ["forest", "woodland"],
+            "wood": ["wood room", "wood floor"],
+            "stone": ["stone room", "stone floor"]
+
+        }
+        for i_colortype in colortype_environments:
+            if self.db.environment in colortype_environments[i_colortype]:
+                return appearance.environments[i_colortype]
