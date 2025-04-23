@@ -31,6 +31,12 @@ spell = "|325"
 exit = "|353"
 container = "|440"
 
+environments = {
+    "grass": {"bg": "|[250", "fg": "|=a", "player": "|300"},
+    "water": {"bg": "|[004", "fg": "", "player": "|r"},
+    "stone": "|[=g",
+}
+
 
 def dmg_color(attacker, defender):
     return good_damage if defender.db.hostile else bad_damage

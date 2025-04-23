@@ -62,6 +62,8 @@ import time
 from django.conf import settings
 from evennia.commands.default.muxcommand import MuxCommand
 
+from server import appearance
+
 _BASIC_MAP_SIZE = settings.BASIC_MAP_SIZE if hasattr(settings, "BASIC_MAP_SIZE") else 2
 _MAX_MAP_SIZE = settings.BASIC_MAP_SIZE if hasattr(settings, "MAX_MAP_SIZE") else 10
 
@@ -78,6 +80,14 @@ _COMPASS_DIRECTIONS = {
     "up": (0, 0, "^"),
     "down": (0, 0, "v"),
 }
+
+
+def room_colors(room):
+    environment = room.db.environment
+    bg = appearance.environments[environment]["bg"] if environment else ""
+    lines = appearance.environments[environment]["fg"] if environment else ""
+    player = appearance.environments[environment]["player"] if environment else ""
+    return bg, lines, player
 
 
 class Map(object):
@@ -192,29 +202,29 @@ class Map(object):
         Args:
             room (Room): The room to draw exits of.
         """
-        x, y = self.curX, self.curY
+        room_x, room_y = self.curX, self.curY
         for ex in room.exits:
             ex_name = self.exit_ordinal(ex)
             if not ex_name:
                 continue
 
-            ex_character = _COMPASS_DIRECTIONS[ex_name][2]
-            delta_x = int(_COMPASS_DIRECTIONS[ex_name][1] / 3)
-            delta_y = int(_COMPASS_DIRECTIONS[ex_name][0] / 3)
+            ex_character = room_colors(room)[0] + ("   " if ex_name in ("south", "north") else " ") + "|n"
+            exit_x = room_x + int(_COMPASS_DIRECTIONS[ex_name][1] / 3)
+            exit_y = room_y + int(_COMPASS_DIRECTIONS[ex_name][0] / 3)
 
             # Make modifications if the exit has BOTH up and down exits
             if ex_name == "up":
-                if "v" in self.grid[x][y]:
-                    self.render_room(room, x, y, p1="^", p2="v")
+                if "v" in self.grid[room_x][room_y]:
+                    self.render_room(room, room_x, room_y, left_barrier="^", right_barrier="v")
                 else:
-                    self.render_room(room, x, y, here="^")
+                    self.render_room(room, room_x, room_y, char="^")
             elif ex_name == "down":
-                if "^" in self.grid[x][y]:
-                    self.render_room(room, x, y, p1="^", p2="v")
+                if "^" in self.grid[room_x][room_y]:
+                    self.render_room(room, room_x, room_y, left_barrier="^", right_barrier="v")
                 else:
-                    self.render_room(room, x, y, here="v")
+                    self.render_room(room, room_x, room_y, char="v")
             else:
-                self.grid[x + delta_x][y + delta_y] = ex_character
+                self.grid[exit_x][exit_y] = ex_character
 
     def draw(self, room):
         """
@@ -232,7 +242,7 @@ class Map(object):
             self.has_mapped[room] = [self.curX, self.curY]
             self.render_room(room, self.curX, self.curY)
 
-    def render_room(self, room, x, y, p1="[", p2="]", here=None):
+    def render_room(self, room, x, y, left_barrier="[", right_barrier="]", char=None):
         """
         Draw a given room with ascii characters
 
@@ -240,21 +250,24 @@ class Map(object):
             room (Room): The room to render.
             x (int): The x-value of the room on the grid (horizontally, east/west).
             y (int): The y-value of the room on the grid (vertically, north/south).
-            p1 (str): The first character of the 3-character room depiction.
-            p2 (str): The last character of the 3-character room depiction.
-            here (str): Defaults to none, a special character depicting the room.
+            left_barrier (str): The first character of the 3-character room depiction.
+            right_barrier (str): The last character of the 3-character room depiction.
+            char (str): Defaults to none, a special character depicting the room.
         """
-        # Note: This is where you would set colors, symbols etc.
-        # Render the room
-        you = list("[ ]")
+        bg_color, fg_color, player_color = room_colors(room)
+        player_appearance = bg_color + player_color
+        wall_appearance = fg_color + bg_color
 
-        you[0] = f"{p1}|n"
-        you[1] = f"{here if here else you[1]}"
         if room == self.caller.location:
-            you[1] = "|rX|n"  # Highlight the location you are currently in
-        you[2] = f"{p2}|n"
+            char = "X"  # Show the player in their current room
 
-        self.grid[x][y] = "".join(you)
+        tile = (
+            f"{wall_appearance}{left_barrier}|n"
+            f"{player_appearance}{char if char else " "}|n"
+            f"{wall_appearance}{right_barrier}|n"
+        )
+
+        self.grid[x][y] = tile
 
     def start_loc_on_grid(self, room):
         """
@@ -310,4 +323,3 @@ class CmdMap(MuxCommand):
         # You can run show_map(debug=True) to see how long it takes.
         map_here = Map(self.caller, size=size).show_map()
         self.caller.msg((map_here, {"type": "map"}))
-
