@@ -297,6 +297,18 @@ class MyCmdTunnel(CmdTunnel):
                 x += 1
             case "w":
                 x -= 1
+            case "nw":
+                x -= 1
+                y += 1
+            case "ne":
+                x += 1
+                y += 1
+            case "sw":
+                x -= 1
+                y -= 1
+            case "se":
+                x += 1
+                y -= 1
             case "u":
                 z += 1
             case "d":
