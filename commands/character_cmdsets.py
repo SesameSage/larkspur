@@ -1,5 +1,4 @@
 from evennia import Command
-from evennia.contrib.grid.ingame_map_display import MapDisplayCmdSet
 
 from commands.permissions_cmdsets import BuildingCmdSet
 from commands.refiled_cmds import *
@@ -43,7 +42,6 @@ class PlayerCmdSet(CmdSet):
 
     def at_cmdset_creation(self):
         super().at_cmdset_creation()
-        self.add(MapDisplayCmdSet)
         self.add(BuildingCmdSet)
         self.add(TalkingCmdSet)
         self.add(ContainerCmdSet)

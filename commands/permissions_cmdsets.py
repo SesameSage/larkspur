@@ -11,8 +11,6 @@ from typeclasses.inanimate.locations.regions import Region
 from typeclasses.inanimate.locations.zones import Zone
 
 
-# TODO: Show exits with directional aliases (not just keys) in ingame map display
-
 # Extended to add new room to current area unless using "delocalize" switch
 class MyCmdDig(CmdDig):
     """

@@ -2,11 +2,12 @@ from evennia import CmdSet
 from evennia.commands.default.account import CmdColorTest, CmdQuit, CmdSessions, CmdStyle, CmdWho, CmdPassword, CmdIC, \
     CmdOOC, CmdOption
 from evennia.commands.default.comms import CmdChannel, CmdPage
-from evennia.commands.default.general import CmdSay, CmdWhisper, CmdGet, CmdDrop, CmdGive, CmdNick, CmdPose, CmdLook, \
+from evennia.commands.default.general import CmdSay, CmdWhisper, CmdDrop, CmdGive, CmdNick, CmdPose, \
     CmdAccess, CmdSetDesc
 from evennia.contrib.game_systems.containers.containers import CmdPut
-from evennia.contrib.grid.ingame_map_display.ingame_map_display import CmdMap
 from evennia.contrib.grid.simpledoor.simpledoor import CmdOpenCloseDoor
+
+from world.ingame_map_display import CmdMap
 
 
 class MyCmdSay(CmdSay):
