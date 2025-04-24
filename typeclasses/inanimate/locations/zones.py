@@ -1,5 +1,3 @@
-from evennia.utils.create import create_script
-
 from typeclasses.scripts.weather import *
 
 
@@ -11,7 +9,7 @@ class Zone(Script):
         self.db.localities = []
         self.db.region = None
 
-        self.db.weathers = {}
+        self.db.weathers = []
         self.db.current_weather = None
 
     def at_first_save(self, **kwargs):
@@ -19,9 +17,9 @@ class Zone(Script):
 
     def update_weather(self, weather):
         for locality in self.db.localities:
-            for area in locality:
-                for room in area:
-                    if room.db.outdoors:
+            for area in locality.db.areas:
+                for room in area.db.rooms:
+                    if room.db.is_outdoors:
                         room.update_weather(weather)
 
     def get_room(self, x, y, z):
@@ -31,14 +29,3 @@ class Zone(Script):
                 for room in area.db.rooms:
                     if room.db.coordinates == coordinates:
                         return room
-
-
-ZONES = {
-    "Kojo Archipelago": {
-        "typeclass": "typeclasses.inanimate.locations.zones.Zone",
-        "desc": "",
-        "recommended_level": 1,
-    }
-}
-
-create_script(typeclass="typeclasses.inanimate.locations.zones.Zone", key="Kojo Archipelago", attributes=[("recommended_level", 1)])

@@ -53,6 +53,7 @@ class MyCmdDig(CmdDig):
 
     def func(self):
         """Do the digging. Inherits variables from ObjManipCommand.parse()"""
+        old_room = self.caller.location
 
         # <editor-fold desc="existing function">
         caller = self.caller
@@ -183,8 +184,9 @@ class MyCmdDig(CmdDig):
         if new_room and "teleport" in self.switches:
             caller.move_to(new_room, move_type="teleport")
         # </editor-fold>
+
         if new_room and "delocalize" not in self.switches:
-            area = caller.location.db.area
+            area = old_room.db.area
             if area:
                 new_room.db.area = area
                 area.db.rooms.append(new_room)
@@ -553,7 +555,7 @@ class CmdEnv(MuxCommand):
         room.db.environment = environment
         self.caller.msg(f"Set {room.name} to environment: {environment}")
         if environment in indoor_environments:
-            room.db.outdoors = False
+            room.db.is_outdoors = False
 
 
 class MyCmdHome(CmdHome):
