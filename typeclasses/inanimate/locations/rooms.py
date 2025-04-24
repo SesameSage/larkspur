@@ -8,6 +8,15 @@ from server.funcparser import MyFuncParser, MY_ACTOR_STANCE_CALLABLES
 from typeclasses.base.objects import Object, Fixture
 
 _MSG_CONTENTS_PARSER = MyFuncParser(MY_ACTOR_STANCE_CALLABLES)
+ENVIRONMENT_APPEARANCES = {
+            "grass": ["field", "meadow", "garden"],
+            "water": ["river", "ocean", "pond", "lake"],
+            "rock": ["rock", "cave"],
+            "foliage": ["forest", "woodland"],
+            "wood": ["wood room", "wood floor"],
+            "stone": ["stone room", "stone floor"]
+
+        }
 
 
 class Room(Object, DefaultRoom):
@@ -331,15 +340,7 @@ class Room(Object, DefaultRoom):
     def room_appearance(self):
         if not self.db.environment:
             return
-        colortype_environments = {
-            "grass": ["field", "meadow", "garden"],
-            "water": ["river", "ocean", "pond", "lake"],
-            "rock": ["rock", "cave"],
-            "foliage": ["forest", "woodland"],
-            "wood": ["wood room", "wood floor"],
-            "stone": ["stone room", "stone floor"]
 
-        }
-        for i_colortype in colortype_environments:
-            if self.db.environment in colortype_environments[i_colortype]:
+        for i_colortype in ENVIRONMENT_APPEARANCES:
+            if self.db.environment in ENVIRONMENT_APPEARANCES[i_colortype]:
                 return appearance.environments[i_colortype]

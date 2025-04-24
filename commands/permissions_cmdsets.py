@@ -12,12 +12,9 @@ from typeclasses.base.objects import Object
 from typeclasses.inanimate.locations.areas import Area
 from typeclasses.inanimate.locations.localities import Locality
 from typeclasses.inanimate.locations.regions import Region
+from typeclasses.inanimate.locations.rooms import ENVIRONMENT_APPEARANCES
 from typeclasses.inanimate.locations.zones import Zone
 from typeclasses.scripts.weather import WEATHERS
-
-
-# TODO: Auto-set env from the room a room is built from
-# TODO: Show all environment syntaxes
 
 
 # Extended to add new room to current area unless using "delocalize" switch
@@ -609,12 +606,21 @@ class CmdEnv(MuxCommand):
 
     def func(self):
         indoor_environments = ["wood room", "stone room", "cave"]
-        environment = self.lhs
-        room = self.caller.location
-        room.db.environment = environment
-        self.caller.msg(f"Set {room.name} to environment: {environment}")
-        if environment in indoor_environments:
-            room.db.is_outdoors = False
+        # With no arguments, display all environment syntaxes
+        if not self.lhs:
+            for environment_appearance in ENVIRONMENT_APPEARANCES:
+                self.caller.msg(f"{environment_appearance}: {ENVIRONMENT_APPEARANCES[environment_appearance]}")
+
+
+
+        # If args given, set current room's environment to the arg
+        else:
+            environment = self.lhs
+            room = self.caller.location
+            room.db.environment = environment
+            self.caller.msg(f"Set {room.name} to environment: {environment}")
+            if environment in indoor_environments:
+                room.db.is_outdoors = False
 
 
 class CmdWeather(MuxCommand):
