@@ -47,7 +47,7 @@ class MyCmdDig(CmdDig):
     """
 
     key = "@dig"
-    switch_options = ("teleport", "delocalize")
+    switch_options = ("teleport", "delocalize", "keepname")
     locks = "cmd:perm(dig) or perm(Builder)"
     help_category = "Building"
 
@@ -65,7 +65,6 @@ class MyCmdDig(CmdDig):
         """Do the digging. Inherits variables from ObjManipCommand.parse()"""
         old_room = self.caller.location
 
-        # <editor-fold desc="existing function">
         caller = self.caller
 
         if not self.lhs:
@@ -91,9 +90,14 @@ class MyCmdDig(CmdDig):
         if not room_typeclass:
             return
 
+        if "keepname" in self.switches:
+            room_name = location.name
+        else:
+            room_name = room["name"]
+
         # create room
         new_room, errors = room_typeclass.create(
-            room["name"],
+            room_name,
             aliases=room["aliases"],
             report_to=caller,
             caller=caller,
@@ -193,7 +197,6 @@ class MyCmdDig(CmdDig):
         caller.msg(f"{room_string}{exit_to_string}{exit_back_string}")
         if new_room and "teleport" in self.switches:
             caller.move_to(new_room, move_type="teleport")
-        # </editor-fold>
 
         if new_room and "delocalize" not in self.switches:
             area = old_room.db.area
@@ -238,7 +241,7 @@ class MyCmdTunnel(CmdTunnel):
 
     key = "@tunnel"
     aliases = ["@tun"]
-    switch_options = ("oneway", "tel", "delocalize")
+    switch_options = ("oneway", "tel", "delocalize", "keepname")
     locks = "cmd: perm(tunnel) or perm(Builder)"
     help_category = "Building"
 
@@ -345,7 +348,8 @@ class MyCmdTunnel(CmdTunnel):
 
             # build the string we will use to call dig
             delocalize = "/delocalize" if "delocalize" in self.switches else ""
-            digstring = f"@dig{telswitch}{delocalize} {roomname} = {exitname};{exitshort}{backstring}"
+            keepname = "/keepname" if "keepname" in self.switches else ""
+            digstring = f"@dig{telswitch}{delocalize}{keepname} {roomname} = {exitname};{exitshort}{backstring}"
             self.execute_cmd(digstring)
 
             new_room = (current_room.search(exitname,
@@ -371,13 +375,14 @@ class CmdDigDoor(MuxCommand):
     Executes the "tunnel" command with the given args, converts each created exit into a door, and assigns return exits.
     """
     key = "digdoor"
-    switch_options = ("delocalize")
+    switch_options = ("delocalize", "keepname")
     locks = "cmd:perm(digdoor) or perm(Builder)"
     help_category = "building"
 
     def func(self):
         delocalize = "/delocalize" if "delocalize" in self.switches else ""
-        self.execute_cmd(f"tunnel{delocalize} " + self.args)
+        keepname = "/keepname" if "keepname" in self.switches else ""
+        self.execute_cmd(f"tunnel{delocalize}{keepname} " + self.args)
 
         # Get the last two objects created, which should be the two new mirroring exits
         recent_objects = Object.objects.order_by("-db_date_created")[:2]
