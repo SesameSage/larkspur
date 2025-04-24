@@ -320,13 +320,13 @@ class CmdUse(MuxCommand):
     """
 
     key = "use"
+    rhs_split = ("=", " on ")
     help_category = "items"
 
     def func(self):
         """
         This performs the actual command.
         """
-        # TODO: Remove = requirement as done in cast command
         # Search for item in caller's inv
         item = self.caller.search(self.lhs, candidates=self.caller.contents)
         if not item:
