@@ -144,7 +144,18 @@ class Room(Object, DefaultRoom):
             return names
 
         exits = self.filter_visible(self.contents_get(content_type="exit"), looker, **kwargs)
-        exit_names = (appearance.exit + exi.get_display_name(looker, **kwargs) for exi in exits)
+
+        # Check if player can move in every lateral direction, so exit names can be condensed
+        all_lateral_directions = False
+        all_exit_names = [ex.name for ex in exits]
+        directions = ["north", "south", "east", "west", "northwest", "northeast", "southwest", "southeast"]
+        if all(direction in all_exit_names for direction in directions):
+            all_lateral_directions = True
+            exits = [ex for ex in exits if ex.name not in directions]
+
+        exit_names = [appearance.exit + exi.get_display_name(looker, **kwargs) for exi in exits]
+        if all_lateral_directions:
+            exit_names.append(appearance.exit + "all lateral directions")
         exit_names = iter_to_str(_sort_exit_names(exit_names))
 
         return f"|wExits:|n {exit_names}" if exit_names else ""
