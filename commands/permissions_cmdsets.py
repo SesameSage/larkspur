@@ -1,14 +1,19 @@
+import decimal
+from decimal import Decimal
+
 import evennia
 from evennia import CmdSet
 from evennia.commands.default.building import CmdDig, CmdTunnel
 from evennia.commands.default.general import CmdHome
 from evennia.commands.default.muxcommand import MuxCommand
 
+from server import appearance
 from typeclasses.base.objects import Object
 from typeclasses.inanimate.locations.areas import Area
 from typeclasses.inanimate.locations.localities import Locality
 from typeclasses.inanimate.locations.regions import Region
 from typeclasses.inanimate.locations.zones import Zone
+from typeclasses.scripts.weather import WEATHERS
 
 
 # Extended to add new room to current area unless using "delocalize" switch
@@ -558,6 +563,71 @@ class CmdEnv(MuxCommand):
             room.db.is_outdoors = False
 
 
+class CmdWeather(MuxCommand):
+    key = "weather"
+    help_category = "building"
+
+    def func(self):
+        zone = self.caller.location.zone()
+        if not zone:
+            self.caller.msg("No zone found here.")
+            return
+
+        # If no args given, display weathers
+        if not self.lhs and not self.rhs:
+            self.caller.msg("Current zone's weathers:")
+            for weather_stat in zone.db.weathers:
+                self.caller.msg(f"{weather_stat[0]["key"]}: {weather_stat[1] * 100}%")
+            return
+
+        if not self.lhs:
+            self.caller.msg(f"What weather type? Usage: {appearance.cmd}weather <weather type> = <weight>")
+            return
+        weather_type_input = self.lhs
+
+        if not self.rhs:
+            self.caller.msg(
+                "Assign what weight to this weather? Usage: {appearance.cmd}weather <weather type> = <weight>")
+            return
+        weight_input = self.rhs
+
+        # Find weather from input
+        weather_type = None
+        for weather_dict in WEATHERS:
+            if weather_dict["key"].lower().startswith(weather_type_input.lower()):
+                weather_type = weather_dict
+                break
+        if not weather_type:
+            self.caller.msg("No weather type found for " + weather_type_input)
+            return
+
+        # Get weight input as decimal
+        try:
+            weight = Decimal(weight_input)
+            if weight > 1:
+                weight = weight / 100
+        except decimal.InvalidOperation:
+            self.caller.msg(f"Couldn't interpret {weight_input} as a number")
+            return
+
+        # Remove current entry for this weather, if present
+        current_weathers = zone.db.weathers
+        for weather_stat in current_weathers:
+            if weather_type == weather_stat[0]:
+                zone.db.weathers.remove(weather_stat)
+
+        # Add to zone's weathers
+        zone.db.weathers.append((weather_type, weight))
+        self.caller.msg(f"{zone.key}'s time spent in {weather_type["key"]} weather set to {weight * 100}%")
+
+        # Check if weights total to 1.0 / 100%
+        total = Decimal(0.0)
+        for weather_stat in zone.db.weathers:
+            total += weather_stat[1]
+        if total != 1.0:
+            self.caller.msg("Warning - Current weather weights do not total to 100%")
+
+
 class MyCmdHome(CmdHome):
     locks = "cmd:perm(Builder)"
     help_category = "navigation"
@@ -573,3 +643,4 @@ class BuildingCmdSet(CmdSet):
         self.add(MyCmdHome)
         self.add(CmdLocations)
         self.add(CmdEnv)
+        self.add(CmdWeather)

@@ -16,6 +16,7 @@ class Zone(Script):
         super().at_first_save(**kwargs)
 
     def update_weather(self, weather):
+        self.db.current_weather = weather
         for locality in self.db.localities:
             for area in locality.db.areas:
                 for room in area.db.rooms:
