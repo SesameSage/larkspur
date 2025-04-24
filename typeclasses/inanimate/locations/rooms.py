@@ -32,7 +32,8 @@ class Room(Object, DefaultRoom):
 
     def at_object_delete(self):
         if self.db.area:
-            self.db.area.remove(self)
+            self.db.area.db.rooms.remove(self)
+        return True
 
     @lazy_property
     def x(self):
