@@ -201,6 +201,10 @@ class MyCmdDig(CmdDig):
                 new_room.db.area = area
                 area.db.rooms.append(new_room)
                 self.caller.msg(f"Area {area.name} assigned.")
+            env = old_room.db.environment
+            if env:
+                new_room.db.environment = env
+                self.caller.msg(f"{new_room.name} environment set to {env}.")
 
 
 # Extended to add delocalize switch to pass to dig command
