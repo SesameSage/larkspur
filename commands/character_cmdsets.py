@@ -139,11 +139,11 @@ class CmdClasses(MuxCommand):
                     return
 
                 # Give an instance of the ability to the trainer
-                obj = create_object(typeclass=ability, key=ability.key, location=trainer)
+                obj = create_object(typeclass=ability, key=key, location=trainer)
 
                 # Add the abiltiy and its cost to the trainer's class list
                 trainer.db.classes[obj] = cost
-                self.caller.msg(f"Successfully added {ability.key} as a class taught by {trainer.name}.")
+                self.caller.msg(f"Successfully added {key} as a class taught by {trainer.name}.")
 
         elif "remove" in self.switches:
             if not ability:
