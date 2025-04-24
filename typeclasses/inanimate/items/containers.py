@@ -263,8 +263,6 @@ class CmdContainerGet(CmdGet):
         if not success:
             self.msg("This can't be picked up.")
         else:
-            from evennia import set_trace;
-            set_trace()
             singular, _ = obj.get_numbered_name(1, caller)
             if location == caller.location:
                 # we're picking it up from the area

@@ -25,7 +25,6 @@ put secret game- or server-specific settings in secret_settings.py.
 """
 
 # Use the defaults from Evennia unless explicitly overridden
-from evennia.settings_default import *
 
 ######################################################################
 # Evennia base server config
@@ -52,15 +51,6 @@ PROTOTYPE_MODULES = ["world.prototypes.prototypes", "world.prototypes.entity_pro
                      "world.prototypes.equipment.equipment_protos", "world.prototypes.spellcomp_protos"]
 FILE_HELP_ENTRY_MODULES = ["world.help_entries", "combat.help_combat", "typclasses.living.help_characters",
                            "typeclasses.inanimate.items.help_items", "typeclasses.ooc.help_ooc", "combat.help_magic",]
-
-REGIONS = {
-    "The First Region": {
-        "typeclass": "typeclasses.inanimate.locations.regions.Region",
-        "desc": "",
-        "attributes": [("minimum_rec_level", 1)],
-    }
-}
-GLOBAL_SCRIPTS = REGIONS
 
 ######################################################################
 # Settings given in secret_settings.py override those in this file.

@@ -2,9 +2,9 @@ from evennia import Command, default_cmds
 from evennia.commands.default.help import CmdHelp
 from evennia.commands.default.muxcommand import MuxCommand
 
-from server import appearance
-from combat.turn_handler import TurnHandler
 from combat.combat_handler import COMBAT
+from combat.turn_handler import TurnHandler
+from server import appearance
 from typeclasses.inanimate.items.usables import Usable, Consumable
 
 
@@ -118,7 +118,8 @@ class CmdAttack(Command):
         return True
 
 
-class CmdCast(Command):
+# TODO: Cast on me
+class CmdCast(MuxCommand):
     """
     cast an ability or spell
 
@@ -130,28 +131,28 @@ class CmdCast(Command):
     If a target is required, it must be provided.
     """
     key = "cast"
+    rhs_split = ("=", " on ")
     aliases = ["cas", "ca", "c"]
     help_category = "combat"
 
     def func(self):
-        # Separate args given after "cast"
-        args = self.args.split()
-        if len(args) < 1:  # If no args given
-            self.caller.msg(f"Usage: {appearance.cmd}cast <ability> |n/ {appearance.cmd}cast <ability> <target>")
+        # Left is ability/spell name
+        if not self.lhs:
+            self.caller.msg(f"Cast what? {appearance.cmd}cast <ability>|n or {appearance.cmd}cast <ability> on <target>")
             return
-        # First arg is ability/spell name
-        # TODO: Accommodate giving two word ability names in cast args
-        ability_string = args[0].lower()
-        try:  # Finding target by name via 2nd arg
-            target_string = args[1]
-            target = self.caller.search(target_string,
-                                        candidates=[content for content in self.caller.location.contents if content.attributes.has("hp")])
+        ability_string = self.lhs
+
+        # Right (if present) is target
+        if not self.rhs:
+            # Ability's check function (called with its cast func) will fail if a target is required
+            target = None
+        else:
+            target_string = self.rhs
+            target = self.caller.search(target_string, candidates=[
+                content for content in self.caller.location.contents if content.attributes.has("hp")])
             if not target:
                 self.caller.msg("No valid target found for " + target_string)
                 return
-        except IndexError:  # If no target arg given
-            target = None
-            # Ability's check function (called with its cast func) will fail if a target is required
 
         # Find ability/spell by name
         valid_castables = []
