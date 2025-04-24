@@ -5,6 +5,7 @@ from typeclasses.living.living_entities import LivingEntity
 
 
 # TODO: Show abilities
+# TODO: Ability help entries
 
 class Ability(Object):
 

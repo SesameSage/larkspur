@@ -28,6 +28,7 @@ class MyCmdDig(CmdDig):
 
     Switches:
        tel or teleport - move yourself to the new room
+       delocalize - do not assign location automatically
 
     Examples:
        dig kitchen = north;n, south;s
@@ -209,6 +210,7 @@ class MyCmdTunnel(CmdTunnel):
       Switches:
         oneway - do not create an exit back to the current location
         tel - teleport to the newly created room
+        delocalize - do not assign location automatically
 
       Example:
         tunnel n
@@ -351,6 +353,9 @@ class CmdDigDoor(MuxCommand):
     Usage:
       digdoor <direction>[:typeclass] [= <roomname>[;alias;alias;...][:typeclass]]
 
+    Switches:
+        delocalize - do not assign location automatically
+
     Example:
       digdoor n
       digdoor sw = house;mike's place;green building
@@ -389,6 +394,27 @@ class CmdDigDoor(MuxCommand):
 
 
 class CmdLocations(MuxCommand):
+    """
+        add and set areas, localities, zones, or regions
+
+        Usage:
+          locations/create(/delocalize) <location type> = <location name>
+          locations/set <location name>
+
+        Switches:
+            create - create a new location with the given name
+            delocalize - do not assign in location hierarchy automatically
+            set - assign the given location to the current room at the appropriate
+                place in the hierarchy
+
+        Examples:
+           locations/create area = Kojo Monastery
+           locations/set The Kojo Archipelago
+
+        This command handles the entire hierarchy of locations (room, area, locality,
+        zone, region), undertaking creation, assignment, and arrangement of location
+        trees.
+        """
     key = "@locations"
     switch_options = ("create", "delocalize", "set")
     locks = "cmd:perm(locations) or perm(Builder)"
@@ -549,6 +575,21 @@ class CmdLocations(MuxCommand):
 
 
 class CmdEnv(MuxCommand):
+    """
+        assign an environment to the current room
+
+        Usage:
+          env <environment name>
+
+        Examples:
+           env garden
+           env wood room
+
+        Environments (meadow, rainforest, cave, etc.) dictate indoor
+        and outdoor effects, the appearance of the map, the spawning
+        of gatherables, and more. This command handles setting and
+        resetting wnvironments on the room the caller is standing in.
+        """
     key = "env"
     locks = "cmd:perm(locations) or perm(Builder)"
     help_category = "building"
@@ -564,6 +605,20 @@ class CmdEnv(MuxCommand):
 
 
 class CmdWeather(MuxCommand):
+    """
+        display and adjust weather data on the current zone
+
+        Usage:
+          weather
+          weather <weather type> = <percentage of time spent>
+
+        Examples:
+           weather sunny = 75
+           weather light fog = 15
+
+        Created zones should have weather pattern data. This command
+        can display, add, and change these values on the current zone.
+        """
     key = "weather"
     help_category = "building"
 

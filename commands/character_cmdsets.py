@@ -14,6 +14,16 @@ from typeclasses.living.talking_npc import TalkingCmdSet
 
 
 class CmdMoreInfo(Command):
+    """
+        toggle seeing real-time combat calculations
+
+        Usage:
+          moreinfo
+
+        This command changes the moreinfo preference for this character.
+        Setting moreinfo to True displays an array of faded messages
+        on the status of calculations in combat.
+        """
     key = "moreinfo"
     help_category = "appearance"
 
@@ -25,6 +35,15 @@ class CmdMoreInfo(Command):
 
 
 class CmdHere(Command):
+    """
+        see info on your location
+
+        Usage:
+          here
+
+        The "here" command shows your current room's area, locality,
+        zone, and region.
+        """
     key = "here"
     help_category = "navigation"
 
@@ -43,6 +62,21 @@ class CmdHere(Command):
 
 
 class CmdClasses(MuxCommand):
+    """
+        view and edit class lists on trainer NPCs
+
+        Usage:
+          classes
+
+          (Builders only)
+            classes/add <ability name>
+            classes/remove <ability name>
+
+        NPCs capable of training the player in abilities and/or spells
+        will display their available classes to normal players, formatted
+        based on the player's eligibility to learn each ability. Builders
+        have the additional option to add and remove classes from the list.
+        """
     key = "classes"
     switch_options = ("add", "remove", "cost")
     help_category = "character"
@@ -153,6 +187,20 @@ class CmdClasses(MuxCommand):
 
 
 class CmdLearn(MuxCommand):
+    """
+        learn a spell or ability you are eligible for
+
+        Usage:
+          learn <ability name>
+
+        Examples:
+            learn firebolt
+            learn blinding beam
+
+        Any abilities in your class's ability tree up to your level
+        can be learned from a trainer, as long as the trainer teaches
+        a class in that ability.
+        """
     key = "learn"
     help_category = "character"
 

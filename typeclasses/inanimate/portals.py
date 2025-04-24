@@ -1,4 +1,5 @@
 from evennia import Command
+
 from typeclasses.base.objects import Fixture
 
 PORTAL_KEY_TO_ROOM = {
@@ -18,7 +19,8 @@ class CmdTravel(Command):
         jump to another portal
 
         Usage:
-          id <item>
+          travel <destination name>
+          travel <destination number>
 
         Use a portal to travel to another portal, or show available destinations if none given.
         """
