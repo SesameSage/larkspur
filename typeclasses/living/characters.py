@@ -312,6 +312,9 @@ class Trainer(NPC):
         self.db.unique_name = True
         self.db.classes = {}  # Ability, price
 
+    def abilities_taught(self):
+        return [type(ability) for ability in self.db.classes]
+
     def display_classes(self, player, all=False):
         table = EvTable("Ability", "Cost")
         shown = []

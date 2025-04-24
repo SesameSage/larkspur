@@ -16,6 +16,10 @@ from typeclasses.inanimate.locations.zones import Zone
 from typeclasses.scripts.weather import WEATHERS
 
 
+# TODO: Auto-set env from the room a room is built from
+# TODO: Show all environment syntaxes
+
+
 # Extended to add new room to current area unless using "delocalize" switch
 class MyCmdDig(CmdDig):
     """

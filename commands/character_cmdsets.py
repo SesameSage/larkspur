@@ -69,13 +69,15 @@ class CmdClasses(MuxCommand):
           classes
 
           (Builders only)
-            classes/add <ability name>
+            classes/add <ability name> = <cost>
             classes/remove <ability name>
 
         NPCs capable of training the player in abilities and/or spells
         will display their available classes to normal players, formatted
-        based on the player's eligibility to learn each ability. Builders
-        have the additional option to add and remove classes from the list.
+        based on the player's eligibility to learn each ability.
+
+        Builders have the additional option to add and remove classes
+        from the list.
         """
     key = "classes"
     switch_options = ("add", "remove", "cost")
@@ -114,9 +116,6 @@ class CmdClasses(MuxCommand):
             # Get ability key
             key = ability.key if isinstance(ability.key, str) else ability.__name__
 
-            # Get ability types taught by trainer
-            abilities_taught = [type(ability) for ability in trainer.db.classes]
-
         # Standard command for non-builders (display classes)
         else:
             show_all = False
@@ -149,7 +148,7 @@ class CmdClasses(MuxCommand):
             if not ability:
                 self.caller.msg("No ability found for " + ability_input)
                 return
-            if ability not in abilities_taught:
+            if ability not in trainer.abilities_taught():
                 self.caller.msg(f"{trainer.name} doesn't seem to teach {key}.")
                 return
 
@@ -168,7 +167,7 @@ class CmdClasses(MuxCommand):
             if not self.rhs:
                 self.caller.msg(f"Remember to include class cost! {appearance.cmd}classes/cost <ability> = <price>")
                 return
-            if ability not in abilities_taught:
+            if ability not in trainer.abilities_taught():
                 self.caller.msg(f"{trainer.name} doesn't seem to teach {key}.")
             else:
                 try:
@@ -205,6 +204,7 @@ class CmdLearn(MuxCommand):
     help_category = "character"
 
     def func(self):
+        # Get ability input
         if not self.lhs:
             self.caller.msg("Learn which ability?")
             self.caller.execute_cmd("classes")
@@ -212,6 +212,7 @@ class CmdLearn(MuxCommand):
         else:
             ability_input = self.lhs
 
+        # Find a trainer in the room
         trainer = None
         for obj in self.caller.location.contents:
             if obj.attributes.has("classes"):
@@ -221,6 +222,7 @@ class CmdLearn(MuxCommand):
             self.caller.msg("No one here to learn from!")
             return
 
+        # Find a matching ability taught here
         target_ability = None
         for ability in trainer.db.classes:
             if ability.key.lower().startswith(ability_input.lower()):
@@ -230,6 +232,7 @@ class CmdLearn(MuxCommand):
             self.caller.msg("No class here found for " + ability_input)
             return
 
+        # Check character's eligibility to learn
         if not self.caller.is_correct_class(target_ability):
             self.caller.msg("You are not the right class to learn this ability!")
             return
@@ -237,9 +240,20 @@ class CmdLearn(MuxCommand):
             self.caller.msg("You must attain more knowledge and experience as a " + self.caller.db.rpg_class.key +
                             "before you are ready to take this class.")
             return
+
+        # Check the character has enough gold
+        cost = trainer.db.classes[target_ability]
+        if self.caller.db.gold < cost:
+            self.caller.msg("You don't have enough gold!")
+            return
+
+        # Create and add ability
         obj = create_object(typeclass=type(target_ability), key=target_ability.key, location=self.caller)
         self.caller.db.abilities.append(obj)
         self.caller.msg(f"{trainer.name} teaches you to use {obj.get_display_name()}!")
+
+        # Deduct cost
+        self.caller.db.gold -= cost
 
 
 class PlayerCmdSet(CmdSet):

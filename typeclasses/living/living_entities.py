@@ -2,9 +2,9 @@ from decimal import Decimal as Dec
 
 from evennia.utils.evtable import EvTable
 
+from combat.combat_character import CombatEntity
 from server import appearance
 from typeclasses.base.objects import Object
-from combat.combat_character import CombatEntity
 from typeclasses.inanimate.items.items import Item
 
 BASE_CARRY_WEIGHT = Dec(30)
@@ -26,6 +26,8 @@ DEX_TO_CARRY_COUNT = {
     5: 7,
     6: 10,
 }
+
+# TODO: Command to set appear string
 
 
 class LivingEntity(Object, CombatEntity):
