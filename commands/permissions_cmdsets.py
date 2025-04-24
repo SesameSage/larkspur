@@ -285,8 +285,9 @@ class MyCmdTunnel(CmdTunnel):
             exitshort += exit_typeclass
             backshort += exit_typeclass
 
+        current_room = self.caller.location
         # Get the new room's coordinates based on direction from current room
-        current_room_coords = self.caller.location.db.coordinates
+        current_room_coords = current_room.db.coordinates
         x, y, z = current_room_coords
         match exitshort:
             case "n":
@@ -330,8 +331,8 @@ class MyCmdTunnel(CmdTunnel):
             digstring = f"@dig{telswitch}{delocalize} {roomname} = {exitname};{exitshort}{backstring}"
             self.execute_cmd(digstring)
 
-            new_room = (self.caller.search(exitname,
-                                           candidates=[obj for obj in self.caller.location.contents if obj.destination])
+            new_room = (current_room.search(exitname,
+                                            candidates=[obj for obj in current_room.contents if obj.destination])
                         .destination)
             new_room.db.coordinates = (x, y, z)
 
