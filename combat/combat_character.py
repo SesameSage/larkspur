@@ -88,12 +88,10 @@ class CombatEntity(EquipmentEntity):
         self.db.effects = {}
 
         self.db.cooldowns = {}
-        # self.scripts.add(TickCooldowns)
 
         self.db.hostile_to_players = False
+        self.db.dies = True
 
-        # Subscribe character to the ticker handler
-        # tickerhandler.add(NONCOMBAT_TURN_TIME, self.at_update, idstring="update")
         tickerhandler.add(1, self.at_tick, idstring="tick_effects")
 
         self.update_base_stats()
@@ -541,6 +539,12 @@ class CombatEntity(EquipmentEntity):
             if inherits_from(script, DurationEffect):
                 script.delete()
         self.update_base_stats()
+
+        if self.db.dies:
+            pass  # Become corpse
+        else:
+            pass  # Be knocked out
+
         return True
     # </editor-fold>
     # TODO: Effect handler?

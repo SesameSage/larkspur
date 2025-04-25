@@ -186,6 +186,7 @@ class PlayerCharacter(Character):
         super().at_object_creation()
         self.db.unique_name = True
         self.permissions.add("Player")
+        self.db.dies = False
 
         if not self.attributes.has("xp"):
             self.db.xp = 0
@@ -272,6 +273,7 @@ class Vendor(NPC):
     def at_object_creation(self):
         super().at_object_creation()
         self.db.unique_name = True
+        self.db.dies = False
         self.db.stock = {}  # {Item: prototype_key}
 
     def add_to_stock(self, prototype_key):
@@ -310,6 +312,7 @@ class Trainer(NPC):
     def at_object_creation(self):
         super().at_object_creation()
         self.db.unique_name = True
+        self.db.dies = False
         self.db.classes = {}  # Ability, price
 
     def abilities_taught(self):
