@@ -37,17 +37,22 @@ class CmdFight(Command):
         if self.caller.is_in_combat():  # Already in a fight
             self.caller.msg("You're already in a fight!")
             return
-        # TODO: Take hostility into account instead of just starting a fight with everyone
+
+        something_hostile_here = False
         for thing in here.contents:  # Test everything in the room to add it to the fight.
             if thing.db.HP:  # If the object has HP...
                 fighters.append(thing)  # ...then add it to the fight.
-        if len(fighters) <= 1:  # If you're the only able fighter in the room
+                if thing.db.hostile_to_players:
+                    something_hostile_here = True
+        if len(fighters) <= 1 or not something_hostile_here:  # If you're the only fighter, or none are hostile
             self.caller.msg("There's nobody here to fight!")
             return
+
         if here.db.combat_turnhandler:  # If there's already a fight going on...
             here.msg_contents("%s joins the fight!" % self.caller.get_display_name())
             here.db.combat_turnhandler.join_fight(self.caller)  # Join the fight!
             return
+
         here.msg_contents("%s starts a fight!" % self.caller.get_display_name())
         # Add a turn handler script to the room, which starts combat.
         here.scripts.add(self.combat_handler_class)
