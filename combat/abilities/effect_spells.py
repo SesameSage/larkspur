@@ -11,6 +11,7 @@ class BlindingBeam(Spell):
     def at_object_creation(self):
         super().at_object_creation()
         self.key = "Blinding Beam"
+        self.db.desc = "Blind your target with a focused beam of bright light."
         self.db.targeted = True
         self.db.must_target_entity = True
         self.db.cost = ("mana", 5)

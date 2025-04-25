@@ -1,6 +1,7 @@
 from evennia import Command
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils.create import create_object
+from evennia.utils.evtable import EvTable
 
 from combat.abilities import all_abilities
 from commands.permissions_cmdsets import BuildingCmdSet
@@ -256,6 +257,37 @@ class CmdLearn(MuxCommand):
         self.caller.db.gold -= cost
 
 
+class CmdSpells(Command):
+    """
+        see your spells and abilities
+
+        Usage:
+          spells
+          spel
+          sp
+          abilities
+          abil
+          ab
+
+        All spells and abilities that you have learned will display here.
+        To cast a spell or ability, use 'cast <ability> <target>' (if the
+        ability must have a target) or 'cast <ability>' otherwise.
+        """
+    key = "spells"
+    aliases = ("spell", "spel", "sp", "abilities", "abil", "ab")
+    help_category = "character"
+
+    def func(self):
+        table = EvTable()
+        for ability in self.caller.db.abilities:
+            ellips = False
+            desc = ability.db.desc
+            if len(desc) > 45:
+                desc = desc[:45] + "..."
+            table.add_row(ability.get_display_name(), desc, f"cost: {ability.db.cost[1]} {ability.db.cost[0]}")
+        self.caller.msg(table)
+
+
 class PlayerCmdSet(CmdSet):
     key = "DefaultCharacter"
 
@@ -270,6 +302,7 @@ class PlayerCmdSet(CmdSet):
         self.add(CmdHere)
         self.add(CmdClasses)
         self.add(CmdLearn)
+        self.add(CmdSpells)
 
         self.add(CmdTravel)
         self.add(CmdIdentify)

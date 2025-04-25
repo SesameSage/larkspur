@@ -27,7 +27,7 @@ class ArmorOfThorns(Spell):
 
     def at_object_creation(self):
         super().at_object_creation()
-        self.key = "Armor of Thorns"
+        self.db.desc = "Protect your target with a coat of thorns to damage melee attackers."
         self.db.targeted = True
         self.db.must_target_entity = True
         self.db.cost = ("mana", 15)
