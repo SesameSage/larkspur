@@ -48,7 +48,7 @@ class NeutralizingHum(Ability):
             f"{caster.get_display_name(capital=True)} emits a low, guttural throat-singing tone.")
 
         for entity in caster.location.contents:
-            if entity.attributes.has("hostile") and entity.db.hostile != caster.db.hostile:
+            if entity.attributes.has("hostile") and entity.db.hostile_to_players != caster.db.hostile_to_players:
                 if entity.get_resistance(None) < 20:
                     entity.db.mana -= 25
                     if entity.db.mana < 0:

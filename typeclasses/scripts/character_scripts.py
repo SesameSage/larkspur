@@ -26,7 +26,7 @@ class SimpleAttack(Script):
             if self.obj.is_turn():
                 targets = []
                 for fighter in self.obj.location.scripts.get("Combat Turn Handler")[0].db.fighters:
-                    if fighter.db.hostile != self.obj.db.hostile and fighter.db.hp > 0:
+                    if fighter.db.hostile_to_players != self.obj.db.hostile_to_players and fighter.db.hp > 0:
                         targets.append(fighter)
                 target = random.choice(targets)
                 self.obj.execute_cmd("attack " + target.key)

@@ -49,7 +49,7 @@ class LivingEntity(Object, CombatEntity):
         self.db.max_carry_count = BASE_CARRY_COUNT
 
     def color(self):
-        if self.db.hostile:
+        if self.db.hostile_to_players:
             return appearance.enemy
         else:
             return appearance.character

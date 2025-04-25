@@ -240,7 +240,7 @@ class TurnHandler(DefaultScript):
         nonhostiles_left = 0
         for fighter in self.db.fighters:
             if fighter.db.hp > 0:
-                if fighter.db.hostile:
+                if fighter.db.hostile_to_players:
                     hostiles_left += 1
                 else:
                     nonhostiles_left += 1
@@ -283,7 +283,7 @@ class TurnHandler(DefaultScript):
 
         other_fighters = self.obj.contents
         other_fighters.remove(character)
-        if character.db.hostile:
+        if character.db.hostile_to_players:
             msg = "|[100"
         else:
             msg = "|[010"

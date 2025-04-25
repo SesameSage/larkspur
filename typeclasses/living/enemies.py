@@ -7,7 +7,7 @@ class Enemy(LivingEntity):
 
     def at_object_creation(self):
         super().at_object_creation()
-        self.db.hostile = True
+        self.db.hostile_to_players = True
         # TODO: Hostility to specific characters
 
     def color(self):

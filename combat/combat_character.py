@@ -90,7 +90,7 @@ class CombatEntity(EquipmentEntity):
         self.db.cooldowns = {}
         # self.scripts.add(TickCooldowns)
 
-        self.db.hostile = False
+        self.db.hostile_to_players = False
 
         # Subscribe character to the ticker handler
         # tickerhandler.add(NONCOMBAT_TURN_TIME, self.at_update, idstring="update")
