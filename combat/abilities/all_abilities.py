@@ -6,7 +6,7 @@ from combat.abilities.abilities import Ability
 ALL_ABILITIES = {}
 
 for filename in [".ally_spells", ".damage_abilities", ".damage_spells", ".effect_abilities", ".effect_spells",
-                 ".protective_abilities", ".protective_spells"]:
+                 ".protective_abilities", ".protective_spells", ".self_spells"]:
     members = inspect.getmembers(importlib.import_module(filename, package="combat.abilities"))
     for member in members:
         if not isinstance(member[1], type):

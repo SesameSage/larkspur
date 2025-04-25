@@ -113,8 +113,9 @@ class CombatHandler:
                 damage_values[damage_type] = randint(range[0], range[1])
 
         attacker.location.more_info(f"Damage roll ({attacker.name}):")
-        attacker.location.more_info(str([f"{damage_type.get_display_name() if damage_type else "Physical Damage"}: {damage_values[damage_type]}"
-                                         for damage_type in damage_values]))
+        attacker.location.more_info(
+            str([f"{damage_type.get_display_name() if damage_type else "Physical Damage"}: {damage_values[damage_type]}"
+                 for damage_type in damage_values]))
 
         return damage_values
 
@@ -176,7 +177,8 @@ class CombatHandler:
                 resistance = defender.get_resistance(damage_type)
                 damage_values[damage_type] -= resistance
                 if resistance > 0:
-                    defender.location.more_info(f"-{resistance} {damage_type.get_display_name()} damage from resistance")
+                    defender.location.more_info(
+                        f"-{resistance} {damage_type.get_display_name()} damage from resistance")
 
             # Make sure minimum damage is 0
             if damage_values[damage_type] < 0:
@@ -218,7 +220,8 @@ class CombatHandler:
         else:  # No damage dealt
             attacker.location.msg_contents(
                 "%s's %s bounces harmlessly off %s!" % (
-                    attacker.get_display_name(article=True, capital=True), attack_name, defender.get_display_name(article=True))
+                    attacker.get_display_name(article=True, capital=True), attack_name,
+                    defender.get_display_name(article=True))
             )
 
     def resolve_attack(
@@ -229,7 +232,7 @@ class CombatHandler:
             accuracy=None,
             evasion=None,
             damage_values=None,
-            announce_msg = None,
+            announce_msg=None,
             inflict_condition=[],
     ):
         """
@@ -262,7 +265,8 @@ class CombatHandler:
         if not self.hit_successful(attacker, defender, accuracy, evasion):
             attack_landed = False
             attacker.location.msg_contents(
-                "%s's %s misses %s!" % (attacker.get_display_name(capital=True), attack_name, defender.get_display_name(article=True))
+                "%s's %s misses %s!" % (
+                attacker.get_display_name(capital=True), attack_name, defender.get_display_name(article=True))
             )
             return attack_landed, {}
 
@@ -276,12 +280,17 @@ class CombatHandler:
         damage_values = self.apply_damage_amt_effects(attacker, defender, damage_values)
         damage_values = self.get_damage_taken(defender, damage_values)
         damage_values = {key: value for key, value in damage_values.items() if value > 0}
+        total_damage = 0
+        for damage_type in damage_values:
+            total_damage += damage_values[damage_type]
 
         # Announce and apply damage
-        self.announce_damage(attacker=attacker, defender=defender, attack_name=attack_name, damage_values=damage_values, msg=announce_msg)
+        self.announce_damage(attacker=attacker, defender=defender, attack_name=attack_name, damage_values=damage_values,
+                             msg=announce_msg)
         if bool(damage_values):
             defender.apply_damage(damage_values)
 
+        # Apply relevant effects
         if defender.effect_active("Retaliation"):
             effect = defender.db.effects["Retaliation"]
             retal_damage = self.get_damage_taken(attacker, {effect["damage_type"]: effect["amount"]})
@@ -294,6 +303,35 @@ class CombatHandler:
             attacker.apply_damage({DamageTypes.ARCANE: amount})
             attacker.location.msg_contents(f"{attacker.get_display_name(capital=True)} takes {amount} damage from "
                                            f"their curse!")
+        if attacker.effect_active("Siphon HP"):
+            siphoned = int(total_damage / 3)
+            attacker.db.hp += siphoned
+            attacker.location.msg_contents(f"{attacker.get_display_name(capital=True)} siphons {siphoned} HP from "
+                                           f"{defender.get_display_name()}!")
+            attacker.cap_stats()
+        if attacker.effect_active("Siphon Mana"):
+            siphoned = int(total_damage / 2)
+            attacker.db.mana += siphoned
+            attacker.location.msg_contents(f"{attacker.get_display_name(capital=True)} siphons {siphoned} mana from "
+                                           f"{defender.get_display_name()}!")
+            attacker.cap_stats()
+        if attacker.effect_active("Siphon Stamina"):
+            siphoned = int(total_damage / 2)
+            if attacker.db.stamina < siphoned:
+                if attacker.db.stamina == 0:
+                    attacker.location.msg_contents(
+                        f"{defender.get_display_name(capital=True)} doesn't have enough stamina to siphon!")
+                else:
+                    siphoned = defender.db.stamina
+                    defender.db.stamina = 0
+                    attacker.db.stamina += siphoned
+            else:
+                defender.db.stamina -= siphoned
+                attacker.db.stamina += siphoned
+            attacker.location.msg_contents(f"{attacker.get_display_name(capital=True)} siphons {siphoned} stamina from "
+                                           f"{defender.get_display_name()}!")
+            attacker.cap_stats()
+            defender.cap_stats()
         """# Inflict conditions on hit, if any specified
         for condition in inflict_condition:
             self.add_effect(defender, attacker, condition[0], condition[1])"""
