@@ -1,5 +1,5 @@
 from combat.abilities.spells import Spell
-from combat.effects import DurationEffect, SECS_PER_TURN, Frozen
+from combat.effects import DurationEffect, SECS_PER_TURN, Frozen, Drain
 from typeclasses.base.objects import Object
 from typeclasses.living.living_entities import LivingEntity
 
@@ -54,14 +54,36 @@ class Curse(Spell):
         self.db.cost = ("mana", 8)
         self.db.cooldown = 4 * SECS_PER_TURN
 
-    def cast(self, caster: LivingEntity, target: Object = None):
+    def func(self, caster: LivingEntity, target: Object = None):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} recites a horrid curse in "
                                      f"{target.get_display_name()}'s name!")
         spirit = caster.get_attr("spirit")
-        if target.get_resistance() > 1.5 * spirit:
+        if target.get_resistance() > 1.75 * spirit:
             caster.location.msg_contents(f"{target.get_display_name(capital=True)} wards off the curse!")
             return True
         else:
-            attributes = [("effect_key", "Cursed"), ("duration", 2 * SECS_PER_TURN), ("amount", spirit), ("positive", False)]
+            attributes = [("effect_key", "Cursed"), ("duration", 2 * SECS_PER_TURN), ("amount", spirit),
+                          ("positive", False)]
             target.add_effect(typeclass=DurationEffect, attributes=attributes)
         return True
+
+
+class Wither(Spell):
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.desc = "Cause an opponent's stamina to wither away over time."
+        self.db.targeted = True
+        self.db.must_target_entity = True
+        self.db.cost = ("mana", 8)
+        self.db.cooldown = 3 * SECS_PER_TURN
+
+    def func(self, caster: LivingEntity, target: Object = None):
+        if target.get_attr("constitution") > caster.get_attr("spirit") * 1.75:
+            caster.location.msg_contents(f"{target.get_display_name(capital=True)} holds too much vitality to wither away!")
+            return True
+        else:
+            target.location.msg_contents(f"{caster.get_display_name(capital=True)} casts a trembling over "
+                                         f"{target.get_display_name()}'s body, causing their stamina to wither away!")
+            attributes = [("effect_key", "Stamina Drain"), ("stat", "stamina"), ("duration", 5 * SECS_PER_TURN), ("amount", caster.get_attr("spirit"))]
+            target.add_effect(typeclass=Drain, attributes=attributes)
+            return True

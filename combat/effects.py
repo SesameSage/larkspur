@@ -188,7 +188,7 @@ class Regeneration(PerSecEffect):
         super().pre_effect_add()
         if not self.db.stat:
             self.db.stat = "HP"
-        self.db.effect_key = "Regenerating " + self.db.stat
+        self.db.effect_key = "Regenerating " + self.db.stat.capitalize()
         self.obj.db.effects[self.db.effect_key]["stat"] = self.db.stat
 
     def increment(self, amount: int, in_combat=False):
@@ -205,6 +205,30 @@ class Regeneration(PerSecEffect):
             case "stamina":
                 self.obj.db.stamina += amount
         self.obj.cap_stats()
+
+
+class Drain(PerSecEffect):
+    """Lose stamina or mana over time."""
+
+    def pre_effect_add(self):
+        super().pre_effect_add()
+        if not self.db.stat:
+            self.db.stat = "mana"
+        stat = self.db.stat
+        self.db.effect_key = stat.capitalize() + " Drain"
+        self.obj.db.effects[self.db.effect_key]["stat"] = stat
+
+    def increment(self, amount: int, in_combat=False):
+        """Decrease the script's associated stat by the given amount."""
+        match self.db.stat:
+            case "mana":
+                self.obj.db.mana -= amount
+            case "stamina":
+                self.obj.db.stamina -= amount
+        self.obj.cap_stats()
+        if in_combat:
+            self.obj.location.msg_contents(
+                f"{self.obj.get_display_name(capital=True)} is drained of {amount} {self.db.stat}.")
 
 
 class DamageOverTime(PerSecEffect):
