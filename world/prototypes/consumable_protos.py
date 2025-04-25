@@ -15,6 +15,7 @@ POISON_DART = {
                 "script_key": "Poisoned",
                 "range": (1, 1),
                 "duration": 3 * SECS_PER_TURN,
+                "amount": 1
             }
         ]
     },

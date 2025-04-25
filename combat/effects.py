@@ -157,6 +157,7 @@ class PerSecEffect(DurationEffect):
         if not self.db.range:
             self.db.range = (1, 1)
         self.obj.db.effects[self.db.effect_key]["range"] = self.db.range
+        self.obj.db.effects[self.db.effect_key]["amount"] = self.get_amount(self.obj.is_in_combat())
 
     def apply(self, in_combat=False):
         """Increments the timer, checks if still active, and applies the effect."""
