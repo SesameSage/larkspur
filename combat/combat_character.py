@@ -7,6 +7,7 @@ from evennia.utils import inherits_from
 from combat.effects import DurationEffect
 from server import appearance
 from typeclasses.inanimate.items.equipment.equipment import EquipmentEntity
+from typeclasses.living.corpses import make_corpse, set_to_respawn
 
 MAX_HP_BASE = 100
 LVL_TO_MAXHP = {
@@ -32,6 +33,10 @@ LVL_TO_MAXSTAM = {
 }
 STR_TO_MAXSTAM = {
     1: 0,
+    2: 10,
+    3: 15,
+    4: 25,
+    5: 35
 }
 
 CON_TO_DEFENSE = {
@@ -41,6 +46,9 @@ CON_TO_DEFENSE = {
 DEXT_TO_EVADE = {
     1: 0,
     2: 5,
+    3: 10,
+    4: 20,
+    5: 30
 }
 WIS_TO_RESIST = {
     1: 0,
@@ -541,7 +549,8 @@ class CombatEntity(EquipmentEntity):
         self.update_base_stats()
 
         if self.db.dies:
-            pass  # Become corpse
+            make_corpse(self)
+            set_to_respawn(self)
         else:
             pass  # Be knocked out
 
