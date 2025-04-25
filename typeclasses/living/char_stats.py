@@ -230,9 +230,9 @@ class CmdStats(Command):
             string = ""
 
             # Display base character defense, evasion, and resistance
-            stat_mapping = {target.get_defense: target.db.char_defense[None],
+            stat_mapping = {target.get_defense: target.db.char_defense[None] if None in target.db.char_defense else 0,
                             target.get_evasion: target.db.char_evasion,
-                            target.get_resistance: target.db.char_resistance[None]}
+                            target.get_resistance: target.db.char_resistance[None] if None in target.db.char_resistance else 0}
             for stat_func in stat_mapping:
                 string = string + f"{appearance.highlight}{stat_func(quiet=True)}|n "
                 try:
