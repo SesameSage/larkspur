@@ -265,11 +265,11 @@ class CmdStats(Command):
 
         if self.args:  # Target given
             target = self.caller.search(
-                self.args, candidates=[content for content in self.caller.location.contents if content.db.hp])
+                self.args, candidates=[content for content in self.caller.location.contents if content.attributes.has("hp")])
             if not target:
                 self.caller.msg(f"Can't find '{self.args}' here")
                 return
-            if not target.db.hp:
+            if not target.attributes.has("hp"):
                 self.caller.msg(f"{target.name.capitalize()} doesn't have relevant stats!")
                 return
         else:  # Show self stats
