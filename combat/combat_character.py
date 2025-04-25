@@ -244,7 +244,10 @@ class CombatEntity(EquipmentEntity):
         # Untyped defense
         base_def = 0
         if not type_only:
-            base_def = self.db.char_defense[None]
+            try:
+                base_def = self.db.char_defense[None]
+            except KeyError:
+                base_def = 0
             if not quiet:
                 self.location.more_info(f"{base_def} untyped defense ({self.name})")
 
