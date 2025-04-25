@@ -63,7 +63,7 @@ class Container(Item):
         """
         super().at_object_creation()
         self.db.desc = "A container to hold items."
-        self.db.capacity = None
+        self.db.capacity = 5
         self.locks.add("get_from:true()")
 
     def color(self):
@@ -132,7 +132,7 @@ class Container(Item):
             nthings = len(thinglist)
             thing = thinglist[0]
             singular, plural = thing.get_numbered_name(nthings, looker, key=thingname)
-            thing_names.append(singular if nthings == 1 else plural)
+            thing_names.append(thing.color() + singular if nthings == 1 else thing.color() + plural)
         # thing_names = iter_to_str(thing_names)
         table = EvTable(f"|wInside {self.get_display_name(looker=looker)}:", border=None, )
         for thing_name in thing_names:
@@ -195,6 +195,7 @@ class CmdContainerLook(CmdLook):
         self.msg(text=(desc, {"type": "look"}), options=None)
 
 
+# TODO: "get all from <container>"
 class CmdContainerGet(CmdGet):
     """
     pick up something

@@ -134,7 +134,8 @@ def itemfunc_add_effect(item, user, target, **kwargs):
     if "effects" in kwargs:
         item_effects = kwargs["effects"]
 
-    user.location.msg_contents("%s uses %s!" % (user.get_display_name(capital=True), item.get_display_name(article=True)))
+    user.location.msg_contents(
+        "%s uses %s!" % (user.get_display_name(capital=True), item.get_display_name(article=True)))
 
     # Add conditions to the target
     attr_list = []
@@ -157,7 +158,8 @@ def itemfunc_cure_condition(item, user, target, **kwargs):
     if "effects_cured" in kwargs:
         effects_cured = kwargs["effects_cured"]
 
-    user.location.msg_contents("%s uses %s! " % (user.get_display_name(capital=True), item.get_display_name(article=True)))
+    user.location.msg_contents(
+        "%s uses %s! " % (user.get_display_name(capital=True), item.get_display_name(article=True)))
 
     for script in target.scripts.all():
         if inherits_from(script, EffectScript):
