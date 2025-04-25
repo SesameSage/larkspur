@@ -4,6 +4,7 @@ from evennia.utils.create import create_object
 from evennia.utils.evtable import EvTable
 
 from combat.abilities import all_abilities
+from combat.abilities.spells import Spell
 from commands.permissions_cmdsets import BuildingCmdSet
 from commands.refiled_cmds import *
 from server import appearance
@@ -233,9 +234,14 @@ class CmdLearn(MuxCommand):
             self.caller.msg("No class here found for " + ability_input)
             return
 
+        ability_or_spell = "spell" if isinstance(ability, Spell) else "ability"
+
         # Check character's eligibility to learn
+        if self.caller.knows_ability(target_ability):
+            self.caller.msg(f"You already know this {ability_or_spell}!")
+            return
         if not self.caller.is_correct_class(target_ability):
-            self.caller.msg("You are not the right class to learn this ability!")
+            self.caller.msg(f"You are not the right class to learn this {ability_or_spell}!")
             return
         if not self.caller.meets_level_requirement(target_ability):
             self.caller.msg("You must attain more knowledge and experience as a " + self.caller.db.rpg_class.key +

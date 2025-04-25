@@ -315,21 +315,25 @@ class Trainer(NPC):
     def abilities_taught(self):
         return [type(ability) for ability in self.db.classes]
 
-    def display_classes(self, player, all=False):
+    def display_classes(self, player, show_all=False):
         table = EvTable("Ability", "Cost")
         shown = []
 
         for ability in self.db.classes:
-            if player.meets_level_requirement(ability):
+            if player.knows_ability(ability):
+                if show_all:
+                    color = "|=k"
+                    shown.append((ability, color))
+            elif player.meets_level_requirement(ability):
                 color = "|450"
                 shown.append((ability, color))
             elif player.is_correct_class(ability):
                 color = "|w"
-                if all:
+                if show_all:
                     shown.append((ability, color))
             else:
                 color = "|=k"
-                if all:
+                if show_all:
                     shown.append((ability, color))
 
         for ability, color in shown:
