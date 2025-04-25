@@ -27,7 +27,7 @@ class BlindingBeam(Spell):
 class Freeze(Spell):
     def at_object_creation(self):
         super().at_object_creation()
-        self.key = "Freeze"
+        self.db.desc = "Encase your opponent in ice, preventing them from acting at all on their turn."
         self.db.targeted = True
         self.db.must_target_entity = False
         self.db.cost = ("mana", 12)

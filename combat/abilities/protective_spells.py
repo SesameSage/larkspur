@@ -50,6 +50,7 @@ class ThermalSink(Spell):
     def at_object_creation(self):
         super().at_object_creation()
         self.key = "Thermal Sink"
+        self.db.desc = "Enshroud an ally with a heat sink capable of insulating both hot and cold damage."
         self.db.targeted = True
         self.db.must_target_entity = False
         self.db.cost = ("mana", 15)

@@ -8,6 +8,7 @@ class Revive(Spell):
     def at_object_creation(self):
         super().at_object_creation()
         self.key = "Revive"
+        self.db.desc = "Bring back an ally who has been knocked out."
         self.db.targeted = True
         self.db.must_target_entity = True
         self.db.cost = ("mana", 12)

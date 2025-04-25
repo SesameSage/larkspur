@@ -9,6 +9,7 @@ class Sweep(Ability):
 
     def at_object_creation(self):
         super().at_object_creation()
+        self.db.desc = "Sweep your weapon underneath an opponent's legs, attempting to knock them off their feet."
         self.key = "Sweep"
         self.db.targeted = True
         self.db.must_target_entity = True
@@ -37,6 +38,7 @@ class NeutralizingHum(Ability):
 
     def at_object_creation(self):
         super().at_object_creation()
+        self.db.desc = "Drain mana from all opponents with this throat-singing tone."
         self.db.targeted = False
         self.db.cost = ("mana", 10)
         self.db.cooldown = 10 * SECS_PER_TURN

@@ -13,7 +13,7 @@ class Firebolt(Spell):
 
     def at_object_creation(self):
         super().at_object_creation()
-        self.key = "Firebolt"
+        self.db.desc = "Ignite a bolt of fire and hurl it towards your target for a chance to ignite."
         self.db.targeted = True
         self.db.must_target_entity = False
         self.db.cost = ("mana", 2)
