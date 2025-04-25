@@ -43,3 +43,25 @@ class Freeze(Spell):
 
         target.add_effect(Frozen, [("duration", 2 * SECS_PER_TURN)])
         return True
+
+
+class Curse(Spell):
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.desc = "Inflict your opponent with a curse that strikes them whenever they deal damage."
+        self.db.targeted = True
+        self.db.must_target_entity = True
+        self.db.cost = ("mana", 8)
+        self.db.cooldown = 4 * SECS_PER_TURN
+
+    def cast(self, caster: LivingEntity, target: Object = None):
+        caster.location.msg_contents(f"{caster.get_display_name(capital=True)} recites a horrid curse in "
+                                     f"{target.get_display_name()}'s name!")
+        spirit = caster.get_attr("spirit")
+        if target.get_resistance() > 1.5 * spirit:
+            caster.location.msg_contents(f"{target.get_display_name(capital=True)} wards off the curse!")
+            return True
+        else:
+            attributes = [("effect_key", "Cursed"), ("duration", 2 * SECS_PER_TURN), ("amount", spirit), ("positive", False)]
+            target.add_effect(typeclass=DurationEffect, attributes=attributes)
+        return True

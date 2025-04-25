@@ -289,6 +289,11 @@ class CombatHandler:
             defender.location.msg_contents(f"{attacker.get_display_name(capital=True)} takes "
                                            f"{retal_damage[effect["damage_type"]]} damage from "
                                            f"{defender.get_display_name()}'s {appearance.effect}Retaliation|n!")
+        if attacker.effect_active("Cursed"):
+            amount = attacker.db.effects["Cursed"]["amount"]
+            attacker.apply_damage({DamageTypes.ARCANE: amount})
+            attacker.location.msg_contents(f"{attacker.get_display_name(capital=True)} takes {amount} damage from "
+                                           f"their curse!")
         """# Inflict conditions on hit, if any specified
         for condition in inflict_condition:
             self.add_effect(defender, attacker, condition[0], condition[1])"""
