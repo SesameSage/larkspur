@@ -47,10 +47,11 @@ class EffectScript(Script):
             self.obj.db.effects[self.db.effect_key]["damage_type"] = self.db.damage_type
 
         # Determine whether the effect is positive after all script creation keys have already been run
-        if inherits_from(self, StatMod) and self.db.amount > 0:
-            self.db.positive = True
-        else:
-            self.db.positive = False
+        if not self.db.positive:
+            if inherits_from(self, StatMod) and self.db.amount > 0:
+                self.db.positive = True
+            else:
+                self.db.positive = False
         self.obj.db.effects[self.db.effect_key]["positive"] = self.db.positive
 
     def at_script_delete(self):
