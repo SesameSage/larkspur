@@ -27,8 +27,6 @@ DEX_TO_CARRY_COUNT = {
     6: 10,
 }
 
-# TODO: Command to set appear string
-
 
 class LivingEntity(Object, CombatEntity):
     """
