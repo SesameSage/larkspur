@@ -123,7 +123,6 @@ class CmdAttack(Command):
         return True
 
 
-# TODO: Cast on me
 class CmdCast(MuxCommand):
     """
     cast an ability or spell
@@ -153,7 +152,10 @@ class CmdCast(MuxCommand):
             target = None
         else:
             target_string = self.rhs
-            target = self.caller.search(target_string, candidates=[
+            if target_string == "me":
+                target = self.caller
+            else:
+                target = self.caller.search(target_string, candidates=[
                 content for content in self.caller.location.contents if content.attributes.has("hp")])
             if not target:
                 self.caller.msg("No valid target found for " + target_string)
