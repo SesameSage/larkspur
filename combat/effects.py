@@ -83,9 +83,11 @@ class DurationEffect(EffectScript):
         self.add_seconds(in_combat=in_combat)
         self.check_duration()
 
-    def add_seconds(self, in_combat=False):
+    def add_seconds(self, amt=None, in_combat=False):
         """Increment the timer on how many seconds have passed since the effect was inflicted."""
-        self.db.seconds_passed += (SECS_PER_TURN if in_combat else 1)
+        if not amt:
+            amt = SECS_PER_TURN if in_combat else 1
+        self.db.seconds_passed += amt
         self.obj.db.effects[self.db.effect_key]["seconds passed"] = self.db.seconds_passed
 
     def reset_seconds(self, duration):
