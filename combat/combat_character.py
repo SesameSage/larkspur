@@ -9,8 +9,6 @@ from server import appearance
 from typeclasses.inanimate.items.equipment.equipment import EquipmentEntity
 from typeclasses.living.corpses import make_corpse, set_to_respawn
 
-# TODO: Make poison a constitution/defense thing
-
 MAX_HP_BASE = 100
 LVL_TO_MAXHP = {
     1: 0,
@@ -152,6 +150,7 @@ class CombatEntity(EquipmentEntity):
             self.db.stam_buildup -= Dec(stam_gained)
             self.db.stamina += stam_gained
         self.cap_stats()
+
     # </editor-fold>
 
     # <editor-fold desc="Stats handling">
@@ -365,6 +364,7 @@ class CombatEntity(EquipmentEntity):
             effect = self.db.effects(stat + "Regen")["amount"]
 
         return base + effect
+
     # </editor-fold>
 
     # TODO: Logic for who to give XP to
@@ -397,6 +397,7 @@ class CombatEntity(EquipmentEntity):
             self.db.mana = 0
         if self.db.stamina < 0:
             self.db.stamina = 0
+
     # </editor-fold>
 
     def knows_ability(self, ability):
@@ -408,7 +409,6 @@ class CombatEntity(EquipmentEntity):
             return True
         else:
             return False
-
 
     # <editor-fold desc="Effects">
     def effect_active(self, effect_key, duration_for_reset=0):
@@ -462,6 +462,7 @@ class CombatEntity(EquipmentEntity):
                     script.apply(in_combat=self.is_in_combat())
                 except TypeError:
                     pass
+
     # </editor-fold>
 
     # <editor-fold desc="Combat handling">
@@ -559,5 +560,3 @@ class CombatEntity(EquipmentEntity):
         return True
     # </editor-fold>
     # TODO: Effect handler?
-
-
