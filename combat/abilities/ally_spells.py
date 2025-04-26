@@ -11,7 +11,7 @@ class Revive(Spell):
         self.db.desc = "Bring back an ally who has been knocked out."
         self.db.targeted = True
         self.db.must_target_entity = True
-        self.db.cost = ("mana", 20)
+        self.db.cost = ("mana", 12)
         self.db.cooldown = 10 * SECS_PER_TURN
 
     def check(self, caster, target):
