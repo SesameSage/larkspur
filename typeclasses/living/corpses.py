@@ -39,5 +39,8 @@ def set_to_respawn(entity):
 
 
 class Corpse(Container):
+    locks = "get_from:all()"
+    
     def at_object_creation(self):
         self.db.plural_name = True
+        self.db.capacity = 20

@@ -39,6 +39,7 @@ from evennia.utils import class_from_module
 
 from server import appearance
 from typeclasses.base.objects import Object
+from typeclasses.inanimate.gold import Gold
 from typeclasses.inanimate.items.items import Item
 
 # establish the right inheritance for container objects
@@ -216,7 +217,7 @@ class CmdContainerGet(CmdGet):
         # by default, we get from the caller's location
         location = caller.location
 
-        if not self.args:
+        if not self.lhs:
             self.msg("Get what?")
             return
 
@@ -234,12 +235,23 @@ class CmdContainerGet(CmdGet):
                     self.msg("You can't get things from that.")
                 return
 
-        obj = caller.search(self.lhs, location=location)
-        if not obj:
+        if self.lhs == "all":
+            if not location.attributes.has("capacity"):
+                self.caller.msg(location.name + "is not a container!")
+                return
+            for item in location.contents:
+                # Items or gold in the given container
+                if item.attributes.has("weight") or isinstance(item, Gold):
+                    self.caller.execute_cmd(f"get {item.key} from {location.key}")
             return
-        if caller == obj:
-            self.msg("You can't get yourself.")
-            return
+
+        else:
+            obj = caller.search(self.lhs, location=location)
+            if not obj:
+                return
+            if caller == obj:
+                self.msg("You can't get yourself.")
+                return
 
         # check if this object can be gotten
         if not obj.access(caller, "get") or not obj.at_pre_get(caller):
