@@ -276,15 +276,15 @@ class CmdContainerGet(CmdGet):
         if not success:
             self.msg("This can't be picked up.")
         else:
-            singular, _ = obj.get_numbered_name(1, caller)
+            name = obj.get_display_name(article=True)
             if location == caller.location:
                 # we're picking it up from the area
-                caller.location.msg_contents(f"$You(capitalize=True) $conj(pick) up {singular}.", from_obj=caller)
+                caller.location.msg_contents(f"$You(capitalize=True) $conj(pick) up {name}.", from_obj=caller)
             else:
                 # we're getting it from somewhere else
                 container_name, _ = location.get_numbered_name(1, caller)
                 caller.location.msg_contents(
-                    f"$You(capitalize=True) $conj(get) {singular} from {container_name}.", from_obj=caller
+                    f"$You(capitalize=True) $conj(get) {name} from {container_name}.", from_obj=caller
                 )
             # calling at_get hook method
             obj.at_get(caller)
