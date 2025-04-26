@@ -1,5 +1,5 @@
 from combat.abilities.abilities import Ability
-from combat.effects import SECS_PER_TURN, DurationEffect
+from combat.effects import SECS_PER_TURN, DurationEffect, TimedStatMod
 from typeclasses.base.objects import Object
 from typeclasses.living.living_entities import LivingEntity
 
@@ -39,3 +39,19 @@ class Expel(Ability):
                 return True
         caster.location.msg(f"Couldn't find a negative effect on {target.get_display_name()}!")
         return False
+
+
+class FocusMind(Ability):
+    key = "Focus Mind"
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.desc = "Land your attacks more accurately with a calm and focused mind."
+        self.db.targeted = False
+        self.db.cost = ("stamina", 5)
+        self.db.cooldown = 3 * SECS_PER_TURN
+
+    def func(self, caster: LivingEntity, target: Object = None):
+        caster.location.msg_contents(f"{caster.get_display_name(capital=True)} centers and focuses their mind.")
+        attributes = [("effect_key", "+Accuracy"), ("amount", 20), ("duration", 3 * SECS_PER_TURN)]
+        caster.add_effect(typeclass=TimedStatMod, attributes=attributes)

@@ -38,16 +38,23 @@ class CombatHandler:
         hitroll += accuracy_bonus
 
         # Add Perception bonus
-        hitroll += attacker.get_attr("perception") * HITROLL_PERCEPTION_BONUS
+        amt = attacker.get_attr("perception") * HITROLL_PERCEPTION_BONUS
+        hitroll += amt
+        attacker.location.more_info(f"{amt} accuracy from perception ({attacker.name})")
 
         # Apply attacker's hitroll buffs and debuffs.
-        buff = 0
-        if "Accuracy Up" in attacker.db.effects:
-            buff += attacker.db.effects["Accuracy Up"]["amount"]
+        if "+Accuracy" in attacker.db.effects:
+            buff = attacker.db.effects["+Accuracy"]["amount"]
+            hitroll += buff
+            attacker.location.more_info(f"{buff} accuracy from effect on {attacker.name}")
+        if "-Accuracy" in attacker.db.effects:
+            buff = attacker.db.effects["-Accuracy"]["amount"]
+            hitroll += buff
+            attacker.location.more_info(f"{buff} accuracy from effect on {attacker.name}")
+
         if "Blinded" in attacker.db.effects:
             buff -= (hitroll) // 2
             attacker.location.more_info("-50% accuracy from Blinded")
-        hitroll += buff
 
         attacker.location.more_info(f"{hitroll} to hit ({attacker.name})")
         return hitroll
