@@ -132,16 +132,16 @@ class CombatHandler:
             Adjusted damage values to pass to the defender's get_damage_taken method.
         """
         # Apply attacker's relevant effects
-        if "Damage Up" in attacker.db.effects:
-            damage_boost = attacker.db.effects["Damage Up"]["amount"]
-            for damage_type in damage_values:
-                damage_values[damage_type] += damage_boost
-                attacker.location.more_info(f"+{damage_boost} {damage_type} damage from effect ({attacker.name})")
-        if "Damage Down" in attacker.db.effects:
-            damage_penalty = attacker.db.effects["Damage Down"]["amount"]
-            for damage_type in damage_values:
-                damage_values[damage_type] -= damage_penalty
-                attacker.location.more_info(f"-{damage_penalty} {damage_type} damage from effect ({attacker.name}")
+        for damage_type in damage_values:
+            effect_amt = 0
+            for effect_key in [f"+{damage_type.get_display_name(capital=True)} Dmg",
+                               f"-{damage_type.get_display_name(capital=True)} Dmg",
+                               f"+Damage", f"-Damage"]:
+                if effect_key in attacker.db.effects:
+                    effect_amt += attacker.db.effects[effect_key]["amount"]
+            attacker.location.more_info(f"{effect_amt}{" " + damage_type.get_display_name() if damage_type else ""} "
+                                        f"damage from effect on {attacker.name}")
+            damage_values[damage_type] += effect_amt
 
         # Apply defender's relevant effects
         if defender.effect_active("Knocked Down"):  # If defender knocked down, add 50% to damage
@@ -274,7 +274,8 @@ class CombatHandler:
             # If attacking with weapon or unarmed
             if isinstance(attack, Weapon) or isinstance(attack, str):
                 damage_values = self.get_weapon_damage(attacker)
-            else:  # Attacking with ability
+            # Else attacking with ability
+            else:
                 damage_values = attack.get_damage(attacker)
 
         damage_values = self.apply_damage_amt_effects(attacker, defender, damage_values)

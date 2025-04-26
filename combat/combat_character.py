@@ -9,6 +9,8 @@ from server import appearance
 from typeclasses.inanimate.items.equipment.equipment import EquipmentEntity
 from typeclasses.living.corpses import make_corpse, set_to_respawn
 
+# TODO: Make poison a constitution/defense thing
+
 MAX_HP_BASE = 100
 LVL_TO_MAXHP = {
     1: 0,

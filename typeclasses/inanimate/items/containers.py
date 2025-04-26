@@ -196,7 +196,6 @@ class CmdContainerLook(CmdLook):
         self.msg(text=(desc, {"type": "look"}), options=None)
 
 
-# TODO: "get all from <container>"
 class CmdContainerGet(CmdGet):
     """
     pick up something

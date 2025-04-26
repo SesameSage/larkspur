@@ -1,5 +1,5 @@
 from combat.abilities.spells import Spell
-from combat.effects import DurationEffect, SECS_PER_TURN, Frozen, Drain
+from combat.effects import DurationEffect, SECS_PER_TURN, Frozen, Drain, TimedStatMod
 from typeclasses.base.objects import Object
 from typeclasses.living.living_entities import LivingEntity
 
@@ -64,7 +64,7 @@ class Curse(Spell):
         else:
             attributes = [("effect_key", "Cursed"), ("duration", 2 * SECS_PER_TURN), ("amount", spirit),
                           ("positive", False)]
-            target.add_effect(typeclass=DurationEffect, attributes=attributes)
+            target.add_effect(typeclass=TimedStatMod, attributes=attributes)
         return True
 
 

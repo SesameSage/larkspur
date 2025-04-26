@@ -1,5 +1,7 @@
+from random import randint
+
 from combat.abilities.abilities import Ability
-from combat.effects import SECS_PER_TURN, KnockedDown
+from combat.effects import SECS_PER_TURN, KnockedDown, StatMod, TimedStatMod
 from typeclasses.base.objects import Object
 from typeclasses.living.living_entities import LivingEntity
 
@@ -10,7 +12,6 @@ class Sweep(Ability):
     def at_object_creation(self):
         super().at_object_creation()
         self.db.desc = "Sweep your weapon underneath an opponent's legs, attempting to knock them off their feet."
-        self.key = "Sweep"
         self.db.targeted = True
         self.db.must_target_entity = True
         self.db.cost = ("stamina", 1)
@@ -59,3 +60,32 @@ class NeutralizingHum(Ability):
                         f"{entity.get_display_name(capital=True)} resists {self.get_display_name()}!")
 
         return True
+
+
+class SolarPlexusStrike(Ability):
+    key = "Solar Plexus Strike"
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.desc = ("Strike at the center of power in the body, weakening your opponent's attack and potentially "
+                        "winding them.")
+        self.db.targeted = True
+        self.db.must_target_entity = True
+        self.db.cost = ("stamina", 10)
+        self.db.cooldown = 5 * SECS_PER_TURN
+
+    def func(self, caster: LivingEntity, target: Object = None):
+        if target.get_attr("constitution") > caster.get_attr("dexterity") * 2:
+            caster.location.msg_contents(f"{target.get_display_name(capital=True)} is too hardened for "
+                                         f"{caster.get_display_name()}'s {self.get_display_name()}!")
+            return True
+        target.location.msg_contents(f"{caster.get_display_name(capital=True)} strikes at the center of power in "
+                                     f"{target.get_display_name()}'s body!")
+        attributes = [("effect_key", "-Damage"), ("amount", -5), ("duration", 4 * SECS_PER_TURN)]
+        target.add_effect(typeclass=TimedStatMod, stack=True, attributes=attributes)
+        if target.get_attr("con") < 1.25 * caster.get_attr("dex"):
+            if randint(1, 2) == 1:
+                pass
+                # TODO: add winded
+
+

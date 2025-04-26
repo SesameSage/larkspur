@@ -77,8 +77,6 @@ class DurationEffect(EffectScript):
         self.obj.db.effects[self.db.effect_key]["duration"] = self.db.duration
         self.db.seconds_passed = 0
         self.obj.db.effects[self.db.effect_key]["seconds passed"] = self.db.seconds_passed
-        if self.db.amount:
-            self.obj.db.effects[self.db.effect_key]["amount"] = self.db.amount
 
     def apply(self, in_combat=False):
         """Increments the timer, checks if still active, and applies the effect."""
