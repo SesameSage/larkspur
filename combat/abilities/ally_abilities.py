@@ -11,6 +11,7 @@ class MindClearingTone(Ability):
         super().at_object_creation()
         self.db.desc = "This meditational tone improves the accuracy of you and your allies."
         self.db.targeted = False
+        self.db.requires = [("wisdom", 5)]
         self.db.cost = ("mana", 12)
         self.db.cooldown = 5 * SECS_PER_TURN
 

@@ -76,7 +76,7 @@ def level_up(character):
     character.db.level += 1
     new_level = character.db.level
     character.msg(f"{appearance.notify}You are now level {new_level}!")
-    for attribute, amt in character.db.rpg_class.LEVEL_TO_ATTRIBUTES[new_level]:
+    for attribute, amt in character.db.rpg_class.level_to_attributes[new_level]:
         character.db.attribs[attribute.lower()] += amt
         character.msg(f"{appearance.notify}Your {attribute} has increased by {amt}.")
 

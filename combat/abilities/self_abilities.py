@@ -48,6 +48,8 @@ class FocusMind(Ability):
         super().at_object_creation()
         self.db.desc = "Land your attacks more accurately with a calm and focused mind."
         self.db.targeted = False
+
+        self.db.requires = [("wisdom", 2)]
         self.db.cost = ("stamina", 5)
         self.db.cooldown = 3 * SECS_PER_TURN
 

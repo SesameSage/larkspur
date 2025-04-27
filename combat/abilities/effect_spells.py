@@ -30,6 +30,8 @@ class Freeze(Spell):
         self.db.desc = "Encase your opponent in ice, preventing them from acting at all on their turn."
         self.db.targeted = True
         self.db.must_target_entity = False
+
+        self.db.requires = [("spirit", 10)]
         self.db.cost = ("mana", 12)
         self.db.cooldown = 6 * SECS_PER_TURN
 
@@ -51,6 +53,8 @@ class Curse(Spell):
         self.db.desc = "Inflict your opponent with a curse that strikes them whenever they deal damage."
         self.db.targeted = True
         self.db.must_target_entity = True
+
+        self.db.requires = ("spirit", 4)
         self.db.cost = ("mana", 8)
         self.db.cooldown = 4 * SECS_PER_TURN
 
@@ -74,6 +78,8 @@ class Wither(Spell):
         self.db.desc = "Cause an opponent's stamina to wither away over time."
         self.db.targeted = True
         self.db.must_target_entity = True
+
+        self.db.requires = [("spirit", 2)]
         self.db.cost = ("mana", 8)
         self.db.cooldown = 3 * SECS_PER_TURN
 

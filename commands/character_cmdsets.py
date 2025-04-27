@@ -247,6 +247,11 @@ class CmdLearn(MuxCommand):
             self.caller.msg("You must attain more knowledge and experience as a " + self.caller.db.rpg_class.key +
                             "before you are ready to take this class.")
             return
+        for stat, amount in target_ability.db.requires:
+            # Use the base character attribute, not the effective value from equipment, etc
+            if self.caller.db.attribs[stat] < amount:
+                self.caller.msg(f"Your {stat.capitalize()} isn't high enough!")
+                return
 
         # Check the character has enough gold
         cost = trainer.db.classes[target_ability]

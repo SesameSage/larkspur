@@ -8,9 +8,12 @@ class Revive(Spell):
     def at_object_creation(self):
         super().at_object_creation()
         self.db.desc = "Bring back an ally who has been knocked out."
+
         self.db.targeted = True
         self.db.must_target_entity = True
-        self.db.cost = ("mana", 12)
+
+        self.db.requires = [("spirit", 10)]
+        self.db.cost = ("mana", 25)
         self.db.cooldown = 10 * SECS_PER_TURN
 
     def check(self, caster, target):
@@ -31,10 +34,12 @@ class Revive(Spell):
 class Cleanse(Spell):
     def at_object_creation(self):
         super().at_object_creation()
-        self.key = "Cleanse"
         self.db.desc = "Remove a temporary negative effect from an ally."
+
         self.db.targeted = True
         self.db.must_target_entity = True
+
+        self.db.requires = ("spirit", 3)
         self.db.cost = ("mana", 12)
         self.db.cooldown = 5 * SECS_PER_TURN
 

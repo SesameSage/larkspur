@@ -4,16 +4,22 @@ from typeclasses.inanimate.items.spellcomp import SpellComp
 from typeclasses.living.living_entities import LivingEntity
 
 
+# TODO: Make cost into a multi-item container so it can be used for AP
 class Ability(Object):
 
     def at_object_creation(self):
         if not self.key:
             self.key = self.__class__.__name__
         self.locks.add("view:false()")
+
         self.db.desc = ""
-        self.db.action_text = ""
+        self.db.action_text = ""  # Will require parsing {caster} {target} from here to use
+
         self.db.targeted = False
         self.db.must_target_entity = False
+        # Required attributes to learn
+        self.db.requires = []
+
         self.db.cost = None
         self.db.cooldown = 0
 

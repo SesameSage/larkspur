@@ -11,6 +11,9 @@ class Ward(Spell):
         super().at_object_creation()
         self.db.targeted = True
         self.db.must_target_entity = True
+
+        self.db.requires = [("wisdom", 6)]
+        self.db.cooldown = 3 * SECS_PER_TURN
         self.db.cost = ("mana", 5)
 
     def func(self, caster: LivingEntity, target: Object = None):
@@ -30,7 +33,10 @@ class ArmorOfThorns(Spell):
         self.db.desc = "Protect your target with a coat of thorns to damage melee attackers."
         self.db.targeted = True
         self.db.must_target_entity = True
-        self.db.cost = ("mana", 15)
+
+        self.db.requires = [("wisdom", 2)]
+        self.db.cost = ("mana", 8)
+        self.db.cooldown = 3 * SECS_PER_TURN
 
     def func(self, caster: LivingEntity, target: Object = None):
         attributes = [
@@ -53,6 +59,8 @@ class ThermalSink(Spell):
         self.db.desc = "Enshroud an ally with a heat sink capable of insulating both hot and cold damage."
         self.db.targeted = True
         self.db.must_target_entity = False
+
+        self.db.requires = [("wisdom", 3)]
         self.db.cost = ("mana", 15)
 
     def func(self, caster: LivingEntity, target: Object = None):

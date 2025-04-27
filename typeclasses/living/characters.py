@@ -262,6 +262,15 @@ class PlayerCharacter(Character):
                     return True
             return False
 
+    def meets_attr_requirements(self, target):
+        # Abilities
+        if target.db.cooldown:
+            for stat, amount in target.db.requires:
+                # Use the base character attribute, not the effective value from equipment, etc
+                if self.db.attribs[stat] < amount:
+                    return False
+            return True
+
 
 class NPC(Character, TalkableNPC):
     pass
@@ -327,7 +336,7 @@ class Trainer(NPC):
                 if show_all:
                     color = "|=k"
                     shown.append((ability, color))
-            elif player.meets_level_requirement(ability):
+            elif player.meets_level_requirement(ability) and player.meets_attr_requirements(ability):
                 color = "|450"
                 shown.append((ability, color))
             elif player.is_correct_class(ability):

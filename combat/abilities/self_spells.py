@@ -8,6 +8,8 @@ class Consume(Spell):
     def at_object_creation(self):
         self.db.desc = "Leech life into your own body as you ravage your opponents."
         self.db.targeted = False
+
+        self.db.requires = [("spirit", 7)]
         self.db.cost = ("mana", 12)
         self.db.cooldown = 8 * SECS_PER_TURN
 
@@ -26,6 +28,8 @@ class AbsorbEssence(Spell):
         super().at_object_creation()
         self.db.desc = "Drain your opponents' mana into your own as you deal damage."
         self.db.targeted = False
+
+        self.db.requires = [("spirit", 9)]
         self.db.cost = ("mana", 8)
         self.db.cooldown = 8 * SECS_PER_TURN
 
