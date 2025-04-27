@@ -11,7 +11,7 @@ class Scratch(Ability):
         self.db.desc = "Scratch your opponent with claws, talons, etc."
         self.db.targeted = True
         self.db.must_target_entity = False
-        self.db.cost = ("stamina", 1)
+        self.db.cost = [("stamina", 1)]
         self.db.cooldown = 0
 
     def get_damage(self, caster):

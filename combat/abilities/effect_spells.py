@@ -80,7 +80,7 @@ class Wither(Spell):
         self.db.must_target_entity = True
 
         self.db.requires = [("spirit", 2)]
-        self.db.cost = ("mana", 8)
+        self.db.cost = [("mana", 8)]
         self.db.cooldown = 3 * SECS_PER_TURN
 
     def func(self, caster: LivingEntity, target: Object = None):

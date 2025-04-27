@@ -291,11 +291,16 @@ class CmdSpells(Command):
     def func(self):
         table = EvTable()
         for ability in self.caller.db.abilities:
-            ellips = False
             desc = ability.db.desc
             if len(desc) > 45:
                 desc = desc[:45] + "..."
-            table.add_row(ability.get_display_name(), desc, f"cost: {ability.db.cost[1]} {ability.db.cost[0]}")
+            cost_string = ""
+            for cost in ability.db.cost:
+                stat, amt = cost
+                cost_string = cost_string + f"{amt} {stat}, "
+            # Remove comma and space
+            cost_string = cost_string[:-2]
+            table.add_row(ability.get_display_name(), desc, f"costs: {cost_string}")
         self.caller.msg(table)
 
 

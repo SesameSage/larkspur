@@ -20,7 +20,7 @@ class Ability(Object):
         # Required attributes to learn
         self.db.requires = []
 
-        self.db.cost = None
+        self.db.cost = []
         self.db.cooldown = 0
 
     def cast(self, caster: LivingEntity, target: Object = None):
@@ -41,11 +41,14 @@ class Ability(Object):
         Returns:
             Boolean whether the check passed.
         """
-        if self.db.cost:  # If ability costs mana/stamina
-            if caster.attributes.get(self.db.cost[0]) < self.db.cost[1]:  # If caster doesn't have enough
+        # Mana or stamina cost
+        for stat, amt in self.db.cost:
+            if caster.attributes.get(stat) < amt:
                 caster.msg("Not enough " + self.db.cost[0] + "!")
                 return False
-        if self.db.cooldown > 0 and not caster.is_superuser:  # If ability has a cooldown
+
+        # If ability has a cooldown
+        if self.db.cooldown > 0 and not caster.is_superuser:
             try:
                 if caster.db.cooldowns[self.key] > 0:  # If caster has cooldown time remaining
                     if caster.is_in_combat():  # Convert seconds to turns
@@ -57,7 +60,9 @@ class Ability(Object):
                     return False
             except KeyError:
                 caster.db.cooldowns[self.key] = 0
-        if self.db.targeted:  # If ability is meant to target something
+
+        # If ability is meant to target something
+        if self.db.targeted:
             if target and target is not None:
                 # This may cause a circular import eventually to not work around
                 if self.db.must_target_entity:
@@ -88,6 +93,11 @@ class Ability(Object):
         """
         if self.db.cooldown > 0:
             caster.db.cooldowns[self.key] = self.db.cooldown
+        for stat, amt in self.db.cost:
+            match stat:
+                case "mana":
+                    caster.db.mana -= amt
+                case "stamina": caster.db.stamina -= amt
         if self.db.cost:
             match self.db.cost[0]:
                 case "mana":

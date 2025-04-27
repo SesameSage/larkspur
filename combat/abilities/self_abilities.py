@@ -11,7 +11,7 @@ class EnergyTap(Ability):
         super().at_object_creation()
         self.db.desc = "Reinvigorate yourself with your opponents' stamina as you attack."
         self.db.targeted = False
-        self.db.cost = ("mana", 12)
+        self.db.cost = [("mana", 12)]
         self.db.cooldown = 8 * SECS_PER_TURN
 
     def func(self, caster: LivingEntity, target: Object = None):
@@ -27,7 +27,7 @@ class Expel(Ability):
         super().at_object_creation()
         self.db.desc = "Collect and expel the negative aura in your body to remove a temporary debuff."
         self.db.targeted = False
-        self.db.cost = ("mana", 16)
+        self.db.cost = [("mana", 16)]
         self.db.cooldown = 8 * SECS_PER_TURN
 
     def func(self, caster: LivingEntity, target: Object = None):
@@ -50,7 +50,7 @@ class FocusMind(Ability):
         self.db.targeted = False
 
         self.db.requires = [("wisdom", 2)]
-        self.db.cost = ("stamina", 5)
+        self.db.cost = [("stamina", 5)]
         self.db.cooldown = 3 * SECS_PER_TURN
 
     def func(self, caster: LivingEntity, target: Object = None):

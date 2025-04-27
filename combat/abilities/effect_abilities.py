@@ -17,7 +17,7 @@ class Sweep(Ability):
         self.db.must_target_entity = True
 
         self.db.requires = [("dexterity", 2)]
-        self.db.cost = ("stamina", 1)
+        self.db.cost = [("stamina", 1)]
         self.db.cooldown = 5 * SECS_PER_TURN
 
     def func(self, caster: LivingEntity, target: Object = None):

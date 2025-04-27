@@ -14,7 +14,7 @@ class Ward(Spell):
 
         self.db.requires = [("wisdom", 6)]
         self.db.cooldown = 3 * SECS_PER_TURN
-        self.db.cost = ("mana", 5)
+        self.db.cost = [("mana", 5)]
 
     def func(self, caster: LivingEntity, target: Object = None):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} draws an arc of magical protection "
@@ -35,7 +35,7 @@ class ArmorOfThorns(Spell):
         self.db.must_target_entity = True
 
         self.db.requires = [("wisdom", 2)]
-        self.db.cost = ("mana", 8)
+        self.db.cost = [("mana", 8)]
         self.db.cooldown = 3 * SECS_PER_TURN
 
     def func(self, caster: LivingEntity, target: Object = None):
@@ -61,7 +61,7 @@ class ThermalSink(Spell):
         self.db.must_target_entity = False
 
         self.db.requires = [("wisdom", 3)]
-        self.db.cost = ("mana", 15)
+        self.db.cost = [("mana", 15)]
 
     def func(self, caster: LivingEntity, target: Object = None):
         attributes = [
