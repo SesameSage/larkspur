@@ -445,9 +445,7 @@ class CombatEntity(EquipmentEntity):
                 return
             else:
                 self.effect_active(effect_key).reset_seconds(duration)  # Restart timer, with this version's duration
-                # TODO: This needs a positivity function or attribute to access
-                color = appearance.good_effect if positive else appearance.bad_effect
-                self.location.msg_contents(f"{self.get_display_name(capital=True)} regains {color}{effect_key}.")
+                self.location.msg_contents(f"{self.get_display_name(capital=True)} regains {script.color()}{effect_key}.")
                 return
 
         # Create effect script attached to this entity

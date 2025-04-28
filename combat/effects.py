@@ -9,6 +9,8 @@ from typeclasses.scripts.scripts import Script
 SECS_PER_TURN = 3
 
 
+# TODO: From property
+
 class DamageTypes(Enum):
     BLUNT = 1
     SLASHING = 2

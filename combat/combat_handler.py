@@ -14,6 +14,19 @@ HITROLL_PERCEPTION_BONUS = 2
 
 class CombatHandler:
 
+    def get_allies(self, character):
+        allies = []
+        if character.is_in_combat():
+            container = character.db.combat_turnhandler.db.fighters
+        else:
+            container = character.location.contents
+
+        for content in container:
+            if content.db.hostile_to_players == character.db.hostile_to_players:
+                allies.append(content)
+        return allies
+
+
     def get_accuracy(self, attacker, defender):
         """
         Returns an accuracy for an attack, applying only the attacker's stat modifications to a hitroll.
