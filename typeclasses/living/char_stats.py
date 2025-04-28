@@ -290,7 +290,7 @@ class CmdStats(Command):
                          f"|w{target.db.level}|n\n"
                          f"|500{target.db.hp}/{target.get_max("hp")}|n\n"
                          f"|125{target.db.mana}/{target.get_max("mana")}|n\n"
-                         f"|030{target.db.stamina}/{target.db.max_stam}|n\n\n"
+                         f"|030{target.db.stamina}/{target.get_max("stam")}|n\n\n"
 
                          f"{appearance.gold}{target.db.gold}|n\n"
                          f"{target.carried_count()}/{target.db.max_carry_count}\n"

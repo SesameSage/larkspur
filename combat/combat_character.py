@@ -459,7 +459,7 @@ class CombatEntity(EquipmentEntity):
     def apply_effects(self):
         """Apply/increment all active effect scripts on this entity."""
         for script in self.scripts.all():
-            if isinstance(script, DurationEffect):
+            if inherits_from(script, DurationEffect):
                 try:
                     script.apply(in_combat=self.is_in_combat())
                 except TypeError:

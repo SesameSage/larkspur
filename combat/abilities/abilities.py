@@ -42,9 +42,10 @@ class Ability(Object):
             Boolean whether the check passed.
         """
         # Mana or stamina cost
-        for stat, amt in self.db.cost:
+        for cost in self.db.cost:
+            stat, amt = cost
             if caster.attributes.get(stat) < amt:
-                caster.msg("Not enough " + self.db.cost[0] + "!")
+                caster.msg("Not enough " + stat.capitalize() + "!")
                 return False
 
         # If ability has a cooldown
