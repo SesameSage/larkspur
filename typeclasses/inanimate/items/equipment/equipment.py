@@ -74,7 +74,7 @@ class Equipment(Item):
         # Replace any existing equipment
         prev_item = wearer.db.equipment[self.db.equipment_slot]
         if prev_item:
-            prev_item.unequip(wearer=wearer, quiet=True)
+            prev_item.unequip(wearer=wearer)
 
         # Fill slot and set to equipped
         wearer.db.equipment[self.db.equipment_slot] = self
@@ -82,7 +82,7 @@ class Equipment(Item):
 
         # Echo a message to the room
         if not quiet:
-            message = f"$You() $conj(equip) {self.name}."
+            message = f"$You() $conj(equip) {self.get_display_name(article=True)}."
             wearer.location.msg_contents(message, from_obj=wearer)
 
         eq_mods_mapping = {"Max HP": wearer.db.max_hp,
@@ -133,7 +133,7 @@ class Equipment(Item):
 
         # Echo a message to the room
         if not quiet:
-            remove_message = f"$You() $conj(unequip) {self.get_display_name()}."
+            remove_message = f"$You() $conj(unequip) {self.get_display_name(article=True)}."
             wearer.location.msg_contents(remove_message, from_obj=wearer)
 
         if wearer.db.equipment[self.db.equipment_slot] != self:  # If successful
