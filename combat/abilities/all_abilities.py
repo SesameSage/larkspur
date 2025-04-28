@@ -20,6 +20,8 @@ for filename in [".ally_abilities", ".ally_spells", ".damage_abilities", ".damag
                 key = (member[1].key if isinstance(member[1].key, str) else member[0])
                 ALL_ABILITIES[key] = member[1]
 
+ALL_ABILITIES = dict(sorted(ALL_ABILITIES.items()))
+
 
 def get(inpt):
     for ability_name in ALL_ABILITIES:
