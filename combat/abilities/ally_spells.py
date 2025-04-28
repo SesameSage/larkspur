@@ -53,3 +53,29 @@ class Cleanse(Spell):
                 return True
         target.location.msg(f"Couldn't find a negative effect on {target.get_display_name()}!")
         return False
+
+
+class HealWounds(Spell):
+    key = "Heal Wounds"
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.desc = "Restore some of an ally's HP."
+
+        self.db.targeted = True
+        self.db.must_target_entity = True
+
+        self.db.requires = ("spirit", 2)
+        self.db.cost = [("mana", 12)]
+        self.db.cooldown = 3 * SECS_PER_TURN
+
+    def func(self, caster: LivingEntity, target: Object = None):
+        target.location.msg_contents(f"{caster.get_display_name(capital=True)} immerses "
+                                     f"{target.get_display_name(article=True)}'s wounds in holy water.")
+        amt_healed = caster.get_attr("spirit") * 10
+        amt_can_be_healed = target.get_max("hp") - target.db.hp
+        if amt_healed > amt_can_be_healed:
+            amt_healed = amt_can_be_healed
+        target.db.hp += amt_healed
+        target.location.msg_contents(f"{target.get_display_name(capital=True)} restores {amt_healed} HP!")
+
