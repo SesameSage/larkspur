@@ -39,9 +39,9 @@ class CmdFight(Command):
             return
 
         something_hostile_here = False
-        for thing in here.contents:  # Test everything in the room to add it to the fight.
-            if thing.db.HP:  # If the object has HP...
-                fighters.append(thing)  # ...then add it to the fight.
+        for thing in here.filter_visible(here.contents, self.caller):
+            if thing.db.HP:
+                fighters.append(thing)
                 if thing.db.hostile_to_players:
                     something_hostile_here = True
         if len(fighters) <= 1 or not something_hostile_here:  # If you're the only fighter, or none are hostile
