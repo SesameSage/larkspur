@@ -44,7 +44,7 @@ in your game and using it as-is.
 from random import randint
 
 from evennia import DefaultScript
-from evennia.utils import evtable, inherits_from
+from evennia.utils import evtable, inherits_from, delay
 
 from server import appearance
 from combat.effects import SECS_PER_TURN, DurationEffect
@@ -108,7 +108,7 @@ class TurnHandler(DefaultScript):
     remaining participants choose to end the combat with the 'disengage' command.
     """
 
-# TODO: Fight starter gets to take action at the start
+    # TODO: Fight starter gets to take action at the start
     def at_script_creation(self):
         """
         Called once, when the script is created.
@@ -138,7 +138,8 @@ class TurnHandler(DefaultScript):
         self.db.fighters = ordered_by_roll
 
         # Announce the turn order.
-        self.obj.msg_contents("Turn order is: %s " % ", ".join(obj.get_display_name(capital=True) for obj in self.db.fighters))
+        self.obj.msg_contents(
+            "Turn order is: %s " % ", ".join(obj.get_display_name(capital=True) for obj in self.db.fighters))
 
         # Start first fighter's turn.
         self.start_turn(self.db.fighters[0])
@@ -321,6 +322,10 @@ class TurnHandler(DefaultScript):
             self.spend_action(character, "all", "stand up")
         character.tick_cooldowns(SECS_PER_TURN)
         character.apply_effects()
+
+        combat_ai = character.db.ai
+        if combat_ai:
+            delay(2, combat_ai.take_turn)
 
     def is_turn(self, character):
         """

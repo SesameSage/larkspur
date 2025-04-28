@@ -26,7 +26,6 @@ ATTRIBUTES = {
         "long_desc": "",
         "affects": "Affects: capability to use abilities, lockpicking, alchemy, trapmaking, deception, and deception "
                    "detection"
-        # TODO: Attribute requirements for spells
     },
     "wisdom": {
         "long_desc": "",
