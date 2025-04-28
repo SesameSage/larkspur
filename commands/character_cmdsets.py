@@ -1,9 +1,18 @@
+from collections import defaultdict
+from itertools import chain
+
 from evennia import Command
+from evennia.commands.default.help import CmdHelp, HelpCategory
 from evennia.commands.default.muxcommand import MuxCommand
+from evennia.help.filehelp import FILE_HELP_ENTRIES
+from evennia.help.models import HelpEntry
+from evennia.help.utils import help_search_with_index, parse_entry_for_subcategories
+from evennia.utils import inherits_from
 from evennia.utils.create import create_object
 from evennia.utils.evtable import EvTable
 
 from combat.abilities import all_abilities
+from combat.abilities.all_abilities import ALL_ABILITIES
 from combat.abilities.spells import Spell
 from commands.permissions_cmdsets import BuildingCmdSet
 from commands.refiled_cmds import *
@@ -240,7 +249,7 @@ class CmdLearn(MuxCommand):
         if self.caller.knows_ability(target_ability):
             self.caller.msg(f"You already know this {ability_or_spell}!")
             return
-        if not self.caller.is_correct_class(target_ability):
+        if not target_ability.in_ability_tree(self.caller.db.rpg_class):
             self.caller.msg(f"You are not the right class to learn this {ability_or_spell}!")
             return
         if not self.caller.meets_level_requirement(target_ability):
@@ -294,13 +303,7 @@ class CmdSpells(Command):
             desc = ability.db.desc
             if len(desc) > 45:
                 desc = desc[:45] + "..."
-            cost_string = ""
-            for cost in ability.db.cost:
-                stat, amt = cost
-                cost_string = cost_string + f"{amt} {stat}, "
-            # Remove comma and space
-            cost_string = cost_string[:-2]
-            table.add_row(ability.get_display_name(), desc, f"costs: {cost_string}")
+            table.add_row(ability.get_display_name(), desc, f"costs: {ability.cost_string()}")
         self.caller.msg(table)
 
 

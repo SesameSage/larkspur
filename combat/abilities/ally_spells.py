@@ -39,7 +39,7 @@ class Cleanse(Spell):
         self.db.targeted = True
         self.db.must_target_entity = True
 
-        self.db.requires = ("spirit", 3)
+        self.db.requires = [("spirit", 3)]
         self.db.cost = [("mana", 12)]
         self.db.cooldown = 5 * SECS_PER_TURN
 

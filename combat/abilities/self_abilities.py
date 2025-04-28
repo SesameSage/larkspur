@@ -27,6 +27,8 @@ class Expel(Ability):
         super().at_object_creation()
         self.db.desc = "Collect and expel the negative aura in your body to remove a temporary debuff."
         self.db.targeted = False
+
+        self.db.requires = [("wisdom", 5)]
         self.db.cost = [("mana", 16)]
         self.db.cooldown = 8 * SECS_PER_TURN
 

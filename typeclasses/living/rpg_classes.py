@@ -41,17 +41,6 @@ class Gladiator(CombatClass):
                            6: [("Wisdom", 1)]}
 
 
-class Monk(CombatClass):
-    equipment_types = [Dagger, Quarterstaff]
-    level_to_attributes = {1: [("Dexterity", 1), ("Wisdom", 1)],
-                           2: [("Constitution", 1)],
-                           3: [("Dexterity", 1)],
-                           4: [("Wisdom", 1), ("Spirit", 1)],
-                           5: [("Wisdom", 1)],
-                           6: [("Dexterity", 1), ("Constitution", 1)]}
-    ability_tree = {1: (Sweep, NeutralizingHum)}
-
-
 class Assassin(CombatClass):
     equipment_types = [Sword, HandAxe, Dagger, Blowgun]
     level_to_attributes = {1: [("Dexterity", 1), ("Perception", 1)],
@@ -72,6 +61,37 @@ class Ranger(CombatClass):
                            6: [("Perception", 1)]}
 
 
+class Monk(CombatClass):
+    equipment_types = [Dagger, Quarterstaff]
+    level_to_attributes = {1: [("Dexterity", 1), ("Wisdom", 1)],
+                           2: [("Constitution", 1)],
+                           3: [("Dexterity", 1)],
+                           4: [("Wisdom", 1), ("Spirit", 1)],
+                           5: [("Wisdom", 1)],
+                           6: [("Dexterity", 1), ("Constitution", 1)]}
+    ability_tree = {1: (Sweep, NeutralizingHum)}
+
+
+class Sorcerer(CombatClass):
+    equipment_types = [Staff, Wand]
+    level_to_attributes = {1: [("Spirit", 1), ("Wisdom", 1)],
+                           2: [("Spirit", 1), ("Wisdom", 1)],
+                           3: [("Spirit", 1)],
+                           4: [("Spirit", 1), ("Wisdom", 1)],
+                           5: [("Spirit", 1)],
+                           6: [("Intelligence", 1)]}
+
+
+class Cleric(CombatClass):
+    equipment_types = [Staff]
+    level_to_attributes = {1: [("Spirit", 1), ("Wisdom", 1)],
+                           2: [("Spirit", 1)],
+                           3: [("Wisdom", 1), ("Constitution", 1)],
+                           4: [("Spirit", 1)],
+                           5: [("Spirit", 1), ("Constitution", 1)],
+                           6: [("Wisdom", 1)]}
+
+
 class Druid(CombatClass):
     class_desc = "Druids shapeshift into other natural forms to see the unseen, reach the unreachable, take"
     " advantage of the natural environment, and choose on-the-spot from a versatile array of combat strategies."
@@ -85,16 +105,6 @@ class Druid(CombatClass):
                            6: [("Wisdom", 1), ("Intelligence", 1)]}
 
 
-class Cleric(CombatClass):
-    equipment_types = [Staff]
-    level_to_attributes = {1: [("Spirit", 1), ("Wisdom", 1)],
-                           2: [("Spirit", 1)],
-                           3: [("Wisdom", 1), ("Constitution", 1)],
-                           4: [("Spirit", 1)],
-                           5: [("Spirit", 1), ("Constitution", 1)],
-                           6: [("Wisdom", 1)]}
-
-
 class Witch(CombatClass):
     equipment_types = [Wand, Dagger]
     level_to_attributes = {1: [("Wisdom", 1), ("Spirit", 1)],
@@ -105,14 +115,7 @@ class Witch(CombatClass):
                            6: [("Perception", 1)]}
 
 
-class Sorcerer(CombatClass):
-    equipment_types = [Staff, Wand]
-    level_to_attributes = {1: [("Spirit", 1), ("Wisdom", 1)],
-                           2: [("Spirit", 1), ("Wisdom", 1)],
-                           3: [("Spirit", 1)],
-                           4: [("Spirit", 1), ("Wisdom", 1)],
-                           5: [("Spirit", 1)],
-                           6: [("Intelligence", 1)]}
+RPG_CLASSES = [Templar, Warden, Gladiator, Assassin, Ranger, Monk, Sorcerer, Cleric, Druid, Witch]
 
 
 def get_attributes(rpg_class, level: int):

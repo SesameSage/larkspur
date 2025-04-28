@@ -6,8 +6,6 @@ from typeclasses.base.objects import Object
 from typeclasses.living.living_entities import LivingEntity
 
 
-# TODO: Help entries for abilities
-
 class Firebolt(Spell):
     """Causes fire damage and inflicts Burning, adding more damage over time."""
 
@@ -16,6 +14,8 @@ class Firebolt(Spell):
         self.db.desc = "Ignite a bolt of fire and hurl it towards your target for a chance to ignite."
         self.db.targeted = True
         self.db.must_target_entity = False
+
+        self.db.requires = [("spirit", 2)]
         self.db.cost = [("mana", 2)]
         self.db.cooldown = 2 * SECS_PER_TURN
 

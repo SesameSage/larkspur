@@ -4,8 +4,8 @@ from typeclasses.inanimate.items.spellcomp import SpellComp
 from typeclasses.living.living_entities import LivingEntity
 
 
-# TODO: Make cost into a multi-item container so it can be used for AP
 class Ability(Object):
+    help_category = "spells"
 
     def at_object_creation(self):
         if not self.key:
@@ -18,7 +18,7 @@ class Ability(Object):
         self.db.targeted = False
         self.db.must_target_entity = False
         # Required attributes to learn
-        self.db.requires = []
+        self.db.requires = [()]
 
         self.db.cost = []
         self.db.cooldown = 0
@@ -105,8 +105,40 @@ class Ability(Object):
                 case "stamina":
                     caster.db.stamina -= self.db.cost[1]
 
+    def in_ability_tree(self, rpg_class):
+        ability_tree = rpg_class.ability_tree
+        for level in ability_tree:
+            if type(self) in ability_tree[level]:
+                return True
+        return False
+
     def color(self):
         return appearance.ability
+
+    def cost_string(self):
+        cost_string = ""
+        for cost in self.db.cost:
+            stat, amt = cost
+            cost_string = cost_string + f"{amt} {stat}, "
+        # Remove comma and space
+        cost_string = cost_string[:-2]
+        return cost_string
+
+    def requires_string(self):
+        string = ""
+        for requirement in self.db.requires:
+            stat, amt = requirement
+            string = string + f"{amt} {stat.capitalize()}, "
+        string = string[:-2]
+        return string
+
+    def get_help(self):
+        return f"""
+        {self.db.desc}
+        
+        Requires: {self.requires_string()}
+        Costs: {self.cost_string()}
+        """
 
 
 class SustainedAbility(Ability):

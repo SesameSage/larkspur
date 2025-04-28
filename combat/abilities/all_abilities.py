@@ -1,7 +1,7 @@
 import importlib
 import inspect
 
-from combat.abilities.abilities import Ability
+from evennia.utils import inherits_from
 
 ALL_ABILITIES = {}
 
@@ -11,7 +11,7 @@ for filename in [".ally_abilities", ".ally_spells", ".damage_abilities", ".damag
     for member in members:
         if not isinstance(member[1], type):
             continue
-        if issubclass(member[1], Ability):
+        if inherits_from(member[1], "combat.abilities.abilities.Ability"):
             if member[0] in [
                 "Ability", "Spell", "SpellCompAbility", "SustainedAbility", "SpellCompSpell", "SustainedSpell"
             ]:

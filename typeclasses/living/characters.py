@@ -242,15 +242,6 @@ class PlayerCharacter(Character):
     def level_up(self):
         self.update_base_stats()
 
-    def is_correct_class(self, target):
-        # Abilities
-        if target.db.cooldown:
-            ability_tree = self.db.rpg_class.ability_tree
-            for level in ability_tree:
-                if type(target) in ability_tree[level]:
-                    return True
-            return False
-
     def meets_level_requirement(self, target):
         # Abilities
         if target.db.cooldown:
@@ -339,7 +330,7 @@ class Trainer(NPC):
             elif player.meets_level_requirement(ability) and player.meets_attr_requirements(ability):
                 color = "|450"
                 shown.append((ability, color))
-            elif player.is_correct_class(ability):
+            elif ability.in_ability_tree(player.db.rpg_class):
                 color = "|w"
                 if show_all:
                     shown.append((ability, color))
