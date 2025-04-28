@@ -457,6 +457,8 @@ class TurnHandler(DefaultScript):
             self.obj.msg_contents(f"{appearance.ambient}Quiet falls upon the battlefield.")
             if hostiles_left == 0:
                 self.obj.msg_contents("|[350|=aYou are victorious!")
+            for fighter in self.db.fighters:
+                delay(timedelay=3, callback=fighter.execute_cmd, raw_string="look")
             self.stop()  # Stop this script and end combat.
             self.delete()
             return
