@@ -46,8 +46,9 @@ from random import randint
 from evennia import DefaultScript
 from evennia.utils import evtable, inherits_from, delay
 
+from combat.combat_handler import COMBAT
 from server import appearance
-from combat.effects import SECS_PER_TURN, DurationEffect, EffectScript
+from combat.effects import SECS_PER_TURN, DurationEffect
 
 """
 ----------------------------------------------------------------------------
@@ -92,7 +93,6 @@ specifying any of the following:
 """
 
 TURN_TIMEOUT = 30  # Time before turns automatically end, in seconds
-ACTIONS_PER_TURN = 1  # Number of actions allowed per turn
 NONCOMBAT_TURN_TIME = 30  # Time per turn count out of combat
 
 
@@ -205,7 +205,7 @@ class TurnHandler(DefaultScript):
         """
         # Clean up leftover combat attributes beforehand, just in case.
         self.combat_cleanup(character)
-        character.db.combat_actionsleft = (
+        character.db.combat_ap = (
             0  # Actions remaining - start of turn adds to this, turn ends when it reaches 0
         )
         character.db.combat_turnhandler = (
@@ -296,7 +296,7 @@ class TurnHandler(DefaultScript):
         if not self.id:
             return
 
-        character.db.combat_actionsleft = ACTIONS_PER_TURN  # Replenish actions
+        character.db.combat_ap += COMBAT.get_ap(character)  # Replenish actions
 
         other_fighters = self.obj.contents
         other_fighters.remove(character)
@@ -324,6 +324,7 @@ class TurnHandler(DefaultScript):
                 row.append(effects_str)
             table.add_row(*row)
         character.msg(table)
+        character.msg(f"You have {appearance.highlight}{character.db.combat_ap} AP.")
 
         if character.effect_active("Frozen"):
             character.location.msg_contents(character.get_display_name(capital=True) + " is frozen solid and cannot act!")
@@ -369,12 +370,12 @@ class TurnHandler(DefaultScript):
         if action_name:
             character.db.combat_lastaction = action_name
         if actions == "all":  # If spending all actions
-            character.db.combat_actionsleft = 0  # Set actions to 0
+            character.db.combat_ap = 0  # Set actions to 0
         else:
             try:
-                character.db.combat_actionsleft -= actions  # Use up actions.
-                if character.db.combat_actionsleft < 0:
-                    character.db.combat_actionsleft = 0  # Can't have fewer than 0 actions
+                character.db.combat_ap -= actions  # Use up actions.
+                if character.db.combat_ap < 0:
+                    character.db.combat_ap = 0  # Can't have fewer than 0 actions
             except TypeError:
                 return
         character.db.combat_turnhandler.turn_end_check(character)  # Signal potential end of turn.
@@ -386,7 +387,9 @@ class TurnHandler(DefaultScript):
         Args:
             character (obj): Character to test for end of turn
         """
-        if not character.db.combat_actionsleft:  # Character has no actions remaining
+        if character.db.combat_ap > 0:
+            character.msg(f"You have {appearance.highlight}{character.db.combat_ap} AP.")
+        else:  # Character has no actions remaining
             self.all_defeat_check()
             if not self.id:
                 return
