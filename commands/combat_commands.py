@@ -12,11 +12,12 @@ from typeclasses.inanimate.items.usables import Usable, Consumable
 
 def start_join_fight(attacker, target=None):
     """
-    When attacking or casting, if entities of opposing hostility are present,
+    When attacking or offensively casting, if entities of opposing hostility are present, start combat or add
+    participants to any combat already going on in the room.
 
-    :param attacker:
-    :param target:
-    :return:
+    Args:
+        attacker: The entity attacking or casting.
+        target: The target of the attack or ability, if targeted.
     """
     here = attacker.location
 
@@ -206,8 +207,6 @@ class CmdCast(MuxCommand):
                 self.caller.msg("No valid target found for " + target_string)
                 return
 
-        # Start/join a fight if applicable and not already in one
-        start_join_fight(self.caller, target)
 
         # Find ability/spell by name
         valid_castables = []
@@ -220,8 +219,15 @@ class CmdCast(MuxCommand):
         elif len(valid_castables) > 1:
             self.caller.msg("Multiple abilities found for " + ability_string)
             return
+
         if 0 < len(valid_castables) < 2:
-            if valid_castables[0].cast(caster=self.caller, target=target):  # If successfully cast
+            ability = valid_castables[0]
+
+            # If offensive, start/join a fight if applicable and not already in one
+            if ability.db.offensive:
+                start_join_fight(self.caller, target)
+
+            if ability.cast(caster=self.caller, target=target):  # If successfully cast
                 # Spend an action if in combat
                 if self.caller.is_in_combat():
                     self.caller.db.combat_turnhandler.spend_action(character=self.caller, actions=1, action_name="cast")

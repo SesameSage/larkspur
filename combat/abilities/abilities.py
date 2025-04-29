@@ -19,6 +19,8 @@ class Ability(Object):
 
         self.db.targeted = False
         self.db.must_target_entity = False
+        self.db.offensive = True
+
         # Required attributes to learn
         self.db.requires = [()]
 

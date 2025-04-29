@@ -12,6 +12,8 @@ class MindClearingTone(Ability):
     def at_object_creation(self):
         super().at_object_creation()
         self.db.targeted = False
+        self.db.offensive = False
+
         self.db.requires = [("wisdom", 5)]
         self.db.cost = [("mana", 12)]
         self.db.cooldown = 5 * SECS_PER_TURN

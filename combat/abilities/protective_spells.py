@@ -6,12 +6,13 @@ from typeclasses.living.living_entities import LivingEntity
 
 class Ward(Spell):
     """Target gains 10 resistance through a protective magical shield."""
+    desc = "Protect a target with a magical shield of resistance."
 
     def at_object_creation(self):
         super().at_object_creation()
-        self.db.desc = "Protect a target with a magical shield of resistance."
         self.db.targeted = True
         self.db.must_target_entity = True
+        self.db.offensive = False
 
         self.db.requires = [("wisdom", 6)]
         self.db.cost = [("mana", 5)]
@@ -28,12 +29,13 @@ class Ward(Spell):
 
 class ArmorOfThorns(Spell):
     key = "Armor of Thorns"
+    desc = "Protect your target with a coat of thorns to damage melee attackers."
 
     def at_object_creation(self):
         super().at_object_creation()
-        self.db.desc = "Protect your target with a coat of thorns to damage melee attackers."
         self.db.targeted = True
         self.db.must_target_entity = True
+        self.db.offensive = False
 
         self.db.requires = [("wisdom", 2)]
         self.db.cost = [("mana", 8)]
@@ -53,13 +55,13 @@ class ArmorOfThorns(Spell):
 class ThermalSink(Spell):
     """+10 Fire and Cold resistance"""
     key = "Thermal Sink"
+    desc = "Enshroud an ally with a heat sink capable of insulating both hot and cold damage."
 
     def at_object_creation(self):
         super().at_object_creation()
-        self.key = "Thermal Sink"
-        self.db.desc = "Enshroud an ally with a heat sink capable of insulating both hot and cold damage."
         self.db.targeted = True
         self.db.must_target_entity = False
+        self.db.offensive = False
 
         self.db.requires = [("wisdom", 3)]
         self.db.cost = [("mana", 15)]

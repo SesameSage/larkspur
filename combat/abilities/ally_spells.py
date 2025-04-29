@@ -11,6 +11,7 @@ class Revive(Spell):
         super().at_object_creation()
         self.db.targeted = True
         self.db.must_target_entity = True
+        self.db.offensive = False
 
         self.db.requires = [("spirit", 10)]
         self.db.cost = [("mana", 25)]
@@ -38,6 +39,7 @@ class Cleanse(Spell):
         super().at_object_creation()
         self.db.targeted = True
         self.db.must_target_entity = True
+        self.db.offensive = False
 
         self.db.requires = [("spirit", 3)]
         self.db.cost = [("mana", 12)]
@@ -63,6 +65,7 @@ class HealWounds(Spell):
         super().at_object_creation()
         self.db.targeted = True
         self.db.must_target_entity = True
+        self.db.offensive = False
 
         self.db.requires = [("spirit", 2)]
         self.db.cost = [("mana", 12)]
