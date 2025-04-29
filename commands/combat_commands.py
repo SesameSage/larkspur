@@ -10,6 +10,19 @@ from server import appearance
 from typeclasses.inanimate.items.usables import Usable, Consumable
 
 
+def start_join_fight(attacker, target):
+    if attacker.db.hostile_to_players != target.db.hostile_to_players:
+        here = attacker.location
+        if not attacker.is_in_combat():
+            if here.db.combat_turnhandler:
+                here.db.combat_turnhandler.join_fight(attacker)
+            else:
+                create_script(typeclass=TurnHandler, obj=here, attributes=[("starter", attacker)])
+        if not target.is_in_combat():
+            if here.db.combat_turnhandler:
+                here.db.combat_turnhandler.join_fight(target)
+
+
 class CmdFight(Command):
     """
     start a fight in this location
@@ -75,11 +88,13 @@ class CmdAttack(Command):
     help_category = "combat"
 
     def func(self):
-        if not self.confirm_in_combat():
-            return
-        if not self.turn_handler.is_turn(self.caller):  # If it's not your turn, can't attack.
-            self.caller.msg("You can only do that on your turn.")
-            return
+        here = self.caller.location
+        if self.confirm_in_combat():
+            if not self.turn_handler.is_turn(self.caller):  # If it's not your turn, can't attack.
+                self.caller.msg("You can only do that on your turn.")
+                return
+        else:
+            self.turn_handler = create_script(typeclass=TurnHandler, obj=here, attributes=[("starter", self.caller)])
 
         if not self.caller.db.hp:  # Can't attack if you have no HP.
             self.caller.msg("You can't attack, you've been defeated.")
@@ -88,7 +103,7 @@ class CmdAttack(Command):
         attacker = self.caller
 
         valid_targets = []
-        for fighter in attacker.location.scripts.get("Combat Turn Handler")[0].db.fighters:
+        for fighter in self.turn_handler.db.fighters:
             if fighter is not attacker and fighter.db.hp > 0:
                 valid_targets.append(fighter)
         if self.args == "":  # No valid target given.
@@ -110,6 +125,8 @@ class CmdAttack(Command):
         if attacker == defender:  # Target and attacker are the same
             self.caller.msg("You can't attack yourself!")
             return
+
+        start_join_fight(attacker, defender)
 
         COMBAT.resolve_attack(attacker, defender, attack=self.caller.get_weapon())
         # Resolve attack (get_weapon_damage)
@@ -143,7 +160,8 @@ class CmdCast(MuxCommand):
     def func(self):
         # Left is ability/spell name
         if not self.lhs:
-            self.caller.msg(f"Cast what? {appearance.cmd}cast <ability>|n or {appearance.cmd}cast <ability> on <target>")
+            self.caller.msg(
+                f"Cast what? {appearance.cmd}cast <ability>|n or {appearance.cmd}cast <ability> on <target>")
             return
         ability_string = self.lhs
 
@@ -157,10 +175,13 @@ class CmdCast(MuxCommand):
                 target = self.caller
             else:
                 target = self.caller.search(target_string, candidates=[
-                content for content in self.caller.location.contents if content.attributes.has("hp")])
+                    content for content in self.caller.location.contents if content.attributes.has("hp")])
             if not target:
                 self.caller.msg("No valid target found for " + target_string)
                 return
+
+        # Start/join a fight if applicable and not already in one
+        start_join_fight(self.caller, target)
 
         # Find ability/spell by name
         valid_castables = []
@@ -377,7 +398,6 @@ class BattleCmdSet(default_cmds.CharacterCmdSet):
         """
         Populates the cmdset
         """
-        self.add(CmdFight())
         self.add(CmdAttack())
         self.add(CmdCast())
         self.add(CmdRest())
