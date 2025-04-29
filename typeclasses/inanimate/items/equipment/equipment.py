@@ -250,7 +250,10 @@ class EquipmentEntity(DefaultCharacter):
         carry_table = EvTable(border="header")
         carry_table.add_row("\n|wCarrying:|n")
         for item in carried:
-            carry_table.add_row(item.get_display_name(), item.get_display_desc(looker=looker))
+            desc = item.get_display_desc(looker=looker)
+            if len(desc) > 60:
+                desc = desc[:58] + "..."
+            carry_table.add_row(item.get_display_name(), item.db.weight, desc)
         if carry_table.nrows <= 1:
             carry_table.add_row("Nothing.")
 
