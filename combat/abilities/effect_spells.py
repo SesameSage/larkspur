@@ -6,13 +6,11 @@ from typeclasses.living.living_entities import LivingEntity
 
 class BlindingBeam(Spell):
     """Causes Blindness, halving target's hitrolls."""
+    desc = "Blind your target with a focused beam of bright light."
     key = "Blinding Beam"
 
     def at_object_creation(self):
         super().at_object_creation()
-        self.key = "Blinding Beam"
-        self.db.desc = "Blind your target with a focused beam of bright light."
-
         self.db.targeted = True
         self.db.must_target_entity = True
 
@@ -28,9 +26,9 @@ class BlindingBeam(Spell):
 
 
 class Freeze(Spell):
+    desc = "Encase your opponent in ice, preventing them from acting at all on their turn."
     def at_object_creation(self):
         super().at_object_creation()
-        self.db.desc = "Encase your opponent in ice, preventing them from acting at all on their turn."
         self.db.targeted = True
         self.db.must_target_entity = False
 
@@ -51,9 +49,9 @@ class Freeze(Spell):
 
 
 class Curse(Spell):
+    desc = "Inflict your opponent with a curse that strikes them whenever they deal damage."
     def at_object_creation(self):
         super().at_object_creation()
-        self.db.desc = "Inflict your opponent with a curse that strikes them whenever they deal damage."
         self.db.targeted = True
         self.db.must_target_entity = True
 
@@ -75,9 +73,9 @@ class Curse(Spell):
 
 
 class Wither(Spell):
+    desc = "Cause an opponent's stamina to wither away over time."
     def at_object_creation(self):
         super().at_object_creation()
-        self.db.desc = "Cause an opponent's stamina to wither away over time."
         self.db.targeted = True
         self.db.must_target_entity = True
 

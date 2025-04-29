@@ -6,10 +6,12 @@ from typeclasses.living.living_entities import LivingEntity
 
 class Ability(Object):
     help_category = "spells"
+    desc = ""
 
     def at_object_creation(self):
         if not self.key:
             self.key = self.__class__.__name__
+        self.db.desc = self.desc
         self.locks.add("view:false()")
 
         self.db.desc = ""

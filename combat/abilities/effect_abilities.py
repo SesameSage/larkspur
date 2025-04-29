@@ -40,10 +40,10 @@ class Sweep(Ability):
 
 class NeutralizingHum(Ability):
     key = "Neutralizing Hum"
+    desc = "Drain mana from all opponents with this throat-singing tone."
 
     def at_object_creation(self):
         super().at_object_creation()
-        self.db.desc = "Drain mana from all opponents with this throat-singing tone."
         self.db.targeted = False
 
         self.db.requires = [("wisdom", 8)]
@@ -69,11 +69,11 @@ class NeutralizingHum(Ability):
 
 class SolarPlexusStrike(Ability):
     key = "Solar Plexus Strike"
+    desc = ("Strike at the center of power in the body, weakening your opponent's attack and potentially "
+            "winding them.")
 
     def at_object_creation(self):
         super().at_object_creation()
-        self.db.desc = ("Strike at the center of power in the body, weakening your opponent's attack and potentially "
-                        "winding them.")
         self.db.targeted = True
         self.db.must_target_entity = True
 

@@ -5,10 +5,10 @@ from typeclasses.living.living_entities import LivingEntity
 
 
 class Revive(Spell):
+    desc = "Bring back an ally who has been knocked out."
+
     def at_object_creation(self):
         super().at_object_creation()
-        self.db.desc = "Bring back an ally who has been knocked out."
-
         self.db.targeted = True
         self.db.must_target_entity = True
 
@@ -32,10 +32,10 @@ class Revive(Spell):
 
 
 class Cleanse(Spell):
+    desc = "Remove a temporary negative effect from an ally."
+
     def at_object_creation(self):
         super().at_object_creation()
-        self.db.desc = "Remove a temporary negative effect from an ally."
-
         self.db.targeted = True
         self.db.must_target_entity = True
 
@@ -57,11 +57,10 @@ class Cleanse(Spell):
 
 class HealWounds(Spell):
     key = "Heal Wounds"
+    desc = "Restore some of an ally's HP."
 
     def at_object_creation(self):
         super().at_object_creation()
-        self.db.desc = "Restore some of an ally's HP."
-
         self.db.targeted = True
         self.db.must_target_entity = True
 
@@ -78,4 +77,3 @@ class HealWounds(Spell):
             amt_healed = amt_can_be_healed
         target.db.hp += amt_healed
         target.location.msg_contents(f"{target.get_display_name(capital=True)} restores {amt_healed} HP!")
-

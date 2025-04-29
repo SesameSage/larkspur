@@ -6,11 +6,13 @@ from typeclasses.living.living_entities import LivingEntity
 
 class EnergyTap(Ability):
     key = "Energy Tap"
+    desc = "Reinvigorate yourself with your opponents' stamina as you attack."
 
     def at_object_creation(self):
         super().at_object_creation()
-        self.db.desc = "Reinvigorate yourself with your opponents' stamina as you attack."
         self.db.targeted = False
+
+        self.db.requires = [("wisdom", 2)]
         self.db.cost = [("mana", 12)]
         self.db.cooldown = 8 * SECS_PER_TURN
 
@@ -23,9 +25,9 @@ class EnergyTap(Ability):
 
 
 class Expel(Ability):
+    desc = "Collect and expel the negative aura in your body to remove a temporary debuff."
     def at_object_creation(self):
         super().at_object_creation()
-        self.db.desc = "Collect and expel the negative aura in your body to remove a temporary debuff."
         self.db.targeted = False
 
         self.db.requires = [("wisdom", 5)]
@@ -45,10 +47,10 @@ class Expel(Ability):
 
 class FocusMind(Ability):
     key = "Focus Mind"
+    desc = "Land your attacks more accurately with a calm and focused mind."
 
     def at_object_creation(self):
         super().at_object_creation()
-        self.db.desc = "Land your attacks more accurately with a calm and focused mind."
         self.db.targeted = False
 
         self.db.requires = [("wisdom", 2)]

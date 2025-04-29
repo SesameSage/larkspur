@@ -10,5 +10,4 @@ WILLOW_COROLLA = {
     "equip_effects": {
         "Max Mana": 15
     }
-    # TODO: Spellcaster buffs
 }

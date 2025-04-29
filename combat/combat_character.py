@@ -67,7 +67,6 @@ class CombatEntity(EquipmentEntity):
         normal hook to overload for most object types.
         """
         super().at_object_creation()
-        # TODO: Speed?
 
         self.db.ai = None
         self.db.rpg_class = None

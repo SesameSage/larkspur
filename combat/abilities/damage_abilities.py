@@ -6,11 +6,13 @@ from typeclasses.living.living_entities import LivingEntity
 
 
 class Scratch(Ability):
+    desc = "Scratch your opponent with claws, talons, etc."
+
     def at_object_creation(self):
         super().at_object_creation()
-        self.db.desc = "Scratch your opponent with claws, talons, etc."
         self.db.targeted = True
         self.db.must_target_entity = False
+
         self.db.cost = [("stamina", 1)]
         self.db.cooldown = 0
 
@@ -25,10 +27,10 @@ class Scratch(Ability):
 
 class PoisonArrow(SpellCompAbility):
     key = "Poison Arrow"
+    desc = "Coat an arrow in poison, and take a shot at getting it into the opponent's blood."
 
     def at_object_creation(self):
         super().at_object_creation()
-        self.db.desc = "Coat an arrow in poison, and take a shot at getting it into the opponent's blood."
         self.db.targeted = True
         self.db.must_target_entity = True
         self.db.cooldown = 3 * SECS_PER_TURN

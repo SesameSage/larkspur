@@ -1,4 +1,5 @@
 from combat.abilities.effect_abilities import Sweep, NeutralizingHum
+from combat.abilities.self_abilities import EnergyTap, FocusMind
 from typeclasses.inanimate.items.equipment.apparel import Shield
 from typeclasses.inanimate.items.equipment.weapons import *
 from typeclasses.scripts.scripts import Script
@@ -69,7 +70,7 @@ class Monk(CombatClass):
                            4: [("Wisdom", 1), ("Spirit", 1)],
                            5: [("Wisdom", 1)],
                            6: [("Dexterity", 1), ("Constitution", 1)]}
-    ability_tree = {1: (Sweep, NeutralizingHum)}
+    ability_tree = {1: (FocusMind, EnergyTap), 2: (Sweep,)}
 
 
 class Sorcerer(CombatClass):

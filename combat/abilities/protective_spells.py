@@ -9,6 +9,7 @@ class Ward(Spell):
 
     def at_object_creation(self):
         super().at_object_creation()
+        self.db.desc = "Protect a target with a magical shield of resistance."
         self.db.targeted = True
         self.db.must_target_entity = True
 

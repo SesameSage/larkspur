@@ -7,10 +7,10 @@ from typeclasses.living.living_entities import LivingEntity
 
 class MindClearingTone(Ability):
     key = "Mind-Clearing Tone"
+    desc = "This meditational tone improves the accuracy of you and your allies."
 
     def at_object_creation(self):
         super().at_object_creation()
-        self.db.desc = "This meditational tone improves the accuracy of you and your allies."
         self.db.targeted = False
         self.db.requires = [("wisdom", 5)]
         self.db.cost = [("mana", 12)]

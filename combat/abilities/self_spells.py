@@ -5,8 +5,10 @@ from typeclasses.living.living_entities import LivingEntity
 
 
 class Consume(Spell):
+    desc = "Leech life into your own body as you ravage your opponents."
+
     def at_object_creation(self):
-        self.db.desc = "Leech life into your own body as you ravage your opponents."
+        super().at_object_creation()
         self.db.targeted = False
 
         self.db.requires = [("spirit", 7)]
@@ -23,10 +25,10 @@ class Consume(Spell):
 
 class AbsorbEssence(Spell):
     key = "Absorb Essence"
+    desc = "Drain your opponents' mana into your own as you deal damage."
 
     def at_object_creation(self):
         super().at_object_creation()
-        self.db.desc = "Drain your opponents' mana into your own as you deal damage."
         self.db.targeted = False
 
         self.db.requires = [("spirit", 9)]

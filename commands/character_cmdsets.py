@@ -12,6 +12,7 @@ from evennia.utils.create import create_object
 from evennia.utils.evtable import EvTable
 
 from combat.abilities import all_abilities
+from combat.abilities.abilities import Ability
 from combat.abilities.all_abilities import ALL_ABILITIES
 from combat.abilities.spells import Spell
 from commands.permissions_cmdsets import BuildingCmdSet
@@ -298,13 +299,27 @@ class CmdSpells(Command):
     help_category = "character"
 
     def func(self):
-        table = EvTable()
+        current_spells = EvTable()
         for ability in self.caller.db.abilities:
-            desc = ability.db.desc
-            if len(desc) > 45:
-                desc = desc[:45] + "..."
-            table.add_row(ability.get_display_name(), desc, f"costs: {ability.cost_string()}")
-        self.caller.msg(table)
+            desc = ability.desc
+            if len(desc) > 50:
+                desc = desc[:48] + "..."
+            current_spells.add_row(ability.get_display_name(), desc, f"|wCosts|n: {ability.cost_string()}")
+
+        available_spells = EvTable()
+        for level in range(self.caller.db.level + 1):
+            if level == 0:
+                continue
+            for ability in self.caller.db.rpg_class.ability_tree[level]:
+                if not self.caller.knows_ability(ability):
+                    color = appearance.spell if isinstance(ability, Spell) else appearance.ability
+                    available_spells.add_row(color + ability.key, ability.desc)
+
+        self.caller.msg("|wYour abilities:")
+        self.caller.msg(current_spells)
+        self.caller.msg("")
+        self.caller.msg("|wAbilities you can currently learn:")
+        self.caller.msg(available_spells)
 
 
 class PlayerCmdSet(CmdSet):
