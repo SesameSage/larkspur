@@ -1,6 +1,8 @@
+import evennia
 from evennia import Command, default_cmds
 from evennia.commands.default.help import CmdHelp
 from evennia.commands.default.muxcommand import MuxCommand
+from evennia.utils.create import create_script
 
 from combat.combat_handler import COMBAT
 from combat.turn_handler import TurnHandler
@@ -22,7 +24,6 @@ class CmdFight(Command):
 
     key = "fight"
     help_category = "combat"
-    combat_handler_class = TurnHandler
 
     def func(self):
         """
@@ -42,20 +43,20 @@ class CmdFight(Command):
         for thing in here.filter_visible(here.contents, self.caller):
             if thing.db.HP:
                 fighters.append(thing)
-                if thing.db.hostile_to_players:
+                if thing.db.hostile_to_players != self.caller.db.hostile_to_players:
                     something_hostile_here = True
         if len(fighters) <= 1 or not something_hostile_here:  # If you're the only fighter, or none are hostile
             self.caller.msg("There's nobody here to fight!")
             return
 
         if here.db.combat_turnhandler:  # If there's already a fight going on...
-            here.msg_contents("%s joins the fight!" % self.caller.get_display_name())
+            here.msg_contents("%s joins the fight!" % self.caller.get_display_name(capital=True))
             here.db.combat_turnhandler.join_fight(self.caller)  # Join the fight!
             return
 
-        here.msg_contents("%s starts a fight!" % self.caller.get_display_name())
+        here.msg_contents("%s starts a fight!" % self.caller.get_display_name(capital=True))
         # Add a turn handler script to the room, which starts combat.
-        here.scripts.add(self.combat_handler_class)
+        create_script(typeclass=TurnHandler, obj=here, attributes=[("starter", self.caller)])
 
 
 class CmdAttack(Command):

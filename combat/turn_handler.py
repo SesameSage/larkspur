@@ -108,7 +108,6 @@ class TurnHandler(DefaultScript):
     remaining participants choose to end the combat with the 'disengage' command.
     """
 
-    # TODO: Fight starter gets to take action at the start
     def at_script_creation(self):
         """
         Called once, when the script is created.
@@ -118,6 +117,7 @@ class TurnHandler(DefaultScript):
         self.interval = 5  # Once every 5 seconds
         self.persistent = True
         self.db.fighters = []
+        self.db.starter = None
 
         # Add all fighters in the room with at least 1 HP to the combat."
         for thing in self.obj.contents:
@@ -137,16 +137,19 @@ class TurnHandler(DefaultScript):
         ordered_by_roll = sorted(self.db.fighters, key=self.roll_init, reverse=True)
         self.db.fighters = ordered_by_roll
 
-        # Announce the turn order.
-        self.obj.msg_contents(
-            "Turn order is: %s " % ", ".join(obj.get_display_name(capital=True) for obj in self.db.fighters))
-
-        # Start first fighter's turn.
-        self.start_turn(self.db.fighters[0])
-
         # Set up the current turn and turn timeout delay.
         self.db.turn = 0
         self.db.timer = TURN_TIMEOUT  # Set timer to turn timeout specified in options
+
+    def at_start(self, **kwargs):
+        self.roll_turn_order()
+
+        # Push the fight starter to the beginning
+        self.db.fighters.remove(self.db.starter)
+        self.db.fighters.insert(0, self.db.starter)
+
+        # Start first fighter's turn.
+        self.start_turn(self.db.fighters[0])
 
     def at_stop(self):
         """
@@ -179,6 +182,19 @@ class TurnHandler(DefaultScript):
             # Warn the current character if they're about to time out.
             currentchar.msg(f"{appearance.warning}WARNING: About to time out!")
             self.db.timeout_warning_given = True
+
+    def roll_turn_order(self):
+        # Roll initiative and sort the list of fighters depending on who rolls highest to determine
+        # turn order.  The initiative roll is determined by the roll_init method and can be
+        # customized easily.
+        ordered_by_roll = sorted(self.db.fighters, key=self.roll_init, reverse=True)
+        self.db.fighters = ordered_by_roll
+        self.db.fighters.remove(self.db.starter)
+        self.db.fighters.insert(0, self.db.starter)
+
+        # Announce the turn order.
+        self.obj.msg_contents(
+            "Turn order is: %s " % ", ".join(obj.get_display_name(capital=True) for obj in self.db.fighters))
 
     def initialize_for_combat(self, character):
         """
