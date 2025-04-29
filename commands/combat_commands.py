@@ -10,15 +10,41 @@ from server import appearance
 from typeclasses.inanimate.items.usables import Usable, Consumable
 
 
-def start_join_fight(attacker, target):
-    if attacker.db.hostile_to_players != target.db.hostile_to_players:
-        here = attacker.location
+def start_join_fight(attacker, target=None):
+    """
+    When attacking or casting, if entities of opposing hostility are present,
+
+    :param attacker:
+    :param target:
+    :return:
+    """
+    here = attacker.location
+
+    # Determine if this is a move that triggers combat
+    hostiles = False
+    # If targeted, check if target is "on the other side"
+    if target:
+        if attacker.db.hostile_to_players != target.db.hostile_to_players:
+            hostiles = True
+    # When casting non-targeted, check if there are visible enemies in the room
+    else:
+        something_hostile_here = False
+        for thing in here.filter_visible(here.contents, attacker):
+            if thing.db.HP:
+                if thing.db.hostile_to_players != attacker.db.hostile_to_players:
+                    something_hostile_here = True
+        if something_hostile_here:
+            hostiles = True
+
+    # If there are opposing entities present, add them to combat
+    if hostiles:
         if not attacker.is_in_combat():
             if here.db.combat_turnhandler:
                 here.db.combat_turnhandler.join_fight(attacker)
             else:
                 create_script(typeclass=TurnHandler, obj=here, attributes=[("starter", attacker)])
-        if not target.is_in_combat():
+
+        if target and not target.is_in_combat():
             if here.db.combat_turnhandler:
                 here.db.combat_turnhandler.join_fight(target)
 
