@@ -41,8 +41,8 @@ MAX_NR_CHARACTERS = 10
 BASE_ACCOUNT_TYPECLASS = "typeclasses.ooc.accounts.Account"
 BASE_OBJECT_TYPECLASS = "typeclasses.base.objects.Object"
 BASE_CHARACTER_TYPECLASS = "typeclasses.living.characters.PlayerCharacter"
-BASE_ROOM_TYPECLASS = "typeclasses.inanimate.locations.rooms.Room"
-BASE_EXIT_TYPECLASS = "typeclasses.inanimate.locations.exits.Exit"
+BASE_ROOM_TYPECLASS = "world.locations.rooms.Room"
+BASE_EXIT_TYPECLASS = "world.locations.exits.Exit"
 BASE_SCRIPT_TYPECLASS = "typeclasses.scripts.scripts.Script"
 BASE_CHANNEL_TYPECLASS = "typeclasses.ooc.channels.Channel"
 

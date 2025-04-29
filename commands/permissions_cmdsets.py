@@ -16,11 +16,11 @@ from evennia.utils.eveditor import EvEditor
 from combat.abilities.all_abilities import ALL_ABILITIES
 from server import appearance
 from typeclasses.base.objects import Object
-from typeclasses.inanimate.locations.areas import Area
-from typeclasses.inanimate.locations.localities import Locality
-from typeclasses.inanimate.locations.regions import Region
-from typeclasses.inanimate.locations.rooms import ENVIRONMENT_APPEARANCES
-from typeclasses.inanimate.locations.zones import Zone
+from world.locations.areas import Area
+from world.locations.localities import Locality
+from world.locations.regions import Region
+from world.locations.rooms import ENVIRONMENT_APPEARANCES
+from world.locations.zones import Zone
 from typeclasses.scripts.weather import WEATHERS
 
 

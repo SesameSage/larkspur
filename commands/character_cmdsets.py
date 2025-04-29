@@ -1,19 +1,9 @@
-from collections import defaultdict
-from itertools import chain
-
 from evennia import Command
-from evennia.commands.default.help import CmdHelp, HelpCategory
 from evennia.commands.default.muxcommand import MuxCommand
-from evennia.help.filehelp import FILE_HELP_ENTRIES
-from evennia.help.models import HelpEntry
-from evennia.help.utils import help_search_with_index, parse_entry_for_subcategories
-from evennia.utils import inherits_from
 from evennia.utils.create import create_object
 from evennia.utils.evtable import EvTable
 
 from combat.abilities import all_abilities
-from combat.abilities.abilities import Ability
-from combat.abilities.all_abilities import ALL_ABILITIES
 from combat.abilities.spells import Spell
 from commands.permissions_cmdsets import BuildingCmdSet
 from commands.refiled_cmds import *
@@ -21,7 +11,7 @@ from server import appearance
 from typeclasses.inanimate.items.containers import ContainerCmdSet
 from typeclasses.inanimate.items.items import CmdIdentify, CmdBuy, CmdShop
 from typeclasses.inanimate.portals import CmdTravel
-from typeclasses.living.char_stats import StatsCmdSet
+from stats.char_stats import StatsCmdSet
 from typeclasses.living.talking_npc import TalkingCmdSet
 
 

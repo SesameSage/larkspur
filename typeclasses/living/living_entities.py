@@ -2,7 +2,7 @@ from decimal import Decimal as Dec
 
 from evennia.utils.evtable import EvTable
 
-from combat.combat_character import CombatEntity
+from stats.combat_character import CombatEntity
 from server import appearance
 from typeclasses.base.objects import Object
 from typeclasses.inanimate.items.items import Item

@@ -63,7 +63,7 @@ from django.conf import settings
 from evennia.commands.default.muxcommand import MuxCommand
 
 from server import appearance
-from typeclasses.inanimate.locations.exits import Door
+from world.locations.exits import Door
 
 _BASIC_MAP_SIZE = settings.BASIC_MAP_SIZE if hasattr(settings, "BASIC_MAP_SIZE") else 2
 _MAX_MAP_SIZE = settings.BASIC_MAP_SIZE if hasattr(settings, "MAX_MAP_SIZE") else 10

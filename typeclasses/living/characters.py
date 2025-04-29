@@ -14,8 +14,8 @@ from evennia.utils import make_iter
 
 from commands.character_cmdsets import PlayerCmdSet
 from commands.refiled_cmds import RefiledCmdSet
-from typeclasses.inanimate.locations import rooms
-from typeclasses.living.char_stats import xp_threshold
+from world.locations import rooms
+from stats.char_stats import xp_threshold
 from typeclasses.living.enemies import Enemy
 from typeclasses.living.living_entities import *
 from typeclasses.living.talking_npc import TalkableNPC
