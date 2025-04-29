@@ -35,8 +35,20 @@ class EffectScript(Script):
         self.key = self.__class__.__name__
         self.db.damage_type = None
 
+    def positive(self):
+        if inherits_from(self, StatMod) and self.db.amount > 0:
+            return True
+        if self.db.effect_key.startswith("+"):
+            return True
+        if self.db.effect_key.startswith("-"):
+            return False
+        if self.db.effect_key.startswith("Siphon"):
+            return True
+
+        return False
+
     def color(self):
-        if self.db.positive:
+        if self.positive():
             return appearance.good_effect
         else:
             return appearance.bad_effect
@@ -47,14 +59,6 @@ class EffectScript(Script):
         self.obj.db.effects[self.db.effect_key] = {}
         if self.db.damage_type:
             self.obj.db.effects[self.db.effect_key]["damage_type"] = self.db.damage_type
-
-        # Determine whether the effect is positive after all script creation keys have already been run
-        if not self.db.positive:
-            if inherits_from(self, StatMod) and self.db.amount > 0:
-                self.db.positive = True
-            else:
-                self.db.positive = False
-        self.obj.db.effects[self.db.effect_key]["positive"] = self.db.positive
 
     def at_script_delete(self):
         # Remove entry from object's effects attributes, if still present

@@ -65,7 +65,7 @@ class HealWounds(Spell):
         self.db.targeted = True
         self.db.must_target_entity = True
 
-        self.db.requires = ("spirit", 2)
+        self.db.requires = [("spirit", 2)]
         self.db.cost = [("mana", 12)]
         self.db.cooldown = 3 * SECS_PER_TURN
 

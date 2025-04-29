@@ -435,8 +435,6 @@ class CombatEntity(EquipmentEntity):
                 duration = attribute[1]
             elif attribute[0] == "amount":
                 amount = attribute[1]
-            elif attribute[0] == "positive":
-                positive = attribute[1]
 
         script = self.effect_active(effect_key)
         if script:  # If this effect is already active on this entity

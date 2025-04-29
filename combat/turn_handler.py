@@ -47,7 +47,7 @@ from evennia import DefaultScript
 from evennia.utils import evtable, inherits_from, delay
 
 from server import appearance
-from combat.effects import SECS_PER_TURN, DurationEffect
+from combat.effects import SECS_PER_TURN, DurationEffect, EffectScript
 
 """
 ----------------------------------------------------------------------------
@@ -299,14 +299,10 @@ class TurnHandler(DefaultScript):
         for fighter in self.db.fighters:
             row = [fighter.get_display_name(capital=True), f"{fighter.db.hp} hp"]
             effects_str = ""
-            for effect in fighter.db.effects:
-                try:
-                    turns_left = ((fighter.db.effects[effect]["duration"] - fighter.db.effects[effect][
-                        "seconds passed"]) // SECS_PER_TURN) - 1
-                    color = appearance.good_effect if fighter.db.effects[effect]["positive"] else appearance.bad_effect
-                    effects_str = effects_str + f"{color}{effect}|n({turns_left}t)  "
-                except KeyError:
-                    pass
+            effects = [script for script in fighter.scripts.all() if inherits_from(script, DurationEffect)]
+            for script in effects:
+                turns_left = ((script.db.duration - script.db.seconds_passed) // SECS_PER_TURN) - 1
+                effects_str = effects_str + f"{script.color()}{script.db.effect_key}|n({turns_left}t)  "
 
             if effects_str != "":
                 row.append(effects_str)
@@ -314,7 +310,7 @@ class TurnHandler(DefaultScript):
         character.msg(table)
 
         if character.effect_active("Frozen"):
-            character.location.msg_contents(character.get_display_name() + " is frozen solid and cannot act!")
+            character.location.msg_contents(character.get_display_name(capital=True) + " is frozen solid and cannot act!")
             self.spend_action(character, "all")
         if character.effect_active("Knocked Down") and character.db.effects["Knocked Down"]["seconds passed"] < 3:
             character.location.msg_contents(

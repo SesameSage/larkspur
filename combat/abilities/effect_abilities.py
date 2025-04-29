@@ -1,6 +1,7 @@
 from random import randint
 
 from combat.abilities.abilities import Ability
+from combat.combat_handler import COMBAT
 from combat.effects import SECS_PER_TURN, KnockedDown, StatMod, TimedStatMod
 from typeclasses.base.objects import Object
 from typeclasses.living.living_entities import LivingEntity
@@ -46,23 +47,22 @@ class NeutralizingHum(Ability):
         self.db.targeted = False
 
         self.db.requires = [("wisdom", 8)]
-        self.db.cost = ("mana", 10)
+        self.db.cost = [("mana", 10)]
         self.db.cooldown = 10 * SECS_PER_TURN
 
     def func(self, caster: LivingEntity, target: Object = None):
         caster.location.msg_contents(
             f"{caster.get_display_name(capital=True)} emits a low, guttural throat-singing tone.")
 
-        for entity in caster.location.contents:
-            if entity.attributes.has("hostile") and entity.db.hostile_to_players != caster.db.hostile_to_players:
-                if entity.get_resistance(None) < 20:
-                    entity.db.mana -= 25
-                    if entity.db.mana < 0:
-                        entity.db.mana = 0
-                    entity.location.msg_contents(f"{entity.get_display_name(capital=True)}'s mana has been drained!")
-                else:
-                    entity.location.msg_contents(
-                        f"{entity.get_display_name(capital=True)} resists {self.get_display_name()}!")
+        for entity in COMBAT.get_enemies(caster):
+            if entity.get_resistance(None) < 20:
+                entity.db.mana -= 25
+                if entity.db.mana < 0:
+                    entity.db.mana = 0
+                entity.location.msg_contents(f"{entity.get_display_name(capital=True)}'s mana has been drained!")
+            else:
+                entity.location.msg_contents(
+                    f"{entity.get_display_name(capital=True)} resists {self.get_display_name()}!")
 
         return True
 
@@ -78,7 +78,7 @@ class SolarPlexusStrike(Ability):
         self.db.must_target_entity = True
 
         self.db.requires = [("dexterity", 10)]
-        self.db.cost = ("stamina", 10)
+        self.db.cost = [("stamina", 10)]
         self.db.cooldown = 5 * SECS_PER_TURN
 
     def func(self, caster: LivingEntity, target: Object = None):

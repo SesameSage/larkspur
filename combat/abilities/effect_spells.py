@@ -12,9 +12,12 @@ class BlindingBeam(Spell):
         super().at_object_creation()
         self.key = "Blinding Beam"
         self.db.desc = "Blind your target with a focused beam of bright light."
+
         self.db.targeted = True
         self.db.must_target_entity = True
-        self.db.cost = ("mana", 5)
+
+        self.db.requires = [("spirit", 1)]
+        self.db.cost = [("mana", 5)]
         self.db.cooldown = 6 * SECS_PER_TURN
 
     def func(self, caster: LivingEntity, target: Object = None):
@@ -32,7 +35,7 @@ class Freeze(Spell):
         self.db.must_target_entity = False
 
         self.db.requires = [("spirit", 10)]
-        self.db.cost = ("mana", 12)
+        self.db.cost = [("mana", 12)]
         self.db.cooldown = 6 * SECS_PER_TURN
 
     def func(self, caster: LivingEntity, target: Object = None):
@@ -54,8 +57,8 @@ class Curse(Spell):
         self.db.targeted = True
         self.db.must_target_entity = True
 
-        self.db.requires = ("spirit", 4)
-        self.db.cost = ("mana", 8)
+        self.db.requires = [("spirit", 4)]
+        self.db.cost = [("mana", 8)]
         self.db.cooldown = 4 * SECS_PER_TURN
 
     def func(self, caster: LivingEntity, target: Object = None):
@@ -66,8 +69,7 @@ class Curse(Spell):
             caster.location.msg_contents(f"{target.get_display_name(capital=True)} wards off the curse!")
             return True
         else:
-            attributes = [("effect_key", "Cursed"), ("duration", 2 * SECS_PER_TURN), ("amount", spirit),
-                          ("positive", False)]
+            attributes = [("effect_key", "Cursed"), ("duration", 2 * SECS_PER_TURN), ("amount", spirit)]
             target.add_effect(typeclass=TimedStatMod, attributes=attributes)
         return True
 

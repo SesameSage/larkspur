@@ -26,6 +26,18 @@ class CombatHandler:
                 allies.append(content)
         return allies
 
+    def get_enemies(self, character):
+        enemies = []
+        if character.is_in_combat():
+            container = character.db.combat_turnhandler.db.fighters
+        else:
+            container = character.location.contents
+
+        for content in container:
+            if (content.attributes.has("hostile_to_players")
+                    and content.db.hostile_to_players != character.db.hostile_to_players):
+                enemies.append(content)
+        return enemies
 
     def get_accuracy(self, attacker, defender):
         """
@@ -41,6 +53,7 @@ class CombatHandler:
         """
         # Start with a roll from 1 to 100.
         hitroll = randint(1, 100)
+        accuracy = hitroll
         attacker.location.more_info(f"Hitroll {hitroll} ({attacker.name})")
         accuracy_bonus = 0
         # If armed, add weapon's accuracy bonus.
@@ -48,29 +61,29 @@ class CombatHandler:
         if not isinstance(weapon, str):
             accuracy_bonus += weapon.db.accuracy_bonus
             attacker.location.more_info(f"+{accuracy_bonus} accuracy from {weapon.name} ({attacker.name})")
-        hitroll += accuracy_bonus
+        accuracy += accuracy_bonus
 
         # Add Perception bonus
         amt = attacker.get_attr("perception") * HITROLL_PERCEPTION_BONUS
-        hitroll += amt
+        accuracy += amt
         attacker.location.more_info(f"{amt} accuracy from perception ({attacker.name})")
 
         # Apply attacker's hitroll buffs and debuffs.
         if "+Accuracy" in attacker.db.effects:
             buff = attacker.db.effects["+Accuracy"]["amount"]
-            hitroll += buff
+            accuracy += buff
             attacker.location.more_info(f"{buff} accuracy from effect on {attacker.name}")
         if "-Accuracy" in attacker.db.effects:
             buff = attacker.db.effects["-Accuracy"]["amount"]
-            hitroll += buff
+            accuracy += buff
             attacker.location.more_info(f"{buff} accuracy from effect on {attacker.name}")
 
         if "Blinded" in attacker.db.effects:
-            buff -= (hitroll) // 2
+            accuracy = (accuracy) // 2
             attacker.location.more_info("-50% accuracy from Blinded")
 
-        attacker.location.more_info(f"{hitroll} to hit ({attacker.name})")
-        return hitroll
+        attacker.location.more_info(f"{accuracy} to hit ({attacker.name})")
+        return accuracy
 
     def hit_successful(self, attacker=None, defender=None, accuracy=None, evasion_value=None):
         """

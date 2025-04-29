@@ -40,6 +40,7 @@ class Character(LivingEntity):
     def say_to(self, character, msg):
         self.at_say(message=msg, receivers=character)
 
+    # TODO: Fix "Rolan say" as message to sayer
     def at_say(self, message, msg_self=None, msg_location=None, receivers=None, msg_receivers=None, **kwargs):
         # Overridden formatting
         """

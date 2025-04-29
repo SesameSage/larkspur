@@ -13,8 +13,8 @@ class Ward(Spell):
         self.db.must_target_entity = True
 
         self.db.requires = [("wisdom", 6)]
-        self.db.cooldown = 3 * SECS_PER_TURN
         self.db.cost = [("mana", 5)]
+        self.db.cooldown = 3 * SECS_PER_TURN
 
     def func(self, caster: LivingEntity, target: Object = None):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} draws an arc of magical protection "

@@ -17,7 +17,7 @@ class EnergyTap(Ability):
     def func(self, caster: LivingEntity, target: Object = None):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} adjusts their stance to redirect their "
                                      f"opponents' energy into their own attacks!")
-        attributes = [("effect_key", "Siphon Stamina"), ("duration", 5 * SECS_PER_TURN), ("positive", True)]
+        attributes = [("effect_key", "Siphon Stamina"), ("duration", 5 * SECS_PER_TURN)]
         caster.add_effect(typeclass=DurationEffect, attributes=attributes)
         return True
 
