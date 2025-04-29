@@ -33,6 +33,7 @@ class EffectScript(Script):
 
     def at_script_creation(self):
         self.key = self.__class__.__name__
+        self.db.source = None
         self.db.damage_type = None
 
     def positive(self):
@@ -56,7 +57,7 @@ class EffectScript(Script):
     def pre_effect_add(self):
         """Called at the beginning of adding the effect to a target."""
         # Add dict entry on target's effects attribute
-        self.obj.db.effects[self.db.effect_key] = {}
+        self.obj.db.effects[self.db.effect_key] = {"source": self.db.source}
         if self.db.damage_type:
             self.obj.db.effects[self.db.effect_key]["damage_type"] = self.db.damage_type
 

@@ -21,6 +21,6 @@ class MindClearingTone(Ability):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} begins a mind-clearing monotonous "
                                      f"hum.")
 
-        attributes = [("effect_key", "+Accuracy"), ("amount", 15), ("duration", 3 * SECS_PER_TURN)]
+        attributes = [("effect_key", "+Accuracy"), ("amount", 15), ("duration", 3 * SECS_PER_TURN), ("source", self.key)]
         for ally in COMBAT.get_allies(caster):
                 ally.add_effect(typeclass=TimedStatMod, attributes=attributes)

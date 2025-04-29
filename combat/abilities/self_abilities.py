@@ -19,7 +19,7 @@ class EnergyTap(Ability):
     def func(self, caster: LivingEntity, target: Object = None):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} adjusts their stance to redirect their "
                                      f"opponents' energy into their own attacks!")
-        attributes = [("effect_key", "Siphon Stamina"), ("duration", 5 * SECS_PER_TURN)]
+        attributes = [("effect_key", "Siphon Stamina"), ("duration", 5 * SECS_PER_TURN), ("source", self.key)]
         caster.add_effect(typeclass=DurationEffect, attributes=attributes)
         return True
 
@@ -59,5 +59,5 @@ class FocusMind(Ability):
 
     def func(self, caster: LivingEntity, target: Object = None):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} centers and focuses their mind.")
-        attributes = [("effect_key", "+Accuracy"), ("amount", 20), ("duration", 3 * SECS_PER_TURN)]
+        attributes = [("effect_key", "+Accuracy"), ("amount", 20), ("duration", 3 * SECS_PER_TURN), ("source", self.key)]
         caster.add_effect(typeclass=TimedStatMod, attributes=attributes)

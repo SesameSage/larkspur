@@ -346,15 +346,16 @@ class CmdEffects(Command):
         else:  # Show self effects
             target = self.caller
 
-        table = EvTable("|wEffect", "|wAmount", "|wDuration")
+        table = EvTable("|wEffect", "|wAmount", "|wSource", "|wDuration")
 
         for effect in target.db.effects:
             name = effect
             effect = target.db.effects[effect]
             amount = effect["amount"] if "amount" in effect else "--"
+            source = effect["source"]
             duration = effect["duration"] if "duration" in effect else "-"
             seconds_passed = effect["seconds passed"] if "seconds passed" in effect else "-"
-            table.add_row(name, amount, f"{seconds_passed}/{duration}")
+            table.add_row(name, amount, source, f"{seconds_passed}/{duration}")
 
         self.caller.msg(table)
 

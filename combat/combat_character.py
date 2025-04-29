@@ -434,6 +434,8 @@ class CombatEntity(EquipmentEntity):
                 duration = attribute[1]
             elif attribute[0] == "amount":
                 amount = attribute[1]
+            elif attribute[0] == "source":
+                source = attribute[1]
 
         script = self.effect_active(effect_key)
         if script:  # If this effect is already active on this entity
@@ -442,6 +444,7 @@ class CombatEntity(EquipmentEntity):
                 return
             else:
                 self.effect_active(effect_key).reset_seconds(duration)  # Restart timer, with this version's duration
+                script.db.source = source
                 self.location.msg_contents(f"{self.get_display_name(capital=True)} regains {script.color()}{effect_key}.")
                 return
 
