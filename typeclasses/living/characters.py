@@ -236,7 +236,7 @@ class PlayerCharacter(Character):
 
     def gain_xp(self, amt):
         self.db.xp += amt
-        self.msg(f"You gain {amt} experience.")
+        self.msg(f"|345You gain {amt} experience!")
         if self.db.xp >= xp_threshold(self.db.level + 1):
             self.scripts.add(LevelUpReminder())
 

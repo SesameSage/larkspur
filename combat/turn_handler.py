@@ -453,10 +453,19 @@ class TurnHandler(DefaultScript):
         """
         if defeated.db.hp < 0:
             defeated.db.hp = 0
+
         defeated.at_defeat()
+
+        if defeated.db.hostile_to_players:
+            for fighter in self.db.fighters:
+                if fighter.attributes.has("xp"):
+                    fighter.gain_xp(defeated.get_defeat_xp())
+
         defeated.location.scripts.get("Combat Turn Handler")[0].all_defeat_check()
+
         if defeated.is_turn():
             self.spend_action(defeated, actions="all")
+
         return True
 
     def all_defeat_check(self):

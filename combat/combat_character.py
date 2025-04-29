@@ -365,9 +365,10 @@ class CombatEntity(EquipmentEntity):
 
         return base + effect
 
-    # </editor-fold>
+    def get_defeat_xp(self):
+        return 5
 
-    # TODO: Logic for who to give XP to
+    # </editor-fold>
 
     def update_base_stats(self):
         """Recalculates derived stats like max hp and base evasion."""
