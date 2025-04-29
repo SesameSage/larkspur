@@ -137,7 +137,8 @@ class Ability(Object):
 
     def get_help(self):
         return f"""
-        {self.db.desc}
+        {self.get_display_name()}
+        {self.desc}
         
         Requires: {self.requires_string()}
         Costs: {self.cost_string()}
