@@ -1,6 +1,6 @@
 from evennia import Command
 
-from typeclasses.base.objects import Fixture
+from typeclasses.inanimate.fixtures import Fixture
 
 PORTAL_KEY_TO_ROOM = {
     "Napasso": "#212"
@@ -30,7 +30,7 @@ class CmdTravel(Command):
 
     def func(self):
         # Look for a portal here
-        portal = self.caller.search("portal", quiet=True)
+        portal = self.caller.location.in_room(Portal)
         if not portal:
             self.caller.msg("There is no portal here!")
             return

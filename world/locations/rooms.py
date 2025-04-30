@@ -5,7 +5,8 @@ from evennia.utils import iter_to_str, is_iter, make_iter, lazy_property
 
 from server import appearance
 from server.funcparser import MyFuncParser, MY_ACTOR_STANCE_CALLABLES
-from typeclasses.base.objects import Object, Fixture
+from typeclasses.base.objects import Object
+from typeclasses.inanimate.fixtures import Fixture
 
 _MSG_CONTENTS_PARSER = MyFuncParser(MY_ACTOR_STANCE_CALLABLES)
 ENVIRONMENT_APPEARANCES = {
@@ -330,6 +331,11 @@ class Room(Object, DefaultRoom):
             )
 
             receiver.msg(text=(outmessage, outkwargs), from_obj=from_obj, **kwargs)
+
+    def in_room(self, typeclass: type):
+        for content in self.contents:
+            if isinstance(content, typeclass):
+                return content
 
     def update_weather(self, weather):
         self.db.current_weather = weather

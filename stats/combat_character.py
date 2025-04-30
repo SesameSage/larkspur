@@ -6,6 +6,7 @@ from evennia.utils import inherits_from
 
 from combat.effects import DurationEffect
 from server import appearance
+from typeclasses.inanimate.fixtures import Fireplace
 from typeclasses.inanimate.items.equipment.equipment import EquipmentEntity
 from typeclasses.living.corpses import make_corpse, set_to_respawn
 
@@ -134,9 +135,13 @@ class CombatEntity(EquipmentEntity):
         The buildup also carries fractional overflow for regen values over 1, for example handling the additional point
         added every 4 seconds for a regen value of 2.25, while still accurately incrementing the regular 2 per second.
         """
+        if self.location.in_room(Fireplace):
+            secs = 3 * secs
+
         self.db.hp_buildup += self.get_regen("hp") * secs
         self.db.mana_buildup += self.get_regen("mana") * secs
         self.db.stam_buildup += self.get_regen("stam") * secs
+
         if self.db.hp_buildup >= 1:
             hp_gained = int(self.db.hp_buildup)
             self.db.hp_buildup -= Dec(hp_gained)

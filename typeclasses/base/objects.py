@@ -285,10 +285,3 @@ class Object(ObjectParent, DefaultObject):
         return singular, plural
 
 
-class Fixture(Object):
-    """
-    Key immovable room features that appear in their own line in the room description.
-    """
-    def at_object_creation(self):
-        super().at_object_creation()
-        self.locks.add("get:false()")

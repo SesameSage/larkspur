@@ -12,6 +12,7 @@ from typeclasses.inanimate.items.containers import ContainerCmdSet
 from typeclasses.inanimate.items.items import CmdIdentify, CmdBuy, CmdShop
 from typeclasses.inanimate.portals import CmdTravel
 from stats.char_stats import StatsCmdSet
+from typeclasses.living.characters import Trainer
 from typeclasses.living.talking_npc import TalkingCmdSet
 
 
@@ -87,11 +88,7 @@ class CmdClasses(MuxCommand):
 
     def func(self):
         # Find the trainer in the room
-        trainer = None
-        for obj in self.caller.location.contents:
-            if obj.attributes.has("classes"):
-                trainer = obj
-                break
+        trainer = self.caller.location.in_room(Trainer)
         if not trainer:
             self.caller.msg("No one to train with here!")
             return

@@ -311,32 +311,6 @@ class CmdDisengage(Command):
         return True
 
 
-class CmdRest(Command):
-    """
-    recover hp faster
-
-    Usage:
-      rest
-
-    Resting recovers your HP to its maximum, but you can only
-    rest if you're not in a fight.
-    """
-
-    key = "rest"
-    help_category = "combat"
-
-    def func(self):
-        if self.caller.is_in_combat():  # If you're in combat
-            self.caller.msg("You can't rest while you're in combat.")
-            return
-
-        self.caller.db.hp = self.caller.db.max_hp  # Set current HP to maximum
-        self.caller.location.msg_contents("%s rests to recover HP." % self.caller)
-        """
-        You'll probably want to replace this with your own system for recovering HP.
-        """
-
-
 class CmdCombatHelp(CmdHelp):
     """
     View help or a list of topics
@@ -431,7 +405,6 @@ class BattleCmdSet(default_cmds.CharacterCmdSet):
         """
         self.add(CmdAttack())
         self.add(CmdCast())
-        self.add(CmdRest())
         self.add(CmdPass())
         self.add(CmdDisengage())
         self.add(CmdCombatHelp())
