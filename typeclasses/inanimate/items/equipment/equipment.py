@@ -284,6 +284,9 @@ class EquipmentEntity(DefaultCharacter):
         else:
             return self.db.unarmed_attack
 
+    def ap_to_attack(self):
+        return 1
+
 
 # <editor-fold desc="Commands">
 class CmdEquip(MuxCommand):

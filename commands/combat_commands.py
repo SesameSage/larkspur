@@ -1,26 +1,12 @@
-import evennia
 from evennia import Command, default_cmds
 from evennia.commands.default.help import CmdHelp
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils.create import create_script
 
 from combat.combat_handler import COMBAT
-from combat.turn_handler import TurnHandler
+from combat.turn_handler import TurnHandler, start_join_fight
 from server import appearance
 from typeclasses.inanimate.items.usables import Usable, Consumable
-
-
-def start_join_fight(attacker, target):
-    if attacker.db.hostile_to_players != target.db.hostile_to_players:
-        here = attacker.location
-        if not attacker.is_in_combat():
-            if here.db.combat_turnhandler:
-                here.db.combat_turnhandler.join_fight(attacker)
-            else:
-                create_script(typeclass=TurnHandler, obj=here, attributes=[("starter", attacker)])
-        if not target.is_in_combat():
-            if here.db.combat_turnhandler:
-                here.db.combat_turnhandler.join_fight(target)
 
 
 class CmdFight(Command):
@@ -88,19 +74,18 @@ class CmdAttack(Command):
     help_category = "combat"
 
     def func(self):
-        here = self.caller.location
+        attacker = self.caller
+        here = attacker.location
         if self.confirm_in_combat():
-            if not self.turn_handler.is_turn(self.caller):  # If it's not your turn, can't attack.
-                self.caller.msg("You can only do that on your turn.")
+            if not self.turn_handler.is_turn(attacker):  # If it's not your turn, can't attack.
+                attacker.msg("You can only do that on your turn.")
                 return
         else:
-            self.turn_handler = create_script(typeclass=TurnHandler, obj=here, attributes=[("starter", self.caller)])
+            self.turn_handler = create_script(typeclass=TurnHandler, obj=here, attributes=[("starter", attacker)])
 
         if not self.caller.db.hp:  # Can't attack if you have no HP.
             self.caller.msg("You can't attack, you've been defeated.")
             return
-
-        attacker = self.caller
 
         valid_targets = []
         for fighter in self.turn_handler.db.fighters:
@@ -108,29 +93,25 @@ class CmdAttack(Command):
                 valid_targets.append(fighter)
         if self.args == "":  # No valid target given.
             if len(valid_targets) > 1:
-                self.caller.msg("Attack whom? " + str(valid_targets))
+                attacker.msg("Attack whom? " + str(valid_targets))
                 return
             else:
                 defender = valid_targets[0]
         else:
-            defender = self.caller.search(self.args, candidates=valid_targets)
+            defender = attacker.search(self.args, candidates=valid_targets)
             if not defender:
-                self.caller.msg("Can't find " + self.args)
+                attacker.msg("Can't find " + self.args)
                 return
 
         if not defender.db.hp:  # Target object has no HP left or to begin with
-            self.caller.msg("You can't fight that!")
+            attacker.msg("You can't fight that!")
             return
 
         if attacker == defender:  # Target and attacker are the same
-            self.caller.msg("You can't attack yourself!")
+            attacker.msg("You can't attack yourself!")
             return
 
-        start_join_fight(attacker, defender)
-
-        COMBAT.resolve_attack(attacker, defender, attack=self.caller.get_weapon())
-        # Resolve attack (get_weapon_damage)
-        self.turn_handler.spend_action(self.caller, 1, action_name="attack")  # Use up one action.
+        attacker.attack(defender)
 
     def confirm_in_combat(self):
         if not self.caller.is_in_combat():  # If not in combat, can't attack.

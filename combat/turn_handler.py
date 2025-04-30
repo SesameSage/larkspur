@@ -45,6 +45,7 @@ from random import randint
 
 from evennia import DefaultScript
 from evennia.utils import evtable, inherits_from, delay
+from evennia.utils.create import create_script
 
 from combat.combat_handler import COMBAT
 from server import appearance
@@ -94,6 +95,19 @@ specifying any of the following:
 
 TURN_TIMEOUT = 30  # Time before turns automatically end, in seconds
 NONCOMBAT_TURN_TIME = 30  # Time per turn count out of combat
+
+
+def start_join_fight(attacker, target):
+    if attacker.db.hostile_to_players != target.db.hostile_to_players:
+        here = attacker.location
+        if not attacker.is_in_combat():
+            if here.db.combat_turnhandler:
+                here.db.combat_turnhandler.join_fight(attacker)
+            else:
+                create_script(typeclass=TurnHandler, obj=here, attributes=[("starter", attacker)])
+        if not target.is_in_combat():
+            if here.db.combat_turnhandler:
+                here.db.combat_turnhandler.join_fight(target)
 
 
 class TurnHandler(DefaultScript):
@@ -327,7 +341,8 @@ class TurnHandler(DefaultScript):
         character.msg(f"You have {appearance.highlight}{character.db.combat_ap} AP.")
 
         if character.effect_active("Frozen"):
-            character.location.msg_contents(character.get_display_name(capital=True) + " is frozen solid and cannot act!")
+            character.location.msg_contents(
+                character.get_display_name(capital=True) + " is frozen solid and cannot act!")
             self.spend_action(character, "all")
         if character.effect_active("Knocked Down") and character.db.effects["Knocked Down"]["seconds passed"] < 3:
             character.location.msg_contents(
@@ -338,7 +353,7 @@ class TurnHandler(DefaultScript):
 
         combat_ai = character.db.ai
         if combat_ai:
-            delay(2, combat_ai.take_turn)
+            combat_ai.choose_action()
 
     def is_turn(self, character):
         """
@@ -377,9 +392,10 @@ class TurnHandler(DefaultScript):
                 if character.db.combat_ap < 0:
                     character.db.combat_ap = 0  # Can't have fewer than 0 actions
             except TypeError:
-                return
-        character.db.combat_turnhandler.turn_end_check(character)  # Signal potential end of turn.
+                pass
+        self.turn_end_check(character)  # Signal potential end of turn.
 
+    # TODO: Fix defeating all before turn is over
     def turn_end_check(self, character):
         """
         Tests to see if a character's turn is over, and cycles to the next turn if it is.

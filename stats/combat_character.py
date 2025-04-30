@@ -4,7 +4,9 @@ import evennia
 from evennia import TICKER_HANDLER as tickerhandler
 from evennia.utils import inherits_from
 
+from combat.combat_handler import COMBAT
 from combat.effects import DurationEffect
+from combat.turn_handler import start_join_fight
 from server import appearance
 from typeclasses.inanimate.items.equipment.equipment import EquipmentEntity
 from typeclasses.living.corpses import make_corpse, set_to_respawn
@@ -520,6 +522,11 @@ class CombatEntity(EquipmentEntity):
         self.msg()
 
         # Apply conditions that fire at the start of each turn.
+
+    def attack(self, target):
+        start_join_fight(self, target)
+        COMBAT.resolve_attack(self, target, attack=self.get_weapon())
+        self.db.combat_turnhandler.spend_action(self, self.ap_to_attack(), action_name="attack")
 
     def apply_damage(self, damages):
         """
