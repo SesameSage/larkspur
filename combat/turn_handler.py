@@ -406,7 +406,6 @@ class TurnHandler(DefaultScript):
         if character.db.combat_ap > 0:
             character.msg(f"You have {appearance.highlight}{character.db.combat_ap} AP.")
         else:  # Character has no actions remaining
-            self.all_defeat_check()
             if not self.id:
                 return
             character.cap_stats()
@@ -417,9 +416,11 @@ class TurnHandler(DefaultScript):
         """
         Advances to the next character in the turn order.
         """
+        self.all_defeat_check()
 
         # Check to see if every character disengaged as their last action. If so, end combat.
         disengage_check = True
+
         for fighter in self.db.fighters:
             if (
                     fighter.db.combat_lastaction != "disengage"

@@ -190,10 +190,9 @@ class CmdPass(Command):
             return
 
         self.caller.location.msg_contents(
-            "%s takes no further action, passing the turn." % self.caller.get_display_name()
+            "%s passes, taking no further action this turn." % self.caller.get_display_name()
         )
-        # Spend all remaining actions.
-        self.turn_handler.spend_action(self.caller, "all", action_name="pass")
+        self.turn_handler.next_turn()
 
     def confirm_in_combat(self):
         if not self.caller.is_in_combat():  # If not in combat, can't attack.
