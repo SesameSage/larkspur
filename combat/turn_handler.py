@@ -369,7 +369,6 @@ class TurnHandler(DefaultScript):
         currentchar = turnhandler.db.fighters[turnhandler.db.turn]
         return bool(character == currentchar)
 
-    # TODO: Action Points
     def spend_action(self, character, actions, action_name=None):
         """
         Spends a character's available combat actions and checks for end of turn.

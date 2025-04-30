@@ -526,7 +526,9 @@ class CombatEntity(EquipmentEntity):
     def attack(self, target):
         start_join_fight(self, target)
         COMBAT.resolve_attack(self, target, attack=self.get_weapon())
-        self.db.combat_turnhandler.spend_action(self, self.ap_to_attack(), action_name="attack")
+        # Unless that ends the fight, spend an action
+        if self.is_in_combat():
+            self.db.combat_turnhandler.spend_action(self, self.ap_to_attack(), action_name="attack")
 
     def apply_damage(self, damages):
         """
