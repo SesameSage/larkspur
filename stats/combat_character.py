@@ -120,7 +120,7 @@ class CombatEntity(EquipmentEntity):
             if self.db.cooldowns[ability] < 0:
                 self.db.cooldowns[ability] = 0
 
-    def regenerate(self):
+    def regenerate(self, secs=1):
         """
         Increments hp, mana, and stamina by their per-second regen values from this entity's stats.
 
@@ -134,9 +134,9 @@ class CombatEntity(EquipmentEntity):
         The buildup also carries fractional overflow for regen values over 1, for example handling the additional point
         added every 4 seconds for a regen value of 2.25, while still accurately incrementing the regular 2 per second.
         """
-        self.db.hp_buildup += self.get_regen("hp")
-        self.db.mana_buildup += self.get_regen("mana")
-        self.db.stam_buildup += self.get_regen("stam")
+        self.db.hp_buildup += self.get_regen("hp") * secs
+        self.db.mana_buildup += self.get_regen("mana") * secs
+        self.db.stam_buildup += self.get_regen("stam") * secs
         if self.db.hp_buildup >= 1:
             hp_gained = int(self.db.hp_buildup)
             self.db.hp_buildup -= Dec(hp_gained)

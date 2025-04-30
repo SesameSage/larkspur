@@ -297,6 +297,7 @@ class TurnHandler(DefaultScript):
             return
 
         character.db.combat_actionsleft = ACTIONS_PER_TURN  # Replenish actions
+        character.regenerate(secs=SECS_PER_TURN)
 
         other_fighters = self.obj.contents
         other_fighters.remove(character)
@@ -332,6 +333,7 @@ class TurnHandler(DefaultScript):
             character.location.msg_contents(
                 character.get_display_name() + " loses precious time in battle clambering back to their feet!")
             self.spend_action(character, "all", "stand up")
+
         character.tick_cooldowns(SECS_PER_TURN)
         character.apply_effects()
 
