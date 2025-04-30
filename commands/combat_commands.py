@@ -207,7 +207,6 @@ class CmdCast(MuxCommand):
                 self.caller.msg("No valid target found for " + target_string)
                 return
 
-
         # Find ability/spell by name
         valid_castables = []
         for ability in self.caller.db.abilities:
