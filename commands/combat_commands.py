@@ -75,51 +75,32 @@ class CmdAttack(Command):
 
     def func(self):
         attacker = self.caller
-        here = attacker.location
-        if self.confirm_in_combat():
-            if not self.turn_handler.is_turn(attacker):  # If it's not your turn, can't attack.
-                attacker.msg("You can only do that on your turn.")
-                return
-        else:
-            self.turn_handler = create_script(typeclass=TurnHandler, obj=here, attributes=[("starter", attacker)])
 
-        if not self.caller.db.hp:  # Can't attack if you have no HP.
-            self.caller.msg("You can't attack, you've been defeated.")
-            return
+        visible_things = attacker.filter_visible(attacker.location.contents, attacker)
+        valid_targets = [content for content in visible_things
+                         if content.db.hp and content.db.hostile_to_players != attacker.db.hostile_to_players]
 
-        valid_targets = []
-        for fighter in self.turn_handler.db.fighters:
-            if fighter is not attacker and fighter.db.hp > 0:
-                valid_targets.append(fighter)
-        if self.args == "":  # No valid target given.
+        # With no args, display list unless there is only one valid target
+        if self.args == "":
             if len(valid_targets) > 1:
                 attacker.msg("Attack whom? " + str(valid_targets))
                 return
             else:
-                defender = valid_targets[0]
+                target = valid_targets[0]
         else:
-            defender = attacker.search(self.args, candidates=valid_targets)
-            if not defender:
+            target = attacker.search(self.args, candidates=valid_targets)
+            if not target:
                 attacker.msg("Can't find " + self.args)
                 return
 
-        if not defender.db.hp:  # Target object has no HP left or to begin with
-            attacker.msg("You can't fight that!")
+        start_join_fight(attacker, target)
+
+        # Wait to check this until after start_join_fight to make sure combat_ap is accessible
+        if attacker.db.combat_ap < attacker.ap_to_attack():
+            attacker.msg("Not enough AP!")
             return
 
-        if attacker == defender:  # Target and attacker are the same
-            attacker.msg("You can't attack yourself!")
-            return
-
-        attacker.attack(defender)
-
-    def confirm_in_combat(self):
-        if not self.caller.is_in_combat():  # If not in combat, can't attack.
-            self.caller.msg("You can only do that in combat. (see: help fight)")
-            return False
-
-        self.turn_handler = self.caller.db.combat_turnhandler
-        return True
+        attacker.attack(target)
 
 
 class CmdCast(MuxCommand):
@@ -176,10 +157,13 @@ class CmdCast(MuxCommand):
             self.caller.msg("Multiple abilities found for " + ability_string)
             return
         if 0 < len(valid_castables) < 2:
-            if valid_castables[0].cast(caster=self.caller, target=target):  # If successfully cast
+            ability = valid_castables[0]
+            # If successfully cast
+            if ability.cast(caster=self.caller, target=target):
                 # Spend an action if in combat
                 if self.caller.is_in_combat():
-                    self.caller.db.combat_turnhandler.spend_action(character=self.caller, actions=1, action_name="cast")
+                    self.caller.db.combat_turnhandler.spend_action(character=self.caller,
+                                                                   actions=ability.db.ap_cost, action_name="cast")
 
 
 class CmdPass(Command):

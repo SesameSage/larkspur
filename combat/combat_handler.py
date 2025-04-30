@@ -21,8 +21,8 @@ class CombatHandler:
         :param character: Character generating AP.
         :return: Amount of AP gained this turn.
         """
-        ap = 0
-        ap += character.get_attr("dex")
+        ap = 2
+        ap += character.get_attr("dex") // 2
         return ap
 
     def get_allies(self, character):

@@ -31,6 +31,7 @@ class Ability(Object):
         else:
             self.adjust_cooldowns_stats(caster)
             self.func(caster, target)
+            caster.db.combat_turnhandler.spend_action(self, self.db.ap_cost or 2, action_name="attack")
             return True
 
     def check(self, caster, target):
@@ -49,6 +50,16 @@ class Ability(Object):
             if caster.attributes.get(stat) < amt:
                 caster.msg("Not enough " + stat.capitalize() + "!")
                 return False
+
+        # AP cost
+        ap_cost = self.db.ap_cost or 2
+        if caster.is_in_combat():
+            current_ap = caster.db.combat_ap
+        else:
+            current_ap = caster.get_ap()
+        if current_ap < ap_cost:
+            caster.msg("Not enough AP!")
+            return
 
         # If ability has a cooldown
         if self.db.cooldown > 0 and not caster.is_superuser:

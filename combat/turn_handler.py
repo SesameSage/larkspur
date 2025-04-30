@@ -394,7 +394,6 @@ class TurnHandler(DefaultScript):
                 pass
         self.turn_end_check(character)  # Signal potential end of turn.
 
-    # TODO: Fix defeating all before turn is over
     def turn_end_check(self, character):
         """
         Tests to see if a character's turn is over, and cycles to the next turn if it is.
