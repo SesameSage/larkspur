@@ -188,9 +188,7 @@ class TurnHandler(DefaultScript):
         if self.db.timer <= 0:
             # Force current character to disengage if timer runs out.
             self.obj.msg_contents("%s's turn timed out!" % currentchar.get_display_name(capital=True))
-            self.spend_action(
-                currentchar, "all", action_name="disengage"
-            )  # Spend all remaining actions.
+            self.next_turn()
             return
         elif self.db.timer <= 10 and not self.db.timeout_warning_given:  # 10 seconds left
             # Warn the current character if they're about to time out.
@@ -429,22 +427,6 @@ class TurnHandler(DefaultScript):
         """
         self.all_defeat_check()
 
-        # Check to see if every character disengaged as their last action. If so, end combat.
-        disengage_check = True
-
-        for fighter in self.db.fighters:
-            if (
-                    fighter.db.combat_lastaction != "disengage"
-            ):  # If a character has done anything but disengage
-                disengage_check = False
-        if disengage_check:  # All characters have disengaged
-            self.obj.msg_contents("All fighters have disengaged! Combat is over!")
-            self.stop()  # Stop this script and end combat.
-            self.delete()
-            return
-
-        self.all_defeat_check()
-
         # Cycle to the next turn.
         currentchar = self.db.fighters[self.db.turn]
         while True:
@@ -456,8 +438,6 @@ class TurnHandler(DefaultScript):
                 break
         self.db.timer = TURN_TIMEOUT + self.time_until_next_repeat()  # Reset the timer.
         self.db.timeout_warning_given = False  # Reset the timeout warning.
-
-        self.all_defeat_check()
 
         self.start_turn(newchar)
 

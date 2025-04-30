@@ -203,47 +203,6 @@ class CmdPass(Command):
         return True
 
 
-class CmdDisengage(Command):
-    """
-    pass turn and attempt to end combat
-
-    Usage:
-      disengage
-
-    Ends your turn early and signals that you're trying to end
-    the fight. If all participants in a fight disengage, the
-    fight ends.
-    """
-
-    key = "disengage"
-    aliases = ["spare"]
-    help_category = "combat"
-
-    def func(self):
-        if not self.confirm_in_combat():
-            return
-
-        if not self.caller.is_turn():  # If it's not your turn
-            self.caller.msg("You can only do that on your turn.")
-            return
-
-        self.caller.location.msg_contents("%s disengages, ready to stop fighting." % self.caller)
-        # Spend all remaining actions.
-        self.turn_handler.spend_action(self.caller, "all", action_name="disengage")
-        """
-        The action_name kwarg sets the character's last action to "disengage", which is checked by
-        the turn handler script to see if all fighters have disengaged.
-        """
-
-    def confirm_in_combat(self):
-        if not self.caller.is_in_combat():  # If not in combat, can't attack.
-            self.caller.msg("You can only do that in combat. (see: help fight)")
-            return False
-
-        self.turn_handler = self.caller.db.combat_turnhandler
-        return True
-
-
 class CmdRest(Command):
     """
     recover hp faster
