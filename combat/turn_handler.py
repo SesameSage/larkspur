@@ -310,8 +310,15 @@ class TurnHandler(DefaultScript):
         if not self.id:
             return
 
-        character.db.combat_ap += COMBAT.get_ap(character)  # Replenish actions
+        gain_ap = True
+        if (character.effect_active("Frozen")
+                or character.effect_active("Knocked Down") and character.db.effects["Knocked Down"][
+                    "seconds passed"] < 3):
+            gain_ap = False
+        if gain_ap:
+            character.db.combat_ap += COMBAT.get_ap(character)  # Replenish actions
 
+        # Show turn to other players
         other_fighters = self.obj.contents
         other_fighters.remove(character)
         if character.db.hostile_to_players:
@@ -340,17 +347,21 @@ class TurnHandler(DefaultScript):
         character.msg(table)
         character.msg(f"You have {appearance.highlight}{character.db.combat_ap} AP.")
 
-        if character.effect_active("Frozen"):
-            character.location.msg_contents(
-                character.get_display_name(capital=True) + " is frozen solid and cannot act!")
-            self.spend_action(character, "all")
-        if character.effect_active("Knocked Down") and character.db.effects["Knocked Down"]["seconds passed"] < 3:
-            character.location.msg_contents(
-                character.get_display_name() + " loses precious time in battle clambering back to their feet!")
-            self.spend_action(character, "all", "stand up")
+        # Cycle their cooldowns and effects
         character.tick_cooldowns(SECS_PER_TURN)
         character.apply_effects()
 
+        # Apply turn effects
+        if character.effect_active("Frozen"):
+            character.location.msg_contents(
+                character.get_display_name(capital=True) + " is frozen solid and cannot act!")
+            self.next_turn()
+        if character.effect_active("Knocked Down") and character.db.effects["Knocked Down"]["seconds passed"] < 3:
+            character.location.msg_contents(
+                character.get_display_name() + " loses precious time in battle clambering back to their feet!")
+            self.next_turn()
+
+        # Take turn if AI
         combat_ai = character.db.ai
         if combat_ai:
             combat_ai.choose_action()
