@@ -2,6 +2,10 @@ from decimal import Decimal as Dec
 
 from combat.effects import SECS_PER_TURN
 
+POTION = {
+    "typeclass": "typeclasses.inanimate.items.usables.Potion"
+}
+
 POISON_DART = {
     "key": "poison dart",
     "typeclass": "typeclasses.inanimate.items.usables.Consumable",
@@ -22,59 +26,50 @@ POISON_DART = {
     "weight": round(Dec(0.5), 1),
 }
 ANTIDOTE = {
+    "prototype_parent": "POTION",
     "key": "antidote",
-    "typeclass": "typeclasses.inanimate.items.usables.Potion",
     "desc": "An antidote to poison.",
     "item_func": "cure_condition",
-    "item_uses": 1,
     "kwargs": {
         "effects_cured": ["Poisoned"]
     },
-    "weight": round(Dec(0.2), 1),
 }
 
 HEALTH_POTION = {
+    "prototype_parent": "POTION",
     "key": "health potion",
-    "typeclass": "typeclasses.inanimate.items.usables.Potion",
     "desc": "A potion of health",
     "item_func": "heal",
-    "item_uses": 1,
     "kwargs": {
         "range": (20, 30)
     },
-    "weight": round(Dec(1), 1),
 }
 
 MANA_POTION = {
+    "prototype_parent": "POTION",
     "key": "mana potion",
-    "typeclass": "typeclasses.inanimate.items.usables.Potion",
     "desc": "A potion of mana",
     "item_func": "restore_mana",
-    "item_uses": 1,
     "kwargs": {
         "range": (20, 30)
     },
-    "weight": round(Dec(1), 1),
 }
 
 STAMINA_POTION = {
+    "prototype_parent": "POTION",
     "key": "stamina potion",
-    "typeclass": "typeclasses.inanimate.items.usables.Potion",
     "desc": "A potion of stamina",
     "item_func": "restore_stamina",
-    "item_uses": 1,
     "kwargs": {
         "range": (20, 30)
     },
-    "weight": round(Dec(1), 1),
 }
 
 HP_REGEN_POTION = {
+    "prototype_parent": "POTION",
     "key": "regeneration potion",
-    "typeclass": "typeclasses.inanimate.items.usables.Potion",
     "desc": "A portion of life regeneration",
     "item_func": "add_effect",
-    "item_uses": 1,
     "kwargs": {
         "effects": [
             {
@@ -86,15 +81,13 @@ HP_REGEN_POTION = {
             }
         ]
     },
-    "weight": round(Dec(1), 1),
 }
 
 VITALITY_POTION = {
+    "prototype_parent": "POTION",
     "key": "vitality potion",
-    "typeclass": "typeclasses.inanimate.items.usables.Potion",
     "desc": "A portion increasing maximum hitpoints",
     "item_func": "add_effect",
-    "item_uses": 1,
     "kwargs": {
         "effects": [
             {
@@ -106,6 +99,5 @@ VITALITY_POTION = {
             }
         ]
     },
-    "weight": round(Dec(1), 1),
 }
 
