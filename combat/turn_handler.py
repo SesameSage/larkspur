@@ -391,7 +391,9 @@ class TurnHandler(DefaultScript):
                 if character.db.combat_ap < 0:
                     character.db.combat_ap = 0  # Can't have fewer than 0 actions
             except TypeError:
-                pass
+                # This must return instead of pass so that AP isn't printed twice when an action is commanded before
+                # combat begins
+                return
         self.turn_end_check(character)  # Signal potential end of turn.
 
     def turn_end_check(self, character):
