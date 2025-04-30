@@ -12,7 +12,8 @@ class Consume(Spell):
         self.db.targeted = False
 
         self.db.requires = [("spirit", 7)]
-        self.db.cost = [("mana", 12)]
+        self.db.ap_cost = 4
+        self.db.cost = [("mana", 15)]
         self.db.cooldown = 8 * SECS_PER_TURN
 
     def func(self, caster: LivingEntity, target: Object = None):
@@ -32,6 +33,7 @@ class AbsorbEssence(Spell):
         self.db.targeted = False
 
         self.db.requires = [("spirit", 9)]
+        self.db.ap_cost = 5
         self.db.cost = [("mana", 8)]
         self.db.cooldown = 8 * SECS_PER_TURN
 

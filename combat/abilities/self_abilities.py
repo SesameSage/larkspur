@@ -13,6 +13,7 @@ class EnergyTap(Ability):
         self.db.targeted = False
 
         self.db.requires = [("wisdom", 2)]
+        self.db.ap_cost = 1
         self.db.cost = [("mana", 12)]
         self.db.cooldown = 8 * SECS_PER_TURN
 
@@ -26,11 +27,13 @@ class EnergyTap(Ability):
 
 class Expel(Ability):
     desc = "Collect and expel the negative aura in your body to remove a temporary debuff."
+
     def at_object_creation(self):
         super().at_object_creation()
         self.db.targeted = False
 
         self.db.requires = [("wisdom", 5)]
+        self.db.ap_cost = 5
         self.db.cost = [("mana", 16)]
         self.db.cooldown = 8 * SECS_PER_TURN
 
@@ -54,10 +57,12 @@ class FocusMind(Ability):
         self.db.targeted = False
 
         self.db.requires = [("wisdom", 2)]
+        self.db.ap_cost = 1
         self.db.cost = [("stamina", 5)]
         self.db.cooldown = 3 * SECS_PER_TURN
 
     def func(self, caster: LivingEntity, target: Object = None):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} centers and focuses their mind.")
-        attributes = [("effect_key", "+Accuracy"), ("amount", 20), ("duration", 3 * SECS_PER_TURN), ("source", self.key)]
+        attributes = [("effect_key", "+Accuracy"), ("amount", 20), ("duration", 3 * SECS_PER_TURN),
+                      ("source", self.key)]
         caster.add_effect(typeclass=TimedStatMod, attributes=attributes)

@@ -14,6 +14,7 @@ class Scratch(Ability):
         self.db.must_target_entity = False
 
         self.db.cost = [("stamina", 1)]
+        self.db.ap_cost = 2
         self.db.cooldown = 0
 
     def get_damage(self, caster):

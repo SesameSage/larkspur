@@ -18,6 +18,7 @@ class Sweep(Ability):
         self.db.must_target_entity = True
 
         self.db.requires = [("dexterity", 2)]
+        self.db.ap_cost = 3
         self.db.cost = [("stamina", 1)]
         self.db.cooldown = 5 * SECS_PER_TURN
 
@@ -47,6 +48,7 @@ class NeutralizingHum(Ability):
         self.db.targeted = False
 
         self.db.requires = [("wisdom", 8)]
+        self.db.ap_cost = 5
         self.db.cost = [("mana", 10)]
         self.db.cooldown = 10 * SECS_PER_TURN
 
@@ -78,6 +80,7 @@ class SolarPlexusStrike(Ability):
         self.db.must_target_entity = True
 
         self.db.requires = [("dexterity", 10)]
+        self.db.ap_cost = 5
         self.db.cost = [("stamina", 10)]
         self.db.cooldown = 5 * SECS_PER_TURN
 

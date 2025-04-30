@@ -325,6 +325,5 @@ class BattleCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdCast())
         self.add(CmdRest())
         self.add(CmdPass())
-        self.add(CmdDisengage())
         self.add(CmdCombatHelp())
         self.add(CmdUse())

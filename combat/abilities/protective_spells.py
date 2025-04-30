@@ -14,7 +14,8 @@ class Ward(Spell):
         self.db.must_target_entity = True
 
         self.db.requires = [("wisdom", 6)]
-        self.db.cost = [("mana", 5)]
+        self.db.ap_cost = 3
+        self.db.cost = [("mana", 15)]
         self.db.cooldown = 3 * SECS_PER_TURN
 
     def func(self, caster: LivingEntity, target: Object = None):
@@ -31,12 +32,13 @@ class ArmorOfThorns(Spell):
 
     def at_object_creation(self):
         super().at_object_creation()
-        self.db.desc = "Protect your target with a coat of thorns to damage melee attackers."
+        self.db.desc = "Enshroud your ally in a coat of thorns to damage melee attackers."
         self.db.targeted = True
         self.db.must_target_entity = True
 
         self.db.requires = [("wisdom", 2)]
-        self.db.cost = [("mana", 8)]
+        self.db.ap_cost = 2
+        self.db.cost = [("mana", 13)]
         self.db.cooldown = 3 * SECS_PER_TURN
 
     def func(self, caster: LivingEntity, target: Object = None):
@@ -53,16 +55,16 @@ class ArmorOfThorns(Spell):
 class ThermalSink(Spell):
     """+10 Fire and Cold resistance"""
     key = "Thermal Sink"
+    desc = "Enshroud an ally with a heat sink capable of insulating both hot and cold damage."
 
     def at_object_creation(self):
         super().at_object_creation()
-        self.key = "Thermal Sink"
-        self.db.desc = "Enshroud an ally with a heat sink capable of insulating both hot and cold damage."
         self.db.targeted = True
         self.db.must_target_entity = False
 
         self.db.requires = [("wisdom", 3)]
-        self.db.cost = [("mana", 15)]
+        self.db.ap_cost = 1
+        self.db.cost = [("mana", 8)]
 
     def func(self, caster: LivingEntity, target: Object = None):
         attributes = [
