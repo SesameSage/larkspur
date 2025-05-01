@@ -1,3 +1,5 @@
+"""Abilities used on oneself."""
+
 from combat.abilities.abilities import Ability
 from combat.effects import DurationEffect, TimedStatMod
 from combat.combat_constants import SECS_PER_TURN

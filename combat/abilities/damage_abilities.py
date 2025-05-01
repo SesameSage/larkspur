@@ -1,9 +1,24 @@
+"""Abilities focused on dealing damage."""
+
 from combat.abilities.abilities import SpellCompAbility, Ability
 from combat.combat_handler import COMBAT
 from combat.effects import DamageTypes
 from combat.combat_constants import SECS_PER_TURN
 from typeclasses.base.objects import Object
 from typeclasses.living.living_entities import LivingEntity
+
+
+class PoisonArrow(SpellCompAbility):
+    key = "Poison Arrow"
+    desc = "Coat an arrow in poison, and take a shot at getting it into the opponent's blood."
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.targeted = True
+        self.db.must_target_entity = True
+        self.db.cooldown = 3 * SECS_PER_TURN
+
+        self.db.requirements = {"poison": 3}
 
 
 class Scratch(Ability):
@@ -25,16 +40,3 @@ class Scratch(Ability):
     def func(self, caster: LivingEntity, target: Object = None):
         COMBAT.resolve_attack(caster, target, self)
         return True
-
-
-class PoisonArrow(SpellCompAbility):
-    key = "Poison Arrow"
-    desc = "Coat an arrow in poison, and take a shot at getting it into the opponent's blood."
-
-    def at_object_creation(self):
-        super().at_object_creation()
-        self.db.targeted = True
-        self.db.must_target_entity = True
-        self.db.cooldown = 3 * SECS_PER_TURN
-
-        self.db.requirements = {"poison": 3}

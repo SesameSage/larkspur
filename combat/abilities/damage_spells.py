@@ -1,3 +1,5 @@
+"""Spells focused on dealing damage."""
+
 from combat.abilities.spells import Spell
 from combat.combat_handler import COMBAT
 from combat.effects import DamageTypes, Burning

@@ -1,3 +1,4 @@
+# TODO: Update TurnHandler docs
 """
 Simple turn-based combat system
 
@@ -80,6 +81,7 @@ class TurnHandler(DefaultScript):
     remaining participants choose to end the combat with the 'disengage' command.
     """
 
+    # <editor-fold desc="Script methods">
     def at_script_creation(self):
         """
         Called once, when the script is created.
@@ -153,18 +155,7 @@ class TurnHandler(DefaultScript):
             currentchar.msg(f"{appearance.warning}WARNING: About to time out!")
             self.db.timeout_warning_given = True
 
-    def roll_turn_order(self):
-        # Roll initiative and sort the list of fighters depending on who rolls highest to determine
-        # turn order.  The initiative roll is determined by the roll_init method and can be
-        # customized easily.
-        ordered_by_roll = sorted(self.db.fighters, key=self.roll_init, reverse=True)
-        self.db.fighters = ordered_by_roll
-        self.db.fighters.remove(self.db.starter)
-        self.db.fighters.insert(0, self.db.starter)
-
-        # Announce the turn order.
-        self.obj.msg_contents(
-            "Turn order is: %s " % ", ".join(obj.get_display_name(capital=True) for obj in self.db.fighters))
+    # </editor-fold>
 
     def initialize_for_combat(self, character):
         """
@@ -220,6 +211,19 @@ class TurnHandler(DefaultScript):
             This way, characters with a higher dexterity will go first more often.
         """
         return randint(1, 20) + character.get_attr("dex")
+
+    def roll_turn_order(self):
+        # Roll initiative and sort the list of fighters depending on who rolls highest to determine
+        # turn order.  The initiative roll is determined by the roll_init method and can be
+        # customized easily.
+        ordered_by_roll = sorted(self.db.fighters, key=self.roll_init, reverse=True)
+        self.db.fighters = ordered_by_roll
+        self.db.fighters.remove(self.db.starter)
+        self.db.fighters.insert(0, self.db.starter)
+
+        # Announce the turn order.
+        self.obj.msg_contents(
+            "Turn order is: %s " % ", ".join(obj.get_display_name(capital=True) for obj in self.db.fighters))
 
     def count_hostiles(self):
         """Returns a tuple with the numbers of hostiles and nonhostiles remaining in battle."""

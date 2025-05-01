@@ -6,7 +6,8 @@ from evennia.utils import inherits_from
 ALL_ABILITIES = {}
 
 for filename in [".ally_abilities", ".ally_spells", ".damage_abilities", ".damage_spells", ".effect_abilities",
-                 ".effect_spells", ".protective_abilities", ".protective_spells", ".self_abilities", ".self_spells", ]:
+                 ".effect_spells", ".protective_abilities", ".protective_spells", ".self_abilities", ".self_spells",
+                 ".team_abilities", ".team_spells"]:
     members = inspect.getmembers(importlib.import_module(filename, package="combat.abilities"))
     for member in members:
         if not isinstance(member[1], type):

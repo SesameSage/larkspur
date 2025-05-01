@@ -1,35 +1,9 @@
+"""Beneficial spells cast on an ally."""
+
 from combat.abilities.spells import Spell
 from combat.combat_constants import SECS_PER_TURN
 from typeclasses.base.objects import Object
 from typeclasses.living.living_entities import LivingEntity
-
-
-class Revive(Spell):
-    desc = "Bring back an ally who has been knocked out."
-
-    def at_object_creation(self):
-        super().at_object_creation()
-        self.db.targeted = True
-        self.db.must_target_entity = True
-        self.db.offensive = False
-
-        self.db.requires = [("spirit", 10)]
-        self.db.cost = [("mana", 25)]
-        self.db.cooldown = 10 * SECS_PER_TURN
-
-    def check(self, caster, target):
-        if not super().check(caster, target):
-            return False
-
-        if target.db.hp > 0:
-            caster.msg(target.name + " isn't knocked out!")
-            return False
-
-        return True
-
-    def func(self, caster: LivingEntity, target: Object = None):
-        target.db.hp = 50
-        target.location.msg_contents(target.get_display_name() + " has been revived!")
 
 
 class Cleanse(Spell):
@@ -82,3 +56,31 @@ class HealWounds(Spell):
             amt_healed = amt_can_be_healed
         target.db.hp += amt_healed
         target.location.msg_contents(f"{target.get_display_name(capital=True)} restores {amt_healed} HP!")
+
+
+class Revive(Spell):
+    desc = "Bring back an ally who has been knocked out."
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.targeted = True
+        self.db.must_target_entity = True
+        self.db.offensive = False
+
+        self.db.requires = [("spirit", 10)]
+        self.db.cost = [("mana", 25)]
+        self.db.cooldown = 10 * SECS_PER_TURN
+
+    def check(self, caster, target):
+        if not super().check(caster, target):
+            return False
+
+        if target.db.hp > 0:
+            caster.msg(target.name + " isn't knocked out!")
+            return False
+
+        return True
+
+    def func(self, caster: LivingEntity, target: Object = None):
+        target.db.hp = 50
+        target.location.msg_contents(target.get_display_name() + " has been revived!")

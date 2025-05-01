@@ -1,3 +1,5 @@
+"""Spells focused on inflicting effects."""
+
 from combat.abilities.spells import Spell
 from combat.effects import DurationEffect, Frozen, Drain, TimedStatMod
 from combat.combat_constants import SECS_PER_TURN
@@ -27,31 +29,6 @@ class BlindingBeam(Spell):
         return True
 
 
-class Freeze(Spell):
-    desc = "Encase your opponent in ice, preventing them from acting at all on their turn."
-
-    def at_object_creation(self):
-        super().at_object_creation()
-        self.db.targeted = True
-        self.db.must_target_entity = False
-
-        self.db.requires = [("spirit", 10)]
-        self.db.ap_cost = 6
-        self.db.cost = [("mana", 25)]
-        self.db.cooldown = 6 * SECS_PER_TURN
-
-    def func(self, caster: LivingEntity, target: Object = None):
-        if target.effect_active("Burning"):
-            target.scripts.get("Burning").delete()
-
-        target.location.msg_contents(f"{caster.get_display_name(capital=True)} raises nearby water with downturned "
-                                     f"fingers, pulls it together to engulf {target.get_display_name(article=True)}, "
-                                     f"and separates their hands again in a rapid slicing motion.")
-
-        target.add_effect(Frozen, [("duration", 2 * SECS_PER_TURN)])
-        return True
-
-
 class Curse(Spell):
     desc = "Inflict your opponent with a curse that strikes them whenever they deal damage."
 
@@ -75,6 +52,31 @@ class Curse(Spell):
         else:
             attributes = [("effect_key", "Cursed"), ("duration", 2 * SECS_PER_TURN), ("amount", spirit)]
             target.add_effect(typeclass=TimedStatMod, attributes=attributes)
+        return True
+
+
+class Freeze(Spell):
+    desc = "Encase your opponent in ice, preventing them from acting at all on their turn."
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.targeted = True
+        self.db.must_target_entity = False
+
+        self.db.requires = [("spirit", 10)]
+        self.db.ap_cost = 6
+        self.db.cost = [("mana", 25)]
+        self.db.cooldown = 6 * SECS_PER_TURN
+
+    def func(self, caster: LivingEntity, target: Object = None):
+        if target.effect_active("Burning"):
+            target.scripts.get("Burning").delete()
+
+        target.location.msg_contents(f"{caster.get_display_name(capital=True)} raises nearby water with downturned "
+                                     f"fingers, pulls it together to engulf {target.get_display_name(article=True)}, "
+                                     f"and separates their hands again in a rapid slicing motion.")
+
+        target.add_effect(Frozen, [("duration", 2 * SECS_PER_TURN)])
         return True
 
 

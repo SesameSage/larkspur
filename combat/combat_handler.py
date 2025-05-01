@@ -12,6 +12,10 @@ from typeclasses.inanimate.items.usables import Consumable
 
 
 class CombatHandler:
+    """
+    Handles many combat interactions and calculations as a single instance per server load.
+    Functions in this file are listed in the order of their step-by-step logic.
+    """
 
     def get_ap(self, character):
         """

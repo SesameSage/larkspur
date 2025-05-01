@@ -12,7 +12,6 @@ from evennia import EvTable
 from evennia.prototypes.spawner import spawn
 from evennia.utils import make_iter
 
-from typeclasses.living.enemies import Enemy
 from typeclasses.living.living_entities import *
 from typeclasses.living.talking_npc import TalkableNPC
 
@@ -259,5 +258,3 @@ class Trainer(NPC):
         player.msg(table)
 
 
-class EnemyCharacter(Enemy, NPC):
-    pass

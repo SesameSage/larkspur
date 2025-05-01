@@ -37,10 +37,7 @@ class PlayerCharacter(Character):
 
         self.update_base_stats()
 
-    def update_base_stats(self):
-        super().update_base_stats()
-        self.db.carry_weight = BASE_CARRY_WEIGHT + STR_TO_CARRY_WEIGHT[self.get_attr("str")]
-
+    # <editor-fold desc="Appearance">
     def color(self):
         return appearance.player
 
@@ -51,7 +48,9 @@ class PlayerCharacter(Character):
 
     def cmd_format(self, string):
         return appearance.cmd + "'" + string + "'|n"
+    # </editor-fold>
 
+    # <editor-fold desc="Messaging">
     def print_ambient(self, string):
         self.msg(appearance.ambient + string)
 
@@ -61,6 +60,12 @@ class PlayerCharacter(Character):
     def more_info(self, string):
         if self.attributes.get("prefs", category="ooc")["more_info"]:
             self.msg(appearance.moreinfo + string)
+    # </editor-fold>
+
+    # <editor-fold desc="Stats">
+    def update_base_stats(self):
+        super().update_base_stats()
+        self.db.carry_weight = BASE_CARRY_WEIGHT + STR_TO_CARRY_WEIGHT[self.get_attr("str")]
 
     def gain_xp(self, amt):
         self.db.xp += amt
@@ -90,3 +95,4 @@ class PlayerCharacter(Character):
                 if self.db.attribs[stat] < amount:
                     return False
             return True
+    # </editor-fold>

@@ -1,0 +1,254 @@
+from evennia import Command
+from evennia.commands.default.muxcommand import MuxCommand
+from evennia.utils.create import create_object
+from evennia.utils.evtable import EvTable
+
+from combat.abilities import all_abilities
+from combat.abilities.spells import Spell
+from server import appearance
+from typeclasses.living.characters import Trainer
+
+
+class CmdClasses(MuxCommand):
+    """
+        view and edit class lists on trainer NPCs
+
+        Usage:
+          classes
+
+          (Builders only)
+            classes/add <ability name> = <cost>
+            classes/remove <ability name>
+
+        NPCs capable of training the player in abilities and/or spells
+        will display their available classes to normal players, formatted
+        based on the player's eligibility to learn each ability.
+
+        Builders have the additional option to add and remove classes
+        from the list.
+        """
+    key = "classes"
+    switch_options = ("add", "remove", "cost")
+    help_category = "character"
+
+    def func(self):
+        # Find the trainer in the room
+        trainer = self.caller.location.in_room(Trainer)
+        if not trainer:
+            self.caller.msg("No one to train with here!")
+            return
+
+        # If using a switch to attempt to alter class list
+        if len(self.switches) > 0:
+            # Check that caller has permission
+            if not self.caller.permissions.check("Builder"):
+                self.caller.msg("Only builders can alter class lists!")
+                return
+
+            # Get ability name input
+            if not self.lhs:
+                self.caller.msg("What ability?")
+                return
+            ability_input = self.lhs
+
+            # Find ability class
+            ability = all_abilities.get(ability_input)
+            if not ability:
+                self.caller.msg("No ability found for " + ability_input)
+                return
+
+            # Get ability key
+            key = ability.key if isinstance(ability.key, str) else ability.__name__
+
+        # Standard command for non-builders (display classes)
+        else:
+            show_all = False
+            if self.lhs and self.lhs == "all":
+                show_all = True
+
+            trainer.display_classes(self.caller, show_all)
+            return
+
+        # Builder options
+        if "add" in self.switches:
+            if not self.rhs:
+                self.caller.msg(f"Remember to include class cost! {appearance.cmd}classes/add <ability> = <price>")
+                return
+            else:
+                try:
+                    cost = int(self.rhs)
+                except ValueError:
+                    self.caller.msg("Couldn't interpret  " + self.rhs + " as an integer.")
+                    return
+
+                # Give an instance of the ability to the trainer
+                obj = create_object(typeclass=ability, key=key, location=trainer)
+
+                # Add the abiltiy and its cost to the trainer's class list
+                trainer.db.classes[obj] = cost
+                self.caller.msg(f"Successfully added {key} as a class taught by {trainer.name}.")
+
+        elif "remove" in self.switches:
+            if not ability:
+                self.caller.msg("No ability found for " + ability_input)
+                return
+            if ability not in trainer.abilities_taught():
+                self.caller.msg(f"{trainer.name} doesn't seem to teach {key}.")
+                return
+
+            ability_obj = trainer.search(key)
+            del trainer.db.classes[ability_obj]
+            try:
+                trainer.db.classes[ability_obj]
+                self.caller.msg("Class removal was not successful.")
+                return
+            except KeyError:
+                self.caller.msg("Class successfully removed.")
+            if ability_obj.delete():
+                self.caller.msg("Successfully deleted ability object.")
+
+        elif "cost" in self.switches:
+            if not self.rhs:
+                self.caller.msg(f"Remember to include class cost! {appearance.cmd}classes/cost <ability> = <price>")
+                return
+            if ability not in trainer.abilities_taught():
+                self.caller.msg(f"{trainer.name} doesn't seem to teach {key}.")
+            else:
+                try:
+                    cost = int(self.rhs)
+                except ValueError:
+                    self.caller.msg("Couldn't interpret  " + self.rhs + " as an integer.")
+                    return
+
+                ability_obj = trainer.search(key)
+                if not ability_obj:
+                    self.caller.msg("Couldn't find ability object in trainer's contents.")
+                    return
+                trainer.db.classes[ability_obj] = cost
+                if trainer.db.classes[ability_obj] == cost:
+                    self.caller.msg("Successfully changed class cost for " + key)
+
+
+class CmdLearn(MuxCommand):
+    """
+        learn a spell or ability you are eligible for
+
+        Usage:
+          learn <ability name>
+
+        Examples:
+            learn firebolt
+            learn blinding beam
+
+        Any abilities in your class's ability tree up to your level
+        can be learned from a trainer, as long as the trainer teaches
+        a class in that ability.
+        """
+    key = "learn"
+    help_category = "character"
+
+    def func(self):
+        # Get ability input
+        if not self.lhs:
+            self.caller.msg("Learn which ability?")
+            self.caller.execute_cmd("classes")
+            return
+        else:
+            ability_input = self.lhs
+
+        # Find a trainer in the room
+        trainer = None
+        for obj in self.caller.location.contents:
+            if obj.attributes.has("classes"):
+                trainer = obj
+                break
+        if not trainer:
+            self.caller.msg("No one here to learn from!")
+            return
+
+        # Find a matching ability taught here
+        target_ability = None
+        for ability in trainer.db.classes:
+            if ability.key.lower().startswith(ability_input.lower()):
+                target_ability = ability
+                break
+        if not target_ability:
+            self.caller.msg("No class here found for " + ability_input)
+            return
+
+        ability_or_spell = "spell" if isinstance(ability, Spell) else "ability"
+
+        # Check character's eligibility to learn
+        if self.caller.knows_ability(target_ability):
+            self.caller.msg(f"You already know this {ability_or_spell}!")
+            return
+        if not target_ability.in_ability_tree(self.caller.db.rpg_class):
+            self.caller.msg(f"You are not the right class to learn this {ability_or_spell}!")
+            return
+        if not self.caller.meets_level_requirement(target_ability):
+            self.caller.msg("You must attain more knowledge and experience as a " + self.caller.db.rpg_class.key +
+                            "before you are ready to take this class.")
+            return
+        for stat, amount in target_ability.db.requires:
+            # Use the base character attribute, not the effective value from equipment, etc
+            if self.caller.db.attribs[stat] < amount:
+                self.caller.msg(f"Your {stat.capitalize()} isn't high enough!")
+                return
+
+        # Check the character has enough gold
+        cost = trainer.db.classes[target_ability]
+        if self.caller.db.gold < cost:
+            self.caller.msg("You don't have enough gold!")
+            return
+
+        # Create and add ability
+        obj = create_object(typeclass=type(target_ability), key=target_ability.key, location=self.caller)
+        self.caller.db.abilities.append(obj)
+        self.caller.msg(f"{trainer.name} teaches you to use {obj.get_display_name()}!")
+
+        # Deduct cost
+        self.caller.db.gold -= cost
+
+
+class CmdSpells(Command):
+    """
+        see your spells and abilities
+
+        Usage:
+          spells
+          spel
+          sp
+          abilities
+          abil
+          ab
+
+        All spells and abilities that you have learned will display here.
+        To cast a spell or ability, use 'cast <ability> <target>' (if the
+        ability must have a target) or 'cast <ability>' otherwise.
+        """
+    key = "spells"
+    aliases = ("spell", "spel", "sp", "abilities", "abil", "ab")
+    help_category = "character"
+
+    def func(self):
+        current_spells = EvTable()
+        for ability in self.caller.db.abilities:
+            desc = ability.desc
+            if len(desc) > 50:
+                desc = desc[:48] + "..."
+            current_spells.add_row(ability.get_display_name(), desc, f"|wCosts|n: {ability.cost_string()}")
+
+        available_spells = EvTable()
+        for level in range(self.caller.db.level + 1):
+            if level == 0:
+                continue
+            for ability in self.caller.db.rpg_class.ability_tree[level]:
+                if not self.caller.knows_ability(ability):
+                    color = appearance.spell if isinstance(ability, Spell) else appearance.ability
+                    available_spells.add_row(color + ability.key, ability.desc)
+
+        self.caller.msg("|wYour abilities:")
+        self.caller.msg(current_spells)
+        self.caller.msg("")
+        self.caller.msg("|wAbilities you can currently learn:")
+        self.caller.msg(available_spells)

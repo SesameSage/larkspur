@@ -1,36 +1,15 @@
+"""Spells that protect allies."""
+
 from combat.abilities.spells import Spell
 from combat.effects import *
 from typeclasses.base.objects import Object
 from typeclasses.living.living_entities import LivingEntity
 
 
-class Ward(Spell):
-    """Target gains 10 resistance through a protective magical shield."""
-    desc = "Protect a target with a magical shield of resistance."
-
-    def at_object_creation(self):
-        super().at_object_creation()
-        self.db.targeted = True
-        self.db.must_target_entity = True
-        self.db.offensive = False
-
-        self.db.requires = [("wisdom", 6)]
-        self.db.ap_cost = 3
-        self.db.cost = [("mana", 15)]
-        self.db.cooldown = 3 * SECS_PER_TURN
-
-    def func(self, caster: LivingEntity, target: Object = None):
-        caster.location.msg_contents(f"{caster.get_display_name(capital=True)} draws an arc of magical protection "
-                                     f"around {target.get_display_name(article=True)}.")
-
-        target.add_effect(TimedStatMod,
-                          [("effect_key", "+Resistance"), ("amount", 10), ("duration", 5 * SECS_PER_TURN)])
-        return True
-
-
 class ArmorOfThorns(Spell):
     key = "Armor of Thorns"
     desc = "Enshroud your ally in a coat of thorns to damage melee attackers."
+
     def at_object_creation(self):
         super().at_object_creation()
         self.db.targeted = True
@@ -82,4 +61,28 @@ class ThermalSink(Spell):
         target.add_effect(typeclass=TimedStatMod, attributes=fire_attributes)
         target.add_effect(typeclass=TimedStatMod, attributes=cold_attributes)
 
+        return True
+
+
+class Ward(Spell):
+    """Target gains 10 resistance through a protective magical shield."""
+    desc = "Protect a target with a magical shield of resistance."
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.targeted = True
+        self.db.must_target_entity = True
+        self.db.offensive = False
+
+        self.db.requires = [("wisdom", 6)]
+        self.db.ap_cost = 3
+        self.db.cost = [("mana", 15)]
+        self.db.cooldown = 3 * SECS_PER_TURN
+
+    def func(self, caster: LivingEntity, target: Object = None):
+        caster.location.msg_contents(f"{caster.get_display_name(capital=True)} draws an arc of magical protection "
+                                     f"around {target.get_display_name(article=True)}.")
+
+        target.add_effect(TimedStatMod,
+                          [("effect_key", "+Resistance"), ("amount", 10), ("duration", 5 * SECS_PER_TURN)])
         return True

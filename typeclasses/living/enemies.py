@@ -1,4 +1,5 @@
 from server import appearance
+from typeclasses.living.characters import NPC
 from typeclasses.living.living_entities import LivingEntity
 
 
@@ -12,3 +13,7 @@ class Enemy(LivingEntity):
 
     def color(self):
         return appearance.enemy
+
+
+class EnemyCharacter(Enemy, NPC):
+    pass

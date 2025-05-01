@@ -22,21 +22,11 @@ class Ability(Object):
         self.db.must_target_entity = False
         self.db.offensive = True
 
-        # Required attributes to learn
-        self.db.requires = [()]
+        self.db.requires = [()]  # Required attributes to learn (dexterity, wisdom, etc)
 
-        self.db.cost = []
-        self.db.cooldown = 0
-
-    def cast(self, caster: LivingEntity, target: Object = None):
-        if not self.check(caster, target):
-            return False
-        else:
-            self.adjust_cooldowns_stats(caster)
-            self.func(caster, target)
-            if caster.is_in_combat():
-                caster.db.combat_turnhandler.spend_action(caster, self.db.ap_cost or 2, action_name="cast")
-            return True
+        self.db.ap_cost = 2
+        self.db.cost = []  # Mana and stamina costs
+        self.db.cooldown = 0  # How long before it can be cast again
 
     def check(self, caster, target):
         """
@@ -123,7 +113,27 @@ class Ability(Object):
                 case "stamina":
                     caster.db.stamina -= self.db.cost[1]
 
+    def cast(self, caster: LivingEntity, target: Object = None):
+        """
+        If the ability's check passes, call the cooldown and cost adjuster, perform the ability, and spend the AP.
+        :param caster: The entity casting the ability
+        :param target: The target of the ability, if any
+        :return: Bool whether the check passed and spell was successfully cast
+        """
+        if not self.check(caster, target):
+            return False
+        else:
+            self.adjust_cooldowns_stats(caster)
+            self.func(caster, target)
+            if caster.is_in_combat():
+                caster.db.combat_turnhandler.spend_action(caster, self.db.ap_cost or 2, action_name="cast")
+            return True
+
     def in_ability_tree(self, rpg_class):
+        """
+        Returns true if this ability is found in the given class's ability tree, i.e. if the given class can learn this
+        ability through normal means.
+        """
         ability_tree = rpg_class.ability_tree
         for level in ability_tree:
             if type(self) in ability_tree[level]:
@@ -151,6 +161,7 @@ class Ability(Object):
         return string
 
     def get_help(self):
+        """Formats help entries for individual abilities."""
         return f"""
         {self.get_display_name()}
         {self.desc}
