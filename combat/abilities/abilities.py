@@ -34,7 +34,8 @@ class Ability(Object):
         else:
             self.adjust_cooldowns_stats(caster)
             self.func(caster, target)
-            caster.db.combat_turnhandler.spend_action(caster, self.db.ap_cost or 2, action_name="attack")
+            if caster.is_in_combat():
+                caster.db.combat_turnhandler.spend_action(caster, self.db.ap_cost or 2, action_name="cast")
             return True
 
     def check(self, caster, target):
