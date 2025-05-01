@@ -15,6 +15,7 @@ class BlindingBeam(Spell):
         self.db.must_target_entity = True
 
         self.db.requires = [("spirit", 1)]
+        self.db.ap_cost = 2
         self.db.cost = [("mana", 5)]
         self.db.cooldown = 6 * SECS_PER_TURN
 
@@ -27,13 +28,15 @@ class BlindingBeam(Spell):
 
 class Freeze(Spell):
     desc = "Encase your opponent in ice, preventing them from acting at all on their turn."
+
     def at_object_creation(self):
         super().at_object_creation()
         self.db.targeted = True
         self.db.must_target_entity = False
 
         self.db.requires = [("spirit", 10)]
-        self.db.cost = [("mana", 12)]
+        self.db.ap_cost = 6
+        self.db.cost = [("mana", 25)]
         self.db.cooldown = 6 * SECS_PER_TURN
 
     def func(self, caster: LivingEntity, target: Object = None):
@@ -50,12 +53,14 @@ class Freeze(Spell):
 
 class Curse(Spell):
     desc = "Inflict your opponent with a curse that strikes them whenever they deal damage."
+
     def at_object_creation(self):
         super().at_object_creation()
         self.db.targeted = True
         self.db.must_target_entity = True
 
         self.db.requires = [("spirit", 4)]
+        self.db.ap_cost = 3
         self.db.cost = [("mana", 8)]
         self.db.cooldown = 4 * SECS_PER_TURN
 
@@ -74,22 +79,26 @@ class Curse(Spell):
 
 class Wither(Spell):
     desc = "Cause an opponent's stamina to wither away over time."
+
     def at_object_creation(self):
         super().at_object_creation()
         self.db.targeted = True
         self.db.must_target_entity = True
 
         self.db.requires = [("spirit", 2)]
+        self.db.ap_cost = 1
         self.db.cost = [("mana", 8)]
         self.db.cooldown = 3 * SECS_PER_TURN
 
     def func(self, caster: LivingEntity, target: Object = None):
         if target.get_attr("constitution") > caster.get_attr("spirit") * 1.75:
-            caster.location.msg_contents(f"{target.get_display_name(capital=True)} holds too much vitality to wither away!")
+            caster.location.msg_contents(
+                f"{target.get_display_name(capital=True)} holds too much vitality to wither away!")
             return True
         else:
             target.location.msg_contents(f"{caster.get_display_name(capital=True)} casts a trembling over "
                                          f"{target.get_display_name()}'s body, causing their stamina to wither away!")
-            attributes = [("effect_key", "Stamina Drain"), ("stat", "stamina"), ("duration", 5 * SECS_PER_TURN), ("amount", caster.get_attr("spirit"))]
+            attributes = [("effect_key", "Stamina Drain"), ("stat", "stamina"), ("duration", 5 * SECS_PER_TURN),
+                          ("amount", caster.get_attr("spirit")), ("source", self.key)]
             target.add_effect(typeclass=Drain, attributes=attributes)
             return True

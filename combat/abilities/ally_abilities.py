@@ -15,6 +15,7 @@ class MindClearingTone(Ability):
         self.db.offensive = False
 
         self.db.requires = [("wisdom", 5)]
+        self.db.ap_cost = 4
         self.db.cost = [("mana", 12)]
         self.db.cooldown = 5 * SECS_PER_TURN
 

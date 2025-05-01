@@ -14,6 +14,7 @@ class EnergyTap(Ability):
         self.db.offensive = False
 
         self.db.requires = [("wisdom", 2)]
+        self.db.ap_cost = 1
         self.db.cost = [("mana", 12)]
         self.db.cooldown = 8 * SECS_PER_TURN
 
@@ -34,6 +35,7 @@ class Expel(Ability):
         self.db.offensive = False
 
         self.db.requires = [("wisdom", 5)]
+        self.db.ap_cost = 5
         self.db.cost = [("mana", 16)]
         self.db.cooldown = 8 * SECS_PER_TURN
 
@@ -58,6 +60,7 @@ class FocusMind(Ability):
         self.db.offensive = False
 
         self.db.requires = [("wisdom", 2)]
+        self.db.ap_cost = 1
         self.db.cost = [("stamina", 5)]
         self.db.cooldown = 5 * SECS_PER_TURN
 

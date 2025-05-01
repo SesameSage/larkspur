@@ -42,6 +42,7 @@ class Cleanse(Spell):
         self.db.offensive = False
 
         self.db.requires = [("spirit", 3)]
+        self.db.ap_cost = 4
         self.db.cost = [("mana", 12)]
         self.db.cooldown = 5 * SECS_PER_TURN
 
@@ -68,6 +69,7 @@ class HealWounds(Spell):
         self.db.offensive = False
 
         self.db.requires = [("spirit", 2)]
+        self.db.ap_cost = 3
         self.db.cost = [("mana", 12)]
         self.db.cooldown = 3 * SECS_PER_TURN
 

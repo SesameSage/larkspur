@@ -14,6 +14,17 @@ HITROLL_PERCEPTION_BONUS = 2
 
 class CombatHandler:
 
+    def get_ap(self, character):
+        """
+        Returns the amount of AP a character gains this turn based on their stats.
+
+        :param character: Character generating AP.
+        :return: Amount of AP gained this turn.
+        """
+        ap = 2
+        ap += character.get_attr("dex") // 2
+        return ap
+
     def get_allies(self, character):
         allies = []
         if character.is_in_combat():
@@ -299,7 +310,7 @@ class CombatHandler:
             attack_landed = False
             attacker.location.msg_contents(
                 "%s's %s misses %s!" % (
-                attacker.get_display_name(capital=True), attack_name, defender.get_display_name(article=True))
+                    attacker.get_display_name(capital=True), attack_name, defender.get_display_name(article=True))
             )
             return attack_landed, {}
 

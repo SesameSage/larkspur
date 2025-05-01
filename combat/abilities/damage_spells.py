@@ -16,6 +16,7 @@ class Firebolt(Spell):
         self.db.must_target_entity = False
 
         self.db.requires = [("spirit", 2)]
+        self.db.ap_cost = 2
         self.db.cost = [("mana", 2)]
         self.db.cooldown = 2 * SECS_PER_TURN
 
