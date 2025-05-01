@@ -21,8 +21,17 @@ class CombatHandler:
         :param character: Character generating AP.
         :return: Amount of AP gained this turn.
         """
+        DEX_BONUS = character.get_attr("dex") // 2
         ap = 2
-        ap += character.get_attr("dex") // 2
+        ap += DEX_BONUS
+        character.location.more_info(f"{DEX_BONUS} AP from Dexterity")
+        for effect in ("+AP", "-AP"):
+            if character.effect_active(effect):
+                effect_amt = character.db.effects[effect]["amount"]
+                source = character.db.effects[effect]["source"]
+                ap += effect_amt
+                character.location.more_info(f"{effect_amt} AP from {source}")
+
         return ap
 
     def get_allies(self, character):

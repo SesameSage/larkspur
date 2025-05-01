@@ -27,3 +27,45 @@ class MindClearingTone(Ability):
         attributes = [("effect_key", "+Accuracy"), ("amount", 15), ("duration", 3 * SECS_PER_TURN), ("source", self.key)]
         for ally in COMBAT.get_allies(caster):
                 ally.add_effect(typeclass=TimedStatMod, attributes=attributes)
+
+
+class RallyingCry(Ability):
+    key = "Rallying Cry"
+    desc = "Rally your allies' morale, giving them additional actions per turn."
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.targeted = False
+        self.db.offensive = False
+
+        self.db.requires = [("strength", 1), ("wisdom", 1)]
+        self.db.ap_cost = 3
+        self.db.cost = [("stamina", 5)]
+        self.db.cooldown = 10 * SECS_PER_TURN
+
+    def func(self, caster: LivingEntity, target: Object = None):
+        caster.location.msg_contents(f"{caster.get_display_name(capital=True)} raises allies' morale with a rallying cry!")
+        attributes = [("effect_key", "+AP"), ("amount", 2), ("duration", 2 * SECS_PER_TURN), ("source", self.key)]
+        for ally in COMBAT.get_allies(caster):
+            ally.add_effect(typeclass=TimedStatMod, attributes=attributes)
+
+
+class WarCry(Ability):
+    key = "War Cry"
+    desc = "Your allies hit harder when envigored with your powerful war cry."
+    
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.targeted = False
+        self.db.offensive = False
+
+        self.db.requires = [("strength", 2)]
+        self.db.ap_cost = 1
+        self.db.cost = [("stamina", 7)]
+        self.db.cooldown = 6 * SECS_PER_TURN
+
+    def func(self, caster: LivingEntity, target: Object = None):
+        caster.location.msg_contents(f"{caster.get_display_name(capital=True)} lets out an earth-splitting war cry!")
+        attributes = [("effect_key", "+Damage"), ("amount", 5), ("duration", 4 * SECS_PER_TURN), ("source", self.key)]
+        for ally in COMBAT.get_allies(caster):
+            ally.add_effect(typeclass=TimedStatMod, attributes=attributes)
