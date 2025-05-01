@@ -43,4 +43,5 @@ DENSE_FOG = {
     "ongoing_msg": "Nothing more than a few paces away can be seen through this thick fog.",
     "effect": None,  # Reduced accuracy, especially at a distance. Detecting in other rooms nearly impossible
 }
+
 WEATHERS = [SUNNY, RAINING, LIGHT_FOG, DENSE_FOG]

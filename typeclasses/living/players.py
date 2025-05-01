@@ -3,7 +3,7 @@ from commands.refiled_cmds import RefiledCmdSet
 from server import appearance
 from stats.char_stats import xp_threshold
 from typeclasses.living.characters import Character
-from typeclasses.living.living_entities import BASE_CARRY_WEIGHT, BASE_CARRY_COUNT, STR_TO_CARRY_WEIGHT
+from stats.stats_constants import BASE_CARRY_WEIGHT, STR_TO_CARRY_WEIGHT, BASE_CARRY_COUNT
 from typeclasses.scripts.player_scripts import LevelUpReminder
 from world.locations import rooms
 

@@ -3,10 +3,9 @@ from random import randint
 
 from evennia.utils import inherits_from
 
+from combat.combat_constants import SECS_PER_TURN
 from server import appearance
 from typeclasses.scripts.scripts import Script
-
-SECS_PER_TURN = 3
 
 
 class DamageTypes(Enum):

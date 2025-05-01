@@ -4,28 +4,9 @@ from evennia.utils.evtable import EvTable
 
 from stats.combat_character import CombatEntity
 from server import appearance
+from stats.stats_constants import BASE_CARRY_WEIGHT, BASE_CARRY_COUNT
 from typeclasses.base.objects import Object
 from typeclasses.inanimate.items.items import Item
-
-BASE_CARRY_WEIGHT = Dec(30)
-STR_TO_CARRY_WEIGHT = {
-    1: Dec(0),
-    2: Dec(5),
-    3: Dec(10),
-    4: Dec(20),
-    5: Dec(35),
-    6: Dec(55),
-    7: Dec(80),
-}
-BASE_CARRY_COUNT = 10
-DEX_TO_CARRY_COUNT = {
-    1: 0,
-    2: 2,
-    3: 3,
-    4: 5,
-    5: 7,
-    6: 10,
-}
 
 
 class LivingEntity(Object, CombatEntity):

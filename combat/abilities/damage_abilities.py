@@ -1,6 +1,7 @@
 from combat.abilities.abilities import SpellCompAbility, Ability
 from combat.combat_handler import COMBAT
-from combat.effects import SECS_PER_TURN, DamageTypes
+from combat.effects import DamageTypes
+from combat.combat_constants import SECS_PER_TURN
 from typeclasses.base.objects import Object
 from typeclasses.living.living_entities import LivingEntity
 

@@ -2,14 +2,13 @@ from random import randint
 
 from evennia.prototypes.spawner import spawn
 
+from combat.combat_constants import PERCEPT_TO_ACCURACY_BONUS
 from server import appearance
 from server.appearance import dmg_color
 from combat.effects import DamageTypes
 from typeclasses.inanimate.items.equipment.weapons import Weapon
 from typeclasses.inanimate.items.items import ITEMFUNCS
 from typeclasses.inanimate.items.usables import Consumable
-
-HITROLL_PERCEPTION_BONUS = 2
 
 
 class CombatHandler:
@@ -84,7 +83,7 @@ class CombatHandler:
         accuracy += accuracy_bonus
 
         # Add Perception bonus
-        amt = attacker.get_attr("perception") * HITROLL_PERCEPTION_BONUS
+        amt = PERCEPT_TO_ACCURACY_BONUS[attacker.get_attr("perception")]
         accuracy += amt
         attacker.location.more_info(f"{amt} accuracy from perception ({attacker.name})")
 

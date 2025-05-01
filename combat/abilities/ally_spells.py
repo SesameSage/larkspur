@@ -1,5 +1,5 @@
 from combat.abilities.spells import Spell
-from combat.effects import SECS_PER_TURN
+from combat.combat_constants import SECS_PER_TURN
 from typeclasses.base.objects import Object
 from typeclasses.living.living_entities import LivingEntity
 

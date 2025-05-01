@@ -1,6 +1,7 @@
 from combat.abilities.spells import Spell
 from combat.combat_handler import COMBAT
-from combat.effects import SECS_PER_TURN, DamageTypes, Burning
+from combat.effects import DamageTypes, Burning
+from combat.combat_constants import SECS_PER_TURN
 from server.appearance import dmg_color
 from typeclasses.base.objects import Object
 from typeclasses.living.living_entities import LivingEntity

@@ -2,7 +2,8 @@ from random import randint
 
 from combat.abilities.abilities import Ability
 from combat.combat_handler import COMBAT
-from combat.effects import SECS_PER_TURN, KnockedDown, StatMod, TimedStatMod
+from combat.effects import KnockedDown, StatMod, TimedStatMod
+from combat.combat_constants import SECS_PER_TURN
 from typeclasses.base.objects import Object
 from typeclasses.living.living_entities import LivingEntity
 

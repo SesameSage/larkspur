@@ -7,55 +7,11 @@ from evennia.utils import inherits_from
 from combat.combat_handler import COMBAT
 from combat.effects import DurationEffect
 from combat.turn_handler import start_join_fight
-from server import appearance
+from stats.stats_constants import MAX_HP_BASE, LVL_TO_MAXHP, CON_TO_MAXHP, MAX_MANA_BASE, LVL_TO_MAXMANA, \
+    SPIRIT_TO_MAXMANA, MAX_STAM_BASE, LVL_TO_MAXSTAM, STR_TO_MAXSTAM, CON_TO_DEFENSE, DEXT_TO_EVADE, WIS_TO_RESIST
 from typeclasses.inanimate.fixtures import Fireplace
 from typeclasses.inanimate.items.equipment.equipment import EquipmentEntity
 from typeclasses.living.corpses import make_corpse, set_to_respawn
-
-MAX_HP_BASE = 100
-LVL_TO_MAXHP = {
-    1: 0,
-    2: 10,
-}
-CON_TO_MAXHP = {
-    1: 0,
-    2: 10,
-}
-MAX_MANA_BASE = 50
-LVL_TO_MAXMANA = {
-    1: 0,
-}
-SPIRIT_TO_MAXMANA = {
-    1: 0,
-    2: 10,
-}
-MAX_STAM_BASE = 50
-LVL_TO_MAXSTAM = {
-    1: 0,
-    2: 5,
-}
-STR_TO_MAXSTAM = {
-    1: 0,
-    2: 10,
-    3: 15,
-    4: 25,
-    5: 35
-}
-
-CON_TO_DEFENSE = {
-    1: 0,
-    2: 2,
-}
-DEXT_TO_EVADE = {
-    1: 0,
-    2: 5,
-    3: 10,
-    4: 20,
-    5: 30
-}
-WIS_TO_RESIST = {
-    1: 0,
-}
 
 
 class CombatEntity(EquipmentEntity):
@@ -518,15 +474,6 @@ class CombatEntity(EquipmentEntity):
             self.msg("You can't move, you've been defeated!")
             return False
         return True
-
-    def at_turn_start(self):
-        """
-        Hook called at the beginning of this character's turn in combat.
-        """
-        # Prompt the character for their turn and give some information.
-        self.msg()
-
-        # Apply conditions that fire at the start of each turn.
 
     def attack(self, target):
         start_join_fight(self, target)

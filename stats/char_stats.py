@@ -4,15 +4,16 @@ from evennia.utils.evtable import EvTable
 
 from combat.effects import DamageTypes
 from server import appearance
+from stats.stats_constants import XP_THRESHOLD_INCREASES, POINTS_GAINED_BY_LEVEL
 
 ATTRIBUTES = {
     "strength": {
         "long_desc": "",
-        "affects": "Affects: melee damage, carry weight, stamina, and use of heavy equipment"
+        "affects": "Affects: melee damage, carry weight, max stamina, and use of heavy equipment"
     },
     "constitution": {
         "long_desc": "",
-        "affects": "Affects: physical defense, hitpoints, and stamina"
+        "affects": "Affects: physical defense, hitpoints, and stamina regeneration"
     },
     "dexterity": {
         "long_desc": "",
@@ -35,21 +36,6 @@ ATTRIBUTES = {
         "long_desc": "",
         "affects": "Affects: spell power, maximum mana, hitpoint regeneration, and enchanting"
     }}
-
-XP_THRESHOLD_INCREASES = [
-    (2, 100),
-    (3, 150),
-    (4, 225),
-    (5, 350),
-    (6, 500),
-]
-POINTS_GAINED_BY_LEVEL = {
-    2: {"attribute": 1},
-    3: {},
-    4: {"attribute": 1},
-    5: {},
-    6: {"attribute": 1},
-}
 
 
 def xp_threshold(level: int):

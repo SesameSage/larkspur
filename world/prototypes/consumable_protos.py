@@ -1,6 +1,6 @@
 from decimal import Decimal as Dec
 
-from combat.effects import SECS_PER_TURN
+from combat.combat_constants import SECS_PER_TURN
 
 POTION = {
     "typeclass": "typeclasses.inanimate.items.usables.Potion"

@@ -49,52 +49,10 @@ from evennia.utils.create import create_script
 
 from combat.combat_handler import COMBAT
 from server import appearance
-from combat.effects import SECS_PER_TURN, DurationEffect
-
-"""
-----------------------------------------------------------------------------
-OPTIONS
-----------------------------------------------------------------------------
-"""
-
-# Condition options start here.
-# If you need to make changes to how your conditions work later,
-# it's best to put the easily tweakable values all in one place!
-
-
-"""
-----------------------------------------------------------------------------
-PROTOTYPES START HERE
-----------------------------------------------------------------------------
-
-You can paste these prototypes into your game's prototypes.py module in your
-/world/ folder, and use the spawner to create them - they serve as examples
-of items you can make and a handy way to demonstrate the system for
-conditions as well.
-
-Items don't have any particular typeclass - any object with a db entry
-"item_func" that references one of the functions given above can be used as
-an item with the 'use' command.
-
-Only "item_func" is required, but item behavior can be further modified by
-specifying any of the following:
-
-    item_uses (int): If defined, item has a limited number of uses
-
-    item_selfonly (bool): If True, user can only use the item on themself
-
-    item_consumable(True or str): If True, item is destroyed when it runs
-        out of uses. If a string is given, the item will spawn a new
-        object as it's destroyed, with the string specifying what prototype
-        to spawn.
-
-    item_kwargs (dict): Keyword arguments to pass to the function defined in
-        item_func. Unique to each function, and can be used to make multiple
-        items using the same function work differently.
-"""
+from combat.effects import DurationEffect
+from combat.combat_constants import SECS_PER_TURN
 
 TURN_TIMEOUT = 30  # Time before turns automatically end, in seconds
-NONCOMBAT_TURN_TIME = 30  # Time per turn count out of combat
 
 
 def start_join_fight(attacker, target):
