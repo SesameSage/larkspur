@@ -1,3 +1,4 @@
+from combat.combat_handler import COMBAT
 from combat.effects import *
 from typeclasses.base.objects import Object
 from typeclasses.inanimate.items.spellcomp import SpellComp
@@ -58,7 +59,7 @@ class Ability(Object):
         if caster.is_in_combat():
             current_ap = caster.db.combat_ap
         else:
-            current_ap = caster.get_ap()
+            current_ap = COMBAT.get_ap(caster)
         if current_ap < ap_cost:
             caster.msg("Not enough AP!")
             return
