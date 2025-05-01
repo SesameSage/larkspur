@@ -98,7 +98,8 @@ class CombatEntity(EquipmentEntity):
 
         self.db.hp_buildup += self.get_regen("hp") * secs
         self.db.mana_buildup += self.get_regen("mana") * secs
-        self.db.stam_buildup += self.get_regen("stam") * secs
+        if not self.effect_active("Winded"):
+            self.db.stam_buildup += self.get_regen("stam") * secs
 
         if self.db.hp_buildup >= 1:
             hp_gained = int(self.db.hp_buildup)

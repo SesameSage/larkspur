@@ -270,6 +270,7 @@ class TurnHandler(DefaultScript):
         if not self.id:
             return
 
+        character.regenerate(SECS_PER_TURN)
         gain_ap = True
         if (character.effect_active("Frozen")
                 or character.effect_active("Knocked Down") and character.db.effects["Knocked Down"][

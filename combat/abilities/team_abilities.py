@@ -71,4 +71,4 @@ class WarCry(Ability):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} lets out an earth-splitting war cry!")
         attributes = [("effect_key", "+Damage"), ("amount", 5), ("duration", 4 * SECS_PER_TURN), ("source", self.key)]
         for ally in COMBAT.get_allies(caster):
-            ally.add_effect(typeclass=TimedStatMod, attributes=attributes)
+            ally.add_effect(typeclass=TimedStatMod, attributes=attributes, stack=True)

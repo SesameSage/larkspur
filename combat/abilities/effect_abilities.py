@@ -4,7 +4,7 @@ from random import randint
 
 from combat.abilities.abilities import Ability
 from combat.combat_handler import COMBAT
-from combat.effects import KnockedDown, StatMod, TimedStatMod
+from combat.effects import KnockedDown, StatMod, TimedStatMod, DurationEffect
 from combat.combat_constants import SECS_PER_TURN
 from typeclasses.base.objects import Object
 from typeclasses.living.living_entities import LivingEntity
@@ -60,14 +60,17 @@ class SolarPlexusStrike(Ability):
             caster.location.msg_contents(f"{target.get_display_name(capital=True)} is too hardened for "
                                          f"{caster.get_display_name()}'s {self.get_display_name()}!")
             return True
+
         target.location.msg_contents(f"{caster.get_display_name(capital=True)} strikes at the center of power in "
                                      f"{target.get_display_name()}'s body!")
         attributes = [("effect_key", "-Damage"), ("amount", -5), ("duration", 4 * SECS_PER_TURN)]
         target.add_effect(typeclass=TimedStatMod, stack=True, attributes=attributes)
+
         if target.get_attr("con") < 1.25 * caster.get_attr("dex"):
-            if randint(1, 2) == 1:
-                pass
-                # TODO: add winded
+            if randint(1, 3) > 1:
+                attributes = [("effect_key", "Winded"), ("duration", 3 * SECS_PER_TURN), ("source", self.key)]
+                target.add_effect(typeclass=DurationEffect, attributes=attributes)
+
 
 
 class Sweep(Ability):
