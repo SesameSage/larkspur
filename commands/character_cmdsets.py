@@ -1,11 +1,10 @@
 from commands.info_commands import CmdMoreInfo, CmdHere
 from commands.permissions_cmdsets import BuildingCmdSet
 from commands.refiled_cmds import *
-from commands.stats_commands import CmdClasses, CmdLearn, CmdSpells
+from commands.stats_commands import CmdClasses, CmdLearn, CmdSpells, StatsCmdSet
 from typeclasses.inanimate.items.containers import ContainerCmdSet
 from typeclasses.inanimate.items.items import CmdIdentify, CmdBuy, CmdShop
 from typeclasses.inanimate.portals import CmdTravel
-from stats.char_stats import StatsCmdSet
 from typeclasses.living.talking_npc import TalkingCmdSet
 
 
