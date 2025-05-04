@@ -195,8 +195,10 @@ class CombatHandler:
                                f"+Damage", f"-Damage"]:
                 if effect_key in attacker.db.effects:
                     effect_amt += attacker.db.effects[effect_key]["amount"]
-            attacker.location.more_info(f"{effect_amt}{" " + damage_type.get_display_name() if damage_type else ""} "
-                                        f"damage from effect on {attacker.name}")
+            if effect_amt != 0:
+                attacker.location.more_info(
+                    f"{effect_amt}{" " + damage_type.get_display_name() if damage_type else ""} "
+                    f"damage from effect on {attacker.name}")
             damage_values[damage_type] += effect_amt
 
         # Apply defender's relevant effects
