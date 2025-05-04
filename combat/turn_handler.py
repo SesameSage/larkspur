@@ -317,12 +317,10 @@ class TurnHandler(DefaultScript):
             character.location.msg_contents(
                 character.get_display_name(capital=True) + " is frozen solid and cannot act!")
             self.next_turn()
-            return
         if character.effect_active("Knocked Down") and character.db.effects["Knocked Down"]["seconds passed"] <= 3:
             character.location.msg_contents(
                 character.get_display_name() + " loses precious time in battle clambering back to their feet!")
             self.next_turn()
-            return
 
         # Take turn if AI
         combat_ai = character.db.ai
