@@ -222,25 +222,34 @@ class CombatHandler:
         """
         # For each type of damage being dealt
         for damage_type in damage_values:
+            damage = damage_values[damage_type]
+            type_name = " " + damage_type.get_display_name() if damage_type else ""
+
+            defender.location.more_info(f"{damage}{type_name} damage coming "
+                                        f"at {defender.name}")
 
             # Get defense for physical damage
             if damage_type in [DamageTypes.BLUNT, DamageTypes.SLASHING, DamageTypes.PIERCING]:
                 defense = defender.get_defense(damage_type)
-                damage_values[damage_type] -= defense
+                damage -= defense
                 if defense > 0:
-                    defender.location.more_info(f"-{defense} {damage_type.get_display_name()} damage from defense")
+                    defender.location.more_info(f"-{defense}{type_name} damage from defense")
 
             # Get resistance for magical/other damage
             elif damage_type in [DamageTypes.FIRE, DamageTypes.COLD, DamageTypes.SHOCK, DamageTypes.POISON]:
                 resistance = defender.get_resistance(damage_type)
-                damage_values[damage_type] -= resistance
+                damage -= resistance
                 if resistance > 0:
                     defender.location.more_info(
-                        f"-{resistance} {damage_type.get_display_name()} damage from resistance")
+                        f"-{resistance}{type_name} damage from resistance")
 
             # Make sure minimum damage is 0
-            if damage_values[damage_type] < 0:
-                damage_values[damage_type] = 0
+            if damage < 0:
+                damage = 0
+
+            # Adjust damage values dict
+            damage_values[damage_type] = damage
+            defender.location.more_info(f"{damage} final{type_name} damage")
 
         return damage_values
 
