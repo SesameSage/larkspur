@@ -316,13 +316,16 @@ class TurnHandler(DefaultScript):
         if character.effect_active("Frozen"):
             character.location.msg_contents(
                 character.get_display_name(capital=True) + " is frozen solid and cannot act!")
-            self.next_turn()
-            return
+            # Turn will already be skipped if AP was 0 because none was gained
+            if character.db.combat_ap > 0:
+                self.next_turn()
+
         if character.effect_active("Knocked Down") and character.db.effects["Knocked Down"]["seconds passed"] <= 3:
             character.location.msg_contents(
                 character.get_display_name() + " loses precious time in battle clambering back to their feet!")
-            self.next_turn()
-            return
+            # Turn will already be skipped if AP was 0 because none was gained
+            if character.db.combat_ap > 0:
+                self.next_turn()
 
         # Take turn if AI
         combat_ai = character.db.ai
