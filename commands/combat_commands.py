@@ -161,11 +161,7 @@ class CmdCast(MuxCommand):
             if ability.db.offensive:
                 start_join_fight(self.caller, target)
 
-            if ability.cast(caster=self.caller, target=target):  # If successfully cast
-                # Spend an action if in combat
-                if self.caller.is_in_combat():
-                    self.caller.db.combat_turnhandler.spend_action(character=self.caller,
-                                                                   actions=ability.db.ap_cost, action_name="cast")
+            ability.cast(caster=self.caller, target=target)
 
 
 class CmdPass(Command):

@@ -106,12 +106,16 @@ class Ability(Object):
                 case "mana":
                     caster.db.mana -= amt
                 case "stamina": caster.db.stamina -= amt
+
         if self.db.cost:
             match self.db.cost[0]:
                 case "mana":
                     caster.db.mana -= self.db.cost[1]
                 case "stamina":
                     caster.db.stamina -= self.db.cost[1]
+
+        if caster.is_in_combat():
+            caster.db.combat_turnhandler.spend_action(caster, self.db.ap_cost or 2, action_name="cast")
 
     def cast(self, caster: LivingEntity, target: Object = None):
         """
@@ -125,8 +129,6 @@ class Ability(Object):
         else:
             self.adjust_cooldowns_stats(caster)
             self.func(caster, target)
-            if caster.is_in_combat():
-                caster.db.combat_turnhandler.spend_action(caster, self.db.ap_cost or 2, action_name="cast")
             return True
 
     def in_ability_tree(self, rpg_class):

@@ -322,7 +322,7 @@ class TurnHandler(DefaultScript):
 
         if character.effect_active("Knocked Down") and character.db.effects["Knocked Down"]["seconds passed"] <= 3:
             character.location.msg_contents(
-                character.get_display_name() + " loses precious time in battle clambering back to their feet!")
+                character.get_display_name(capital=True) + " loses precious time in battle clambering back to their feet!")
             # Turn will already be skipped if AP was 0 because none was gained
             if character.db.combat_ap > 0:
                 self.next_turn()
