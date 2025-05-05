@@ -1,7 +1,6 @@
 from combat.combat_handler import COMBAT
 from combat.effects import *
 from typeclasses.base.objects import Object
-from typeclasses.inanimate.items.spellcomp import SpellComp
 from typeclasses.living.living_entities import LivingEntity
 
 
@@ -174,39 +173,3 @@ class SustainedAbility(Ability):
     def at_object_creation(self):
         super().at_object_creation()
         self.db.duration = None
-
-
-class SpellCompAbility(Ability):
-
-    def at_object_creation(self):
-        self.db.requirements = {}
-
-    def check(self, caster, target):
-        if super().check(caster, target):
-            for requirement in self.db.requirements:
-                available = [item for item in caster.contents if
-                             isinstance(item, SpellComp) and requirement in item.db.uses]
-                if len(available) < 1:
-                    caster.msg(f"No spellcomp with {requirement}!")
-                    return False
-                lowest_val_item_usable = available[0]
-                items_to_use = []
-                for candidate in available:
-                    if candidate.get_strength(requirement) >= self.db.requirements[requirement]:
-                        items_to_use.append(candidate)
-                        if candidate.get_strength(requirement) <= lowest_val_item_usable.get_strength(requirement):
-                            lowest_val_item_usable = candidate
-            if len(items_to_use) < 1:
-                caster.msg(f"No spellcomp with sufficient {requirement}!")
-                return False
-            return [lowest_val_item_usable]
-        else:
-            return False
-
-    def func(self, caster: LivingEntity, target: Object = None):
-        items_to_use = self.check(caster, target)
-        for item in items_to_use:
-            item.delete()
-        caster.msg(f"Used: {[item.name for item in items_to_use]}")
-        self.adjust_cooldowns_stats(caster)
-        return True

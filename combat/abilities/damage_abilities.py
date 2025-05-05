@@ -1,6 +1,6 @@
 """Abilities focused on dealing damage."""
 
-from combat.abilities.abilities import SpellCompAbility, Ability
+from combat.abilities.abilities import Ability
 from combat.combat_handler import COMBAT
 from combat.effects import DamageTypes
 from combat.combat_constants import SECS_PER_TURN
@@ -8,7 +8,7 @@ from typeclasses.base.objects import Object
 from typeclasses.living.living_entities import LivingEntity
 
 
-class PoisonArrow(SpellCompAbility):
+class PoisonArrow(Ability):
     key = "Poison Arrow"
     desc = "Coat an arrow in poison, and take a shot at getting it into the opponent's blood."
 
