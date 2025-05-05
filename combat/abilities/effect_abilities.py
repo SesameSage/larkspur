@@ -58,7 +58,9 @@ class ShieldBash(Ability):
         self.db.cooldown = 6 * SECS_PER_TURN
 
     def check(self, caster, target):
-        super().check(caster, target)
+        if not super().check(caster, target):
+            return False
+
         if not isinstance(caster.db.equipment["secondary"], Shield):  # If caster doesn't have a shield equipped
             caster.msg("You don't have a shield equipped!")
             return False
