@@ -13,7 +13,7 @@ TRAINING_QUARTERSTAFF = {
     "prototype_parent": "TRAINING_WEAPON",
     "typeclass": "typeclasses.inanimate.items.equipment.weapons.Quarterstaff",
     "damage_ranges": {DamageTypes.BLUNT: (5, 10)},
-    "weight": Dec(4),
+    "weight": Dec(3),
 }
 
 TRAINING_SWORD = {
@@ -21,6 +21,14 @@ TRAINING_SWORD = {
     "prototype_parent": "TRAINING_WEAPON",
     "typeclass": "typeclasses.inanimate.items.equipment.weapons.Sword",
     "damage_ranges": {DamageTypes.SLASHING: (5, 10)},
-    "weight": Dec(4),
+    "weight": Dec(5),
+}
+
+TRAINING_BOW = {
+    "key": "training bow",
+    "prototype_parent": "TRAINING_WEAPON",
+    "typeclass": "typeclasses.inanimate.items.equipment.weapons.Bow",
+    "damage_ranges": {DamageTypes.PIERCING: (5, 10)},
+    "weight": Dec(3),
 }
 

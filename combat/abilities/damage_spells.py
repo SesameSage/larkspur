@@ -42,7 +42,6 @@ class Firebolt(Spell):
             # TODO: Should immunity to effects be separate?
             target.add_effect(Burning,
                               [("range", (1, 1)), ("duration", 3 * SECS_PER_TURN)])
-        return True
 
 
 class WaterWhip(Spell):
