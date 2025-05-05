@@ -190,9 +190,11 @@ class CombatHandler:
         # Apply attacker's relevant effects
         for damage_type in damage_values:
             effect_amt = 0
-            for effect_key in [f"+{damage_type.get_display_name(capital=True)} Dmg",
-                               f"-{damage_type.get_display_name(capital=True)} Dmg",
-                               f"+Damage", f"-Damage"]:
+            effect_keys = [f"+{damage_type.get_display_name(capital=True)} Dmg",
+                           f"-{damage_type.get_display_name(capital=True)} Dmg",
+                           f"+Damage", f"-Damage"] if damage_type else [f"+Damage", f"-Damage"]
+
+            for effect_key in effect_keys:
                 if effect_key in attacker.db.effects:
                     effect_amt += attacker.db.effects[effect_key]["amount"]
             if effect_amt != 0:
@@ -279,7 +281,8 @@ class CombatHandler:
                     # Follow with a comma
                     msg = msg + ", "
                 # Add damage amount and type to message
-                msg = msg + f"{dmg_color(attacker, defender)}{damage_values[damage_type]} {damage_type.get_display_name()}|n"
+                type_name = " " + damage_type.get_display_name() if damage_type else ""
+                msg = msg + f"{dmg_color(attacker, defender)}{damage_values[damage_type]}{type_name}|n"
             # End with " damage!"
             msg = msg + f"{dmg_color(attacker, defender)} damage!|n"
             attacker.location.msg_contents(msg)
