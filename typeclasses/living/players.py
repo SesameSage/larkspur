@@ -60,6 +60,11 @@ class PlayerCharacter(Character):
     def more_info(self, string):
         if self.attributes.get("prefs", category="ooc")["more_info"]:
             self.msg(appearance.moreinfo + string)
+
+    def at_post_move(self, source_location, move_type="move", **kwargs):
+        super().at_post_move(source_location, move_type, **kwargs)
+        if self.location.db.is_outdoors and not source_location.db.is_outdoors:
+            self.print_ambient(self.location.zone().db.current_weather["ongoing_msg"])
     # </editor-fold>
 
     # <editor-fold desc="Stats">

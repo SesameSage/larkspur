@@ -7,6 +7,7 @@ class CycleWeather(Script):
     def at_script_creation(self):
         self.interval = 600  # Repeat every 10 minutes
         self.db.zone = self.obj.zone()
+        self.at_repeat()
 
     def at_repeat(self, **kwargs):
         zone = self.db.zone
@@ -14,7 +15,7 @@ class CycleWeather(Script):
             return
         current_weather = zone.db.current_weather
         weather_types = [weather[0] for weather in zone.db.weathers]
-        weather_weights = [weather[1] for weather in zone.db.weathers]
+        weather_weights = [float(weather[1]) for weather in zone.db.weathers]
         new_weather = random.choices(population=weather_types, weights=weather_weights)[0]
         if current_weather != new_weather:
             zone.update_weather(new_weather)
