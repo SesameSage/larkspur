@@ -112,13 +112,13 @@ class CombatAI(Script):
             ability = random.choice(offensive_abilities)
             target = self.choose_target(ability)
             if target:  # If a good target is found for this ability
-                if ability.cast(caster=entity, target=self.choose_target(ability)):
-                    return True
+                if ability.check(caster=entity, target=self.choose_target(ability)):
+                    return ability
                 else:
                     offensive_abilities.remove(ability)
             else:
                 offensive_abilities.remove(ability)
-        return False
+        return
 
     def try_attack(self):
         entity = self.obj
