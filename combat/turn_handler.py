@@ -54,7 +54,7 @@ from combat.effects import DurationEffect
 from combat.combat_constants import SECS_PER_TURN
 
 TURN_TIMEOUT = 30  # Time before turns automatically end, in seconds
-# TODO: Fix turn changing on server reload
+
 
 def start_join_fight(attacker, target):
     if attacker.db.hostile_to_players != target.db.hostile_to_players:
@@ -116,6 +116,13 @@ class TurnHandler(DefaultScript):
         self.db.timer = TURN_TIMEOUT  # Set timer to turn timeout specified in options
 
     def at_start(self, **kwargs):
+        """Turn order must be generated after at_script_creation so that self.db.starter is available to access.
+        This is also called on a server restart, so calls after the first turn are ignored, or it would always become
+        the fight starter's turn."""
+        #
+        if not self.db.turn == 0:
+            return
+
         self.roll_turn_order()
 
         # Push the fight starter to the beginning
@@ -322,7 +329,8 @@ class TurnHandler(DefaultScript):
 
         if character.effect_active("Knocked Down") and character.db.effects["Knocked Down"]["seconds passed"] <= 3:
             character.location.msg_contents(
-                character.get_display_name(capital=True) + " loses precious time in battle clambering back to their feet!")
+                character.get_display_name(
+                    capital=True) + " loses precious time in battle clambering back to their feet!")
             # Turn will already be skipped if AP was 0 because none was gained
             if character.db.combat_ap > 0:
                 self.next_turn()
