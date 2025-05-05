@@ -20,7 +20,7 @@ class Firebolt(Spell):
 
         self.db.requires = [("spirit", 2)]
         self.db.ap_cost = 2
-        self.db.cost = [("mana", 2)]
+        self.db.cost = [("mana", 3)]
         self.db.cooldown = 2 * SECS_PER_TURN
 
     def get_damage(self, caster):
@@ -33,9 +33,6 @@ class Firebolt(Spell):
     def func(self, caster: LivingEntity, target: Object = None):
         ignite_buildup = 0
 
-        if not target.is_in_combat():
-            caster.execute_cmd("fight")
-
         announce_msg = (f"A bolt of fire ignites in {caster.get_display_name()}'s hand and scorches "
                         f"{target.get_display_name()} for ")
         hit_result, damage_values = COMBAT.resolve_attack(attacker=caster, defender=target, attack=self,
@@ -46,3 +43,35 @@ class Firebolt(Spell):
             target.add_effect(Burning,
                               [("range", (1, 1)), ("duration", 3 * SECS_PER_TURN)])
         return True
+
+
+class WaterWhip(Spell):
+    """If water of some kind is found in the room, uses it to damage opponents."""
+    key = "Water Whip"
+    desc = "Pull nearby water into a stream to whip your opponent."
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.targeted = True
+        self.db.must_target_entity = False
+
+        self.db.requires = [("spirit", 2)]
+        self.db.ap_cost = 2
+        self.db.cost = [("mana", 2)]
+        self.db.cooldown = 2 * SECS_PER_TURN
+
+    def check(self, caster, target):
+        if not super().check(caster, target):
+            return False
+        if not caster.location.has_water():
+            caster.msg("There's no water here!")
+            return False
+        return True
+
+    def get_damage(self, caster):
+        return {None: caster.get_attr("spirit") * 2}
+
+    def func(self, caster: LivingEntity, target: Object = None):
+        caster.location.msg_contents(f"{caster.get_display_name(capital=True)} whips {target.get_display_name()} with "
+                                     f"nearby water!")
+        COMBAT.resolve_attack(attacker=caster, defender=target, attack=self)

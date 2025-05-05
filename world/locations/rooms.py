@@ -6,18 +6,19 @@ from evennia.utils import iter_to_str, is_iter, make_iter, lazy_property
 from server import appearance
 from server.funcparser import MyFuncParser, MY_ACTOR_STANCE_CALLABLES
 from typeclasses.base.objects import Object
-from typeclasses.inanimate.fixtures import Fixture
+from typeclasses.inanimate.fixtures import Fixture, Fountain, Well
+from typeclasses.scripts.weather import RAINING
 
 _MSG_CONTENTS_PARSER = MyFuncParser(MY_ACTOR_STANCE_CALLABLES)
 ENVIRONMENT_APPEARANCES = {
-            "grass": ["field", "meadow", "garden"],
-            "water": ["river", "ocean", "pond", "lake"],
-            "rock": ["rock", "cave"],
-            "foliage": ["forest", "woodland"],
-            "wood": ["wood room", "wood floor"],
-            "stone": ["stone room", "stone floor"]
+    "grass": ["field", "meadow", "garden"],
+    "water": ["river", "ocean", "pond", "lake"],
+    "rock": ["rock", "cave"],
+    "foliage": ["forest", "woodland"],
+    "wood": ["wood room", "wood floor"],
+    "stone": ["stone room", "stone floor"]
 
-        }
+}
 
 
 class Room(Object, DefaultRoom):
@@ -45,6 +46,7 @@ class Room(Object, DefaultRoom):
             self.db.area.db.rooms.remove(self)
         return True
 
+    # <editor-fold desc="Properties">
     @lazy_property
     def x(self):
         return self.db.coordinates[0]
@@ -69,6 +71,24 @@ class Room(Object, DefaultRoom):
         if self.zone():
             return self.zone().db.region
 
+    def has_water(self):
+        if self.db.environment in ENVIRONMENT_APPEARANCES["water"]:
+            return True
+
+        if self.in_room(Fountain):
+            return True
+
+        well = self.in_room(Well)
+        if well and not well.db.empty:
+            return True
+
+        if self.db.current_weather == RAINING:
+            return True
+
+        return False
+    # </editor-fold>
+
+    # <editor-fold desc="Display">
     appearance_template = """
 {header}
 |350{name}{extra_name_info}|n
@@ -199,6 +219,17 @@ class Room(Object, DefaultRoom):
         thing_names = iter_to_str(thing_names)
         return f"|wYou see:|n {thing_names}" if thing_names else ""
 
+    def room_appearance(self):
+        if not self.db.environment:
+            return
+
+        for i_colortype in ENVIRONMENT_APPEARANCES:
+            if self.db.environment in ENVIRONMENT_APPEARANCES[i_colortype]:
+                return appearance.environments[i_colortype]
+
+    # </editor-fold>
+
+    # <editor-fold desc="Messaging">
     def more_info(self, string):
         for thing in self.contents:
             try:
@@ -332,6 +363,8 @@ class Room(Object, DefaultRoom):
 
             receiver.msg(text=(outmessage, outkwargs), from_obj=from_obj, **kwargs)
 
+    # </editor-fold>
+
     def in_room(self, typeclass: type):
         for content in self.contents:
             if isinstance(content, typeclass):
@@ -342,11 +375,3 @@ class Room(Object, DefaultRoom):
         self.print_ambient(weather["start_msg"])
         if weather["effect"]:
             pass
-
-    def room_appearance(self):
-        if not self.db.environment:
-            return
-
-        for i_colortype in ENVIRONMENT_APPEARANCES:
-            if self.db.environment in ENVIRONMENT_APPEARANCES[i_colortype]:
-                return appearance.environments[i_colortype]
