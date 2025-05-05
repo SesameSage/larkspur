@@ -143,7 +143,7 @@ class Sweep(Ability):
                 f"{target.get_display_name(capital=True)}'s quick footwork avoids {caster.get_display_name(article=True)}'s "
                 f"sweep!")
         else:
-            target.location.msg_contents(f"{caster.get_display_name()} sweeps at {target.get_display_name()}'s legs, "
+            target.location.msg_contents(f"{caster.get_display_name(capital=True)} sweeps at {target.get_display_name()}'s legs, "
                                          f"knocking them to the ground!")
             target.add_effect(KnockedDown, attributes=[("source", self.key)])
         return True

@@ -1,7 +1,6 @@
 from typeclasses.scripts.scripts import Script
 
 
-# TODO: This should probably use delay instead
 class TemporarilyHide(Script):
     """Hides an item for 60 seconds."""
     def at_script_creation(self):

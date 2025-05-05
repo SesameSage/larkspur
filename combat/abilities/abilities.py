@@ -38,6 +38,10 @@ class Ability(Object):
         Returns:
             Boolean whether the check passed.
         """
+        if caster.effect_active("Ceasefire") and self.db.offensive:
+            caster.msg("Can't use offensive abilities during a ceasefire!")
+            return False
+
         # Mana or stamina cost
         for cost in self.db.cost:
             stat, amt = cost
@@ -53,7 +57,7 @@ class Ability(Object):
             current_ap = COMBAT.get_ap(caster)
         if current_ap < ap_cost:
             caster.msg("Not enough AP!")
-            return
+            return False
 
         # If ability has a cooldown
         if self.db.cooldown > 0 and not caster.is_superuser:

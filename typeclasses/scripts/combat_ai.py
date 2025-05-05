@@ -107,6 +107,9 @@ class CombatAI(Script):
     def try_offensive_abilities(self):
         """Looks for offensive abilities available to the entity, and casts them if possible."""
         entity = self.obj
+        if entity.effect_active("Ceasefire"):
+            return
+
         offensive_abilities = [ability for ability in entity.db.abilities if ability.db.offensive]
         while len(offensive_abilities) > 0:
             ability = random.choice(offensive_abilities)
@@ -118,10 +121,15 @@ class CombatAI(Script):
                     offensive_abilities.remove(ability)
             else:
                 offensive_abilities.remove(ability)
+
         return
 
     def try_attack(self):
         entity = self.obj
+
+        if entity.effect_active("Ceasefire"):
+            return
+
         weapon = entity.get_weapon()
         target = self.choose_target(weapon)
         if target and entity.db.combat_ap >= entity.ap_to_attack():

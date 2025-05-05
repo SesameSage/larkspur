@@ -75,6 +75,9 @@ class CmdAttack(Command):
 
     def func(self):
         attacker = self.caller
+        if attacker.effect_active("Ceasefire"):
+            attacker.msg("Can't attack during a ceasefire!")
+            return
 
         visible_things = attacker.filter_visible(attacker.location.contents, attacker)
         valid_targets = [content for content in visible_things

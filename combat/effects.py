@@ -108,14 +108,26 @@ class DurationEffect(EffectScript):
         """Check if the effect has worn off, and remove if so."""
         effect_key = self.db.effect_key
         if self.db.seconds_passed >= self.db.duration:
+            # Announce
             if effect_key not in ["Knocked Down"]:
                 self.obj.location.msg_contents(
                     f"{self.obj.get_display_name(capital=True)}'s {self.color()}{effect_key}|n has worn off.")
+
+            # Subtract amount from this script if the effect is stacking
             try:
                 if self.obj.db.effects[effect_key]["amount"] > self.db.amount:
                     self.obj.db.effects[effect_key]["amount"] -= self.db.amount
             except KeyError:  # Isn't an effect with an amount
                 pass
+
+            # Delete other entities' Ceasefire scripts if Ceasefire is ending
+            if self.db.effect_key == "Ceasefire":
+                for entity in [content for content in self.obj.location.contents if content.attributes.has("hp")]:
+                    script = entity.effect_active("Ceasefire")
+                    if script:
+                        script.delete()
+
+            # Delete this script
             self.delete()
 
 
