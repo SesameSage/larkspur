@@ -107,13 +107,6 @@ class Ability(Object):
                     caster.db.mana -= amt
                 case "stamina": caster.db.stamina -= amt
 
-        if self.db.cost:
-            match self.db.cost[0]:
-                case "mana":
-                    caster.db.mana -= self.db.cost[1]
-                case "stamina":
-                    caster.db.stamina -= self.db.cost[1]
-
         if caster.is_in_combat():
             caster.db.combat_turnhandler.spend_action(caster, self.db.ap_cost or 2, action_name="cast")
 

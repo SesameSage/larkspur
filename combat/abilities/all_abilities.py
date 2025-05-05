@@ -3,7 +3,10 @@ import inspect
 
 from evennia.utils import inherits_from
 
+from combat.abilities.ally_spells import HealWounds
+
 ALL_ABILITIES = {}
+HEALING_ABILITIES = {"Heal Wounds": HealWounds}
 
 for filename in [".ally_abilities", ".ally_spells", ".damage_abilities", ".damage_spells", ".effect_abilities",
                  ".effect_spells", ".protective_abilities", ".protective_spells", ".self_abilities", ".self_spells",
@@ -18,10 +21,12 @@ for filename in [".ally_abilities", ".ally_spells", ".damage_abilities", ".damag
             ]:
                 continue
             else:
+                # Add to all abilities
                 key = (member[1].key if isinstance(member[1].key, str) else member[0])
                 ALL_ABILITIES[key] = member[1]
 
 ALL_ABILITIES = dict(sorted(ALL_ABILITIES.items()))
+HEALING_ABILITIES = dict(sorted(HEALING_ABILITIES.items()))
 
 
 def get(inpt):

@@ -38,9 +38,10 @@ def itemfunc_heal(item, user, target, **kwargs):
     target.db.hp += amt_to_heal
     target.cap_stats()
 
+    user_name = user.get_display_name(capital=True)
     user.location.msg_contents(
         "%s uses %s! %s regains %i HP!" % (
-            user.get_display_name(capital=True), item.get_display_name(article=True), target, amt_to_heal))
+            user_name, item.get_display_name(article=True), user_name, amt_to_heal))
 
 
 def itemfunc_restore_mana(item, user, target, **kwargs):
@@ -71,9 +72,10 @@ def itemfunc_restore_mana(item, user, target, **kwargs):
     target.db.mana += amt_to_recover
     target.cap_stats()
 
+    user_name = user.get_display_name(capital=True)
     user.location.msg_contents(
         "%s uses %s! %s regains %i mana!" % (
-            user.get_display_name(capital=True), item.get_display_name(article=True), target, amt_to_recover))
+            user_name, item.get_display_name(article=True), user_name, amt_to_recover))
 
 
 def itemfunc_restore_stamina(item, user, target, **kwargs):
@@ -104,9 +106,10 @@ def itemfunc_restore_stamina(item, user, target, **kwargs):
     target.db.stamina += amt_to_recover
     target.cap_stats()
 
+    user_name = user.get_display_name(capital=True)
     user.location.msg_contents(
         "%s uses %s! %s regains %i stamina!" % (
-            user.get_display_name(capital=True), item.get_display_name(article=True), target, amt_to_recover))
+            user_name, item.get_display_name(article=True), user_name, amt_to_recover))
 
 
 def itemfunc_add_effect(item, user, target, **kwargs):

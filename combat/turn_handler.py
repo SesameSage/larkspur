@@ -54,7 +54,7 @@ from combat.effects import DurationEffect
 from combat.combat_constants import SECS_PER_TURN
 
 TURN_TIMEOUT = 30  # Time before turns automatically end, in seconds
-
+# TODO: Fix turn changing on server reload
 
 def start_join_fight(attacker, target):
     if attacker.db.hostile_to_players != target.db.hostile_to_players:
@@ -330,7 +330,7 @@ class TurnHandler(DefaultScript):
         # Take turn if AI
         combat_ai = character.db.ai
         if combat_ai:
-            combat_ai.choose_action()
+            combat_ai.take_turn()
 
     def is_turn(self, character):
         """

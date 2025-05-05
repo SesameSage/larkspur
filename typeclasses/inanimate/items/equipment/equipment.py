@@ -286,11 +286,12 @@ class EquipmentEntity(DefaultCharacter):
 
     def ap_to_attack(self):
         weapon = self.get_weapon()
-        weapon_ap = weapon.db.ap_to_attack
-        if not isinstance(weapon, str) and weapon.db.ap_to_attack:
-            return weapon_ap
-        else:
+
+        if isinstance(weapon, str):  # Unarmed
             return 2
+        else:
+            weapon_ap = weapon.db.ap_to_attack
+            return weapon_ap
 
 
 # <editor-fold desc="Commands">
