@@ -73,6 +73,9 @@ class CombatAI(Script):
             COMBAT.use_item(user=entity, item=action, target=target)
 
         elif action == "pass":
+            entity.location.msg_contents(
+                "%s passes, taking no further action this turn." % entity.get_display_name(capital=True)
+            )
             entity.db.combat_turnhandler.next_turn()
             return  # Stop without calling take_turn
 

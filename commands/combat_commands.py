@@ -191,7 +191,7 @@ class CmdPass(Command):
             return
 
         self.caller.location.msg_contents(
-            "%s passes, taking no further action this turn." % self.caller.get_display_name()
+            "%s passes, taking no further action this turn." % self.caller.get_display_name(capital=True)
         )
         self.turn_handler.next_turn()
 
