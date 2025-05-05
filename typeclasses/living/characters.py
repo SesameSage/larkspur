@@ -34,7 +34,6 @@ class Character(LivingEntity):
     def say_to(self, character, msg):
         self.at_say(message=msg, receivers=character)
 
-    # TODO: Fix "Rolan say" as message to sayer
     def at_say(self, message, msg_self=None, msg_location=None, receivers=None, msg_receivers=None, **kwargs):
         # Overridden formatting
         """
@@ -89,30 +88,18 @@ class Character(LivingEntity):
             # whisper mode
 
             msg_type = "whisper"
-            msg_self = (appearance.whisper +
-                        '{self} whisper to {all_receivers}' + appearance.whisper + ': {speech}'
+            msg_self = ("$You() $conj(whisper) to {all_receivers}': {speech}"
                         if msg_self is True
                         else msg_self
                         )
             msg_receivers = msg_receivers or '{object}' + appearance.whisper + ' whispers: {speech}'
             msg_receivers = appearance.whisper + msg_receivers
             msg_location = None
-        else:
-            msg_self = self.get_display_name(
-                capital=True) + appearance.say + ' say: {speech}' if msg_self is True else msg_self
-            msg_location = msg_location or self.get_display_name(capital=True) + appearance.say + ' says: {speech}'
-            msg_receivers = msg_receivers or message
-            msg_receivers = appearance.say + msg_receivers
 
-        custom_mapping = kwargs.get("mapping", {})
-        receivers = make_iter(receivers) if receivers else None
-        location = self.location
-
-        if msg_self:
             self_mapping = {
                 "self": "You",
                 "object": self.get_display_name(self),
-                "location": location.get_display_name(self) if location else None,
+                "location": self.location.get_display_name(self) if self.location else None,
                 "receiver": None,
                 "all_receivers": (
                     ", ".join(recv.get_display_name(self) for recv in receivers)
@@ -121,8 +108,15 @@ class Character(LivingEntity):
                 ),
                 "speech": message,
             }
-            self_mapping.update(custom_mapping)
             self.msg(text=(msg_self.format_map(self_mapping), {"type": msg_type}), from_obj=self)
+        else:
+            msg_location = msg_location or self.color() + "$You() " + appearance.say + "$conj(say): {speech}"
+            msg_receivers = msg_receivers or message
+            msg_receivers = appearance.say + msg_receivers
+
+        custom_mapping = kwargs.get("mapping", {})
+        receivers = make_iter(receivers) if receivers else None
+        location = self.location
 
         if receivers and msg_receivers:
             receiver_mapping = {
@@ -162,8 +156,6 @@ class Character(LivingEntity):
             }
             location_mapping.update(custom_mapping)
             exclude = []
-            if msg_self:
-                exclude.append(self)
             if receivers:
                 exclude.extend(receivers)
             self.location.msg_contents(
