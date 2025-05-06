@@ -112,15 +112,17 @@ class TurnHandler(DefaultScript):
         self.db.fighters = ordered_by_roll
 
         # Set up the current turn and turn timeout delay.
-        self.db.turn = 0
+        self.db.turn_order_pos = 0
         self.db.timer = TURN_TIMEOUT  # Set timer to turn timeout specified in options
+        self.db.round = 0
 
     def at_start(self, **kwargs):
-        """Turn order must be generated after at_script_creation so that self.db.starter is available to access.
-        This is also called on a server restart, so calls after the first turn are ignored, or it would always become
-        the fight starter's turn."""
+        """Turn order and battlefield position must be generated after at_script_creation so that self.db.starter is
+        available to access.
+        This is also called on a server restart, so calls after the first round has begun are ignored, or it would
+        always become the fight starter's turn at reload, and positions would always reset."""
         #
-        if not self.db.turn == 0:
+        if not self.db.round == 0:
             return
 
         self.roll_turn_order()
@@ -129,6 +131,7 @@ class TurnHandler(DefaultScript):
         self.db.fighters.remove(self.db.starter)
         self.db.fighters.insert(0, self.db.starter)
 
+        self.db.round = 1
         # Start first fighter's turn.
         self.start_turn(self.db.fighters[0])
 
@@ -147,7 +150,7 @@ class TurnHandler(DefaultScript):
         Called once every self.interval seconds.
         """
         currentchar = self.db.fighters[
-            self.db.turn
+            self.db.turn_order_pos
         ]  # Note the current character in the turn order.
         self.db.timer -= self.interval  # Count down the timer.
         """self.all_defeat_check()"""
@@ -252,9 +255,9 @@ class TurnHandler(DefaultScript):
             character (obj): Character to be added to the fight.
         """
         # Inserts the fighter to the turn order, right behind whoever's turn it currently is.
-        self.db.fighters.insert(self.db.turn, character)
+        self.db.fighters.insert(self.db.turn_order_pos, character)
         # Tick the turn counter forward one to compensate.
-        self.db.turn += 1
+        self.db.turn_order_pos += 1
         # Initialize the character like you do at the start.
         self.initialize_for_combat(character)
 
@@ -351,7 +354,7 @@ class TurnHandler(DefaultScript):
             (bool): True if it is their turn or False otherwise
         """
         turnhandler = character.db.combat_turnhandler
-        currentchar = turnhandler.db.fighters[turnhandler.db.turn]
+        currentchar = turnhandler.db.fighters[turnhandler.db.turn_order_pos]
         return bool(character == currentchar)
 
     def spend_action(self, character, actions, action_name=None):
@@ -404,12 +407,13 @@ class TurnHandler(DefaultScript):
         self.all_defeat_check()
 
         # Cycle to the next turn.
-        currentchar = self.db.fighters[self.db.turn]
+        currentchar = self.db.fighters[self.db.turn_order_pos]
         while True:
-            self.db.turn += 1  # Go to the next in the turn order.
-            if self.db.turn > len(self.db.fighters) - 1:
-                self.db.turn = 0  # Go back to the first in the turn order once you reach the end.
-            newchar = self.db.fighters[self.db.turn]  # Note the new character
+            self.db.turn_order_pos += 1  # Go to the next in the turn order.
+            if self.db.turn_order_pos > len(self.db.fighters) - 1:
+                self.db.turn_order_pos = 0  # Go back to the first in the turn order once you reach the end.
+                self.db.round += 1
+            newchar = self.db.fighters[self.db.turn_order_pos]  # Note the new character
             if newchar.db.hp > 0:
                 break
         self.db.timer = TURN_TIMEOUT + self.time_until_next_repeat()  # Reset the timer.
@@ -421,7 +425,7 @@ class TurnHandler(DefaultScript):
             return
 
         # Count down condition timers.
-        next_fighter = self.db.fighters[self.db.turn]
+        next_fighter = self.db.fighters[self.db.turn_order_pos]
         """for fighter in self.db.fighters:
             COMBAT.condition_tickdown(fighter, next_fighter)"""
 
