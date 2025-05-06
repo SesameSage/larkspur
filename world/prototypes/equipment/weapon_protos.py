@@ -14,6 +14,7 @@ TRAINING_BLOWGUN = {
     "typeclass": "typeclasses.inanimate.items.equipment.weapons.Blowgun",
     "damage_ranges": {DamageTypes.PIERCING: (1, 3)},
     "weight": Dec(1),
+    "ap_to_attack": 1
 }
 
 TRAINING_BOW = {
@@ -22,6 +23,7 @@ TRAINING_BOW = {
     "typeclass": "typeclasses.inanimate.items.equipment.weapons.Bow",
     "damage_ranges": {DamageTypes.PIERCING: (2, 4)},
     "weight": Dec(3),
+    "ap_to_attack": 2
 }
 
 TRAINING_WAND = {
@@ -30,6 +32,7 @@ TRAINING_WAND = {
     "typeclass": "typeclasses.inanimate.items.equipment.weapons.Wand",
     "damage_ranges": {DamageTypes.ARCANE: (2, 4)},
     "weight": Dec(2),
+    "ap_to_attack": 2
 }
 
 TRAINING_STAFF = {
@@ -38,6 +41,7 @@ TRAINING_STAFF = {
     "typeclass": "typeclasses.inanimate.items.equipment.weapons.Staff",
     "damage_ranges": {DamageTypes.ARCANE: (3, 5)},
     "weight": Dec(5),
+    "ap_to_attack": 2
 }
 
 TRAINING_DAGGER = {
@@ -46,6 +50,7 @@ TRAINING_DAGGER = {
     "typeclass": "typeclasses.inanimate.items.equipment.weapons.Dagger",
     "damage_ranges": {DamageTypes.SLASHING: (1, 3), DamageTypes.PIERCING: (1, 2)},
     "weight": Dec(5),
+    "ap_to_attack": 1
 }
 
 TRAINING_QUARTERSTAFF = {
@@ -54,6 +59,7 @@ TRAINING_QUARTERSTAFF = {
     "typeclass": "typeclasses.inanimate.items.equipment.weapons.Quarterstaff",
     "damage_ranges": {DamageTypes.BLUNT: (3, 5)},
     "weight": Dec(3),
+    "ap_to_attack": 2
 }
 
 TRAINING_SWORD = {
@@ -62,6 +68,7 @@ TRAINING_SWORD = {
     "typeclass": "typeclasses.inanimate.items.equipment.weapons.Sword",
     "damage_ranges": {DamageTypes.SLASHING: (2, 3), DamageTypes.PIERCING: (2, 3)},
     "weight": Dec(5),
+    "ap_to_attack": 2
 }
 
 TRAINING_AXE = {
@@ -70,6 +77,7 @@ TRAINING_AXE = {
     "typeclass": "typeclasses.inanimate.items.equipment.weapons.Axe",
     "damage_ranges": {DamageTypes.SLASHING: (4, 6)},
     "weight": Dec(6),
+    "ap_to_attack": 2
 }
 
 TRAINING_MACE = {
@@ -78,6 +86,7 @@ TRAINING_MACE = {
     "typeclass": "typeclasses.inanimate.items.equipment.weapons.Mace",
     "damage_ranges": {DamageTypes.CRUSHING: (4, 6)},
     "weight": Dec(6),
+    "ap_to_attack": 2
 }
 
 TRAINING_JAVELIN = {
@@ -86,6 +95,7 @@ TRAINING_JAVELIN = {
     "typeclass": "typeclasses.inanimate.items.equipment.weapons.Javelin",
     "damage_ranges": {DamageTypes.PIERCING: (5, 7)},
     "weight": Dec(3),
+    "ap_to_attack": 3
 }
 
 TRAINING_GREATSWORD = {
@@ -94,6 +104,7 @@ TRAINING_GREATSWORD = {
     "typeclass": "typeclasses.inanimate.items.equipment.weapons.Greatsword",
     "damage_ranges": {DamageTypes.SLASHING: (3, 4), DamageTypes.PIERCING: (3, 4)},
     "weight": Dec(8),
+    "ap_to_attack": 3
 }
 
 TRAINING_GREATAXE = {
@@ -102,6 +113,7 @@ TRAINING_GREATAXE = {
     "typeclass": "typeclasses.inanimate.items.equipment.weapons.Greatsword",
     "damage_ranges": {DamageTypes.SLASHING: (6, 9)},
     "weight": Dec(9),
+    "ap_to_attack": 3
 }
 
 TRAINING_WARHAMMER = {
@@ -110,4 +122,5 @@ TRAINING_WARHAMMER = {
     "typeclass": "typeclasses.inanimate.items.equipment.weapons.Warhammer",
     "damage_ranges": {DamageTypes.BLUNT: (7, 9)},
     "weight": Dec(10),
+    "ap_to_attack": 3
 }

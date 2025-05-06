@@ -13,7 +13,7 @@ class CombatClass(Script):
 
 
 class Templar(CombatClass):
-    equipment_types = [Shield, Sword, GreatSword, HandAxe, Mace]
+    equipment_types = [Shield, Sword, Greatsword, Handaxe, Mace]
     level_to_attributes = {1: [("Constitution", 1), ("Strength", 1)],
                            2: [("Wisdom", 1)],
                            3: [("Constitution", 1), ("Wisdom", 1)],
@@ -33,7 +33,7 @@ class Warden(CombatClass):
 
 
 class Gladiator(CombatClass):
-    equipment_types = [Shield, GreatSword, Greataxe, Warhammer]
+    equipment_types = [Shield, Greatsword, Greataxe, Warhammer]
     level_to_attributes = {1: [("Strength", 1), ("Constitution", 1)],
                            2: [("Strength", 1)],
                            3: [("Constitution", 1)],
@@ -43,7 +43,7 @@ class Gladiator(CombatClass):
 
 
 class Assassin(CombatClass):
-    equipment_types = [Sword, HandAxe, Dagger, Blowgun]
+    equipment_types = [Sword, Handaxe, Dagger, Blowgun]
     level_to_attributes = {1: [("Dexterity", 1), ("Perception", 1)],
                            2: [("Intelligence", 1)],
                            3: [("Dexterity", 1), ("Perception", 1)],

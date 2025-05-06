@@ -1,6 +1,7 @@
 from combat.combat_handler import COMBAT
 from combat.effects import *
 from typeclasses.base.objects import Object
+from typeclasses.inanimate.items.equipment.weapons import Bow
 from typeclasses.living.living_entities import LivingEntity
 
 
@@ -108,7 +109,8 @@ class Ability(Object):
             match stat:
                 case "mana":
                     caster.db.mana -= amt
-                case "stamina": caster.db.stamina -= amt
+                case "stamina":
+                    caster.db.stamina -= amt
 
         if caster.is_in_combat():
             caster.db.combat_turnhandler.spend_action(caster, self.db.ap_cost or 2, action_name="cast")
@@ -173,3 +175,15 @@ class SustainedAbility(Ability):
     def at_object_creation(self):
         super().at_object_creation()
         self.db.duration = None
+
+
+class BowAbility(Ability):
+
+    def check(self, caster, target):
+        if not super().check(caster, target):
+            return False
+
+        if not isinstance(caster.db.equipment["primary"], Bow):  # If caster doesn't have a bow equipped
+            caster.msg("You don't have a bow equipped!")
+            return False
+        return True
