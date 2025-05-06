@@ -290,7 +290,7 @@ class EquipmentEntity(DefaultCharacter):
         if isinstance(weapon, str):  # Unarmed
             return 2
         else:
-            weapon_ap = weapon.db.ap_to_attack
+            weapon_ap = weapon.db.ap_to_attack if weapon.db.ap_to_attack else 2
             return weapon_ap
 
 
