@@ -5,7 +5,6 @@ class Weapon(Equipment):
 
     def at_object_creation(self):
         super().at_object_creation()
-        self.db.weapon_type = None
         self.db.damage_ranges = {}  # Minimum and maximum damage on hit
         self.db.accuracy_bonus = 0  # Bonus to attack rolls (or penalty if negative)
         self.db.equipment_slot = "primary"
@@ -36,11 +35,11 @@ class Sword(OneHanded):
     pass
 
 
-class GreatSword(TwoHanded):
+class Greatsword(TwoHanded):
     pass
 
 
-class HandAxe(OneHanded):
+class Handaxe(OneHanded):
     pass
 
 

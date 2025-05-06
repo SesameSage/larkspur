@@ -12,12 +12,13 @@ class DamageTypes(Enum):
     BLUNT = 1
     SLASHING = 2
     PIERCING = 3
-    FIRE = 4
-    COLD = 5
-    SHOCK = 6
+    CRUSHING = 4
+    ARCANE = 5
+    FIRE = 6
+    COLD = 7
+    SHOCK = 8
     # WIND?
-    POISON = 7
-    ARCANE = 8
+    POISON = 9
 
     def get_display_name(self, capital=False):
         name = self.name.lower()
@@ -266,7 +267,7 @@ class DamageOverTime(PerSecEffect):
 class Burning(DamageOverTime):
     fixed_attributes = [
         ("effect_key", "Burning"),
-        ("damage_type", 4)
+        ("damage_type", DamageTypes.FIRE)
     ]
 
     def pre_effect_add(self):
@@ -279,7 +280,7 @@ class Burning(DamageOverTime):
 class Poisoned(DamageOverTime):
     fixed_attributes = [
         ("effect_key", "Poisoned"),
-        ("damage_type", 7)
+        ("damage_type", DamageTypes.POISON)
     ]
 
 

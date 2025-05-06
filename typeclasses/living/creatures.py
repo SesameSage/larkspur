@@ -19,7 +19,7 @@ class Beast(Creature):
         self.db.attribs["dexterity"] = 5
         # Unarmed attack is bite
         self.db.unarmed_attack = "bite"
-        self.db.unarmed_damage = {DamageTypes.PIERCING: (5, 10)}
+        self.db.unarmed_damage = {DamageTypes.CRUSHING: (2, 5)}
 
 
 class EnemyBeast(Enemy, Beast):
