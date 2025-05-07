@@ -41,27 +41,27 @@ class CombatGrid(Script):
         obj.db.combat_y = y
         self.db.grid[x][y] = obj
 
-    def check_collision(self, obj, x, y, displace=False):
+    def check_collision(self, x, y, displace=False):
         """
         Check if there is already an object here, and handle the collision.
         If 'displace' is true, the moving object will continue to move and the object already in place will be displaced.
         If 'displace' is false, movement will not be able to continue and the original object will stay in place.
 
-        :param obj: The object being moved.
         :param x: The x-coordinate of the oncoming square to check.
         :param y: The y-coordinate of the oncoming square to check.
         :param displace: Whether the moving object should displace existing objects, or be stopped by them.
+        :return: True if the object's movement is stopped, False if there is no collision or displacement occurred.
         """
-        if not self.validate_object(obj):
-            return
 
         obj_here = self.db.grid[x][y]
-        if obj_here:
+        if obj_here == 0:
+            return False
+        else:
             if displace:
-                displaced_obj = obj_here
+                self.displace(obj_here)
+                return False
             else:
-                displaced_obj = obj
-            self.displace(displaced_obj)
+                return True
 
     def check_square(self, direction, obj=None, origin_x=None, origin_y=None, distance=1):
         """
@@ -86,12 +86,34 @@ class CombatGrid(Script):
 
         return self.db.grid[target_x][target_y]
 
-    def displace(self, obj, direction=None):
-        # TODO: Displace
-        if not self.validate_object(obj) or not self.validate_direction(direction):
+    def displace(self, obj):
+        if not self.validate_object(obj):
             return
 
-        pass
+        x, y = self.find_available_square(obj=obj)
+        self.move_to(obj, x, y)
+
+    def find_available_square(self, obj=None, origin_x=None, origin_y=None):
+        """
+        Find one of the nearest empty squares relative to the given coordinates.
+
+        :param obj: (optional) The object whose position should be referenced, if not giving coordinates.
+        :param origin_x: (optional) The x coordinate of the square to reference, if not giving an object.
+        :param origin_y: (optional) The y coordinate of the square to reference, if not giving an object.
+        :return: The x and y coordinates of an available square.
+        """
+        if origin_x is None or origin_y is None:
+            if not self.validate_object(obj):
+                return
+            else:
+                origin_x = obj.db.combat_x
+                origin_y = obj.db.combat_y
+
+        for i in range(1, 5):
+            for direction in DIRECTIONS:
+                x, y = self.get_coords(direction, i, origin_x, origin_y)
+                if self.db.grid[x][y] == 0:
+                    return x, y
 
     def get_coords(self, direction, distance, obj=None, origin_x=None, origin_y=None):
         """
@@ -125,6 +147,7 @@ class CombatGrid(Script):
         :param obj: The object to move
         :param direction: The short direction ("n", "w", "se", etc.) to move in
         :param displace: If true, displace objects in the path. If false, the given object is unable to move.
+        :return: True if movement was successful, False if stopped.
         """
         if not self.validate_object(obj) or not self.validate_direction(direction):
             return
@@ -132,7 +155,7 @@ class CombatGrid(Script):
         target_x, target_y = self.get_coords(origin_x=obj.db.combat_x, origin_y=obj.db.combat_y,
                                              direction=direction, distance=1)
 
-        self.move_to(obj=obj, x=target_x, y=target_y, displace=displace)
+        return self.move_to(obj=obj, x=target_x, y=target_y, displace=displace)
 
     def multi_move(self, obj, direction, distance, displace=False):
         """
@@ -148,7 +171,8 @@ class CombatGrid(Script):
             return
 
         for move in range(1, distance):
-            self.move(obj, direction, displace)
+            if not self.move(obj, direction, displace):
+                break  # Stop trying to move if blocked
 
     def move_to(self, obj, x, y, displace=False):
         """
@@ -158,12 +182,16 @@ class CombatGrid(Script):
         :param x: The x-coordinate to move to.
         :param y: The y-coordinate to move to.
         :param displace: If true, displace whatever is there. If false, find somewhere nearby if the square is blocked.
+        :return: True if movement was successful, False if stopped.
         """
         if not self.validate_object(obj):
             return
 
-        self.check_collision(obj, x, y, displace)
-        self.set_coords(obj, x, y)
+        if self.check_collision(x, y, displace):
+            return False
+        else:
+            self.set_coords(obj, x, y)
+            return True
 
     def validate_direction(self, direction):
         """Make sure the given direction is a recognized short direction string."""
