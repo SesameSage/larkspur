@@ -15,6 +15,7 @@ class Ceasefire(Ability):
         super().at_object_creation()
         self.db.targeted = False
         self.db.offensive = False
+        self.db.range = None
 
         self.db.requires = [("wisdom", 4)]
         self.db.ap_cost = 5

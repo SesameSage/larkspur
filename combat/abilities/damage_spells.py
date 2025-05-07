@@ -17,6 +17,7 @@ class Firebolt(Spell):
         super().at_object_creation()
         self.db.targeted = True
         self.db.must_target_entity = False
+        self.db.range = 5
 
         self.db.requires = [("spirit", 2)]
         self.db.ap_cost = 2
@@ -53,6 +54,7 @@ class WaterWhip(Spell):
         super().at_object_creation()
         self.db.targeted = True
         self.db.must_target_entity = False
+        self.db.range = 3
 
         self.db.requires = [("spirit", 2)]
         self.db.ap_cost = 2

@@ -96,7 +96,7 @@ class CmdAttack(Command):
                 attacker.msg("Can't find " + self.args)
                 return
 
-        start_join_fight(attacker, target)
+        start_join_fight(attacker, target, attacker.get_weapon())
 
         # Wait to check this until after start_join_fight to make sure combat_ap is accessible
         if attacker.db.combat_ap < attacker.ap_to_attack():
@@ -162,9 +162,68 @@ class CmdCast(MuxCommand):
 
             # If offensive, start/join a fight if applicable and not already in one
             if ability.db.offensive:
-                start_join_fight(self.caller, target)
+                start_join_fight(self.caller, target, ability)
 
             ability.cast(caster=self.caller, target=target)
+
+
+# <editor-fold desc="Directions">
+# A combination of these commands and the at_pre_move override is necessary to get the combat version of the movement
+# commands to execute whether there is a valid room exit found or not.
+class DirCmd(MuxCommand):
+    help_category = ""
+
+    def func(self):
+        if not self.caller.is_in_combat():
+            found_exit = False
+            for ext in self.caller.location.exits():
+                if self.key == ext.key:
+                    self.caller.move_to(destination=ext, move_type="traverse")
+                    found_exit = True
+            if not found_exit:
+                self.caller.msg("You can't go that way.")
+        else:
+            self.caller.db.combat_turnhandler.db.grid.step(self.caller, self.aliases[0])
+
+
+class CmdNorth(DirCmd):
+    key = "north"
+    aliases = ["n"]
+
+
+class CmdSouth(DirCmd):
+    key = "south"
+    aliases = ["s"]
+
+class CmdEast(DirCmd):
+    key = "east"
+    aliases = ["e"]
+
+
+class CmdWest(DirCmd):
+    key = "west"
+    aliases = ["w"]
+
+
+class CmdNorthwest(DirCmd):
+    key = "northwest"
+    aliases = ["nw"]
+
+
+class CmdNortheast(DirCmd):
+    key = "northeast"
+    aliases = ["ne"]
+
+
+class CmdSouthwest(DirCmd):
+    key = "southwest"
+    aliases = ["sw"]
+
+
+class CmdSoutheast(DirCmd):
+    key = "southeast"
+    aliases = ["se"]
+# </editor-fold>
 
 
 class CmdPass(Command):
@@ -202,36 +261,6 @@ class CmdPass(Command):
 
         self.turn_handler = self.caller.db.combat_turnhandler
         return True
-
-
-class CmdCombatHelp(CmdHelp):
-    """
-    View help or a list of topics
-
-    Usage:
-      help <topic or command>
-      help list
-      help all
-
-    This will search for help on commands and other
-    topics related to the game.
-    """
-    combat_help_text = (
-        "Available combat commands:|/"
-        "|wAttack:|n Attack a target, attempting to deal damage.|/"
-        "|wPass:|n Pass your turn without further action.|/"
-        "|wDisengage:|n End your turn and attempt to end combat.|/"
-    )
-
-    # Just like the default help command, but will give quick
-    # tips on combat when used in a fight with no arguments.
-
-    def func(self):
-        # In combat and entered 'help' alone
-        if self.caller.is_in_combat() and not self.args:
-            self.caller.msg(self.combat_help_text)
-        else:
-            super().func()  # Call the default help command
 
 
 class CmdUse(MuxCommand):
@@ -285,6 +314,36 @@ class CmdUse(MuxCommand):
         COMBAT.use_item(self.caller, item, target)
 
 
+class CmdCombatHelp(CmdHelp):
+    """
+    View help or a list of topics
+
+    Usage:
+      help <topic or command>
+      help list
+      help all
+
+    This will search for help on commands and other
+    topics related to the game.
+    """
+    combat_help_text = (
+        "Available combat commands:|/"
+        "|wAttack:|n Attack a target, attempting to deal damage.|/"
+        "|wPass:|n Pass your turn without further action.|/"
+        "|wDisengage:|n End your turn and attempt to end combat.|/"
+    )
+
+    # Just like the default help command, but will give quick
+    # tips on combat when used in a fight with no arguments.
+
+    def func(self):
+        # In combat and entered 'help' alone
+        if self.caller.is_in_combat() and not self.args:
+            self.caller.msg(self.combat_help_text)
+        else:
+            super().func()  # Call the default help command
+
+
 class BattleCmdSet(default_cmds.CharacterCmdSet):
     """
     This command set includes all the commmands used in the battle system.
@@ -301,3 +360,12 @@ class BattleCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdPass())
         self.add(CmdCombatHelp())
         self.add(CmdUse())
+
+        self.add(CmdNorth)
+        self.add(CmdSouth)
+        self.add(CmdEast)
+        self.add(CmdWest)
+        self.add(CmdNortheast)
+        self.add(CmdNorthwest)
+        self.add(CmdSoutheast)
+        self.add(CmdSouthwest)

@@ -44,32 +44,41 @@ in your game and using it as-is.
 """
 from random import randint
 
-from evennia import DefaultScript
+import evennia
 from evennia.utils import evtable, inherits_from, delay
 from evennia.utils.create import create_script
 
+from combat.combat_grid import CombatGrid
 from combat.combat_handler import COMBAT
 from server import appearance
 from combat.effects import DurationEffect
 from combat.combat_constants import SECS_PER_TURN
+from typeclasses.inanimate.items.equipment.weapons import Weapon
+from typeclasses.scripts.scripts import Script
 
 TURN_TIMEOUT = 30  # Time before turns automatically end, in seconds
 
 
-def start_join_fight(attacker, target):
+def start_join_fight(attacker, target, move):
     if attacker.db.hostile_to_players != target.db.hostile_to_players:
         here = attacker.location
         if not attacker.is_in_combat():
             if here.db.combat_turnhandler:
                 here.db.combat_turnhandler.join_fight(attacker)
             else:
-                create_script(typeclass=TurnHandler, obj=here, attributes=[("starter", attacker)])
+                if isinstance(move, Weapon) or move.attributes.has("cooldown"):
+                    rng = move.db.range
+                else:
+                    rng = 1
+                create_script(typeclass=TurnHandler, obj=here,
+                              attributes=[("starter", attacker), ("start_target", target),
+                                          ("starter_distance", rng if rng < 8 else 8)])
         if not target.is_in_combat():
             if here.db.combat_turnhandler:
                 here.db.combat_turnhandler.join_fight(target)
 
 
-class TurnHandler(DefaultScript):
+class TurnHandler(Script):
     """
     This is the script that handles the progression of combat through turns.
     On creation (when a fight is started) it adds all combat-ready characters
@@ -90,8 +99,14 @@ class TurnHandler(DefaultScript):
         self.key = "Combat Turn Handler"
         self.interval = 5  # Once every 5 seconds
         self.persistent = True
+        self.db.grid = None
         self.db.fighters = []
+
+        self.db.round = 0
+
         self.db.starter = None
+        self.db.start_target = None
+        self.db.starter_distance = None
 
         # Add all fighters in the room with at least 1 HP to the combat."
         for thing in self.obj.contents:
@@ -114,14 +129,13 @@ class TurnHandler(DefaultScript):
         # Set up the current turn and turn timeout delay.
         self.db.turn_order_pos = 0
         self.db.timer = TURN_TIMEOUT  # Set timer to turn timeout specified in options
-        self.db.round = 0
 
     def at_start(self, **kwargs):
         """Turn order and battlefield position must be generated after at_script_creation so that self.db.starter is
         available to access.
         This is also called on a server restart, so calls after the first round has begun are ignored, or it would
         always become the fight starter's turn at reload, and positions would always reset."""
-        #
+        # Skip calls on server reload - only call after initialization
         if not self.db.round == 0:
             return
 
@@ -131,8 +145,10 @@ class TurnHandler(DefaultScript):
         self.db.fighters.remove(self.db.starter)
         self.db.fighters.insert(0, self.db.starter)
 
-        self.db.round = 1
+        self.db.grid = create_script(typeclass=CombatGrid, obj=self.obj, attributes=[("objects", self.db.fighters)])
+
         # Start first fighter's turn.
+        self.db.round = 1
         self.start_turn(self.db.fighters[0])
 
     def at_stop(self):
@@ -144,6 +160,8 @@ class TurnHandler(DefaultScript):
                 # Clean up the combat attributes for every fighter.
                 self.combat_cleanup(fighter)
         self.obj.db.combat_turnhandler = None  # Remove reference to turn handler in location
+        self.db.grid.stop()
+        self.db.grid.delete()
 
     def at_repeat(self):
         """
@@ -288,6 +306,13 @@ class TurnHandler(DefaultScript):
             gain_ap = False
         if gain_ap:
             character.db.combat_ap += COMBAT.get_ap(character)  # Replenish actions
+
+        # Set AP to spend on the first step, then let entity take steps up to speed before spending more
+        character.db.combat_stepsleft = 1
+
+        # Display grid
+        for content in self.obj.contents:
+            content.msg(self.db.grid.print())
 
         # Show turn to other players
         other_fighters = self.obj.contents

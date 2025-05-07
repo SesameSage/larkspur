@@ -12,7 +12,9 @@ class Weapon(Equipment):
 
 
 class MeleeWeapon(Weapon):
-    pass
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.range = 1
 
 
 class OneHanded(MeleeWeapon):
