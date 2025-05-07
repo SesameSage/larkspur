@@ -48,7 +48,6 @@ import evennia
 from evennia.utils import evtable, inherits_from, delay
 from evennia.utils.create import create_script
 
-from combat.abilities.abilities import Ability
 from combat.combat_grid import CombatGrid
 from combat.combat_handler import COMBAT
 from server import appearance
@@ -67,7 +66,7 @@ def start_join_fight(attacker, target, move):
             if here.db.combat_turnhandler:
                 here.db.combat_turnhandler.join_fight(attacker)
             else:
-                if isinstance(move, Weapon) or isinstance(move, Ability):
+                if isinstance(move, Weapon) or move.attributes.has("cooldown"):
                     rng = move.db.range
                 else:
                     rng = 1
@@ -307,6 +306,9 @@ class TurnHandler(Script):
             gain_ap = False
         if gain_ap:
             character.db.combat_ap += COMBAT.get_ap(character)  # Replenish actions
+
+        # Display grid
+        self.obj.msg_contents(self.db.grid.print())
 
         # Show turn to other players
         other_fighters = self.obj.contents

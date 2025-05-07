@@ -19,6 +19,7 @@ class CombatGrid(Script):
         self.db.grid = {}
         self.db.turn_handler = self.obj.scripts.get("Combat Turn Handler")[0]
         self.db.objects = []
+        self.at_start()
 
     def at_start(self, **kwargs):
         # Skip calls on server reload - only call after initialization
@@ -70,6 +71,29 @@ class CombatGrid(Script):
 
     def get_obj(self, x, y):
         return self.db.grid.get((x, y), 0)
+
+    def print(self):
+        if not self.db.grid:
+            return "Empty grid"
+
+        min_x = min([coord[0] for coord in self.db.grid])
+        max_x = max([coord[0] for coord in self.db.grid])
+        min_y = min([coord[1] for coord in self.db.grid])
+        max_y = max([coord[1] for coord in self.db.grid])
+
+        rows = []
+        # Iterate through the determined y range
+        for y in range(min_y - 2, max_y + 3):
+            row_str = ""
+            # Iterate through the determined x range
+            for x in range(min_x - 2, max_x + 3):
+                occupant = self.get_obj(x, y)
+                if occupant == 0 or occupant is None:
+                    row_str += "[]"
+                else:
+                    row_str += occupant.combat_symbol()
+            rows.append(row_str.strip())
+        return "\n".join(rows)
 
     def check_collision(self, x, y, displace=False):
         """

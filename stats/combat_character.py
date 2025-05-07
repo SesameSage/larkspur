@@ -431,6 +431,9 @@ class CombatEntity(EquipmentEntity):
     # </editor-fold>
 
     # <editor-fold desc="Combat handling">
+    def combat_symbol(self):
+        return "O"
+
     def is_in_combat(self):
         """Returns true if this entity is currently in combat."""
         try:
