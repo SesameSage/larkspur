@@ -39,16 +39,15 @@ class CombatGrid(Script):
         for obj in self.db.objects:
             if obj == starter or obj == start_target:
                 continue
-            self.obj.msg_contents(obj.key)
             if obj.attributes.has("hostile_to_players"):
                 if obj.db.hostile_to_players == starter.db.hostile_to_players:
-                    x, y = self.find_available_square(origin_x=starter.db.combat_x, origin_y=starter.db.combat_y)
+                    x, y = self.find_available_square(
+                        origin_x=starter.db.combat_x, origin_y=starter.db.combat_y, exclude=["n"])
                 else:
                     x, y = self.find_available_square(origin_x=start_target.db.combat_x,
                                                       origin_y=start_target.db.combat_y)
             else:
                 pass  # When/if any non-entity objects are able to be placed in the grid
-            self.obj.msg_contents(f"{x}, {y}")
             self.set_coords(obj, x, y)
 
     def set_coords(self, obj, x, y):
@@ -60,7 +59,6 @@ class CombatGrid(Script):
         :param x: The x coordinate of the grid position to place the object in.
         :param y: The y coordinate of the grid position to place the object in.
         """
-        self.obj.msg_contents("Set coords running")
         # Remove the object from previous grid position
         try:
             self.db.grid[(x, y)] = 0
@@ -166,13 +164,15 @@ class CombatGrid(Script):
 
         return max(abs(x1 - x2), abs(y1 - y2))
 
-    def find_available_square(self, obj=None, origin_x=None, origin_y=None):
+    def find_available_square(self, obj=None, origin_x=None, origin_y=None, exclude=None):
         """
         Find one of the nearest empty squares relative to the given coordinates.
 
         :param obj: (optional) The object whose position should be referenced, if not giving coordinates.
         :param origin_x: (optional) The x coordinate of the square to reference, if not giving an object.
         :param origin_y: (optional) The y coordinate of the square to reference, if not giving an object.
+        :param exclude: A list of directions to exclude from the search.
+
         :return: The x and y coordinates of an available square.
         """
         if origin_x is None or origin_y is None:
@@ -184,6 +184,8 @@ class CombatGrid(Script):
 
         for i in range(1, 5):
             for direction in DIRECTIONS:
+                if exclude and direction in exclude:
+                    continue
                 x, y = self.get_coords(direction=direction, distance=i, origin_x=origin_x, origin_y=origin_y)
                 # Return this square if it's empty
                 if self.get_obj(x, y) == 0:
