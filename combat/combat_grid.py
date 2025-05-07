@@ -1,3 +1,5 @@
+from evennia.utils.evtable import EvTable
+
 from server import appearance
 from typeclasses.scripts.scripts import Script
 
@@ -18,7 +20,7 @@ class CombatGrid(Script):
         super().at_script_creation()
         self.db.grid = {}
         self.db.turn_handler = self.obj.scripts.get("Combat Turn Handler")[0]
-        self.db.objects = []
+        self.db.objects = self.db.turn_handler.db.fighters
         self.at_start()
 
     def at_start(self, **kwargs):
@@ -32,9 +34,12 @@ class CombatGrid(Script):
 
         self.set_coords(starter, 0, 0)
         # Place the target of the fight-starting move away from the starter based on the starting move
-        self.set_coords(start_target, 0, starter_distance)
+        self.set_coords(start_target, 0, y=starter_distance)
 
         for obj in self.db.objects:
+            if obj == starter or obj == start_target:
+                continue
+            self.obj.msg_contents(obj.key)
             if obj.attributes.has("hostile_to_players"):
                 if obj.db.hostile_to_players == starter.db.hostile_to_players:
                     x, y = self.find_available_square(origin_x=starter.db.combat_x, origin_y=starter.db.combat_y)
@@ -43,7 +48,7 @@ class CombatGrid(Script):
                                                       origin_y=start_target.db.combat_y)
             else:
                 pass  # When/if any non-entity objects are able to be placed in the grid
-
+            self.obj.msg_contents(f"{x}, {y}")
             self.set_coords(obj, x, y)
 
     def set_coords(self, obj, x, y):
@@ -55,6 +60,7 @@ class CombatGrid(Script):
         :param x: The x coordinate of the grid position to place the object in.
         :param y: The y coordinate of the grid position to place the object in.
         """
+        self.obj.msg_contents("Set coords running")
         # Remove the object from previous grid position
         try:
             self.db.grid[(x, y)] = 0
@@ -81,19 +87,17 @@ class CombatGrid(Script):
         min_y = min([coord[1] for coord in self.db.grid])
         max_y = max([coord[1] for coord in self.db.grid])
 
-        rows = []
-        # Iterate through the determined y range
-        for y in range(min_y - 2, max_y + 3):
-            row_str = ""
-            # Iterate through the determined x range
-            for x in range(min_x - 2, max_x + 3):
+        table = EvTable(border=None)
+        for y in range(max_y + 1, min_y - 2, -1):
+            row = []
+            for x in range(min_x - 1, max_x + 2):
                 occupant = self.get_obj(x, y)
                 if occupant == 0 or occupant is None:
-                    row_str += "[]"
+                    row.append("[ ]")
                 else:
-                    row_str += occupant.combat_symbol()
-            rows.append(row_str.strip())
-        return "\n".join(rows)
+                    row.append(f"[{occupant.combat_symbol()}]")
+            table.add_row(*row)
+        return table
 
     def check_collision(self, x, y, displace=False):
         """
@@ -180,7 +184,7 @@ class CombatGrid(Script):
 
         for i in range(1, 5):
             for direction in DIRECTIONS:
-                x, y = self.get_coords(direction, i, origin_x, origin_y)
+                x, y = self.get_coords(direction=direction, distance=i, origin_x=origin_x, origin_y=origin_y)
                 # Return this square if it's empty
                 if self.get_obj(x, y) == 0:
                     return x, y

@@ -308,7 +308,8 @@ class TurnHandler(Script):
             character.db.combat_ap += COMBAT.get_ap(character)  # Replenish actions
 
         # Display grid
-        self.obj.msg_contents(self.db.grid.print())
+        for content in self.obj.contents:
+            content.msg(self.db.grid.print())
 
         # Show turn to other players
         other_fighters = self.obj.contents

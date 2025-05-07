@@ -432,7 +432,7 @@ class CombatEntity(EquipmentEntity):
 
     # <editor-fold desc="Combat handling">
     def combat_symbol(self):
-        return "O"
+        return self.color() + "O|n"
 
     def is_in_combat(self):
         """Returns true if this entity is currently in combat."""
