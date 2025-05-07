@@ -26,7 +26,24 @@ class CombatGrid(Script):
             return
 
         starter = self.db.turn_handler.db.starter
+        start_target = self.db.turn_handler.db.start_target
+        starter_distance = self.db.turn_handler.db.starter_distance
+
         self.set_coords(starter, 0, 0)
+        # Place the target of the fight-starting move away from the starter based on the starting move
+        self.set_coords(start_target, 0, starter_distance)
+
+        for obj in self.db.objects:
+            if obj.attributes.has("hostile_to_players"):
+                if obj.db.hostile_to_players == starter.db.hostile_to_players:
+                    x, y = self.find_available_square(origin_x=starter.db.combat_x, origin_y=starter.db.combat_y)
+                else:
+                    x, y = self.find_available_square(origin_x=start_target.db.combat_x, origin_y=start_target.db.combat_y)
+            else:
+                pass  # When/if any non-entity objects are able to be placed in the grid
+
+            self.set_coords(obj, x, y)
+
 
     def set_coords(self, obj, x, y):
         """

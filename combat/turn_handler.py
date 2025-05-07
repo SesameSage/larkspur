@@ -94,7 +94,10 @@ class TurnHandler(Script):
         self.persistent = True
         self.db.grid = None
         self.db.fighters = []
+
         self.db.starter = None
+        self.db.start_target = None
+        self.db.starter_distance = None
 
         # Add all fighters in the room with at least 1 HP to the combat."
         for thing in self.obj.contents:
