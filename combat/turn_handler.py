@@ -48,24 +48,32 @@ import evennia
 from evennia.utils import evtable, inherits_from, delay
 from evennia.utils.create import create_script
 
+from combat.abilities.abilities import Ability
 from combat.combat_grid import CombatGrid
 from combat.combat_handler import COMBAT
 from server import appearance
 from combat.effects import DurationEffect
 from combat.combat_constants import SECS_PER_TURN
+from typeclasses.inanimate.items.equipment.weapons import Weapon
 from typeclasses.scripts.scripts import Script
 
 TURN_TIMEOUT = 30  # Time before turns automatically end, in seconds
 
 
-def start_join_fight(attacker, target):
+def start_join_fight(attacker, target, move):
     if attacker.db.hostile_to_players != target.db.hostile_to_players:
         here = attacker.location
         if not attacker.is_in_combat():
             if here.db.combat_turnhandler:
                 here.db.combat_turnhandler.join_fight(attacker)
             else:
-                create_script(typeclass=TurnHandler, obj=here, attributes=[("starter", attacker)])
+                if isinstance(move, Weapon) or isinstance(move, Ability):
+                    range = move.db.range
+                else:
+                    range = 1
+                create_script(typeclass=TurnHandler, obj=here,
+                              attributes=[("starter", attacker), ("start_target", target),
+                                          ("starter_distance", range if range < 8 else 8)])
         if not target.is_in_combat():
             if here.db.combat_turnhandler:
                 here.db.combat_turnhandler.join_fight(target)

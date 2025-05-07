@@ -96,7 +96,7 @@ class CmdAttack(Command):
                 attacker.msg("Can't find " + self.args)
                 return
 
-        start_join_fight(attacker, target)
+        start_join_fight(attacker, target, attacker.get_weapon())
 
         # Wait to check this until after start_join_fight to make sure combat_ap is accessible
         if attacker.db.combat_ap < attacker.ap_to_attack():
@@ -162,7 +162,7 @@ class CmdCast(MuxCommand):
 
             # If offensive, start/join a fight if applicable and not already in one
             if ability.db.offensive:
-                start_join_fight(self.caller, target)
+                start_join_fight(self.caller, target, ability)
 
             ability.cast(caster=self.caller, target=target)
 

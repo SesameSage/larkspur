@@ -477,7 +477,7 @@ class CombatEntity(EquipmentEntity):
         return True
 
     def attack(self, target):
-        start_join_fight(self, target)
+        start_join_fight(self, target, self.get_weapon())
         COMBAT.resolve_attack(self, target, attack=self.get_weapon())
         # Unless that ends the fight, spend an action
         if self.is_in_combat():
