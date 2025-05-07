@@ -332,6 +332,10 @@ class CombatEntity(EquipmentEntity):
     def get_defeat_xp(self):
         return 5
 
+    def speed(self):
+        """How many squares this character can move per 1 AP spent."""
+        return 1 + self.get_attr("dexterity")
+
     # </editor-fold>
 
     def update_base_stats(self):
