@@ -16,7 +16,7 @@ DIRECTIONS = {
 class CombatGrid(Script):
     def at_script_creation(self):
         super().at_script_creation()
-        self.db.grid = [[]]
+        self.db.grid = {}
         self.db.turn_handler = self.obj.scripts.get("TurnHandler")[0]
         self.db.objects = []
 
@@ -37,9 +37,22 @@ class CombatGrid(Script):
         :param x: The x coordinate of the grid position to place the object in.
         :param y: The y coordinate of the grid position to place the object in.
         """
+        # Remove the object from previous grid position
+        try:
+            self.db.grid[(x, y)] = 0
+        # Ignore if there weren't previous coordinates (placing for the first time)
+        except AttributeError:
+            pass
+
+        # Set the object in new position on the grid
+        self.db.grid[(x, y)] = obj
+
+        # Set the new coordinate attributes
         obj.db.combat_x = x
         obj.db.combat_y = y
-        self.db.grid[x][y] = obj
+
+    def get_obj(self, x, y):
+        return self.db.grid.get((x, y), 0)
 
     def check_collision(self, x, y, displace=False):
         """
@@ -53,7 +66,7 @@ class CombatGrid(Script):
         :return: True if the object's movement is stopped, False if there is no collision or displacement occurred.
         """
 
-        obj_here = self.db.grid[x][y]
+        obj_here = self.get_obj(x, y)
         if obj_here == 0:
             return False
         else:
@@ -84,7 +97,7 @@ class CombatGrid(Script):
 
         target_x, target_y = self.get_coords(origin_x, origin_y, direction, distance)
 
-        return self.db.grid[target_x][target_y]
+        return self.get_obj(target_x, target_y)
 
     def displace(self, obj):
         if not self.validate_object(obj):
@@ -112,7 +125,8 @@ class CombatGrid(Script):
         for i in range(1, 5):
             for direction in DIRECTIONS:
                 x, y = self.get_coords(direction, i, origin_x, origin_y)
-                if self.db.grid[x][y] == 0:
+                # Return this square if it's empty
+                if self.get_obj(x, y) == 0:
                     return x, y
 
     def get_coords(self, direction, distance, obj=None, origin_x=None, origin_y=None):
