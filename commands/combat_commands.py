@@ -183,7 +183,7 @@ class DirCmd(MuxCommand):
             if not found_exit:
                 self.caller.msg("You can't go that way.")
         else:
-            self.caller.db.combat_turnhandler.db.grid.move(self.caller, self.aliases[0])
+            self.caller.db.combat_turnhandler.db.grid.step(self.caller, self.aliases[0])
 
 
 class CmdNorth(DirCmd):

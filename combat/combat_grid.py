@@ -99,6 +99,8 @@ class CombatGrid(Script):
             table.add_row(*row)
         return table
 
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+
     def check_collision(self, x, y, displace=False):
         """
         Check if there is already an object here, and handle the collision.
@@ -218,7 +220,44 @@ class CombatGrid(Script):
         target_y = origin_y + (delta_y * distance)
         return target_x, target_y
 
-    def move(self, obj, direction, displace=False):
+    def handle_move_ap(self, character):
+        character.db.combat_stepsleft -= 1
+        if character.db.combat_stepsleft == 0:
+            self.db.turn_handler.spend_action(character, 1, action_name="move")
+            character.db.combat_stepsleft = character.speed()
+            if character.db.combat_ap != 0:
+                character.msg(
+                    f"{appearance.notify}-1 AP. You may take {character.db.combat_stepsleft} more steps before "
+                    f"another action must be spent.")
+
+    def move_to(self, obj, x, y, displace=False, spend=False):
+        """
+        Move the given object to the given coordinates, if possible. If not possible and not displacing, move nearby.
+
+        :param obj: The object to move.
+        :param x: The x-coordinate to move to.
+        :param y: The y-coordinate to move to.
+        :param displace: If true, displace whatever is there. If false, find somewhere nearby if the square is blocked.
+        :param spend: Whether this movement spends a character's AP
+        :return: True if movement was successful, False if stopped.
+        """
+        if not self.validate_object(obj):
+            return
+
+        if self.check_collision(x, y, displace):
+            obj.msg("The way is blocked!")
+            return False
+        else:
+            self.set_coords(obj, x, y)
+            if spend:
+                self.handle_move_ap(obj)
+                if obj.db.combat_ap > 0:
+                    obj.msg(self.print())
+            else:
+                obj.msg(self.print())
+            return True
+
+    def step(self, obj, direction, displace=False):
         """
         Move the given object one square at a time in the given direction.
 
@@ -230,12 +269,16 @@ class CombatGrid(Script):
         if not self.validate_object(obj) or not self.validate_direction(direction):
             return
 
+        if obj.db.combat_ap < 1:
+            obj.msg("Not enough AP!")
+            return
+
         target_x, target_y = self.get_coords(origin_x=obj.db.combat_x, origin_y=obj.db.combat_y,
                                              direction=direction, distance=1)
 
-        return self.move_to(obj=obj, x=target_x, y=target_y, displace=displace)
+        return self.move_to(obj=obj, x=target_x, y=target_y, displace=displace, spend=True)
 
-    def multi_move(self, obj, direction, distance, displace=False):
+    def take_steps(self, obj, direction, distance, displace=False):
         """
         Move the given object the given number of squares in the given distance, if possible.
 
@@ -249,29 +292,8 @@ class CombatGrid(Script):
             return
 
         for move in range(1, distance):
-            if not self.move(obj, direction, displace):
+            if not self.step(obj, direction, displace):
                 break  # Stop trying to move if blocked
-
-    def move_to(self, obj, x, y, displace=False):
-        """
-        Move the given object to the given coordinates, if possible. If not possible and not displacing, move nearby.
-
-        :param obj: The object to move.
-        :param x: The x-coordinate to move to.
-        :param y: The y-coordinate to move to.
-        :param displace: If true, displace whatever is there. If false, find somewhere nearby if the square is blocked.
-        :return: True if movement was successful, False if stopped.
-        """
-        if not self.validate_object(obj):
-            return
-
-        if self.check_collision(x, y, displace):
-            obj.msg("The way is blocked!")
-            return False
-        else:
-            self.set_coords(obj, x, y)
-            obj.msg(self.print())
-            return True
 
     def validate_direction(self, direction):
         """Make sure the given direction is a recognized short direction string."""

@@ -307,6 +307,9 @@ class TurnHandler(Script):
         if gain_ap:
             character.db.combat_ap += COMBAT.get_ap(character)  # Replenish actions
 
+        # Set AP to spend on the first step, then let entity take steps up to speed before spending more
+        character.db.combat_stepsleft = 1
+
         # Display grid
         for content in self.obj.contents:
             content.msg(self.db.grid.print())
