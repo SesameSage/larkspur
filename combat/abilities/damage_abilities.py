@@ -32,7 +32,7 @@ class FocusedShot(BowAbility):
                               accuracy=COMBAT.get_accuracy(caster, target) + 30)
 
 
-class PoisonArrow(Ability):
+class PoisonArrow(BowAbility):
     key = "Poison Arrow"
     desc = "Coat an arrow in poison, and take a shot at getting it into the opponent's blood."
 
@@ -65,6 +65,7 @@ class Scratch(Ability):
         super().at_object_creation()
         self.db.targeted = True
         self.db.must_target_entity = False
+        self.db.range = 1
 
         self.db.cost = [("stamina", 1)]
         self.db.ap_cost = 2
@@ -85,9 +86,9 @@ class ShieldBash(Ability):
 
     def at_object_creation(self):
         super().at_object_creation()
-
         self.db.targeted = True
         self.db.must_target_entity = False
+        self.db.range = 1
 
         self.db.requires = [("strength", 4)]
 

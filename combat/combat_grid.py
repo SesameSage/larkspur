@@ -38,12 +38,12 @@ class CombatGrid(Script):
                 if obj.db.hostile_to_players == starter.db.hostile_to_players:
                     x, y = self.find_available_square(origin_x=starter.db.combat_x, origin_y=starter.db.combat_y)
                 else:
-                    x, y = self.find_available_square(origin_x=start_target.db.combat_x, origin_y=start_target.db.combat_y)
+                    x, y = self.find_available_square(origin_x=start_target.db.combat_x,
+                                                      origin_y=start_target.db.combat_y)
             else:
                 pass  # When/if any non-entity objects are able to be placed in the grid
 
             self.set_coords(obj, x, y)
-
 
     def set_coords(self, obj, x, y):
         """

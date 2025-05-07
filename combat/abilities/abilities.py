@@ -21,6 +21,7 @@ class Ability(Object):
         self.db.targeted = False
         self.db.must_target_entity = False
         self.db.offensive = True
+        self.db.range = None
 
         self.db.requires = [()]  # Required attributes to learn (dexterity, wisdom, etc)
 
@@ -178,6 +179,10 @@ class SustainedAbility(Ability):
 
 
 class BowAbility(Ability):
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.range = 10
 
     def check(self, caster, target):
         if not super().check(caster, target):

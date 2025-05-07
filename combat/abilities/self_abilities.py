@@ -15,6 +15,7 @@ class EnergyTap(Ability):
         super().at_object_creation()
         self.db.targeted = False
         self.db.offensive = False
+        self.db.range = 0
 
         self.db.requires = [("wisdom", 2)]
         self.db.ap_cost = 1
@@ -36,6 +37,7 @@ class Expel(Ability):
         super().at_object_creation()
         self.db.targeted = False
         self.db.offensive = False
+        self.db.range = 0
 
         self.db.requires = [("wisdom", 5)]
         self.db.ap_cost = 5
@@ -61,6 +63,7 @@ class FocusMind(Ability):
         super().at_object_creation()
         self.db.targeted = False
         self.db.offensive = False
+        self.db.range = 0
 
         self.db.requires = [("wisdom", 2)]
         self.db.ap_cost = 1

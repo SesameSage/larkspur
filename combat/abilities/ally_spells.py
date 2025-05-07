@@ -14,6 +14,7 @@ class Cleanse(Spell):
         self.db.targeted = True
         self.db.must_target_entity = True
         self.db.offensive = False
+        self.db.range = 3
 
         self.db.requires = [("spirit", 3)]
         self.db.ap_cost = 4
@@ -41,6 +42,7 @@ class HealWounds(Spell):
         self.db.targeted = True
         self.db.must_target_entity = True
         self.db.offensive = False
+        self.db.range = 1
 
         self.db.requires = [("spirit", 2)]
         self.db.ap_cost = 3
@@ -66,6 +68,7 @@ class Revive(Spell):
         self.db.targeted = True
         self.db.must_target_entity = True
         self.db.offensive = False
+        self.db.range = 1
 
         self.db.requires = [("spirit", 10)]
         self.db.cost = [("mana", 25)]

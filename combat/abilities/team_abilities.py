@@ -16,6 +16,7 @@ class MindClearingTone(Ability):
         super().at_object_creation()
         self.db.targeted = False
         self.db.offensive = False
+        self.db.range = 5
 
         self.db.requires = [("wisdom", 5)]
         self.db.ap_cost = 4
@@ -40,6 +41,7 @@ class RallyingCry(Ability):
         super().at_object_creation()
         self.db.targeted = False
         self.db.offensive = False
+        self.db.range = 10
 
         self.db.requires = [("strength", 1), ("wisdom", 1)]
         self.db.ap_cost = 3
@@ -61,6 +63,7 @@ class WarCry(Ability):
         super().at_object_creation()
         self.db.targeted = False
         self.db.offensive = False
+        self.db.range = 10
 
         self.db.requires = [("strength", 2)]
         self.db.ap_cost = 1
