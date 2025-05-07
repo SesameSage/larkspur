@@ -44,14 +44,16 @@ in your game and using it as-is.
 """
 from random import randint
 
-from evennia import DefaultScript
+import evennia
 from evennia.utils import evtable, inherits_from, delay
 from evennia.utils.create import create_script
 
+from combat.combat_grid import CombatGrid
 from combat.combat_handler import COMBAT
 from server import appearance
 from combat.effects import DurationEffect
 from combat.combat_constants import SECS_PER_TURN
+from typeclasses.scripts.scripts import Script
 
 TURN_TIMEOUT = 30  # Time before turns automatically end, in seconds
 
@@ -69,7 +71,7 @@ def start_join_fight(attacker, target):
                 here.db.combat_turnhandler.join_fight(target)
 
 
-class TurnHandler(DefaultScript):
+class TurnHandler(Script):
     """
     This is the script that handles the progression of combat through turns.
     On creation (when a fight is started) it adds all combat-ready characters
@@ -90,6 +92,7 @@ class TurnHandler(DefaultScript):
         self.key = "Combat Turn Handler"
         self.interval = 5  # Once every 5 seconds
         self.persistent = True
+        self.db.grid = None
         self.db.fighters = []
         self.db.starter = None
 
@@ -121,7 +124,7 @@ class TurnHandler(DefaultScript):
         available to access.
         This is also called on a server restart, so calls after the first round has begun are ignored, or it would
         always become the fight starter's turn at reload, and positions would always reset."""
-        #
+        # Skip calls on server reload - only call after initialization
         if not self.db.round == 0:
             return
 
@@ -131,8 +134,10 @@ class TurnHandler(DefaultScript):
         self.db.fighters.remove(self.db.starter)
         self.db.fighters.insert(0, self.db.starter)
 
-        self.db.round = 1
+        self.db.grid = create_script(typeclass=CombatGrid, obj=self.obj, attributes=[("objects", self.db.fighters)])
+
         # Start first fighter's turn.
+        self.db.round = 1
         self.start_turn(self.db.fighters[0])
 
     def at_stop(self):
