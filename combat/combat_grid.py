@@ -17,7 +17,7 @@ class CombatGrid(Script):
     def at_script_creation(self):
         super().at_script_creation()
         self.db.grid = {}
-        self.db.turn_handler = self.obj.scripts.get("TurnHandler")[0]
+        self.db.turn_handler = self.obj.scripts.get("Combat Turn Handler")[0]
         self.db.objects = []
 
     def at_start(self, **kwargs):

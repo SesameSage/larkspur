@@ -2,7 +2,6 @@ from combat.combat_handler import COMBAT
 from combat.effects import *
 from typeclasses.base.objects import Object
 from typeclasses.inanimate.items.equipment.weapons import Bow
-from typeclasses.living.living_entities import LivingEntity
 
 
 class Ability(Object):
@@ -79,7 +78,7 @@ class Ability(Object):
             if target and target is not None:
                 # This may cause a circular import eventually to not work around
                 if self.db.must_target_entity:
-                    if not inherits_from(target, LivingEntity):
+                    if not target.attributes.has("carry_weight"):
                         caster.msg(f"{self.name} must target a living thing")
                         return False
                 if target.attributes.has("hp"):
@@ -91,7 +90,7 @@ class Ability(Object):
                 return False
         return True
 
-    def func(self, caster: LivingEntity, target: Object = None):
+    def func(self, caster, target: Object = None):
         """
         Performs the ability's function.
         Args:
@@ -116,7 +115,7 @@ class Ability(Object):
         if caster.is_in_combat():
             caster.db.combat_turnhandler.spend_action(caster, self.db.ap_cost or 2, action_name="cast")
 
-    def cast(self, caster: LivingEntity, target: Object = None):
+    def cast(self, caster, target: Object = None):
         """
         If the ability's check passes, call the cooldown and cost adjuster, perform the ability, and spend the AP.
         :param caster: The entity casting the ability

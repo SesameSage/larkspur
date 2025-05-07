@@ -68,12 +68,12 @@ def start_join_fight(attacker, target, move):
                 here.db.combat_turnhandler.join_fight(attacker)
             else:
                 if isinstance(move, Weapon) or isinstance(move, Ability):
-                    range = move.db.range
+                    rng = move.db.range
                 else:
-                    range = 1
+                    rng = 1
                 create_script(typeclass=TurnHandler, obj=here,
                               attributes=[("starter", attacker), ("start_target", target),
-                                          ("starter_distance", range if range < 8 else 8)])
+                                          ("starter_distance", rng if rng < 8 else 8)])
         if not target.is_in_combat():
             if here.db.combat_turnhandler:
                 here.db.combat_turnhandler.join_fight(target)
@@ -103,6 +103,8 @@ class TurnHandler(Script):
         self.db.grid = None
         self.db.fighters = []
 
+        self.db.round = 0
+
         self.db.starter = None
         self.db.start_target = None
         self.db.starter_distance = None
@@ -128,7 +130,6 @@ class TurnHandler(Script):
         # Set up the current turn and turn timeout delay.
         self.db.turn_order_pos = 0
         self.db.timer = TURN_TIMEOUT  # Set timer to turn timeout specified in options
-        self.db.round = 0
 
     def at_start(self, **kwargs):
         """Turn order and battlefield position must be generated after at_script_creation so that self.db.starter is
@@ -160,6 +161,8 @@ class TurnHandler(Script):
                 # Clean up the combat attributes for every fighter.
                 self.combat_cleanup(fighter)
         self.obj.db.combat_turnhandler = None  # Remove reference to turn handler in location
+        self.db.grid.stop()
+        self.db.grid.delete()
 
     def at_repeat(self):
         """
