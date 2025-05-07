@@ -23,7 +23,23 @@ class Exit(Object, DefaultExit):
 
     """
 
-    pass
+    def at_failed_traverse(self, traversing_object, **kwargs):
+        """
+        Overloads the default hook to implement a simple default error message.
+
+        Args:
+            traversing_object (DefaultObject): The object that failed traversing us.
+            **kwargs (dict): Arbitrary, optional arguments for users
+                overriding the call (unused by default).
+
+        Notes:
+            Using the default exits, this hook will not be called if an
+            Attribute `err_traverse` is defined - this will in that case be
+            read for an error string instead.
+
+        """
+        if not traversing_object.is_in_combat():
+            super().at_failed_traverse(traversing_object)
 
 
 class Door(Exit, SimpleDoor):

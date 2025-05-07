@@ -61,7 +61,9 @@ class CombatGrid(Script):
         """
         # Remove the object from previous grid position
         try:
-            self.db.grid[(x, y)] = 0
+            origin_x, origin_y = obj.db.combat_x, obj.db.combat_y
+            if origin_x is not None and origin_y is not None:
+                self.db.grid[(origin_x, origin_y)] = 0
         # Ignore if there weren't previous coordinates (placing for the first time)
         except AttributeError:
             pass
@@ -264,15 +266,17 @@ class CombatGrid(Script):
             return
 
         if self.check_collision(x, y, displace):
+            obj.msg("The way is blocked!")
             return False
         else:
             self.set_coords(obj, x, y)
+            obj.msg(self.print())
             return True
 
     def validate_direction(self, direction):
         """Make sure the given direction is a recognized short direction string."""
         if direction not in DIRECTIONS:
-            self.obj.msg_contents(appearance.warning + "Invalid grid direction!")
+            self.obj.msg_contents(f"{appearance.warning} Invalid grid direction! ({direction})")
             return False
         else:
             return True

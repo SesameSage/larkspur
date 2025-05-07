@@ -470,10 +470,13 @@ class CombatEntity(EquipmentEntity):
             before it is even started.
 
         """
-        # Keep the character from moving if at 0 HP or in combat.
+        # A combination of this override and the direction commands is necessary to get the combat version of the
+        # movement commands to execute whether there is a valid room exit found or not.
+        exts = [ext for ext in self.location.exits if ext.destination == destination]
+        ext = exts[0]
         if self.is_in_combat():
-            self.msg("You can't exit a room while in combat!")
-            return False  # Returning false keeps the character from moving.
+            self.db.combat_turnhandler.db.grid.move(obj=self, direction=ext.key[0])
+            return False
         if self.db.HP <= 0:
             self.msg("You can't move, you've been defeated!")
             return False
