@@ -38,6 +38,10 @@ class Ability(Object):
         Returns:
             Boolean whether the check passed.
         """
+        # Ability range
+        if target and not COMBAT.check_range(caster, target, self):
+            return False
+
         if caster.effect_active("Ceasefire") and self.db.offensive:
             caster.msg("Can't use offensive abilities during a ceasefire!")
             return False

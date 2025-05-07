@@ -227,8 +227,8 @@ class CombatGrid(Script):
             character.db.combat_stepsleft = character.speed()
             if character.db.combat_ap != 0:
                 character.msg(
-                    f"{appearance.notify}-1 AP. You may take {character.db.combat_stepsleft} more steps before "
-                    f"another action must be spent.")
+                    f"{appearance.notify}-1 AP, {character.db.combat_ap} left. You may take "
+                    f"{character.db.combat_stepsleft} more steps before another action must be spent.")
 
     def move_to(self, obj, x, y, displace=False, spend=False):
         """
