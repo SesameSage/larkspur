@@ -148,10 +148,11 @@ class Ability(Object):
         return appearance.ability
 
     def cost_string(self):
-        cost_string = ""
+        cost_string = f"|553{self.db.ap_cost} AP|n, "
         for cost in self.db.cost:
             stat, amt = cost
-            cost_string = cost_string + f"{amt} {stat}, "
+            color = appearance.mana if stat == "mana" else appearance.stamina
+            cost_string = cost_string + f"{color}{amt} {stat}|n, "
         # Remove comma and space
         cost_string = cost_string[:-2]
         return cost_string
@@ -170,8 +171,11 @@ class Ability(Object):
         {self.get_display_name()}
         {self.desc}
         
-        Requires: {self.requires_string()}
-        Costs: {self.cost_string()}
+        |wRange|n: {self.db.range}
+        |wCosts|n: {self.cost_string()}
+        |wCooldown|n: {self.db.cooldown}s / {self.db.cooldown // SECS_PER_TURN}t
+        
+        |wRequires|n: {self.requires_string()}
         """
 
 
