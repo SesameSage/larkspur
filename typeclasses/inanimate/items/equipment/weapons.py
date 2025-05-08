@@ -1,4 +1,5 @@
 from typeclasses.inanimate.items.equipment.equipment import Equipment
+from typeclasses.inanimate.items.usables import Usable
 
 
 class Weapon(Equipment):
@@ -26,6 +27,10 @@ class TwoHanded(MeleeWeapon):
 
 
 class RangedWeapon(Weapon):
+    pass
+
+
+class ThrownWeapon(Usable):
     pass
 
 
@@ -65,7 +70,7 @@ class Quarterstaff(TwoHanded):
     pass
 
 
-class Javelin(RangedWeapon):
+class Javelin(ThrownWeapon):
     pass
 
 
