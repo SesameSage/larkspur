@@ -33,29 +33,46 @@ class Equipment(Item):
                          f"Lvl req: {self.db.required_level}",
                          f"Requires: {self.db.required_stat}",
                          header=self.color() + self.__class__.__name__)
-        defensive_stats = []
-        if self.attributes.has("evasion") and self.db.evasion != 0:
-            defensive_stats.append(f"Evasion: {self.db.evasion}")
 
         if self.attributes.has("defense"):
-            for damage_type in self.db.defense:
-                if self.db.defense[damage_type] != 0:
-                    if damage_type is None:
-                        defensive_stats.append(f"Defense: {self.db.defense[damage_type]}")
-                    else:
-                        defensive_stats.append(
-                            f"{damage_type.get_display_name(capital=True)}: {self.db.defense[damage_type]}")
+            defensive_stats = []
 
-        if self.attributes.has("resistance"):
-            for damage_type in self.db.resistance:
-                if self.db.resistance[damage_type] != 0:
-                    if damage_type is None:
-                        defensive_stats.append(f"Resistance: {self.db.resistance[damage_type]}")
-                    else:
-                        defensive_stats.append(
-                            f"{damage_type.get_display_name()} resist: {self.db.resistance[damage_type]}")
+            if self.attributes.has("evasion") and self.db.evasion != 0:
+                defensive_stats.append(f"Evasion: {self.db.evasion}")
 
-        table.table[0].add_rows(*defensive_stats)
+            if self.attributes.has("defense"):
+                for damage_type in self.db.defense:
+                    if self.db.defense[damage_type] != 0:
+                        if damage_type is None:
+                            defensive_stats.append(f"Defense: {self.db.defense[damage_type]}")
+                        else:
+                            defensive_stats.append(
+                                f"{damage_type.get_display_name(capital=True)}: {self.db.defense[damage_type]}")
+
+            if self.attributes.has("resistance"):
+                for damage_type in self.db.resistance:
+                    if self.db.resistance[damage_type] != 0:
+                        if damage_type is None:
+                            defensive_stats.append(f"Resistance: {self.db.resistance[damage_type]}")
+                        else:
+                            defensive_stats.append(
+                                f"{damage_type.get_display_name()} resist: {self.db.resistance[damage_type]}")
+
+            table.table[0].add_rows(*defensive_stats)
+
+        elif self.attributes.has("damage_ranges"):
+            weapon_stats = []
+
+            rng = self.db.range
+            if rng > 1:
+                weapon_stats.append(f"Range: {rng}")
+
+            damage_ranges = self.db.damage_ranges
+            for damage_type in damage_ranges:
+                weapon_stats.append(f"{damage_type.get_display_name(capital=True)}: {damage_ranges[damage_type][0]}-{damage_ranges[damage_type][1]}")
+
+            table.table[0].add_rows(*weapon_stats)
+
         return table
 
     def color(self):

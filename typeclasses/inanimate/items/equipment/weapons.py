@@ -6,7 +6,7 @@ class Weapon(Equipment):
     def at_object_creation(self):
         super().at_object_creation()
         self.db.damage_ranges = {}  # Minimum and maximum damage on hit
-        self.db.accuracy_bonus = 0  # Bonus to attack rolls (or penalty if negative)
+        self.db.accuracy_buff = 0  # Bonus to attack rolls (or penalty if negative)
         self.db.equipment_slot = "primary"
         # TODO: Secondary holding slot
 

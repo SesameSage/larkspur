@@ -82,7 +82,7 @@ class CombatHandler:
         # If armed, add weapon's accuracy bonus.
         weapon = attacker.get_weapon()
         if not isinstance(weapon, str):
-            accuracy_bonus += weapon.db.accuracy_bonus
+            accuracy_bonus += weapon.db.accuracy_buff
             attacker.location.more_info(f"+{accuracy_bonus} accuracy from {weapon.name} ({attacker.name})")
         accuracy += accuracy_bonus
 
