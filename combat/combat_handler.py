@@ -62,6 +62,16 @@ class CombatHandler:
                 enemies.append(content)
         return enemies
 
+    def check_range(self, attacker, target, move):
+        move_range = 1 if isinstance(move, str) else move.db.range
+        if not move_range or move_range == 0:
+            return True
+        if attacker.is_in_combat() and attacker.db.combat_turnhandler.db.grid.distance(attacker, target) > move_range:
+            attacker.msg("Out of range!")
+            return False
+        else:
+            return True
+
     def get_accuracy(self, attacker, defender):
         """
         Returns an accuracy for an attack, applying only the attacker's stat modifications to a hitroll.

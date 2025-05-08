@@ -15,6 +15,7 @@ class AbsorbEssence(Spell):
         super().at_object_creation()
         self.db.targeted = False
         self.db.offensive = False
+        self.db.range = 0
 
         self.db.requires = [("spirit", 9)]
         self.db.ap_cost = 5
@@ -36,6 +37,7 @@ class Consume(Spell):
         super().at_object_creation()
         self.db.targeted = False
         self.db.offensive = False
+        self.db.range = 0
 
         self.db.requires = [("spirit", 7)]
         self.db.ap_cost = 4

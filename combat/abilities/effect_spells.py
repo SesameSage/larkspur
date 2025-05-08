@@ -16,6 +16,7 @@ class BlindingBeam(Spell):
         super().at_object_creation()
         self.db.targeted = True
         self.db.must_target_entity = True
+        self.db.range = 8
 
         self.db.requires = [("spirit", 1)]
         self.db.ap_cost = 2
@@ -36,6 +37,7 @@ class Curse(Spell):
         super().at_object_creation()
         self.db.targeted = True
         self.db.must_target_entity = True
+        self.db.range = 8
 
         self.db.requires = [("spirit", 4)]
         self.db.ap_cost = 3
@@ -62,6 +64,7 @@ class Freeze(Spell):
         super().at_object_creation()
         self.db.targeted = True
         self.db.must_target_entity = False
+        self.db.range = 3
 
         self.db.requires = [("spirit", 10)]
         self.db.ap_cost = 6
@@ -87,6 +90,7 @@ class Wither(Spell):
         super().at_object_creation()
         self.db.targeted = True
         self.db.must_target_entity = True
+        self.db.range = 8
 
         self.db.requires = [("spirit", 2)]
         self.db.ap_cost = 1

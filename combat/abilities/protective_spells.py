@@ -15,6 +15,7 @@ class ArmorOfThorns(Spell):
         self.db.targeted = True
         self.db.must_target_entity = True
         self.db.offensive = False
+        self.db.range = 8
 
         self.db.requires = [("wisdom", 2)]
         self.db.ap_cost = 2
@@ -42,6 +43,7 @@ class ThermalSink(Spell):
         self.db.targeted = True
         self.db.must_target_entity = False
         self.db.offensive = False
+        self.db.range = 5
 
         self.db.requires = [("wisdom", 3)]
         self.db.ap_cost = 1
@@ -73,6 +75,7 @@ class Ward(Spell):
         self.db.targeted = True
         self.db.must_target_entity = True
         self.db.offensive = False
+        self.db.range = 5
 
         self.db.requires = [("wisdom", 6)]
         self.db.ap_cost = 3

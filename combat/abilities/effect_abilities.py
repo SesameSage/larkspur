@@ -12,11 +12,12 @@ from typeclasses.living.living_entities import LivingEntity
 
 class NeutralizingHum(Ability):
     key = "Neutralizing Hum"
-    desc = "Drain mana from all opponents with this throat-singing tone."
+    desc = "Drain mana from all nearby opponents with this throat-singing tone."
 
     def at_object_creation(self):
         super().at_object_creation()
         self.db.targeted = False
+        self.db.range = 5
 
         self.db.requires = [("wisdom", 8)]
         self.db.ap_cost = 5
@@ -49,6 +50,7 @@ class SolarPlexusStrike(Ability):
         super().at_object_creation()
         self.db.targeted = True
         self.db.must_target_entity = True
+        self.db.range = 1
 
         self.db.requires = [("dexterity", 10)]
         self.db.ap_cost = 5
@@ -81,6 +83,7 @@ class Sweep(Ability):
 
         self.db.targeted = True
         self.db.must_target_entity = True
+        self.db.range = 1
 
         self.db.requires = [("dexterity", 2)]
 

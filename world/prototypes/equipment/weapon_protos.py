@@ -21,6 +21,7 @@ TRAINING_BOW = {
     "key": "training bow",
     "prototype_parent": "TRAINING_WEAPON",
     "typeclass": "typeclasses.inanimate.items.equipment.weapons.Bow",
+    "range": 6,
     "damage_ranges": {DamageTypes.PIERCING: (2, 4)},
     "weight": Dec(3),
     "ap_to_attack": 2

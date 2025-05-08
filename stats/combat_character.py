@@ -332,6 +332,10 @@ class CombatEntity(EquipmentEntity):
     def get_defeat_xp(self):
         return 5
 
+    def speed(self):
+        """How many squares this character can move per 1 AP spent."""
+        return 1 + self.get_attr("dexterity")
+
     # </editor-fold>
 
     def update_base_stats(self):
@@ -431,6 +435,9 @@ class CombatEntity(EquipmentEntity):
     # </editor-fold>
 
     # <editor-fold desc="Combat handling">
+    def combat_symbol(self):
+        return self.color() + "O|n"
+
     def is_in_combat(self):
         """Returns true if this entity is currently in combat."""
         try:
@@ -467,18 +474,26 @@ class CombatEntity(EquipmentEntity):
             before it is even started.
 
         """
-        # Keep the character from moving if at 0 HP or in combat.
+        # A combination of this override and the direction commands is necessary to get the combat version of the
+        # movement commands to execute whether there is a valid room exit found or not.
+        exts = [ext for ext in self.location.exits if ext.destination == destination]
+        ext = exts[0]
         if self.is_in_combat():
-            self.msg("You can't exit a room while in combat!")
-            return False  # Returning false keeps the character from moving.
+            self.db.combat_turnhandler.db.grid.step(obj=self, direction=ext.key[0])
+            return False
         if self.db.HP <= 0:
             self.msg("You can't move, you've been defeated!")
             return False
         return True
 
     def attack(self, target):
-        start_join_fight(self, target)
-        COMBAT.resolve_attack(self, target, attack=self.get_weapon())
+        weapon = self.get_weapon()
+        if not COMBAT.check_range(self, target, weapon):
+            return
+
+        start_join_fight(self, target, weapon)
+        COMBAT.resolve_attack(self, target, attack=weapon)
+
         # Unless that ends the fight, spend an action
         if self.is_in_combat():
             self.db.combat_turnhandler.spend_action(self, self.ap_to_attack(), action_name="attack")
