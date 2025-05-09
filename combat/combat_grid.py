@@ -267,11 +267,15 @@ class CombatGrid(Script):
         :return: True if movement was successful, False if stopped.
         """
         if not self.validate_object(obj) or not self.validate_direction(direction):
-            return
+            return False
+
+        if not obj.is_turn():
+            obj.msg("You can only move on your turn!")
+            return False
 
         if obj.db.combat_ap < 1:
             obj.msg("Not enough AP!")
-            return
+            return False
 
         target_x, target_y = self.get_coords(origin_x=obj.db.combat_x, origin_y=obj.db.combat_y,
                                              direction=direction, distance=1)
