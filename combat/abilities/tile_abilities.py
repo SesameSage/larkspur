@@ -5,7 +5,8 @@ from combat.combat_constants import SECS_PER_TURN
 
 
 class Swarm(TileAbility):
-    desc = "Call insects to swarm on the battlefield, preventing anyone inside from attacking or using abilities."
+    desc = ("Call insects to swarm on the battlefield, preventing anyone caught in the swarm from attacking or using "
+            "abilities.")
 
     def at_object_creation(self):
         super().at_object_creation()

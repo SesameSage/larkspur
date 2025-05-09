@@ -20,7 +20,10 @@ class CombatGrid(Script):
         super().at_script_creation()
         self.db.grid = {}
         self.db.turn_handler = self.obj.scripts.get("Combat Turn Handler")[0]
+
         self.db.objects = self.db.turn_handler.db.fighters
+        self.db.effects = []
+
         self.at_start()
 
     def at_start(self, **kwargs):
@@ -177,6 +180,11 @@ class CombatGrid(Script):
 
         return max(abs(x1 - x2), abs(y1 - y2))
 
+    def effect_at(self, x, y):
+        for effect in self.db.effects:
+            if (x, y) in effect.db.tiles:
+                return effect
+
     def find_available_square(self, obj=None, origin_x=None, origin_y=None, exclude=None):
         """
         Find one of the nearest empty squares relative to the given coordinates.
@@ -241,7 +249,8 @@ class CombatGrid(Script):
 
     def move_to(self, obj, x, y, displace=False, spend=False):
         """
-        Move the given object to the given coordinates, if possible. If not possible and not displacing, move nearby.
+        Move the given object to the given coordinates, if possible. Force other objects out to make it possible if
+        displacing.
 
         :param obj: The object to move.
         :param x: The x-coordinate to move to.
@@ -258,6 +267,9 @@ class CombatGrid(Script):
             return False
         else:
             self.set_coords(obj, x, y)
+            effect = self.effect_at(x, y)
+            if effect:
+                effect.apply_to(obj)
             if spend:
                 self.handle_move_ap(obj)
                 if obj.db.combat_ap > 0:
