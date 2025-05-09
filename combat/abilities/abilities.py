@@ -80,7 +80,6 @@ class Ability(Object):
         # If ability is meant to target something
         if self.db.targeted:
             if target and target is not None:
-                # This may cause a circular import eventually to not work around
                 if self.db.must_target_entity:
                     if not target.attributes.has("carry_weight"):
                         caster.msg(f"{self.name} must target a living thing")

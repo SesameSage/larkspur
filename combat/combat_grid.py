@@ -87,16 +87,26 @@ class CombatGrid(Script):
         min_y = min([coord[1] for coord in self.db.grid])
         max_y = max([coord[1] for coord in self.db.grid])
 
+        y_range = range(max_y + 1, min_y - 2, -1)
+        x_range = range(min_x - 1, max_x + 2)
+
+        x_row = []
+        for x in x_range:
+            x_row.append("|=a+|=i" + str(x) if x >= 0 else "|=i" + str(x))
+
         table = EvTable(border=None)
-        for y in range(max_y + 1, min_y - 2, -1):
-            row = []
-            for x in range(min_x - 1, max_x + 2):
+        for y in y_range:
+            row = ["|=a+|=i" + str(y) if y >= 0 else "|=i" + str(y),]
+            for x in x_range:
                 occupant = self.get_obj(x, y)
                 if occupant == 0 or occupant is None:
                     row.append("[ ]")
                 else:
                     row.append(f"[{occupant.combat_symbol()}]")
             table.add_row(*row)
+
+        table.add_row("  ", *x_row)
+
         return table
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
