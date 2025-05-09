@@ -60,22 +60,30 @@ TURN_TIMEOUT = 30  # Time before turns automatically end, in seconds
 
 
 def start_join_fight(attacker, target, move):
-    if attacker.db.hostile_to_players != target.db.hostile_to_players:
-        here = attacker.location
-        if not attacker.is_in_combat():
-            if here.db.combat_turnhandler:
-                here.db.combat_turnhandler.join_fight(attacker)
+    # Don't start a fight if the move wasn't offensive or target wasn't an enemy
+    if not target:
+        return
+    if not isinstance(move, str) and move.attributes.has("cooldown"):
+        if not move.db.offensive:
+            return
+    if not isinstance(target, tuple) and attacker.db.hostile_to_players == target.db.hostile_to_players:
+        return
+
+    here = attacker.location
+    if not attacker.is_in_combat():
+        if here.db.combat_turnhandler:
+            here.db.combat_turnhandler.join_fight(attacker)
+        else:
+            if isinstance(move, str):
+                rng = 1
             else:
-                if isinstance(move, Weapon) or move.attributes.has("cooldown"):
-                    rng = move.db.range
-                else:
-                    rng = 1
-                create_script(typeclass=TurnHandler, obj=here,
-                              attributes=[("starter", attacker), ("start_target", target),
-                                          ("starter_distance", rng if rng < 8 else 8)])
-        if not target.is_in_combat():
-            if here.db.combat_turnhandler:
-                here.db.combat_turnhandler.join_fight(target)
+                rng = move.db.range
+            create_script(typeclass=TurnHandler, obj=here,
+                          attributes=[("starter", attacker), ("start_target", target),
+                                      ("starter_distance", rng if rng < 8 else 8)])
+    if not isinstance(target, tuple) and not target.is_in_combat():
+        if here.db.combat_turnhandler:
+            here.db.combat_turnhandler.join_fight(target)
 
 
 class TurnHandler(Script):
@@ -160,8 +168,11 @@ class TurnHandler(Script):
                 # Clean up the combat attributes for every fighter.
                 self.combat_cleanup(fighter)
         self.obj.db.combat_turnhandler = None  # Remove reference to turn handler in location
-        self.db.grid.stop()
-        self.db.grid.delete()
+        try:
+            self.db.grid.stop()
+            self.db.grid.delete()
+        except AttributeError:
+            pass
 
     def at_repeat(self):
         """

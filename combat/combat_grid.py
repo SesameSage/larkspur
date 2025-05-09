@@ -163,18 +163,17 @@ class CombatGrid(Script):
         x, y = self.find_available_square(obj=obj)
         self.move_to(obj, x, y)
 
-    def distance(self, obj1=None, obj2=None, point1=None, point2=None):
+    def distance(self, point1, point2):
         """Returns the Chebyshev distance between the two objects or coordinate sets. This equates to the number of
         single-square moves in any direction that it would take to reach the other square."""
-        if obj1 and obj2:
-            x1, y1 = obj1.db.combat_x, obj1.db.combat_y
-            x2, y2 = obj2.db.combat_x, obj2.db.combat_y
-        elif point1 and point2:
+        if isinstance(point1, tuple):
             x1, y1 = point1
+        else:
+            x1, y1 = point1.db.combat_x, point1.db.combat_y
+        if isinstance(point2, tuple):
             x2, y2 = point2
         else:
-            self.obj.msg_contents(appearance.warning + "Not enough objects or points given to distance formula!")
-            return
+            x2, y2 = point2.db.combat_x, point2.db.combat_y
 
         return max(abs(x1 - x2), abs(y1 - y2))
 

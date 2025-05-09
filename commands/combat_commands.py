@@ -139,8 +139,22 @@ class CmdCast(MuxCommand):
             if target_string == "me":
                 target = self.caller
             else:
-                target = self.caller.search(target_string, candidates=[
+                # Attempt to parse a grid coordinate
+                x = None
+                y = None
+                try:
+                    x, y = target_string.split(",")
+                    x = int(x)
+                    y = int(y)
+                except ValueError:
+                    pass
+
+                # Search for object target otherwise
+                if x is None or y is None:
+                    target = self.caller.search(target_string, candidates=[
                     content for content in self.caller.location.contents if content.attributes.has("hp")])
+                else:
+                    target = (x, y)
             if not target:
                 self.caller.msg("No valid target found for " + target_string)
                 return
