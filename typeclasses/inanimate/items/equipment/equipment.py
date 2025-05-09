@@ -96,7 +96,7 @@ class Equipment(Item):
             for effect in self.db.equip_effects:
                 # Currently, all equip_effects are Stat Mods
                 amount = self.db.equip_effects[effect]
-                wearer.add_effect(StatMod, [("effect_key", effect), ("amount", amount), ("source", self.key)], quiet=True, stack=True)
+                wearer.add_effect(StatMod, [("effect_key", effect), ("amount", amount), ("source", self)], quiet=True, stack=True)
 
     def unequip(self, wearer, quiet=False):
         """
