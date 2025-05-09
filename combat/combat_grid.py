@@ -92,11 +92,11 @@ class CombatGrid(Script):
 
         x_row = []
         for x in x_range:
-            x_row.append("|=a+|=i" + str(x) if x >= 0 else "|=i" + str(x))
+            x_row.append("|=a+|=l" + str(x) if x >= 0 else "|=l" + str(x))
 
         table = EvTable(border=None)
         for y in y_range:
-            row = ["|=a+|=i" + str(y) if y >= 0 else "|=i" + str(y),]
+            row = ["|=a+|=l" + str(y) if y >= 0 else "|=l" + str(y),]
             for x in x_range:
                 occupant = self.get_obj(x, y)
                 if occupant == 0 or occupant is None:

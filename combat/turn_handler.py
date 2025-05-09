@@ -328,9 +328,10 @@ class TurnHandler(Script):
         # Prompt the character for their turn and give some information.
         character.msg("|[551|=a~~~~~ YOUR TURN ~~~~~~")
 
-        table = evtable.EvTable()
+        table = evtable.EvTable(pretty_corners=True)
         for fighter in self.db.fighters:
-            row = [fighter.get_display_name(capital=True), f"{fighter.db.hp} hp"]
+            row = [f"|=l({fighter.db.combat_x},{fighter.db.combat_y})|n " + fighter.get_display_name(capital=True),
+                   f"{fighter.db.hp} hp"]
             effects_str = ""
             effects = [script for script in fighter.scripts.all() if inherits_from(script, DurationEffect)]
             for script in effects:
