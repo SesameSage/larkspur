@@ -457,6 +457,8 @@ class CmdStats(Command):
                          f"|=oBlunt: \n"
                          f"|=oSlashing: \n"
                          f"|=oPiercing: \n"
+                         f"|=oCrushing: \n"
+                         f"|=oArcane: \n"
                          f"|=oFire: \n"
                          f"|=oCold: \n"
                          f"|=oShock: \n"
