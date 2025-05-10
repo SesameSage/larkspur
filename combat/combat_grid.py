@@ -20,7 +20,10 @@ class CombatGrid(Script):
         super().at_script_creation()
         self.db.grid = {}
         self.db.turn_handler = self.obj.scripts.get("Combat Turn Handler")[0]
+
         self.db.objects = self.db.turn_handler.db.fighters
+        self.db.effects = []
+
         self.at_start()
 
     def at_start(self, **kwargs):
@@ -87,16 +90,35 @@ class CombatGrid(Script):
         min_y = min([coord[1] for coord in self.db.grid])
         max_y = max([coord[1] for coord in self.db.grid])
 
+        y_range = range(max_y + 1, min_y - 2, -1)
+        x_range = range(min_x - 1, max_x + 2)
+
+        x_row = []
+        for x in x_range:
+            x_row.append("|=a+|=l" + str(x) if x >= 0 else "|=l" + str(x))
+
         table = EvTable(border=None)
-        for y in range(max_y + 1, min_y - 2, -1):
-            row = []
-            for x in range(min_x - 1, max_x + 2):
+        for y in y_range:
+            row = ["|=a+|=l" + str(y) if y >= 0 else "|=l" + str(y),]
+            for x in x_range:
                 occupant = self.get_obj(x, y)
-                if occupant == 0 or occupant is None:
-                    row.append("[ ]")
+                tile_effect = self.effect_at(x, y)
+                if tile_effect:
+                    if (tile_effect.attributes.has("seconds_passed")
+                            and tile_effect.db.seconds_passed >= (tile_effect.db.duration - 3)):
+                        tile_color = ""
+                    else:
+                        tile_color = tile_effect.db.tile_color
                 else:
-                    row.append(f"[{occupant.combat_symbol()}]")
+                    tile_color = ""
+                if occupant == 0 or occupant is None:
+                    row.append(f"{tile_color}[ ]|n")
+                else:
+                    row.append(f"{tile_color}[|n{occupant.combat_symbol()}{tile_color}]|n")
             table.add_row(*row)
+
+        table.add_row("  ", *x_row)
+
         return table
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
@@ -153,20 +175,24 @@ class CombatGrid(Script):
         x, y = self.find_available_square(obj=obj)
         self.move_to(obj, x, y)
 
-    def distance(self, obj1=None, obj2=None, point1=None, point2=None):
+    def distance(self, point1, point2):
         """Returns the Chebyshev distance between the two objects or coordinate sets. This equates to the number of
         single-square moves in any direction that it would take to reach the other square."""
-        if obj1 and obj2:
-            x1, y1 = obj1.db.combat_x, obj1.db.combat_y
-            x2, y2 = obj2.db.combat_x, obj2.db.combat_y
-        elif point1 and point2:
+        if isinstance(point1, tuple):
             x1, y1 = point1
+        else:
+            x1, y1 = point1.db.combat_x, point1.db.combat_y
+        if isinstance(point2, tuple):
             x2, y2 = point2
         else:
-            self.obj.msg_contents(appearance.warning + "Not enough objects or points given to distance formula!")
-            return
+            x2, y2 = point2.db.combat_x, point2.db.combat_y
 
         return max(abs(x1 - x2), abs(y1 - y2))
+
+    def effect_at(self, x, y):
+        for effect in self.db.effects:
+            if (x, y) in effect.db.tiles:
+                return effect
 
     def find_available_square(self, obj=None, origin_x=None, origin_y=None, exclude=None):
         """
@@ -232,7 +258,8 @@ class CombatGrid(Script):
 
     def move_to(self, obj, x, y, displace=False, spend=False):
         """
-        Move the given object to the given coordinates, if possible. If not possible and not displacing, move nearby.
+        Move the given object to the given coordinates, if possible. Force other objects out to make it possible if
+        displacing.
 
         :param obj: The object to move.
         :param x: The x-coordinate to move to.
@@ -249,6 +276,9 @@ class CombatGrid(Script):
             return False
         else:
             self.set_coords(obj, x, y)
+            effect = self.effect_at(x, y)
+            if effect:
+                effect.apply_to(obj)
             if spend:
                 self.handle_move_ap(obj)
                 if obj.db.combat_ap > 0:
@@ -267,11 +297,15 @@ class CombatGrid(Script):
         :return: True if movement was successful, False if stopped.
         """
         if not self.validate_object(obj) or not self.validate_direction(direction):
-            return
+            return False
+
+        if not obj.is_turn():
+            obj.msg("You can only move on your turn!")
+            return False
 
         if obj.db.combat_ap < 1:
             obj.msg("Not enough AP!")
-            return
+            return False
 
         target_x, target_y = self.get_coords(origin_x=obj.db.combat_x, origin_y=obj.db.combat_y,
                                              direction=direction, distance=1)

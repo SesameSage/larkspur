@@ -4,7 +4,6 @@ from evennia.utils import delay
 
 from combat.abilities.abilities import Ability
 from combat.abilities.all_abilities import HEALING_ABILITIES
-from combat.abilities.ally_spells import HealWounds
 from combat.combat_handler import COMBAT
 from typeclasses.inanimate.items.usables import Usable
 from typeclasses.scripts.scripts import Script
@@ -132,6 +131,10 @@ class CombatAI(Script):
 
         if entity.effect_active("Ceasefire"):
             return
+        tile_effect = entity.db.combat_turnhandler.db.grid.effect_at(entity.db.combat_x, entity.db.combat_y)
+        if tile_effect:
+            if tile_effect.db.effect_key == "Swarm":
+                return
 
         weapon = entity.get_weapon()
         target = self.choose_target(weapon)

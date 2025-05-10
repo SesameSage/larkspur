@@ -18,6 +18,7 @@ class Ability(Object):
         self.db.action_text = ""  # Will require parsing {caster} {target} from here to use
 
         self.db.targeted = False
+        self.db.targets_tile = False
         self.db.must_target_entity = False
         self.db.offensive = True
         self.db.range = None
@@ -38,10 +39,6 @@ class Ability(Object):
         Returns:
             Boolean whether the check passed.
         """
-        # Ability range
-        if target and not COMBAT.check_range(caster, target, self):
-            return False
-
         if caster.effect_active("Ceasefire") and self.db.offensive:
             caster.msg("Can't use offensive abilities during a ceasefire!")
             return False
@@ -80,21 +77,31 @@ class Ability(Object):
         # If ability is meant to target something
         if self.db.targeted:
             if target and target is not None:
-                # This may cause a circular import eventually to not work around
-                if self.db.must_target_entity:
-                    if not target.attributes.has("carry_weight"):
-                        caster.msg(f"{self.name} must target a living thing")
-                        return False
-                if target.attributes.has("hp"):
-                    if target.db.hp < 1 and self.__class__.__name__ != "Revive":
-                        caster.msg(f"{target.name} has been defeated!")
-                        return False
+                if not COMBAT.check_range(caster, target, self):
+                    return False
+
+                if self.db.targets_tile:
+                    if (not isinstance(target, tuple)
+                            or not isinstance(target[0], int) or not isinstance(target[1], int)):
+                        caster.msg(f"{self.get_display_name()} must target a tile!")
+
+                else:
+                    if self.db.must_target_entity:
+                        if not target.attributes.has("carry_weight"):
+                            caster.msg(f"{self.get_display_name()} must target a living thing")
+                            return False
+                    if target.attributes.has("hp"):
+                        if target.db.hp < 1 and self.__class__.__name__ != "Revive":
+                            caster.msg(f"{target.get_display_name(capital=True)} has been defeated!")
+                            return False
+
             else:
-                caster.msg(f"{self.name} must have a target")
+                caster.msg(f"{self.get_display_name()} must have a target")
                 return False
+
         return True
 
-    def func(self, caster, target: Object = None):
+    def func(self, caster, target=None):
         """
         Performs the ability's function.
         Args:
@@ -119,7 +126,7 @@ class Ability(Object):
         if caster.is_in_combat():
             caster.db.combat_turnhandler.spend_action(caster, self.db.ap_cost or 2, action_name="cast")
 
-    def cast(self, caster, target: Object = None):
+    def cast(self, caster, target=None):
         """
         If the ability's check passes, call the cooldown and cost adjuster, perform the ability, and spend the AP.
         :param caster: The entity casting the ability
@@ -131,6 +138,8 @@ class Ability(Object):
         else:
             self.adjust_cooldowns_stats(caster)
             self.func(caster, target)
+            if isinstance(self, TileAbility):
+                caster.msg(caster.db.combat_turnhandler.db.grid.print())
             return True
 
     def in_ability_tree(self, rpg_class):
@@ -177,6 +186,27 @@ class Ability(Object):
         
         |wRequires|n: {self.requires_string()}
         """
+
+
+class TileAbility(Ability):
+    def at_object_creation(self):
+        self.db.targeted = True
+        self.db.targets_tile = True
+        self.db.must_target_entity = False
+
+        self.db.length = 1
+        self.db.width = 1
+        self.db.duration = 0
+
+        self.db.tile_color = appearance.highlight
+
+    def check(self, caster, target):
+        if not super().check(caster, target):
+            return False
+        self.db.attributes = [("effect_key", self.key), ("tile_color", self.db.tile_color), ("source", self)]
+        if self.db.duration:
+            self.db.attributes.append(("duration", self.db.duration))
+        return True
 
 
 class SustainedAbility(Ability):

@@ -102,6 +102,11 @@ class CmdAttack(Command):
         if attacker.db.combat_ap < attacker.ap_to_attack():
             attacker.msg("Not enough AP!")
             return
+        tile_effect = self.caller.db.combat_turnhandler.db.grid.effect_at(self.caller.db.combat_x, self.caller.db.combat_y)
+        if tile_effect:
+            if tile_effect.db.effect_key == "Swarm":
+                self.caller.msg("Insects swarm around your face, preventing you from attacking!")
+                return
 
         attacker.attack(target)
 
@@ -139,8 +144,22 @@ class CmdCast(MuxCommand):
             if target_string == "me":
                 target = self.caller
             else:
-                target = self.caller.search(target_string, candidates=[
+                # Attempt to parse a grid coordinate
+                x = None
+                y = None
+                try:
+                    x, y = target_string.split(",")
+                    x = int(x)
+                    y = int(y)
+                except ValueError:
+                    pass
+
+                # Search for object target otherwise
+                if x is None or y is None:
+                    target = self.caller.search(target_string, candidates=[
                     content for content in self.caller.location.contents if content.attributes.has("hp")])
+                else:
+                    target = (x, y)
             if not target:
                 self.caller.msg("No valid target found for " + target_string)
                 return
