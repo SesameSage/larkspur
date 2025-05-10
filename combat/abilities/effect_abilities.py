@@ -70,7 +70,7 @@ class SolarPlexusStrike(Ability):
 
         if target.get_attr("con") < 1.25 * caster.get_attr("dex"):
             if randint(1, 3) > 1:
-                attributes = [("effect_key", "Winded"), ("duration", 3 * SECS_PER_TURN), ("source", self.key)]
+                attributes = [("effect_key", "Winded"), ("duration", 3 * SECS_PER_TURN), ("source", self)]
                 target.add_effect(typeclass=DurationEffect, attributes=attributes)
 
 
@@ -104,5 +104,5 @@ class Sweep(Ability):
         else:
             target.location.msg_contents(f"{caster.get_display_name(capital=True)} sweeps at {target.get_display_name()}'s legs, "
                                          f"knocking them to the ground!")
-            target.add_effect(KnockedDown, attributes=[("source", self.key)])
+            target.add_effect(KnockedDown, attributes=[("source", self)])
         return True

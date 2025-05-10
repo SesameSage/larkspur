@@ -120,4 +120,4 @@ class ShieldBash(Ability):
         if knockdown_resistance > knockdown_power:
             caster.location.msg_contents(f"{target.get_display_name(capital=True)} stands strong!")
         else:
-            target.add_effect(KnockedDown, attributes=[("source", self.key)])
+            target.add_effect(KnockedDown, attributes=[("source", self)])

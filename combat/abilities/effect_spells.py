@@ -106,6 +106,6 @@ class Wither(Spell):
             target.location.msg_contents(f"{caster.get_display_name(capital=True)} casts a trembling over "
                                          f"{target.get_display_name()}'s body, causing their stamina to wither away!")
             attributes = [("effect_key", "Stamina Drain"), ("stat", "stamina"), ("duration", 5 * SECS_PER_TURN),
-                          ("amount", caster.get_attr("spirit")), ("source", self.key)]
+                          ("amount", caster.get_attr("spirit")), ("source", self)]
             target.add_effect(typeclass=Drain, attributes=attributes)
             return True

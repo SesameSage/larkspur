@@ -35,16 +35,10 @@ class EffectScript(Script):
         self.db.damage_type = None
 
     def positive(self):
-        if inherits_from(self, StatMod) and self.db.amount > 0:
-            return True
-        if self.db.effect_key.startswith("+"):
-            return True
-        if self.db.effect_key.startswith("-"):
+        if self.db.source.db.offensive:
             return False
-        if self.db.effect_key.startswith("Siphon"):
+        else:
             return True
-
-        return False
 
     def color(self):
         if self.positive():
