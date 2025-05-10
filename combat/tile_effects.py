@@ -49,10 +49,12 @@ class TileEffect(EffectScript):
         pass
 
     def at_script_delete(self, **kwargs):
+        super().at_script_delete()
         try:
             self.obj.db.combat_turnhandler.db.grid.db.effects.remove(self)
         except AttributeError:
             pass
+        return True
 
 
 class DurationTileEffect(TileEffect, DurationEffect):

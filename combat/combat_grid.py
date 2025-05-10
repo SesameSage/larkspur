@@ -104,7 +104,11 @@ class CombatGrid(Script):
                 occupant = self.get_obj(x, y)
                 tile_effect = self.effect_at(x, y)
                 if tile_effect:
-                    tile_color = tile_effect.db.tile_color
+                    if (tile_effect.attributes.has("seconds_passed")
+                            and tile_effect.db.seconds_passed >= (tile_effect.db.duration - 3)):
+                        tile_color = ""
+                    else:
+                        tile_color = tile_effect.db.tile_color
                 else:
                     tile_color = ""
                 if occupant == 0 or occupant is None:
