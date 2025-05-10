@@ -101,7 +101,7 @@ class Ability(Object):
 
         return True
 
-    def func(self, caster, target: Object = None):
+    def func(self, caster, target=None):
         """
         Performs the ability's function.
         Args:
@@ -126,7 +126,7 @@ class Ability(Object):
         if caster.is_in_combat():
             caster.db.combat_turnhandler.spend_action(caster, self.db.ap_cost or 2, action_name="cast")
 
-    def cast(self, caster, target: Object = None):
+    def cast(self, caster, target=None):
         """
         If the ability's check passes, call the cooldown and cost adjuster, perform the ability, and spend the AP.
         :param caster: The entity casting the ability
@@ -187,6 +187,20 @@ class TileAbility(Ability):
         self.db.targeted = True
         self.db.targets_tile = True
         self.db.must_target_entity = False
+
+        self.db.length = 1
+        self.db.width = 1
+        self.db.duration = 0
+
+        self.db.tile_color = appearance.highlight
+
+    def check(self, caster, target):
+        if not super().check(caster, target):
+            return False
+        self.db.attributes = [("effect_key", self.key), ("tile_color", self.db.tile_color), ("source", self)]
+        if self.db.duration:
+            self.db.attributes.append(("duration", self.db.duration))
+        return True
 
 
 class SustainedAbility(Ability):

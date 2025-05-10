@@ -102,10 +102,15 @@ class CombatGrid(Script):
             row = ["|=a+|=l" + str(y) if y >= 0 else "|=l" + str(y),]
             for x in x_range:
                 occupant = self.get_obj(x, y)
-                if occupant == 0 or occupant is None:
-                    row.append("[ ]")
+                tile_effect = self.effect_at(x, y)
+                if tile_effect:
+                    tile_color = tile_effect.db.tile_color
                 else:
-                    row.append(f"[{occupant.combat_symbol()}]")
+                    tile_color = ""
+                if occupant == 0 or occupant is None:
+                    row.append(f"{tile_color}[ ]|n")
+                else:
+                    row.append(f"{tile_color}[|n{occupant.combat_symbol()}{tile_color}]|n")
             table.add_row(*row)
 
         table.add_row("  ", *x_row)
