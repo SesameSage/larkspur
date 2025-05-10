@@ -45,6 +45,9 @@ class TileEffect(EffectScript):
 
         self.db.tiles = []
 
+    def color(self):
+        return "|335"
+
     def apply_to(self, obj):
         pass
 
