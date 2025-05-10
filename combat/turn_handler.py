@@ -66,10 +66,10 @@ def start_join_fight(attacker, target, move):
             if here.db.combat_turnhandler:
                 here.db.combat_turnhandler.join_fight(attacker)
             else:
-                if isinstance(move, Weapon) or move.attributes.has("cooldown"):
-                    rng = move.db.range
-                else:
+                if isinstance(move, str):
                     rng = 1
+                else:
+                    rng = move.db.range
                 create_script(typeclass=TurnHandler, obj=here,
                               attributes=[("starter", attacker), ("start_target", target),
                                           ("starter_distance", rng if rng < 8 else 8)])
@@ -330,7 +330,9 @@ class TurnHandler(Script):
 
         table = evtable.EvTable()
         for fighter in self.db.fighters:
-            row = [fighter.get_display_name(capital=True), f"{fighter.db.hp} hp"]
+            row = [fighter.get_display_name(capital=True), f"{appearance.hp}{fighter.db.hp} "
+                                                           f"{appearance.stamina}{fighter.db.stamina} "
+                                                           f"{appearance.mana}{fighter.db.mana}"]
             effects_str = ""
             effects = [script for script in fighter.scripts.all() if inherits_from(script, DurationEffect)]
             for script in effects:
