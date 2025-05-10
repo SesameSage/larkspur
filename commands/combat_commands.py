@@ -102,7 +102,7 @@ class CmdAttack(Command):
         if attacker.db.combat_ap < attacker.ap_to_attack():
             attacker.msg("Not enough AP!")
             return
-        tile_effect = self.db.combat_turnhandler.db.grid.effect_at(self.db.combat_x, self.db.combat_y)
+        tile_effect = self.caller.db.combat_turnhandler.db.grid.effect_at(self.db.combat_x, self.db.combat_y)
         if tile_effect:
             if tile_effect.db.effect_key == "Swarm":
                 self.db.msg("Insects swarm around your face, preventing you from attacking!")
