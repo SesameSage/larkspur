@@ -55,7 +55,7 @@ class PoisonArrow(BowAbility):
         if hit_result and DamageTypes.POISON in damage_values and damage_values[DamageTypes.POISON] > 0:
             # Inflict poisoning only if the poison damage is not fully resisted
             target.add_effect(Poisoned,
-                              [("range", (1, 3)), ("duration", 3 * SECS_PER_TURN)])
+                              [("range", (1, 3)), ("duration", 3 * SECS_PER_TURN), ("source", self)])
 
 
 class Scratch(Ability):

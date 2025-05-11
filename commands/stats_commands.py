@@ -480,7 +480,7 @@ class CmdEffects(Command):
             if not target:
                 self.caller.msg(f"Can't find '{self.args}' here")
                 return
-            if not target.db.effects:
+            if not target.attributes.has("effects"):
                 self.caller.msg(f"{target.name.capitalize()} isn't affected by combat conditions!")
                 return
         else:  # Show self effects
