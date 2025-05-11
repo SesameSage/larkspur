@@ -188,7 +188,7 @@ class Vendor(NPC):
 
     def display_stock(self, player):
         """Returns a table of items being sold by the vendor."""
-        table = EvTable("Item", "Type", "Cost")
+        table = EvTable("Item", "Type", "Cost", pretty_corners=True)
         for item in self.db.stock:
             table.add_row(item.get_display_name(), item.__class__.__name__, appearance.gold + str(item.db.avg_value))
         player.msg(table)
@@ -222,7 +222,7 @@ class Trainer(NPC):
         return [type(ability) for ability in self.db.classes]
 
     def display_classes(self, player, show_all=False):
-        table = EvTable("Ability", "Cost")
+        table = EvTable("Ability", "Cost", pretty_corners=True)
         shown = []
 
         for ability in self.db.classes:

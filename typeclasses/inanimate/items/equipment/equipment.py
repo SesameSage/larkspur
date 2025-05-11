@@ -25,7 +25,7 @@ class Equipment(Item):
 
     def identify(self):
         """Return a table containing details on the item such as its stats and effects."""
-        table = EvTable()
+        table = EvTable(pretty_corners=True)
         table.add_column(f"Weight: {self.db.weight}",
                          f"Average value: {appearance.gold}{self.db.avg_value}|n",
                          header=self.get_display_name(capital=True))

@@ -233,14 +233,14 @@ class CmdSpells(Command):
     help_category = "character"
 
     def func(self):
-        current_spells = EvTable()
+        current_spells = EvTable(pretty_corners=True)
         for ability in self.caller.db.abilities:
             desc = ability.desc
             if len(desc) > 50:
                 desc = desc[:48] + "..."
             current_spells.add_row(ability.get_display_name(), desc, f"|wCosts|n: {ability.cost_string()}")
 
-        available_spells = EvTable()
+        available_spells = EvTable(pretty_corners=True)
         for level in range(self.caller.db.level + 1):
             if level == 0:
                 continue
@@ -412,7 +412,7 @@ class CmdStats(Command):
         else:  # Show self stats
             target = self.caller
 
-        table = EvTable()
+        table = EvTable(pretty_corners=True)
         table.add_column(f"Class:\n"
                          f"Level:\n"
                          f"HP:\n"
