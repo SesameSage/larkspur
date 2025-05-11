@@ -3,11 +3,41 @@ from random import randint
 
 from combat.abilities.abilities import Ability, BowAbility
 from combat.combat_handler import COMBAT
-from combat.effects import DamageTypes, KnockedDown, Poisoned
+from combat.effects import DamageTypes, KnockedDown, Poisoned, Burning
 from combat.combat_constants import SECS_PER_TURN
 from typeclasses.base.objects import Object
 from typeclasses.inanimate.items.equipment.apparel import Shield
 from typeclasses.living.living_entities import LivingEntity
+
+
+class FireArrow(BowAbility):
+    key = "Fire Arrow"
+    desc = "Flame-heat an arrow to burn and potentially ignite your foe."
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.targeted = True
+        self.db.must_target_entity = True
+
+        self.db.cost = [("stamina", 3)]
+        self.db.ap_cost = 3
+        self.db.cooldown = 5 * SECS_PER_TURN
+
+    def get_damage(self, caster):
+        damage_values = COMBAT.get_weapon_damage(caster)
+        try:
+            damage_values[DamageTypes.FIRE] += 5
+        except KeyError:
+            damage_values[DamageTypes.FIRE] = 5
+        return damage_values
+
+    def func(self, caster, target=None):
+
+        hit_result, damage_values = COMBAT.resolve_attack(attacker=caster, defender=target, attack=self)
+        if hit_result and DamageTypes.FIRE in damage_values and damage_values[DamageTypes.FIRE] > 0:
+            # Inflict poisoning only if the poison damage is not fully resisted
+            target.add_effect(Burning,
+                              [("range", (1, 3)), ("duration", 3 * SECS_PER_TURN), ("source", self)])
 
 
 class FocusedShot(BowAbility):
@@ -47,7 +77,10 @@ class PoisonArrow(BowAbility):
 
     def get_damage(self, caster):
         damage_values = COMBAT.get_weapon_damage(caster)
-        damage_values[DamageTypes.POISON] = 5
+        try:
+            damage_values[DamageTypes.POISON] += 5
+        except KeyError:
+            damage_values[DamageTypes.POISON] = 5
         return damage_values
 
     def func(self, caster: LivingEntity, target: Object = None):
