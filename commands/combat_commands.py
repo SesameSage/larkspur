@@ -186,6 +186,57 @@ class CmdCast(MuxCommand):
             ability.cast(caster=self.caller, target=target)
 
 
+class CmdUse(MuxCommand):
+    """
+    use a usable item
+
+    Usage:
+      use <item> [= target]
+
+    An item can have various function - looking at the item may
+    provide information as to its effects. Some items can be used
+    to attack others, and as such can only be used in combat.
+    """
+
+    key = "use"
+    rhs_split = ("=", " on ")
+    help_category = "items"
+
+    def func(self):
+        """
+        This performs the actual command.
+        """
+        # Search for item in caller's inv
+        item = self.caller.search(self.lhs, candidates=self.caller.contents)
+        if not item:
+            return
+
+        # Search for target, if any is given
+        target = None
+        if self.rhs:
+            target = self.caller.search(self.rhs)
+            if not target:
+                return
+
+        # If in combat, can only use items on your turn
+        if self.caller.is_in_combat():
+            if not self.caller.is_turn():
+                self.caller.msg("You can only use items on your turn.")
+                return
+
+        if not isinstance(item, Usable):  # Object has no item_func, not usable
+            self.caller.msg("'%s' is not a usable item." % item.key.capitalize())
+            return
+
+        if isinstance(item, Consumable):  # Item has limited uses
+            if item.db.item_uses <= 0:  # Limited uses are spent
+                self.caller.msg("'%s' has no uses remaining." % item.key.capitalize())
+                return
+
+        # If everything checks out, call the use_item function
+        COMBAT.use_item(self.caller, item, target)
+
+
 # <editor-fold desc="Directions">
 # A combination of these commands and the at_pre_move override is necessary to get the combat version of the movement
 # commands to execute whether there is a valid room exit found or not.
@@ -280,57 +331,6 @@ class CmdPass(Command):
 
         self.turn_handler = self.caller.db.combat_turnhandler
         return True
-
-
-class CmdUse(MuxCommand):
-    """
-    use a usable item
-
-    Usage:
-      use <item> [= target]
-
-    An item can have various function - looking at the item may
-    provide information as to its effects. Some items can be used
-    to attack others, and as such can only be used in combat.
-    """
-
-    key = "use"
-    rhs_split = ("=", " on ")
-    help_category = "items"
-
-    def func(self):
-        """
-        This performs the actual command.
-        """
-        # Search for item in caller's inv
-        item = self.caller.search(self.lhs, candidates=self.caller.contents)
-        if not item:
-            return
-
-        # Search for target, if any is given
-        target = None
-        if self.rhs:
-            target = self.caller.search(self.rhs)
-            if not target:
-                return
-
-        # If in combat, can only use items on your turn
-        if self.caller.is_in_combat():
-            if not self.caller.is_turn():
-                self.caller.msg("You can only use items on your turn.")
-                return
-
-        if not isinstance(item, Usable):  # Object has no item_func, not usable
-            self.caller.msg("'%s' is not a usable item." % item.key.capitalize())
-            return
-
-        if isinstance(item, Consumable):  # Item has limited uses
-            if item.db.item_uses <= 0:  # Limited uses are spent
-                self.caller.msg("'%s' has no uses remaining." % item.key.capitalize())
-                return
-
-        # If everything checks out, call the use_item function
-        COMBAT.use_item(self.caller, item, target)
 
 
 class CmdCombatHelp(CmdHelp):

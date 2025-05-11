@@ -1,47 +1,4 @@
 # TODO: Update TurnHandler docs
-"""
-Simple turn-based combat system
-
-Contrib - Tim Ashley Jenkins 2017, Refactor by Griatch 2022
-
-This is a framework for a simple turn-based combat system, similar
-to those used in D&D-style tabletop role playing games. It allows
-any character to start a fight in a room, at which point initiative
-is rolled and a turn order is established. Each participant in combat
-has a limited time to decide their action for that turn (30 seconds by
-default), and combat progresses through the turn order, looping through
-the participants until the fight ends.
-
-Only simple rolls for attacking are implemented here, but this system
-is easily extensible and can be used as the foundation for implementing
-the rules from your turn-based tabletop game of choice or making your
-own battle system.
-
-To install and test, import this module's TBBasicCharacter object into
-your game's character.py module:
-
-    from evennia.contrib.game_systems.turnbattle.tb_basic import TBBasicCharacter
-
-And change your game's character typeclass to inherit from TBBasicCharacter
-instead of the default:
-
-    class Character(TBBasicCharacter):
-
-Next, import this module into your default_cmdsets.py module:
-
-    from evennia.contrib.game_systems.turnbattle import tb_basic
-
-And add the battle command set to your default command set:
-
-    #
-    # any commands you add below will overload the default ones.
-    #
-    self.add(tb_basic.BattleCmdSet())
-
-This module is meant to be heavily expanded on, so you may want to copy it
-to your game's 'world' folder and modify it there rather than importing it
-in your game and using it as-is.
-"""
 from random import randint
 
 import evennia
@@ -60,6 +17,7 @@ TURN_TIMEOUT = 30  # Time before turns automatically end, in seconds
 
 
 def start_join_fight(attacker, target, move):
+    """Start a fight if not already started, and/or add attacker and target to the fight if not already participating."""
     # Don't start a fight if the move wasn't offensive or target wasn't an enemy
     if not target:
         return

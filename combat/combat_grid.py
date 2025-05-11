@@ -190,6 +190,7 @@ class CombatGrid(Script):
         return max(abs(x1 - x2), abs(y1 - y2))
 
     def effect_at(self, x, y):
+        """Return the effect script if there is a tile effect applied to the given coordinates."""
         for effect in self.db.effects:
             if (x, y) in effect.db.tiles:
                 return effect
@@ -247,6 +248,7 @@ class CombatGrid(Script):
         return target_x, target_y
 
     def handle_move_ap(self, character):
+        """Exchanges AP for a number of steps."""
         character.db.combat_stepsleft -= 1
         if character.db.combat_stepsleft == 0:
             self.db.turn_handler.spend_action(character, 1, action_name="move")

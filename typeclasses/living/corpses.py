@@ -22,6 +22,7 @@ def make_corpse(entity):
     for item in contents:
         item.move_to(corpse, quiet=True)
 
+
 def set_to_respawn(entity):
     if not entity.db.dies:
         entity.location.msg(appearance.warning + "Tried to set an entity that knocks out to die and respawn!")

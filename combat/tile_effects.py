@@ -2,6 +2,15 @@ from combat.effects import EffectScript, DurationEffect
 
 
 def get_tiles(entity, center: tuple, length, width):
+    """
+    Returns a list of the tiles covered by an ability with the given length, width, and center coordinate.
+
+    :param entity: The entity who cast the area, to calculate which dimensions length and width apply to.
+    :param center: The center tile the entity cast the ability on.
+    :param length: Dimension of the area in the direction the caster is looking.
+    :param width: Dimension of the area left/right of the entity's perspective
+    :return: List of coordinates affected
+    """
     def orient_to_entity():
         delta_x = center[0] - entity.db.combat_x
         delta_y = center[1] - entity.db.combat_y
