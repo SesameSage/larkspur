@@ -62,11 +62,14 @@ class CombatHandler:
                 enemies.append(content)
         return enemies
 
-    def check_range(self, attacker, target, move):
-        move_range = 1 if isinstance(move, str) else move.db.range
-        if not move_range or move_range == 0:
+    def action_range(self, action):
+        return 1 if isinstance(action, str) else action.db.range
+
+    def check_range(self, attacker, target, action):
+        rng = self.action_range(action)
+        if not rng or rng == 0:
             return True
-        if attacker.is_in_combat() and attacker.db.combat_turnhandler.db.grid.distance(attacker, target) > move_range:
+        if attacker.is_in_combat() and attacker.db.combat_turnhandler.db.grid.distance(attacker, target) > rng:
             attacker.msg("Out of range!")
             return False
         else:

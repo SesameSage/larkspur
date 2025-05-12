@@ -106,7 +106,7 @@ class CombatGrid(Script):
 
         table = EvTable(border=None)
         for y in y_range:
-            row = ["|=a+|=l" + str(y) if y >= 0 else "|=l" + str(y),]
+            row = ["|=a+|=l" + str(y) if y >= 0 else "|=l" + str(y), ]
             for x in x_range:
                 occupant = self.get_obj(x, y)
                 tile_effect = self.effect_at(x, y)
@@ -181,6 +181,34 @@ class CombatGrid(Script):
 
         x, y = self.find_available_square(obj=obj)
         self.move_to(obj, x, y)
+
+    def direction_to(self, origin, target):
+        if isinstance(origin, tuple):
+            current_x, current_y = origin
+        else:
+            current_x = origin.db.combat_x
+            current_y = origin.db.combat_y
+
+        if isinstance(target, tuple):
+            target_x, target_y = target
+        else:
+            target_x, target_y = target.db.combat_x, target.db.combat_y
+
+        delta_x = target_x - current_x
+        delta_y = target_y - current_y
+        direction = ""
+
+        if delta_y > 0:
+            direction += "n"
+        elif delta_y < 0:
+            direction += "s"
+
+        if delta_x > 0:
+            direction += "e"
+        elif delta_x < 0:
+            direction += "w"
+
+        return direction
 
     def distance(self, point1, point2):
         """Returns the Chebyshev distance between the two objects or coordinate sets. This equates to the number of
@@ -295,6 +323,14 @@ class CombatGrid(Script):
             else:
                 obj.msg(self.print())
             return True
+
+    def move_toward(self, obj, target):
+        move_direction = self.direction_to(obj, target)
+
+        if move_direction:  # We have a direction, now attempt to move
+            moved = self.step(obj, move_direction)
+            if moved:
+                return move_direction
 
     def step(self, obj, direction, displace=False):
         """

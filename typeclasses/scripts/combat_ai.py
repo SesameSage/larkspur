@@ -4,6 +4,7 @@ from evennia.utils import delay
 
 from combat.abilities.abilities import Ability
 from combat.abilities.all_abilities import HEALING_ABILITIES
+from combat.combat_grid import DIRECTIONS
 from combat.combat_handler import COMBAT
 from typeclasses.inanimate.items.usables import Usable
 from typeclasses.scripts.scripts import Script
@@ -21,8 +22,7 @@ class CombatAI(Script):
         """While the entity has AP remaining, choose and perform an action."""
         if not self.check_ap():
             return
-        action = self.choose_action()
-        target = self.choose_target(action)
+        action, target = self.choose_action()
         delay(2, self.perform_action, action=action, target=target)
 
     def check_ap(self):
@@ -36,26 +36,46 @@ class CombatAI(Script):
     def choose_action(self):
         """By default, attempts to heal if below 25% HP, attempts to use offensive abilities, then defaults to
         attack."""
-        for action in [self.try_heal_below(25), self.try_offensive_abilities(), self.try_attack()]:
-            if action:
+        for choice in [self.try_heal_below(25), self.try_offensive_abilities(), self.try_attack()]:
+            if choice:
                 break
 
-        if not action:
-            action = "pass"
-        return action
+        if not choice:
+            choice = "pass"
+        return choice
 
     def choose_target(self, action):
-        """By default, chooses a random fighter on the enemy side."""
+        """By default, chooses a random fighter on the enemy side for offensive moves, or self for non-offensive."""
         entity = self.obj
+        weapon = entity.get_weapon()
 
         # TODO: May need a marker for whether items are offensive
-        if action == entity.get_weapon() or (isinstance(action, Ability) and action.db.offensive):
-            targets = []
+        # TODO: !!!Do self moves pass this?!!!
+        # Attack or offensive ability
+        if action == weapon or (isinstance(action, Ability) and action.db.offensive):
+            in_range_targets = []
+            all_enemy_targets = {}
+
             for fighter in self.obj.location.scripts.get("Combat Turn Handler")[0].db.fighters:
-                if fighter.db.hostile_to_players != self.obj.db.hostile_to_players and fighter.db.hp > 0:
-                    targets.append(fighter)
-            target = random.choice(targets)
-            return target
+                if (fighter.db.hostile_to_players != self.obj.db.hostile_to_players  # If not an ally
+                        and fighter.db.hp > 0):  # And not already downed
+
+                    distance = entity.db.combat_turnhandler.db.grid.distance(entity, fighter)
+                    rng = COMBAT.action_range(action)
+                    if distance <= rng:
+                        in_range_targets.append(fighter)
+                    else:
+                        all_enemy_targets[fighter] = distance
+
+            # Fighters in range
+            if len(in_range_targets) > 0:
+                target = random.choice(in_range_targets)
+                return target
+
+            # Fighters out of range
+            all_enemy_targets = sorted(all_enemy_targets.items(), key=lambda item: item[1])
+            return all_enemy_targets[0][0]
+
         else:
             return entity
 
@@ -70,6 +90,11 @@ class CombatAI(Script):
 
         elif isinstance(action, Usable):
             COMBAT.use_item(user=entity, item=action, target=target)
+
+        elif action in DIRECTIONS:
+            # Already moved if possible
+            entity.location.msg_contents(f"{entity.get_display_name(capital=True)} moves {action.upper()}.")
+            entity.location.msg_contents(str(entity.db.combat_turnhandler.db.grid.print()))
 
         elif action == "pass":
             entity.location.msg_contents(
@@ -102,7 +127,7 @@ class CombatAI(Script):
             for possible_action in [use_heal_ability, use_heal_item]:
                 action = possible_action(entity)
                 if action:
-                    return action
+                    return action, entity
 
         return False
 
@@ -118,7 +143,7 @@ class CombatAI(Script):
             target = self.choose_target(ability)
             if target:  # If a good target is found for this ability
                 if ability.check(caster=entity, target=self.choose_target(ability)):
-                    return ability
+                    return ability, target
                 else:
                     offensive_abilities.remove(ability)
             else:
@@ -129,8 +154,11 @@ class CombatAI(Script):
     def try_attack(self):
         entity = self.obj
 
+        # Can't attack during Ceasefire
         if entity.effect_active("Ceasefire"):
             return
+
+        # Tile effects that prevent attacking
         tile_effect = entity.db.combat_turnhandler.db.grid.effect_at(entity.db.combat_x, entity.db.combat_y)
         if tile_effect:
             if tile_effect.db.effect_key == "Swarm":
@@ -138,5 +166,14 @@ class CombatAI(Script):
 
         weapon = entity.get_weapon()
         target = self.choose_target(weapon)
+
+        # In range? Move toward if not
+        grid = entity.db.combat_turnhandler.db.grid
+        if grid.distance(entity, target) > COMBAT.action_range(weapon):
+            direction_moved = grid.move_toward(entity, target)
+            if direction_moved:
+                return direction_moved, target
+
+        # Enough AP?
         if target and entity.db.combat_ap >= entity.ap_to_attack():
             return weapon

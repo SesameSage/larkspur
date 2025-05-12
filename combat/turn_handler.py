@@ -16,13 +16,13 @@ from typeclasses.scripts.scripts import Script
 TURN_TIMEOUT = 30  # Time before turns automatically end, in seconds
 
 
-def start_join_fight(attacker, target, move):
+def start_join_fight(attacker, target, action):
     """Start a fight if not already started, and/or add attacker and target to the fight if not already participating."""
     # Don't start a fight if the move wasn't offensive or target wasn't an enemy
     if not target:
         return
-    if not isinstance(move, str) and move.attributes.has("cooldown"):
-        if not move.db.offensive:
+    if not isinstance(action, str) and action.attributes.has("cooldown"):
+        if not action.db.offensive:
             return
     if not isinstance(target, tuple) and attacker.db.hostile_to_players == target.db.hostile_to_players:
         return
@@ -32,10 +32,7 @@ def start_join_fight(attacker, target, move):
         if here.db.combat_turnhandler:
             here.db.combat_turnhandler.join_fight(attacker)
         else:
-            if isinstance(move, str):
-                rng = 1
-            else:
-                rng = move.db.range
+            rng = COMBAT.action_range(action)
             create_script(typeclass=TurnHandler, obj=here,
                           attributes=[("starter", attacker), ("start_target", target),
                                       ("starter_distance", rng if rng < 8 else 8)])
