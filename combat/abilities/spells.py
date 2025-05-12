@@ -15,4 +15,4 @@ class SustainedSpell(SustainedAbility, Spell):
 
 class TileSpell(TileAbility):
     def color(self):
-        Spell.color(self)
+        return Spell.color(self)

@@ -52,7 +52,7 @@ class Curse(Spell):
             caster.location.msg_contents(f"{target.get_display_name(capital=True)} wards off the curse!")
             return True
         else:
-            attributes = [("effect_key", "Cursed"), ("duration", 2 * SECS_PER_TURN), ("amount", spirit)]
+            attributes = [("effect_key", "Cursed"), ("duration", 4 * SECS_PER_TURN), ("amount", spirit), ("source", self)]
             target.add_effect(typeclass=TimedStatMod, attributes=attributes)
         return True
 
