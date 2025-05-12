@@ -292,9 +292,9 @@ class CombatHandler:
                     msg = msg + ", "
                 # Add damage amount and type to message
                 type_name = " " + damage_type.get_display_name() if damage_type else ""
-                msg = msg + f"{dmg_color(attacker, defender)}{damage_values[damage_type]}{type_name}|n"
+                msg = msg + f"{dmg_color(attacker)}{damage_values[damage_type]}{type_name}|n"
             # End with " damage!"
-            msg = msg + f"{dmg_color(attacker, defender)} damage!|n"
+            msg = msg + f"{dmg_color(attacker)} damage!|n"
             attacker.location.msg_contents(msg)
 
         else:  # No damage dealt

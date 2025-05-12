@@ -257,7 +257,7 @@ class DamageOverTime(PerSecEffect):
         """Apply the damages."""
         if in_combat:
             self.obj.location.msg_contents(f"{self.obj.get_display_name(capital=True)} "
-                                           f"takes {appearance.dmg_color(None, self.obj)}{amount} damage|n from {self.color()}{self.db.effect_key}.")
+                                           f"takes {appearance.dmg_color(self.obj)}{amount} damage|n from {self.color()}{self.db.effect_key}.")
         self.obj.apply_damage({self.db.damage_type: amount})
 
 
