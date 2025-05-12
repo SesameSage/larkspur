@@ -424,7 +424,11 @@ class CmdStats(Command):
                          f"Carry weight:\n"
                          , header=f"{target.get_display_name(capital=True)}")
 
-        table.add_column(f"(Class)\n"
+        try:
+            class_name = target.db.rpg_class.name
+        except AttributeError:
+            class_name = ""
+        table.add_column(f"{class_name}\n"
                          f"|w{target.db.level}|n\n"
                          f"{appearance.hp}{target.db.hp}/{target.get_max("hp")}|n\n"
                          f"{appearance.mana}{target.db.mana}/{target.get_max("mana")}|n\n"

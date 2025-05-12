@@ -13,6 +13,7 @@ class CombatClass(Script):
 
 
 class Templar(CombatClass):
+    name = "Templar"
     equipment_types = [Shield, Sword, Greatsword, Handaxe, Mace]
     level_to_attributes = {1: [("Constitution", 1), ("Strength", 1)],
                            2: [("Wisdom", 1)],
@@ -23,6 +24,7 @@ class Templar(CombatClass):
 
 
 class Warden(CombatClass):
+    name = "Warden"
     equipment_types = [Shield, Javelin, Crossbow]
     level_to_attributes = {1: [("Strength", 1), ("Dexterity", 1)],
                            2: [("Perception", 1), ("Strength", 1)],
@@ -33,6 +35,7 @@ class Warden(CombatClass):
 
 
 class Gladiator(CombatClass):
+    name = "Gladiator"
     equipment_types = [Shield, Greatsword, Greataxe, Warhammer]
     level_to_attributes = {1: [("Strength", 1), ("Constitution", 1)],
                            2: [("Strength", 1)],
@@ -43,6 +46,7 @@ class Gladiator(CombatClass):
 
 
 class Assassin(CombatClass):
+    name = "Assassin"
     equipment_types = [Sword, Handaxe, Dagger, Blowgun]
     level_to_attributes = {1: [("Dexterity", 1), ("Perception", 1)],
                            2: [("Intelligence", 1)],
@@ -53,6 +57,7 @@ class Assassin(CombatClass):
 
 
 class Ranger(CombatClass):
+    name = "Ranger"
     equipment_types = [Blowgun, Bow, Crossbow]
     level_to_attributes = {1: [("Perception", 1), ("Dexterity", 1)],
                            2: [("Dexterity", 1), ("Intelligence", 1)],
@@ -63,6 +68,7 @@ class Ranger(CombatClass):
 
 
 class Monk(CombatClass):
+    name = "Monk"
     equipment_types = [Dagger, Quarterstaff]
     level_to_attributes = {1: [("Dexterity", 1), ("Wisdom", 1)],
                            2: [("Constitution", 1)],
@@ -74,6 +80,7 @@ class Monk(CombatClass):
 
 
 class Sorcerer(CombatClass):
+    name = "Sorcerer"
     equipment_types = [Staff, Wand]
     level_to_attributes = {1: [("Spirit", 1), ("Wisdom", 1)],
                            2: [("Spirit", 1), ("Wisdom", 1)],
@@ -84,6 +91,7 @@ class Sorcerer(CombatClass):
 
 
 class Cleric(CombatClass):
+    name = "Cleric"
     equipment_types = [Staff]
     level_to_attributes = {1: [("Spirit", 1), ("Wisdom", 1)],
                            2: [("Spirit", 1)],
@@ -94,6 +102,7 @@ class Cleric(CombatClass):
 
 
 class Druid(CombatClass):
+    name = "Druid"
     class_desc = "Druids shapeshift into other natural forms to see the unseen, reach the unreachable, take"
     " advantage of the natural environment, and choose on-the-spot from a versatile array of combat strategies."
     " \n\nThe most important recommended attributes for a druid are wisdom, intelligence, and spirit."
@@ -107,6 +116,7 @@ class Druid(CombatClass):
 
 
 class Witch(CombatClass):
+    name = "Witch"
     equipment_types = [Wand, Dagger]
     level_to_attributes = {1: [("Wisdom", 1), ("Spirit", 1)],
                            2: [("Perception", 1)],
