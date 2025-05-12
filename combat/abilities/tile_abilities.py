@@ -7,8 +7,6 @@ from combat.effects import DamageTypes
 from combat.tile_effects import DurationTileEffect, get_tiles, DamagingTile
 
 
-# TODO: Why do these show up in inventory?
-
 class Swarm(TileAbility):
     desc = ("Call insects to swarm on the battlefield, preventing anyone caught in the swarm from attacking or using "
             "abilities.")

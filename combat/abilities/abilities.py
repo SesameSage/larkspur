@@ -190,6 +190,7 @@ class Ability(Object):
 
 class TileAbility(Ability):
     def at_object_creation(self):
+        super().at_object_creation()
         self.db.targeted = True
         self.db.targets_tile = True
         self.db.must_target_entity = False
