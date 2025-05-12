@@ -65,7 +65,7 @@ class DurationTileEffect(TileEffect, DurationEffect):
     pass
 
 
-class TileDamage(TileEffect):
+class TileDamage(DurationTileEffect):
 
     def at_script_creation(self):
         super().at_script_creation()
