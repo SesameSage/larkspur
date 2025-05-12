@@ -1,3 +1,4 @@
+from evennia.utils import inherits_from
 from evennia.utils.evtable import EvTable
 
 from server import appearance
@@ -52,6 +53,12 @@ class CombatGrid(Script):
             else:
                 pass  # When/if any non-entity objects are able to be placed in the grid
             self.set_coords(obj, x, y)
+
+    def at_script_delete(self):
+        for fighter in self.db.turn_handler.db.fighters:
+            for script in fighter.scripts.all():
+                if inherits_from(script, "combat.tile_effects.TileEffect"):
+                    script.delete()
 
     def set_coords(self, obj, x, y):
         """
