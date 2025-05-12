@@ -77,3 +77,4 @@ class Thistle(TileAbility):
         script = create_script(typeclass=DamagingTile, key=self.key, obj=caster, attributes=attributes)
         script.pre_effect_add()
         grid.db.effects.append(script)
+
