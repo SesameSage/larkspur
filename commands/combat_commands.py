@@ -123,7 +123,7 @@ class CmdCast(MuxCommand):
     If a target is required, it must be provided.
     """
     key = "cast"
-    rhs_split = ("=", " on ")
+    rhs_split = ("=", " on ", " at ")
     aliases = ["cas", "ca", "c"]
     help_category = "combat"
 
@@ -167,7 +167,7 @@ class CmdCast(MuxCommand):
         # Find ability/spell by name
         valid_castables = []
         for ability in self.caller.db.abilities:
-            if ability.key.lower().startswith(ability_string):
+            if ability.key.lower().startswith(ability_string.lower()):
                 valid_castables.append(ability)
         if len(valid_castables) == 0:
             self.caller.msg("No valid abilities found for " + ability_string)
