@@ -224,6 +224,7 @@ class CombatGrid(Script):
 
         return max(abs(x1 - x2), abs(y1 - y2))
 
+    # TODO: Apply nultiple effects on tile
     def effect_at(self, x, y):
         """Return the effect script if there is a tile effect applied to the given coordinates."""
         for effect in self.db.effects:

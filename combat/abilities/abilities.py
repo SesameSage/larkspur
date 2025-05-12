@@ -43,6 +43,12 @@ class Ability(Object):
             caster.msg("Can't use offensive abilities during a ceasefire!")
             return False
 
+        tile_effect = caster.db.combat_turnhandler.db.grid.effect_at(caster.db.combat_x, caster.db.combat_y)
+        if caster.effect_active("Magic Suppressed") or (tile_effect and tile_effect.db.effect_key == "Magic Suppression"):
+            if inherits_from(type(self), "combat.abilities.spells.Spell"):
+                caster.msg("Can't use magic inside a suppression zone!")
+                return False
+
         # Mana or stamina cost
         for cost in self.db.cost:
             stat, amt = cost

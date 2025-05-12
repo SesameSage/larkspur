@@ -13,6 +13,6 @@ class SustainedSpell(SustainedAbility, Spell):
     pass
 
 
-class TileSpell(TileAbility):
+class TileSpell(TileAbility, Spell):
     def color(self):
         return Spell.color(self)
