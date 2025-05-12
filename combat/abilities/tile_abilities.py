@@ -4,7 +4,7 @@ from evennia.utils.create import create_script
 from combat.abilities.abilities import TileAbility
 from combat.combat_constants import SECS_PER_TURN
 from combat.effects import DamageTypes
-from combat.tile_effects import DurationTileEffect, get_tiles, TileDamage
+from combat.tile_effects import DurationTileEffect, get_tiles, DamagingTile
 
 
 class Swarm(TileAbility):
@@ -34,7 +34,7 @@ class Swarm(TileAbility):
             ("tiles", get_tiles(entity=caster, center=target, length=self.db.length, width=self.db.width)))
 
         grid = caster.db.combat_turnhandler.db.grid
-        script = create_script(typeclass=DurationTileEffect, key=self.key, obj=caster, attributes=self.db.attributes)
+        script = create_script(typeclass=DurationTileEffect, key=self.key, obj=caster, attributes=attributes)
         script.pre_effect_add()
         grid.db.effects.append(script)
 
@@ -72,7 +72,7 @@ class Thistle(TileAbility):
         attributes = self.db.attributes + unique_attributes
 
         grid = caster.db.combat_turnhandler.db.grid
-        script = create_script(typeclass=TileDamage, key=self.key, obj=caster, attributes=attributes)
+        script = create_script(typeclass=DamagingTile, key=self.key, obj=caster, attributes=attributes)
         script.pre_effect_add()
         grid.db.effects.append(script)
 

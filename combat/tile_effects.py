@@ -1,5 +1,7 @@
 from random import randint
 
+from evennia.utils.create import create_script
+
 from combat.effects import EffectScript, DurationEffect
 from server import appearance
 
@@ -77,7 +79,7 @@ class DurationTileEffect(TileEffect, DurationEffect):
     pass
 
 
-class TileDamage(DurationTileEffect):
+class DamagingTile(DurationTileEffect):
 
     def at_script_creation(self):
         super().at_script_creation()
@@ -92,4 +94,15 @@ class TileDamage(DurationTileEffect):
         obj.location.msg_contents(f"{obj.get_display_name(capital=True)} takes {appearance.dmg_color(obj)}{dmg} "
                                   f"damage|n from {self.db.source.key}!")
         obj.apply_damage({self.db.damage_type: dmg})
+
+
+class InflictingTile(DurationTileEffect):
+    def at_script_creation(self):
+        super().at_script_creation()
+        self.db.script_type = None
+        self.db.effect_attributes = []
+        self.db.stack = False
+
+    def apply_to(self, obj):
+        obj.add_effect(typeclass=self.db.script_type, attributes=self.db.effect_attributes, stack=self.db.stack)
 
