@@ -1,4 +1,7 @@
+from random import randint
+
 from combat.effects import EffectScript, DurationEffect
+from server import appearance
 
 
 def get_tiles(entity, center: tuple, length, width):
@@ -18,6 +21,7 @@ def get_tiles(entity, center: tuple, length, width):
             x_tiles = length
             y_tiles = width
         return x_tiles, y_tiles
+
     # Single tile effects
     if width == 1 and length == 1:
         return [center]
@@ -59,3 +63,21 @@ class TileEffect(EffectScript):
 
 class DurationTileEffect(TileEffect, DurationEffect):
     pass
+
+
+class TileDamage(TileEffect):
+
+    def at_script_creation(self):
+        super().at_script_creation()
+        self.db.damage_type = None
+        self.db.range = ()
+
+    def apply_to(self, obj):
+        if not obj.attributes.has("hp"):
+            return
+        rng = self.db.range
+        dmg = randint(rng[0], rng[1])
+        obj.location.msg_contents(f"{obj.get_display_name(capital=True)} takes {appearance.dmg_color(obj)}{dmg} "
+                                  f"damage|n from {self.db.source.key}!")
+        obj.apply_damage({self.db.damage_type: dmg})
+
