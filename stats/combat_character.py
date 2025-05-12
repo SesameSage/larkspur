@@ -433,6 +433,10 @@ class CombatEntity(EquipmentEntity):
                     script.apply(in_combat=self.is_in_combat())
                 except TypeError:
                     pass
+        if self.is_in_combat():
+            tile_effect = self.db.combat_turnhandler.db.grid.effect_at(self.db.combat_x, self.db.combat_y)
+            if tile_effect:
+                tile_effect.apply_to(self)
 
     # </editor-fold>
 
