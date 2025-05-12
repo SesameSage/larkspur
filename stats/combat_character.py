@@ -227,7 +227,9 @@ class CombatEntity(EquipmentEntity):
         if effect_ev > 0 and not quiet:
             self.location.more_info(f"{"+" if effect_ev > 0 else ""}{effect_ev} evasion from effect ({self.name})")
 
-        return self.db.char_evasion + weight_ev + eq_ev + effect_ev
+        total_ev = self.db.char_evasion + weight_ev + eq_ev + effect_ev
+        total_ev = 0 if total_ev < 0 else total_ev
+        return total_ev
 
     def get_resistance(self, damage_type=None, type_only=False, quiet=False):
         """Returns the current effective resistance for this entity, including equipment and effects."""
