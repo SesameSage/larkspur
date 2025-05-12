@@ -41,7 +41,7 @@ class CombatAI(Script):
                 break
 
         if not choice:
-            choice = "pass"
+            choice = "pass", None
         return choice
 
     def choose_target(self, action):
@@ -176,4 +176,4 @@ class CombatAI(Script):
 
         # Enough AP?
         if target and entity.db.combat_ap >= entity.ap_to_attack():
-            return weapon
+            return weapon, target
