@@ -94,7 +94,6 @@ class CombatAI(Script):
         elif action in DIRECTIONS:
             # Already moved if possible
             entity.location.msg_contents(f"{entity.get_display_name(capital=True)} moves {action.upper()}.")
-            entity.location.msg_contents(str(entity.db.combat_turnhandler.db.grid.print()))
 
         elif action == "pass":
             entity.location.msg_contents(
