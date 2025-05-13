@@ -483,6 +483,8 @@ class CombatEntity(EquipmentEntity):
         # A combination of this override and the direction commands is necessary to get the combat version of the
         # movement commands to execute whether there is a valid room exit found or not.
         exts = [ext for ext in self.location.exits if ext.destination == destination]
+        if not exts:
+            return True
         ext = exts[0]
         if self.is_in_combat():
             self.db.combat_turnhandler.db.grid.step(obj=self, direction=ext.key[0])
