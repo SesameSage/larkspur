@@ -9,55 +9,6 @@ from server import appearance
 from typeclasses.inanimate.items.usables import Usable, Consumable
 
 
-class CmdFight(Command):
-    """
-    start a fight in this location
-
-    Usage:
-      fight
-
-    When you start a fight, everyone in the room who is able to
-    fight is added to combat, and a turn order is randomly rolled.
-    When it's your turn, you can attack other characters.
-    """
-
-    key = "fight"
-    help_category = "combat"
-
-    def func(self):
-        """
-        This performs the actual command.
-        """
-        here = self.caller.location
-        fighters = []
-
-        if not self.caller.db.hp:  # If you don't have any hp
-            self.caller.msg("You can't start a fight if you've been defeated!")
-            return
-        if self.caller.is_in_combat():  # Already in a fight
-            self.caller.msg("You're already in a fight!")
-            return
-
-        something_hostile_here = False
-        for thing in here.filter_visible(here.contents, self.caller):
-            if thing.db.HP:
-                fighters.append(thing)
-                if thing.db.hostile_to_players != self.caller.db.hostile_to_players:
-                    something_hostile_here = True
-        if len(fighters) <= 1 or not something_hostile_here:  # If you're the only fighter, or none are hostile
-            self.caller.msg("There's nobody here to fight!")
-            return
-
-        if here.db.combat_turnhandler:  # If there's already a fight going on...
-            here.msg_contents("%s joins the fight!" % self.caller.get_display_name(capital=True))
-            here.db.combat_turnhandler.join_fight(self.caller)  # Join the fight!
-            return
-
-        here.msg_contents("%s starts a fight!" % self.caller.get_display_name(capital=True))
-        # Add a turn handler script to the room, which starts combat.
-        create_script(typeclass=TurnHandler, obj=here, attributes=[("starter", self.caller)])
-
-
 class CmdAttack(Command):
     """
     attack another entity
