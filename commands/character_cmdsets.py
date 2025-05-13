@@ -1,4 +1,4 @@
-from commands.info_commands import CmdMoreInfo, CmdHere
+from commands.info_commands import CmdMoreInfo, CmdHere, MyCmdHelp
 from commands.permissions_cmdsets import BuildingCmdSet
 from commands.refiled_cmds import *
 from commands.stats_commands import CmdClasses, CmdLearn, CmdSpells, StatsCmdSet
@@ -18,6 +18,7 @@ class PlayerCmdSet(CmdSet):
         self.add(ContainerCmdSet)
         self.add(StatsCmdSet)
 
+        self.add(MyCmdHelp)
         self.add(CmdMoreInfo)
         self.add(CmdHere)
         self.add(CmdClasses)
