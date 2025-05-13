@@ -476,6 +476,16 @@ class CmdStats(Command):
 
 
 class CmdEffects(Command):
+    """
+        show active effects
+
+        Usage:
+          effects
+          effects <entity>
+          eff
+
+        Show all effects (such as poisoned, regenerating, +Damage, etc.) currently active on you or a target entity.
+        """
     key = "effects"
     aliases = "effect", "eff", "ef"
     help_category = "character"
@@ -508,6 +518,17 @@ class CmdEffects(Command):
 
 
 class CmdAP(Command):
+    """
+        show current action points
+
+        Usage:
+          ap
+          ap <entity>
+
+        Get a combat entity's current AP.
+        Action points (AP) are replenished every turn in battle and spent on actions like moving, attacking, using
+        items, and casting spells.
+        """
     key = "ap"
     help_category = "character"
 
@@ -536,6 +557,14 @@ class CmdAP(Command):
 
 
 class CmdXP(Command):
+    """
+        show current XP and next goal
+
+        Usage:
+          xp
+
+        Show how much experience you have, and how much you need to gain before your next level-up.
+        """
     key = "xp"
     help_category = "character"
 
@@ -556,6 +585,17 @@ class CmdXP(Command):
 
 
 class CmdLevelUp(Command):
+    """
+        increase character level if able
+
+        Usage:
+          level up
+          level
+          lev
+
+        If you have enough experience, you can increase your character's experience level. Some of your stats will
+        improve automatically, and others can be increased by spending points awarded on level-up.
+        """
     key = "level up"
     aliases = "level", "lev"
     help_category = "character"

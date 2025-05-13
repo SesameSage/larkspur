@@ -219,6 +219,7 @@ class MyCmdHelp(CmdHelp):
         )
         self.msg_help(output)
 
+
 class CmdMoreInfo(Command):
     """
         toggle seeing real-time combat calculations
