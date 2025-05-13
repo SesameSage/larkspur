@@ -117,7 +117,7 @@ class CombatGrid(Script):
                     else:
                         tile_color = tile_effect.db.tile_color
                 else:
-                    tile_color = ""
+                    tile_color = "|=h"
                 if occupant == 0 or occupant is None:
                     row.append(f"{tile_color}[ ]|n")
                 else:
