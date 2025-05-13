@@ -36,7 +36,8 @@ class MyCmdHelp(CmdHelp):
 
             for key, cmd in cmd_help_topics.items():
                 key = self.strip_cmd_prefix(key, key_and_aliases)
-                cmd_help_by_category[cmd.help_category].append(key)
+                if not cmd.help_category == "":
+                    cmd_help_by_category[cmd.help_category].append(key)
             for key, entry in file_db_help_topics.items():
                 file_db_help_by_category[entry.help_category].append(key)
 
