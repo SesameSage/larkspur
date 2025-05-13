@@ -52,6 +52,8 @@ class EffectScript(Script):
         self.obj.db.effects[self.db.effect_key] = {"source": self.db.source}
         if self.db.damage_type:
             self.obj.db.effects[self.db.effect_key]["damage_type"] = self.db.damage_type
+        if self.db.amount:
+            self.obj.db.effects[self.db.effect_key]["amount"] = self.db.amount
 
     def at_script_delete(self):
         # Remove entry from object's effects attributes, if still present

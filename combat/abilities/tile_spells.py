@@ -47,6 +47,42 @@ class AccursedGround(TileSpell):
         grid.db.effects.append(script)
 
 
+class GravityField(TileSpell):
+    key = "Gravity Field"
+    desc = "Create a high-gravity bubble that hinders strength."
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.offensive = True
+        self.db.range = 5
+        self.db.length = 4
+        self.db.width = 4
+        self.db.duration = 5 * SECS_PER_TURN
+
+        self.db.requires = [("spirit", 3)]
+        self.db.ap_cost = 2
+        self.db.cost = [("mana", 12)]
+        self.db.cooldown = 8 * SECS_PER_TURN
+
+        self.db.tile_color = "|511"
+
+    def func(self, caster, target=None):
+        caster.location.msg_contents(f"{caster.get_display_name(capital=True)} creates a burdening gravity field to "
+                                     f"weaken strength!")
+
+        attributes = self.db.attributes
+        attributes.append(
+            ("tiles", get_tiles(entity=caster, center=target, length=self.db.length, width=self.db.width)))
+        attributes.remove(("effect_key", self.key))
+        attributes.append(("effect_key", "-Strength"))
+        attributes.append(("amount", caster.get_attr("spirit")))
+
+        grid = caster.db.combat_turnhandler.db.grid
+        script = create_script(typeclass=DurationTileEffect, key=self.key, obj=caster, attributes=attributes)
+        script.pre_effect_add()
+        grid.db.effects.append(script)
+
+
 class SuppressionField(TileSpell):
     key = "Suppression Field"
     desc = "Prevent magic spells from being cast in a target area."

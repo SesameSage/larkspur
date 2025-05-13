@@ -132,8 +132,10 @@ class CombatEntity(EquipmentEntity):
         attribute = attribute.capitalize()
         # Bonus from effects
         effect = 0
-        if attribute in self.db.effects:
-            effect = self.db.effects[attribute]["amount"]
+        if f"+{attribute}" in self.db.effects:
+            effect += self.db.effects[f"+{attribute}"]["amount"]
+        if f"-{attribute}" in self.db.effects:
+            effect -= self.db.effects[f"-{attribute}"]["amount"]
 
         return base_attr + effect
 
