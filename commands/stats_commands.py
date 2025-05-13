@@ -332,7 +332,8 @@ class CmdStamina(Command):
     def func(self):
         if self.args:  # Target given
             target = self.caller.search(
-                self.args, candidates=[content for content in self.caller.location.contents if content.db.stamina])
+                self.args,
+                candidates=[content for content in self.caller.location.contents if content.attributes.has("stamina")])
             if not target:
                 self.caller.msg(f"Can't find '{self.args}' here")
                 return
@@ -369,7 +370,8 @@ class CmdStats(Command):
             # Display base character defense, evasion, and resistance
             stat_mapping = {target.get_defense: target.db.char_defense[None] if None in target.db.char_defense else 0,
                             target.get_evasion: target.db.char_evasion,
-                            target.get_resistance: target.db.char_resistance[None] if None in target.db.char_resistance else 0}
+                            target.get_resistance: target.db.char_resistance[
+                                None] if None in target.db.char_resistance else 0}
             for stat_func in stat_mapping:
                 string = string + f"{appearance.highlight}{stat_func(quiet=True)}|n "
                 try:
@@ -402,7 +404,8 @@ class CmdStats(Command):
 
         if self.args:  # Target given
             target = self.caller.search(
-                self.args, candidates=[content for content in self.caller.location.contents if content.attributes.has("hp")])
+                self.args,
+                candidates=[content for content in self.caller.location.contents if content.attributes.has("hp")])
             if not target:
                 self.caller.msg(f"Can't find '{self.args}' here")
                 return
@@ -504,6 +507,34 @@ class CmdEffects(Command):
         self.caller.msg(table)
 
 
+class CmdAP(Command):
+    key = "ap"
+    help_category = "character"
+
+    def func(self):
+        if self.args:  # Target given
+            target = self.caller.search(
+                self.args, candidates=[content for content in self.caller.location.contents if content.attributes.has("hp")])
+            if not target:
+                self.caller.msg(f"Can't find '{self.args}' here")
+                return
+            if not target.attributes.has("hp"):
+                self.caller.msg(f"{target.name.capitalize()} doesn't have relevant stats!")
+                return
+
+        else:  # Show self stats
+            target = self.caller
+
+        if not target.is_in_combat():
+            if target == self.caller:
+                self.caller.msg(f"You aren't in combat!")
+            else:
+                self.caller.msg(f"{target.name.capitalize()} isn't in combat!")
+            return
+
+        self.caller.msg(f"{target.get_display_name(capital=True)} has {target.db.combat_ap} AP.")
+
+
 class CmdXP(Command):
     key = "xp"
     help_category = "character"
@@ -557,5 +588,6 @@ class StatsCmdSet(CmdSet):
         self.add(CmdStamina)
         self.add(CmdStats)
         self.add(CmdEffects)
+        self.add(CmdAP)
         self.add(CmdXP)
         self.add(CmdLevelUp)
