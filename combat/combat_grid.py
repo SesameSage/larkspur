@@ -92,10 +92,10 @@ class CombatGrid(Script):
         if not self.db.grid:
             return "Empty grid"
 
-        min_x = min([coord[0] for coord in self.db.grid])
-        max_x = max([coord[0] for coord in self.db.grid])
-        min_y = min([coord[1] for coord in self.db.grid])
-        max_y = max([coord[1] for coord in self.db.grid])
+        min_x = min([coord[0] for coord in self.db.grid if self.get_obj(*coord) != 0])
+        max_x = max([coord[0] for coord in self.db.grid if self.get_obj(*coord) != 0])
+        min_y = min([coord[1] for coord in self.db.grid if self.get_obj(*coord) != 0])
+        max_y = max([coord[1] for coord in self.db.grid if self.get_obj(*coord) != 0])
 
         y_range = range(max_y + 1, min_y - 2, -1)
         x_range = range(min_x - 1, max_x + 2)
