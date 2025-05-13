@@ -319,9 +319,7 @@ class CmdPass(Command):
             self.caller.msg("You can only do that on your turn.")
             return
 
-        self.caller.location.msg_contents(
-            "%s passes, taking no further action this turn." % self.caller.get_display_name(capital=True)
-        )
+        self.caller.location.msg_contents(f"{self.caller.get_display_name(capital=True)} passes the turn.")
         self.turn_handler.next_turn()
 
     def confirm_in_combat(self):
