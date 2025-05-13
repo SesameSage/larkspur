@@ -248,7 +248,7 @@ class DirCmd(MuxCommand):
     def func(self):
         if not self.caller.is_in_combat():
             found_exit = False
-            for ext in self.caller.location.exits():
+            for ext in self.caller.location.exits:
                 if self.key == ext.key:
                     self.caller.move_to(destination=ext, move_type="traverse")
                     found_exit = True
