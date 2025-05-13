@@ -303,7 +303,8 @@ class TurnHandler(Script):
             effects_str = ""
             effects = [script for script in fighter.scripts.all() if inherits_from(script, DurationEffect)]
             for script in effects:
-                turns_left = ((script.db.duration - script.db.seconds_passed) // SECS_PER_TURN) - 1
+                turns_left = ((script.db.duration - script.db.seconds_passed) // SECS_PER_TURN)
+                turns_left -= 1 if script.obj != character else 0
                 effects_str = effects_str + f"{script.color()}{script.db.effect_key}|n({turns_left}t)  "
 
             if effects_str != "":
