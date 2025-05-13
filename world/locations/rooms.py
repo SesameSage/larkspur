@@ -4,21 +4,13 @@ from evennia.objects.objects import DefaultRoom
 from evennia.utils import iter_to_str, is_iter, make_iter, lazy_property
 
 from server import appearance
+from server.appearance import ENVIRONMENTS_BY_TYPE
 from server.funcparser import MyFuncParser, MY_ACTOR_STANCE_CALLABLES
 from typeclasses.base.objects import Object
 from typeclasses.inanimate.fixtures import Fixture, Fountain, Well
 from typeclasses.scripts.weather import RAINING
 
 _MSG_CONTENTS_PARSER = MyFuncParser(MY_ACTOR_STANCE_CALLABLES)
-ENVIRONMENT_APPEARANCES = {
-    "grass": ["field", "meadow", "garden"],
-    "water": ["river", "ocean", "pond", "lake"],
-    "rock": ["rock", "cave"],
-    "foliage": ["forest", "woodland"],
-    "wood": ["wood room", "wood floor"],
-    "stone": ["stone room", "stone floor"]
-
-}
 
 
 class Room(Object, DefaultRoom):
@@ -72,7 +64,7 @@ class Room(Object, DefaultRoom):
             return self.zone().db.region
 
     def has_water(self):
-        if self.db.environment in ENVIRONMENT_APPEARANCES["water"]:
+        if self.db.environment in ENVIRONMENTS_BY_TYPE["water"]:
             return True
 
         if self.in_room(Fountain):
@@ -223,9 +215,9 @@ class Room(Object, DefaultRoom):
         if not self.db.environment:
             return
 
-        for i_colortype in ENVIRONMENT_APPEARANCES:
-            if self.db.environment in ENVIRONMENT_APPEARANCES[i_colortype]:
-                return appearance.environments[i_colortype]
+        for i_colortype in ENVIRONMENTS_BY_TYPE:
+            if self.db.environment in ENVIRONMENTS_BY_TYPE[i_colortype]:
+                return appearance.ENV_TYPES_APPEAR[i_colortype]
 
     # </editor-fold>
 

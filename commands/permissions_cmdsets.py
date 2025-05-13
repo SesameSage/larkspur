@@ -20,7 +20,7 @@ from typeclasses.base.objects import Object
 from world.locations.areas import Area
 from world.locations.localities import Locality
 from world.locations.regions import Region
-from world.locations.rooms import ENVIRONMENT_APPEARANCES
+from server.appearance import ENVIRONMENTS_BY_TYPE
 from world.locations.zones import Zone
 from typeclasses.scripts.weather import WEATHERS
 
@@ -603,8 +603,8 @@ class CmdEnv(MuxCommand):
         indoor_environments = ["wood room", "stone room", "cave"]
         # With no arguments, display all environment syntaxes
         if not self.lhs:
-            for environment_appearance in ENVIRONMENT_APPEARANCES:
-                self.caller.msg(f"{environment_appearance}: {ENVIRONMENT_APPEARANCES[environment_appearance]}")
+            for environment_appearance in ENVIRONMENTS_BY_TYPE:
+                self.caller.msg(f"{environment_appearance}: {ENVIRONMENTS_BY_TYPE[environment_appearance]}")
 
 
 
