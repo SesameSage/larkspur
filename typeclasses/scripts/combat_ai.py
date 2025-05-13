@@ -51,7 +51,6 @@ class CombatAI(Script):
         weapon = entity.get_weapon()
 
         # TODO: May need a marker for whether items are offensive
-        # TODO: !!!Do self moves pass this?!!!
         # Attack or offensive ability
         if action == weapon or (isinstance(action, Ability) and action.db.offensive):
             in_range_targets = []
