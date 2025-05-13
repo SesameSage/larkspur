@@ -55,7 +55,7 @@ class CombatGrid(Script):
             self.set_coords(obj, x, y)
 
     def at_script_delete(self):
-        for fighter in self.db.turn_handler.db.fighters:
+        for fighter in [obj for obj in self.db.objects if obj and obj.attributes.has("hp")]:
             for script in fighter.scripts.all():
                 if inherits_from(script, "combat.tile_effects.TileEffect"):
                     script.delete()

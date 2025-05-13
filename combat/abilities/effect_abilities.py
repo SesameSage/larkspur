@@ -10,6 +10,29 @@ from typeclasses.base.objects import Object
 from typeclasses.living.living_entities import LivingEntity
 
 
+class KneeSlash(Ability):
+    key = "Knee Slash"
+    desc = "Cripple your opponent, slowing their movement."
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.targeted = True
+        self.db.must_target_entity = True
+        self.db.range = 1
+
+        self.db.requires = [("dexterity", 1)]
+        self.db.ap_cost = 1
+        self.db.cost = [("stamina", 2)]
+        self.db.cooldown = 8 * SECS_PER_TURN
+
+    def func(self, caster, target=None):
+        caster.location.msg_contents(f"{caster.get_display_name(capital=True)} lacerates "
+                                     f"{target.get_display_name(article=True)}'s knee!")
+
+        attributes = [("effect_key", "Slowed"), ("duration", 4 * SECS_PER_TURN), ("source", self)]
+        target.add_effect(typeclass=DurationEffect, attributes=attributes)
+
+
 class NeutralizingHum(Ability):
     key = "Neutralizing Hum"
     desc = "Drain mana from all nearby opponents with this throat-singing tone."
@@ -65,7 +88,7 @@ class SolarPlexusStrike(Ability):
 
         target.location.msg_contents(f"{caster.get_display_name(capital=True)} strikes at the center of power in "
                                      f"{target.get_display_name()}'s body!")
-        attributes = [("effect_key", "-Damage"), ("amount", -5), ("duration", 4 * SECS_PER_TURN)]
+        attributes = [("effect_key", "-Damage"), ("amount", -5), ("duration", 4 * SECS_PER_TURN), ("source", self)]
         target.add_effect(typeclass=TimedStatMod, stack=True, attributes=attributes)
 
         if target.get_attr("con") < 1.25 * caster.get_attr("dex"):
@@ -102,7 +125,8 @@ class Sweep(Ability):
                 f"{target.get_display_name(capital=True)}'s quick footwork avoids {caster.get_display_name(article=True)}'s "
                 f"sweep!")
         else:
-            target.location.msg_contents(f"{caster.get_display_name(capital=True)} sweeps at {target.get_display_name()}'s legs, "
-                                         f"knocking them to the ground!")
+            target.location.msg_contents(
+                f"{caster.get_display_name(capital=True)} sweeps at {target.get_display_name()}'s legs, "
+                f"knocking them to the ground!")
             target.add_effect(KnockedDown, attributes=[("source", self)])
         return True

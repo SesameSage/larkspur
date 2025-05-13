@@ -24,7 +24,7 @@ class LivingEntity(Object, CombatEntity):
 {things}
 {footer}
     """
-        self.db.appear_string = f"{self.get_display_name(article=True).capitalize()} is here."
+        self.db.appear_string = f"{self.get_display_name(article=True, capital=True)} is here."
 
         self.db.carry_weight = BASE_CARRY_WEIGHT
         self.db.max_carry_count = BASE_CARRY_COUNT
