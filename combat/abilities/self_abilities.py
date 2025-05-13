@@ -1,7 +1,7 @@
 """Abilities used on oneself."""
 
 from combat.abilities.abilities import Ability
-from combat.effects import DurationEffect, TimedStatMod
+from combat.effects import DurationEffect, TimedStatMod, DamageTypes
 from combat.combat_constants import SECS_PER_TURN
 from typeclasses.base.objects import Object
 from typeclasses.living.living_entities import LivingEntity
@@ -74,4 +74,26 @@ class FocusMind(Ability):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} centers and focuses their mind.")
         attributes = [("effect_key", "+Accuracy"), ("amount", 20), ("duration", 3 * SECS_PER_TURN),
                       ("source", self)]
+        caster.add_effect(typeclass=TimedStatMod, attributes=attributes)
+
+
+class PoisonBlade(Ability):
+    key = "Poison Blade"
+    desc = "Coat your weapon in poison."
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.targeted = False
+        self.db.offensive = False
+        self.db.range = 0
+
+        self.db.requires = [("intelligence", 4)]
+        self.db.ap_cost = 2
+        self.db.cost = [("stamina", 8)]
+        self.db.cooldown = 8 * SECS_PER_TURN
+
+    def func(self, caster, target=None):
+        caster.location.msg_contents(f"{caster.get_display_name(capital=True)} poisons their blade!")
+        attributes = [("effect_key", "+Poison Dmg"), ("amount", caster.get_attr("int")),
+                      ("duration", 4 * SECS_PER_TURN), ("source", self)]
         caster.add_effect(typeclass=TimedStatMod, attributes=attributes)

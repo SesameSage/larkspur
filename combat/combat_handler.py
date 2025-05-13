@@ -201,7 +201,7 @@ class CombatHandler:
             Adjusted damage values to pass to the defender's get_damage_taken method.
         """
         # Apply attacker's relevant effects
-        for damage_type in damage_values:
+        for damage_type in DamageTypes:
             effect_amt = 0
             effect_keys = [f"+{damage_type.get_display_name(capital=True)} Dmg",
                            f"-{damage_type.get_display_name(capital=True)} Dmg",
@@ -214,7 +214,10 @@ class CombatHandler:
                 attacker.location.more_info(
                     f"{effect_amt}{" " + damage_type.get_display_name() if damage_type else ""} "
                     f"damage from effect on {attacker.name}")
-            damage_values[damage_type] += effect_amt
+                try:
+                    damage_values[damage_type] += effect_amt
+                except KeyError:
+                    damage_values[damage_type] = effect_amt
 
         # Apply defender's relevant effects
         if defender.effect_active("Knocked Down"):  # If defender knocked down, add 50% to damage
