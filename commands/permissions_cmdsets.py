@@ -14,6 +14,7 @@ from evennia.utils.create import create_object
 from evennia.utils.eveditor import EvEditor
 
 from combat.abilities.all_abilities import ALL_ABILITIES
+from combat.combat_constants import DIRECTION_NAMES_OPPOSITES
 from server import appearance
 from typeclasses.base.objects import Object
 from world.locations.areas import Area
@@ -252,20 +253,7 @@ class MyCmdTunnel(CmdTunnel):
     method_type = "cmd_tunnel"
 
     # store the direction, full name and its opposite
-    directions = {
-        "n": ("north", "s"),
-        "ne": ("northeast", "sw"),
-        "e": ("east", "w"),
-        "se": ("southeast", "nw"),
-        "s": ("south", "n"),
-        "sw": ("southwest", "ne"),
-        "w": ("west", "e"),
-        "nw": ("northwest", "se"),
-        "u": ("up", "d"),
-        "d": ("down", "u"),
-        "i": ("in", "o"),
-        "o": ("out", "i"),
-    }
+
 
     def func(self):
         """Implements the tunnel command"""
@@ -281,17 +269,17 @@ class MyCmdTunnel(CmdTunnel):
         # If we get a typeclass, we need to get just the exitname
         exitshort = self.lhs.split(":")[0]
 
-        if exitshort not in self.directions:
+        if exitshort not in DIRECTION_NAMES_OPPOSITES:
             string = "tunnel can only understand the following directions: %s." % ",".join(
-                sorted(self.directions.keys())
+                sorted(DIRECTION_NAMES_OPPOSITES.keys())
             )
             string += "\n(use dig for more freedom)"
             self.msg(string)
             return
 
         # retrieve all input and parse it
-        exitname, backshort = self.directions[exitshort]
-        backname = self.directions[backshort][0]
+        exitname, backshort = DIRECTION_NAMES_OPPOSITES[exitshort]
+        backname = DIRECTION_NAMES_OPPOSITES[backshort][0]
 
         backstring = ""
         if "oneway" not in self.switches:

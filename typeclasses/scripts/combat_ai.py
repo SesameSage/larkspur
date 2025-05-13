@@ -4,6 +4,7 @@ from evennia.utils import delay
 
 from combat.abilities.abilities import Ability
 from combat.abilities.all_abilities import HEALING_ABILITIES
+from combat.combat_constants import DIRECTION_NAMES_OPPOSITES
 from combat.combat_grid import DIRECTIONS
 from combat.combat_handler import COMBAT
 from typeclasses.inanimate.items.usables import Usable
@@ -93,7 +94,8 @@ class CombatAI(Script):
 
         elif action in DIRECTIONS:
             # Already moved if possible
-            entity.location.msg_contents(f"{entity.get_display_name(capital=True)} moves {action.upper()}.")
+            dirname = DIRECTION_NAMES_OPPOSITES[action][0]
+            entity.location.msg_contents(f"{entity.get_display_name(capital=True)} moves {dirname}.")
 
         elif action == "pass":
             entity.location.msg_contents(
