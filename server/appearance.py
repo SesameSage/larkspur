@@ -46,4 +46,4 @@ door = "|[210"
 
 
 def dmg_color(receiver):
-    return good_damage if receiver.db.hostile_to_players else bad_damage
+    return bad_damage if receiver.db.hostile_to_players else good_damage
