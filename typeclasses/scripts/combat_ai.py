@@ -160,10 +160,10 @@ class CombatAI(Script):
             return
 
         # Tile effects that prevent attacking
-        tile_effect = entity.db.combat_turnhandler.db.grid.effect_at(entity.db.combat_x, entity.db.combat_y)
-        if tile_effect:
-            if tile_effect.db.effect_key == "Swarm":
-                return
+        tile_effects = [eff.db.effect_key for eff in
+                        entity.db.combat_turnhandler.db.grid.effects_at(entity.db.combat_x, entity.db.combat_y)]
+        if "Swarm" in tile_effects:
+            return
 
         weapon = entity.get_weapon()
         target = self.choose_target(weapon)

@@ -108,24 +108,25 @@ class CombatGrid(Script):
         for y in y_range:
             row = ["|=a+|=l" + str(y) if y >= 0 else "|=l" + str(y), ]
             for x in x_range:
-                occupant = self.get_obj(x, y)
-                tile_effect = self.effect_at(x, y)
-                if tile_effect:
-                    if (tile_effect.attributes.has("seconds_passed")
-                            and tile_effect.db.seconds_passed >= (tile_effect.db.duration - 3)):
-                        tile_color = ""
+                # Color based on the most recent effect, if any
+                tile_effects = self.effects_at(x, y)
+                tile_color = "|=h"
+                for i, effect in enumerate(tile_effects):
+                    if (effect.attributes.has("seconds_passed")
+                            and effect.db.seconds_passed >= (effect.db.duration - 3)):
+                        continue
                     else:
-                        tile_color = tile_effect.db.tile_color
-                else:
-                    tile_color = "|=h"
+                        tile_color = effect.db.tile_color
+
+                # Draw symbol based on occupant
+                occupant = self.get_obj(x, y)
                 if occupant == 0 or occupant is None:
                     row.append(f"{tile_color}[ ]|n")
                 else:
                     row.append(f"{tile_color}[|n{occupant.combat_symbol()}{tile_color}]|n")
+
             table.add_row(*row)
-
         table.add_row("  ", *x_row)
-
         return table
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
@@ -224,12 +225,13 @@ class CombatGrid(Script):
 
         return max(abs(x1 - x2), abs(y1 - y2))
 
-    # TODO: Apply nultiple effects on tile
-    def effect_at(self, x, y):
-        """Return the effect script if there is a tile effect applied to the given coordinates."""
+    def effects_at(self, x, y):
+        """Return any tile effect scripts applied to the given coordinates."""
+        effects_here = []
         for effect in self.db.effects:
             if (x, y) in effect.db.tiles:
-                return effect
+                effects_here.append(effect)
+        return effects_here
 
     def find_available_square(self, obj=None, origin_x=None, origin_y=None, exclude=None):
         """
@@ -314,8 +316,7 @@ class CombatGrid(Script):
             return False
         else:
             self.set_coords(obj, x, y)
-            effect = self.effect_at(x, y)
-            if effect:
+            for effect in self.effects_at(x, y):
                 effect.apply_to(obj)
             if spend:
                 self.handle_move_ap(obj)
