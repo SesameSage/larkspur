@@ -100,9 +100,11 @@ class CombatAI(Script):
             entity.location.msg_contents(
                 "%s passes, taking no further action this turn." % entity.get_display_name(capital=True)
             )
+            entity.db.combat_lastaction = action
             entity.db.combat_turnhandler.next_turn()
             return  # Stop without calling take_turn
 
+        entity.db.combat_lastaction = action
         self.take_turn()
 
     def try_heal_below(self, percent_health: int):
