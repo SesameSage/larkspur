@@ -548,6 +548,12 @@ class CombatEntity(EquipmentEntity):
         else:
             pass  # Be knocked out
 
+        enemies = COMBAT.get_enemies(self)
+        for quest_hook in self.db.quest_hooks["at_defeat"]:
+            for enemy in enemies:
+                if enemy.attributes.has("quest_stages") and enemy.quests.at_stage(quest_hook):
+                    enemy.quests.advance_to(quest_hook)
+
         return True
     # </editor-fold>
     # TODO: Effect handler?

@@ -1,3 +1,5 @@
+from evennia.utils import lazy_property
+
 from commands.character_cmdsets import PlayerCmdSet
 from commands.refiled_cmds import RefiledCmdSet
 from server import appearance
@@ -6,6 +8,7 @@ from typeclasses.living.characters import Character
 from stats.stats_constants import BASE_CARRY_WEIGHT, STR_TO_CARRY_WEIGHT, BASE_CARRY_COUNT
 from typeclasses.scripts.player_scripts import LevelUpReminder
 from world.locations import rooms
+from world.quests.quest_handler import QuestHandler
 
 
 class PlayerCharacter(Character):
@@ -27,6 +30,8 @@ class PlayerCharacter(Character):
 
         self.db.carry_weight = BASE_CARRY_WEIGHT
         self.db.max_carry_count = BASE_CARRY_COUNT
+
+        self.db.kill_counters = {}
         # TODO: Story point and portal key handler
 
         if not self.attributes.has("prefs", category="ooc"):
@@ -36,6 +41,10 @@ class PlayerCharacter(Character):
         self.cmdset.add(RefiledCmdSet, persistent=True)  # Override player cmds where necessary
 
         self.update_base_stats()
+
+    @lazy_property
+    def quests(self):
+        return QuestHandler(self)
 
     # <editor-fold desc="Appearance">
     def color(self):
@@ -61,6 +70,7 @@ class PlayerCharacter(Character):
         if self.attributes.get("prefs", category="ooc")["more_info"]:
             self.msg(appearance.moreinfo + string)
 
+    # TODO: is_outdoors doesn't set on auto env set at room creation
     def at_post_move(self, source_location, move_type="move", **kwargs):
         super().at_post_move(source_location, move_type, **kwargs)
         if self.location.db.is_outdoors and not source_location.db.is_outdoors:
@@ -101,3 +111,5 @@ class PlayerCharacter(Character):
                     return False
             return True
     # </editor-fold>
+
+

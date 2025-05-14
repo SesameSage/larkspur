@@ -33,11 +33,20 @@ class Room(Object, DefaultRoom):
 
         self.db.current_weather = None
 
+        self.db.quest_hooks = {"at_object_receive": {}}
+
     def at_object_delete(self):
         # Remove this room from the area containing it
         if self.db.area:
             self.db.area.db.rooms.remove(self)
         return True
+
+    def at_object_receive(self, moved_obj, source_location, move_type="move", **kwargs):
+        super().at_object_receive(moved_obj, source_location, move_type, **kwargs)
+        for quest_hook in self.db.quest_hooks["at_object_receive"]:
+            if moved_obj.attributes.has("quest_stages") and moved_obj.quests.at_stage(quest_hook):
+                moved_obj.msg(quest_hook["msg"])
+                moved_obj.quests.advance_quest(quest_hook)
 
     # <editor-fold desc="Properties">
     @lazy_property

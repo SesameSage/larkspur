@@ -260,6 +260,8 @@ class Item(Object):
         self.db.weight = Dec(0)
         self.db.avg_value = 0.0
 
+        self.db.quest_hooks = {"at_get": {}, "at_give": {}}
+
     def color(self):
         return appearance.item
 
@@ -270,6 +272,19 @@ class Item(Object):
         table.add_row(f"Average value: {appearance.gold}{self.db.avg_value}|n")
         return table
 
+    def at_get(self, getter, **kwargs):
+        super().at_get(getter, **kwargs)
+        for quest_hook in self.db.quest_hooks["at_get"]:
+            if getter.attributes.has("quest_stages") and getter.quests.at_stage(quest_hook):
+                getter.msg(quest_hook["msg"])
+                getter.quests.advance_quest(quest_hook)
+
+    def at_give(self, giver, getter, **kwargs):
+        super().at_give(giver, getter, **kwargs)
+        for quest_hook in self.db.quest_hooks["at_give"]:
+            if giver.attributes.has("quest_stages") and giver.quests.at_stage(quest_hook):
+                getter.msg(quest_hook["msg"])
+                getter.quests.advance_quest(quest_hook)
 
 class CmdIdentify(Command):
     """

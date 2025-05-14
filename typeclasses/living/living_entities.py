@@ -29,6 +29,24 @@ class LivingEntity(Object, CombatEntity):
         self.db.carry_weight = BASE_CARRY_WEIGHT
         self.db.max_carry_count = BASE_CARRY_COUNT
 
+        self.db.quest_hooks = {"at_talk": {}, "at_defeat": {}, "at_object_receive": {}}
+
+    def at_object_receive(self, moved_obj, source_location, move_type="move", **kwargs):
+        super().at_object_receive(moved_obj, source_location, move_type, **kwargs)
+        for quest_hook in self.db.quest_hooks["at_object_receive"]:
+            if source_location.attributes.has("quest_stages") and source_location.quests.at_stage(quest_hook):
+                for line in quest_hook["spoken lines"]:
+                    self.say_to(source_location, line)
+                source_location.quests.advance_quest(quest_hook)
+
+    def at_talk(self, player):
+        for quest_hook in self.db.quest_hooks["at_talk"]:
+            if player.quests.at_stage(quest_hook):
+                for line in quest_hook["spoken_lines"]:
+                    self.say_to(player, line)
+                player.quests.advance_quest(quest_hook)
+
+
     def color(self):
         if self.db.hostile_to_players:
             return appearance.enemy
@@ -111,8 +129,9 @@ class LivingEntity(Object, CombatEntity):
             exit = exits[0]
             aliases = exit.aliases.all()
             from_direction = None
-            cardinal_opposites = {"north": "south", "south": "north", "east": "west", "west": "east", "northeast": "southwest",
-                         "northwest": "southeast", "southeast": "northwest", "southwest": "northeast"}
+            cardinal_opposites = {"north": "south", "south": "north", "east": "west", "west": "east",
+                                  "northeast": "southwest",
+                                  "northwest": "southeast", "southeast": "northwest", "southwest": "northeast"}
             if exit.name in cardinal_opposites:
                 from_direction = cardinal_opposites[exit.name]
             for alias in aliases:
@@ -197,7 +216,7 @@ class LivingEntity(Object, CombatEntity):
             exit = exits[0]
             # Is the exit in a recognized direction?
             directions = ["north", "south", "east", "west", "northeast", "northwest", "southeast", "southwest", "up",
-                         "down", "in", "out"]
+                          "down", "in", "out"]
             # Check name
             direction = exit.name if exit.name in directions else None
             # Check aliases
