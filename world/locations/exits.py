@@ -23,6 +23,7 @@ class Exit(Object, DefaultExit):
 
     """
 
+    # Overloaded to ignore fail to move rooms when we're in combat and just trying to move on battlefield grid
     def at_failed_traverse(self, traversing_object, **kwargs):
         """
         Overloads the default hook to implement a simple default error message.

@@ -34,6 +34,7 @@ class Room(Object, DefaultRoom):
         self.db.current_weather = None
 
     def at_object_delete(self):
+        # Remove this room from the area containing it
         if self.db.area:
             self.db.area.db.rooms.remove(self)
         return True
@@ -51,6 +52,7 @@ class Room(Object, DefaultRoom):
     def z(self):
         return self.db.coordinates[2]
 
+    # These methods jump up the location hierarchy tree.
     def locality(self):
         if self.db.area:
             return self.db.area.db.locality
@@ -81,6 +83,7 @@ class Room(Object, DefaultRoom):
     # </editor-fold>
 
     # <editor-fold desc="Display">
+    # Changes to order and color
     appearance_template = """
 {header}
 |350{name}{extra_name_info}|n
@@ -105,7 +108,7 @@ class Room(Object, DefaultRoom):
                 string = string + "\n" + fixture.db.desc + "|n"
         return string
 
-    # Overridden to use appear_string
+    # Overridden to use each character's appear_string
     def get_display_characters(self, looker, **kwargs):
         """
         Get the 'characters' component of the object description. Called by `return_appearance`.
@@ -212,6 +215,7 @@ class Room(Object, DefaultRoom):
         return f"|wYou see:|n {thing_names}" if thing_names else ""
 
     def room_appearance(self):
+        """Gets the dictionary containing the background, foreground, and player colors for this room's environment."""
         if not self.db.environment:
             return
 
@@ -223,6 +227,7 @@ class Room(Object, DefaultRoom):
 
     # <editor-fold desc="Messaging">
     def more_info(self, string):
+        """Prints combat calculation info to any players here if they have moreinfo enabled."""
         for thing in self.contents:
             try:
                 thing.more_info(string)
@@ -358,11 +363,13 @@ class Room(Object, DefaultRoom):
     # </editor-fold>
 
     def in_room(self, typeclass: type):
+        """Returns the first object of the given type found in this room."""
         for content in self.contents:
             if isinstance(content, typeclass):
                 return content
 
     def update_weather(self, weather):
+        """Messages characters here about the new weather."""
         self.db.current_weather = weather
         self.print_ambient(weather["start_msg"])
         if weather["effect"]:

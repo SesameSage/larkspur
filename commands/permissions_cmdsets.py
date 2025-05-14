@@ -463,15 +463,15 @@ class CmdLocations(MuxCommand):
                     case "Area":
                         # For areas only, an adjacent room should be used to fetch the locality. This is so areas can be
                         # easily set by creating them in a new, delocalized room
-                        adjacent_rooms = [obj.destination for obj in current_room.contents if obj.destination]
-                        if len(adjacent_rooms) > 1:
-                            self.caller.msg("Multiple adjacent rooms - set locality manually.")
+                        adjacent_room_localities = [obj.destination.locality() for obj in current_room.contents if obj.destination]
+                        adjacent_locality = adjacent_room_localities[0]
+                        if not all(locality == adjacent_locality for locality in adjacent_room_localities):
+                            self.caller.msg("Multiple adjacent localities - set locality manually.")
                             return
-                        locality = adjacent_rooms[0].locality()
-                        if locality:
-                            new_location.db.locality = locality
-                            locality.db.areas.append(new_location)
-                            self.caller.msg(f"Locality {locality.name} assigned to {name}.")
+                        if adjacent_locality:
+                            new_location.db.locality = adjacent_locality
+                            adjacent_locality.db.areas.append(new_location)
+                            self.caller.msg(f"Locality {adjacent_locality.name} assigned to {name}.")
                         # Start the area with the room we are in
                         current_room.db.area = new_location
                         current_room.db.area.db.rooms.append(current_room)

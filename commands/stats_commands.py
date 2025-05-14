@@ -601,15 +601,6 @@ class CmdLevelUp(Command):
     help_category = "character"
 
     def func(self):
-        """
-            gain a level and increase stats
-
-            Usage:
-              level up
-
-            When you have enough experience (XP) to increase your character's level, your character's stats will raise
-            according to your character's class and your choices after performing this command.
-            """
         caller = self.caller
         if caller.db.xp < xp_threshold(caller.db.level + 1):
             caller.msg("You do not have enough experience to level up!")

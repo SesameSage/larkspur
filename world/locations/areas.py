@@ -6,7 +6,7 @@ class Area(Script):
         self.db.recommended_level = None
         self.db.desc = ""
 
-        self.db.rooms = []  # List?
+        self.db.rooms = []
 
 
 

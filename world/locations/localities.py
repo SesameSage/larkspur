@@ -9,13 +9,3 @@ class Locality(Script):
         self.db.zone = None
         self.db.areas = []
 
-
-LOCALITIES = {
-    "Kojo Monastery": {
-        "typeclass": "typeclasses.inanimate.locations.localities.Locality",
-        "zone": "Kojo Archipelago",
-        "desc": "",
-        "recommended_level": 1,
-    }
-}
-

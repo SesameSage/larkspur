@@ -12,10 +12,8 @@ class Zone(Script):
         self.db.weathers = []
         self.db.current_weather = None
 
-    def at_first_save(self, **kwargs):
-        super().at_first_save(**kwargs)
-
     def update_weather(self, weather):
+        """Sets the current weather attribute on the zone, and runs update_weather on all rooms."""
         self.db.current_weather = weather
         for locality in self.db.localities:
             for area in locality.db.areas:
