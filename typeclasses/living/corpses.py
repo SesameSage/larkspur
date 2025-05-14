@@ -7,6 +7,11 @@ from typeclasses.scripts.item_scripts import TemporarilyHide
 
 
 def make_corpse(entity):
+    """
+    Generates a corpse of the given entity and places it in the entity's location.
+
+    :param entity: A living entity whose name and contents are copied into the corpse.
+    """
     if not entity.db.dies:
         entity.location.msg(appearance.warning + "Can't make a corpse of an entity that knocks out instead of dying!")
         return
@@ -24,6 +29,11 @@ def make_corpse(entity):
 
 
 def set_to_respawn(entity):
+    """
+    Move the entity to its home, and hide it temporarily.
+
+    :param entity: The downed entity
+    """
     if not entity.db.dies:
         entity.location.msg(appearance.warning + "Tried to set an entity that knocks out to die and respawn!")
         return

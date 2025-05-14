@@ -1,3 +1,5 @@
+"""These commands have only had their category in the help table changed from default Evennia commands."""
+
 from evennia import CmdSet
 from evennia.commands.default.account import CmdColorTest, CmdQuit, CmdSessions, CmdStyle, CmdWho, CmdPassword, CmdIC, \
     CmdOOC, CmdOption

@@ -5,6 +5,10 @@ from typeclasses.inanimate.items.equipment.weapons import Bow
 
 
 class Ability(Object):
+    """Special moves that can be cast during combat for a variety of effects. Some target enemies, some target
+    allies, some work on the caster, some target tiles on the combat grid, and some have no target at all. Those
+    with targets can be cast within a certain range. Most cost a certain amount of action points (AP), as well as
+    some mana or stamina. Most can also only be cast again after a cooldown time has passed."""
     help_category = "spells"
     desc = ""
 
