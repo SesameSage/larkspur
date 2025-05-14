@@ -1,12 +1,15 @@
 """Abilities focused on dealing damage."""
 from random import randint
 
+from evennia.utils import inherits_from
+
 from combat.abilities.abilities import Ability, BowAbility
 from combat.combat_handler import COMBAT
 from combat.effects import DamageTypes, KnockedDown, Poisoned, Burning
 from combat.combat_constants import SECS_PER_TURN
 from typeclasses.base.objects import Object
 from typeclasses.inanimate.items.equipment.apparel import Shield
+from typeclasses.inanimate.items.equipment.weapons import Weapon, TwoHanded
 from typeclasses.living.living_entities import LivingEntity
 
 
@@ -126,7 +129,7 @@ class ShieldBash(Ability):
         self.db.requires = [("strength", 4)]
 
         self.db.ap_cost = 3
-        self.db.cost = [("stamina", 20)]
+        self.db.cost = [("stamina", 17)]
         self.db.cooldown = 6 * SECS_PER_TURN
 
     def check(self, caster, target):
@@ -154,3 +157,46 @@ class ShieldBash(Ability):
             caster.location.msg_contents(f"{target.get_display_name(capital=True)} stands strong!")
         else:
             target.add_effect(KnockedDown, attributes=[("source", self)])
+
+
+class SpinningAssault(Ability):
+    key = "Spinning Assault"
+    desc = "Spin your weapon in a circle to damage all enemies adjacent to you."
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.targeted = False
+        self.db.range = 1
+
+        self.db.requires = [("strength", 3)]
+
+        self.db.ap_cost = 3
+        self.db.cost = [("stamina", 13)]
+        self.db.cooldown = 4 * SECS_PER_TURN
+
+    def check(self, caster, target):
+        if not super().check(caster, target):
+            return False
+        weapon = caster.get_weapon()
+        if not isinstance(weapon, Weapon):
+            caster.msg("You don't have a weapon for this move!")
+            return False
+        if not isinstance(weapon, TwoHanded):
+            caster.msg("You need a two-handed weapon!")
+            return False
+        return True
+
+    def func(self, caster, target=None):
+        caster.location.msg_contents(f"{caster.get_display_name(capital=True)} spins a circle with the weight of their"
+                                     f" weapon!")
+
+        # Deal half weapon damage to everyone
+        weapon_damage = COMBAT.get_weapon_damage(caster)
+        ability_damage = {}
+        for damage_type in weapon_damage:
+            ability_damage[damage_type] = weapon_damage[damage_type] // 2
+
+        turn_handler = caster.db.combat_turnhandler
+        for fighter in turn_handler.db.fighters:
+            if turn_handler.db.grid.distance(caster, fighter) == 1:
+                COMBAT.resolve_attack(attacker=caster, defender=fighter, attack=self, damage_values=ability_damage)
