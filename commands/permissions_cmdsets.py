@@ -252,9 +252,6 @@ class MyCmdTunnel(CmdTunnel):
 
     method_type = "cmd_tunnel"
 
-    # store the direction, full name and its opposite
-
-
     def func(self):
         """Implements the tunnel command"""
 
@@ -463,7 +460,8 @@ class CmdLocations(MuxCommand):
                     case "Area":
                         # For areas only, an adjacent room should be used to fetch the locality. This is so areas can be
                         # easily set by creating them in a new, delocalized room
-                        adjacent_room_localities = [obj.destination.locality() for obj in current_room.contents if obj.destination]
+                        adjacent_room_localities = [obj.destination.locality() for obj in current_room.contents if
+                                                    obj.destination]
                         adjacent_locality = adjacent_room_localities[0]
                         if not all(locality == adjacent_locality for locality in adjacent_room_localities):
                             self.caller.msg("Multiple adjacent localities - set locality manually.")
@@ -606,8 +604,6 @@ class CmdEnv(MuxCommand):
             for environment_appearance in ENVIRONMENTS_BY_TYPE:
                 self.caller.msg(f"{environment_appearance}: {ENVIRONMENTS_BY_TYPE[environment_appearance]}")
 
-
-
         # If args given, set current room's environment to the arg
         else:
             environment = self.lhs
@@ -698,6 +694,19 @@ class CmdWeather(MuxCommand):
 
 
 class CmdAppear(MuxCommand):
+    """
+        set the appearance text for this object
+
+        Usage:
+          appear <object> = <text>
+
+        Examples:
+           appear mantis = stalks nearby insects.
+           appear Attoah = watches the apprentices practice movements.
+
+        Appearance text is displayed when looking at the room the
+        character is in.
+        """
     key = "appear"
     help_category = "building"
 
@@ -718,10 +727,12 @@ class CmdAppear(MuxCommand):
             self.caller.msg("No character here found for " + character_input)
             return
 
+        # Set attribute
         character.db.appear_string = f"{character.get_display_name(article=True, capital=True)} {string_input}"
         self.caller.msg(character.db.appear_string)
 
 
+# Overridden to get help text for abilities automatically
 class MyCmdSetHelp(CmdSetHelp):
     def func(self):
         ability_input = self.lhs
