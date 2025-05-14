@@ -11,7 +11,7 @@ class QuestHandler:
         the given stage in the given quest."""
         quest = quest_hook["qid"]
         stage = quest_hook["stage"]
-        if self.data[quest] == stage:
+        if self.data.get(quest, 0) == stage:
             return True
         else:
             return False
