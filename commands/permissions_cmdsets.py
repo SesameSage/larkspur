@@ -476,8 +476,6 @@ class CmdLocations(MuxCommand):
                         current_room.db.area = new_location
                         current_room.db.area.db.rooms.append(current_room)
                         self.caller.msg(f"Current room assigned to {name} area.")
-                    # Create localities/zones while still outside of them, before stepping into a new room to create an area
-                    # (So we use current room's super)
                     case "Locality":
                         zone = current_room.zone()
                         if zone:
@@ -496,7 +494,9 @@ class CmdLocations(MuxCommand):
         elif "set" in self.switches:
             # Setting works in the other direction - ground-up
             current_room = self.caller.location
-            location_input = self.rhs
+            if not self.lhs:
+                self.caller.msg("Usage: locations/set <location>")
+            location_input = self.lhs
             script = evennia.GLOBAL_SCRIPTS.get(location_input)
             if not script:
                 self.caller.msg("No location script found for " + location_input)
