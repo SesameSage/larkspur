@@ -378,6 +378,10 @@ class CombatHandler:
             defender.apply_damage(damage_values)
 
         # Apply relevant effects
+        if (defender.attributes.has("rpg_class") and defender.db.rpg_class
+                and defender.db.rpg_class.__name__ == "Monk" and defender.db.combat_lastaction == "pass"):
+            attacker.location.msg_contents(f"{defender.get_display_name(capital=True)} counterattacks!")
+            defender.attack(attacker)
         if defender.effect_active("Retaliation"):
             effect = defender.db.effects["Retaliation"]
             retal_damage = self.get_damage_taken(attacker, {effect["damage_type"]: effect["amount"]})
