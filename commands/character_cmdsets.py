@@ -1,3 +1,4 @@
+from commands.communication_cmds import CmdTell
 from commands.info_commands import CmdMoreInfo, CmdHere, MyCmdHelp
 from commands.permissions_cmdsets import BuildingCmdSet
 from commands.refiled_cmds import *
@@ -29,3 +30,5 @@ class PlayerCmdSet(CmdSet):
         self.add(CmdIdentify)
         self.add(CmdBuy)
         self.add(CmdShop)
+
+        self.add(CmdTell)

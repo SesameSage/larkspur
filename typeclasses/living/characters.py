@@ -24,6 +24,7 @@ class Character(LivingEntity):
     def at_object_creation(self):
         super().at_object_creation()
         self.db.appear_string = f"{self.get_display_name()} is here."
+        self.db.quest_hooks = {"at_talk": {}, "at_told": {}, "at_defeat": {}, "at_object_receive": {}}
 
     def color(self):
         return appearance.character
@@ -33,6 +34,14 @@ class Character(LivingEntity):
 
     def say_to(self, character, msg):
         self.at_say(message=msg, receivers=character)
+
+    def at_object_receive(self, moved_obj, source_location, move_type="move", **kwargs):
+        super().at_object_receive(moved_obj, source_location, move_type, **kwargs)
+        for quest_hook in self.db.quest_hooks["at_object_receive"]:
+            if source_location.attributes.has("quest_stages") and source_location.quests.at_stage(quest_hook):
+                for line in quest_hook["spoken lines"]:
+                    self.say_to(source_location, line)
+                source_location.quests.advance_quest(quest_hook)
 
     def at_say(self, message, msg_self=None, msg_location=None, receivers=None, msg_receivers=None, **kwargs):
         # Overridden formatting
@@ -165,6 +174,45 @@ class Character(LivingEntity):
                 mapping=location_mapping,
             )
 
+    def at_talk(self, player):
+        """
+        If the player running the talk command is at the right quest stage for any at_talk hooks on this character, this
+        character speaks some lines, and advances the player's quest afterward.
+
+        :param player: The player running the talk command.
+        """
+        for quest_hook in self.db.quest_hooks["at_talk"]:
+            if player.quests.at_stage(quest_hook):
+                for line in quest_hook["spoken_lines"]:
+                    self.say_to(player, line)
+                player.quests.advance_quest(quest_hook)
+
+    def at_tell(self, receiver, message: str):
+        pass
+
+    def at_told(self, teller, message: str):
+        """
+        Checks any at_told quest hooks on this character that the speaking player is at the right quest stage for.
+        These quest hooks have dialogue choice 'options', usually multiple, with keywords that the player must say in
+        their message to activate that option. Each option has its own spoken lines and points to its own next quest
+        stage.
+
+        :param teller:
+        :param message:
+        :return:
+        """
+        for quest_hook in self.db.quest_hooks["at_told"]:
+            if teller.quests.at_stage(quest_hook):
+                for option in quest_hook["options"]:
+                    for keyword in option["keywords"]:
+                        if keyword not in message.split(" "):  # Keyword missing from this dialogue option
+                            continue  # Try the next option
+                        else:  # All keywords in this dialogue option present in the message
+                            for line in option["spoken lines"]:
+                                self.say_to(teller, line)
+                            teller.quests.advance_to(quest_hook["qid"], option["next_stage"])
+                            return
+
 
 class NPC(Character, TalkableNPC):
     pass
@@ -248,5 +296,3 @@ class Trainer(NPC):
 
         player.msg(f"{self.get_display_name(capital=True)} can teach:")
         player.msg(table)
-
-

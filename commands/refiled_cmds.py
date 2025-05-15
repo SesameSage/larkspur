@@ -26,6 +26,7 @@ class MyCmdChannel(CmdChannel):
 
 class MyCmdPage(CmdPage):
     help_category = "communication"
+    aliases = ()
 
 
 class MyCmdMap(CmdMap):
