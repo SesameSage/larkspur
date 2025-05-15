@@ -18,7 +18,7 @@ class CmdTell(MuxCommand):
 
         msg = self.rhs
 
-        self.caller.at_say(message=msg, msg_self=True, msg_location=f"{appearance.say}$You() $conj(tell) "
+        self.caller.at_say(message=msg, msg_self=True, msg_location=f"{self.caller.color()}$You()|n $conj(tell) "
                                                                     f"{receiver.get_display_name()}: {appearance.say}"
                                                                     + "{speech}")
         self.caller.at_tell(receiver, msg)

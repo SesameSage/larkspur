@@ -33,7 +33,8 @@ class Character(LivingEntity):
         self.at_say(message=msg, msg_self=True)
 
     def say_to(self, character, msg):
-        self.at_say(message=msg, receivers=character)
+        self.at_say(message=msg, msg_location="$You() $conj(say) to " + character.get_display_name() + ": " +
+                                              appearance.say + "{speech}")
 
     def at_object_receive(self, moved_obj, source_location, move_type="move", **kwargs):
         super().at_object_receive(moved_obj, source_location, move_type, **kwargs)
@@ -119,7 +120,7 @@ class Character(LivingEntity):
             }
             self.msg(text=(msg_self.format_map(self_mapping), {"type": msg_type}), from_obj=self)
         else:
-            msg_location = msg_location or self.color() + "$You() " + appearance.say + "$conj(say): {speech}"
+            msg_location = msg_location or self.color() + "$You()|n $conj(say): " + appearance.say + "{speech}"
             msg_receivers = msg_receivers or message
             msg_receivers = appearance.say + msg_receivers
 
