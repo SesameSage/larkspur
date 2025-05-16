@@ -973,16 +973,78 @@ class MyCmdSetHelp(CmdSetHelp):
 
 class CmdEditQuest(MuxCommand):
     key = "editquest"
+    switch_options = ("desc", "level", "objtype")
     help_category = "building"
 
     def func(self):
+        quests = all_quests()
         if not self.lhs:  # No args; display all quests
             table = EvTable("QID", "Level", "Description")
-            quests = all_quests()
             for qid in quests:
                 quest = quests[qid]
                 table.add_row(qid, quest["recommended_level"], quest["desc"])
             self.caller.msg(table)
+            return
+        else:
+            try:
+                num_input = self.lhs.split(":")
+                qid = int(num_input[0])
+                stage = None
+                if len(num_input) > 1:
+                    stage = int(num_input[1])
+            except ValueError:
+                self.caller.msg(f"Couldn't get integers from {self.lhs} (Usage: {appearance.cmd}editquest <qid>[:<stage>])")
+                return
+            if not self.rhs:
+                quest = quests[qid]
+                self.caller.msg(f"Quest #{qid}: {quest["desc"]}")
+                table = EvTable("Stages:", "Decription", "Objective")
+                stages = quest["stages"]
+                for stage_num in stages:
+                    stage = stages[stage_num]
+                    table.add_row(stage_num, stage["desc"], stage["objective_type"])
+                self.caller.msg(table)
+                return
+            else:
+                try:
+                    quest = evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]
+                except KeyError:
+                    evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid] = \
+                        {"desc": "", "recommended_level": None, "stages": {}}
+                if "desc" in self.switches:
+                    if not stage:
+                        evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["desc"] = self.rhs
+                        return
+                    else:
+                        try:
+                            evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["stages"]
+                        except KeyError:
+                            evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["stages"] = {}
+                        try:
+                            evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["stages"][stage]["desc"] = self.rhs
+                        except KeyError:
+                            evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["stages"][stage] = {"desc": self.rhs,
+                                                                                                        "objective_type":
+                                                                                                        ""}
+                        return
+                elif "level" in self.switches:
+                    try:
+                        level = int(self.rhs)
+                    except ValueError:
+                        self.caller.msg("Couldn't get an integer level from " + self.rhs)
+                    evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["recommended_level"] = level
+                    return
+                elif "objtype" in self.switches:
+                    if not stage:
+                        self.caller.msg("Must provide a quest stage to set objective type!")
+                        return
+                    try:
+                        evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["stages"][stage]["objective_type"] = (
+                            self.rhs)
+                    except KeyError:
+                        evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["stages"][stage] = \
+                            {"objective_type": self.rhs}
+                    return
 
 
 class MyCmdHome(CmdHome):
