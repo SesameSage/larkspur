@@ -12,6 +12,7 @@ from evennia.locks.lockhandler import LockException
 from evennia.utils import inherits_from, create
 from evennia.utils.create import create_object
 from evennia.utils.eveditor import EvEditor
+from evennia.utils.evtable import EvTable
 
 from combat.abilities.all_abilities import ALL_ABILITIES
 from combat.combat_constants import DIRECTION_NAMES_OPPOSITES
@@ -20,6 +21,7 @@ from typeclasses.base.objects import Object
 from world.locations.areas import Area
 from world.locations.localities import Locality
 from world.locations.regions import Region
+from world.quests.quest import all_quests
 from server.appearance import ENVIRONMENTS_BY_TYPE
 from world.locations.zones import Zone
 from typeclasses.scripts.weather import WEATHERS
@@ -254,7 +256,6 @@ class MyCmdTunnel(CmdTunnel):
 
     # store the direction, full name and its opposite
 
-
     def func(self):
         """Implements the tunnel command"""
 
@@ -463,7 +464,8 @@ class CmdLocations(MuxCommand):
                     case "Area":
                         # For areas only, an adjacent room should be used to fetch the locality. This is so areas can be
                         # easily set by creating them in a new, delocalized room
-                        adjacent_room_localities = [obj.destination.locality() for obj in current_room.contents if obj.destination]
+                        adjacent_room_localities = [obj.destination.locality() for obj in current_room.contents if
+                                                    obj.destination]
                         adjacent_locality = adjacent_room_localities[0]
                         if not all(locality == adjacent_locality for locality in adjacent_room_localities):
                             self.caller.msg("Multiple adjacent localities - set locality manually.")
@@ -969,6 +971,20 @@ class MyCmdSetHelp(CmdSetHelp):
                 self.msg(f"Error when creating topic '{topicstr}'{aliastxt}! Contact an admin.")
 
 
+class CmdEditQuest(MuxCommand):
+    key = "editquest"
+    help_category = "building"
+
+    def func(self):
+        if not self.lhs:  # No args; display all quests
+            table = EvTable("QID", "Level", "Description")
+            quests = all_quests()
+            for qid in quests:
+                quest = quests[qid]
+                table.add_row(qid, quest["recommended_level"], quest["desc"])
+            self.caller.msg(table)
+
+
 class MyCmdHome(CmdHome):
     locks = "cmd:perm(Builder)"
     help_category = "navigation"
@@ -987,3 +1003,4 @@ class BuildingCmdSet(CmdSet):
         self.add(CmdWeather)
         self.add(CmdAppear)
         self.add(MyCmdSetHelp)
+        self.add(CmdEditQuest)
