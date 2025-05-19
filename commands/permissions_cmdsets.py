@@ -598,7 +598,7 @@ class CmdEnv(MuxCommand):
         resetting wnvironments on the room the caller is standing in.
         """
     key = "env"
-    locks = "cmd:perm(locations) or perm(Builder)"
+    locks = "cmd:perm(env) or perm(Builder)"
     help_category = "building"
 
     def func(self):
@@ -636,6 +636,7 @@ class CmdWeather(MuxCommand):
         can display, add, and change these values on the current zone.
         """
     key = "weather"
+    locks = "cmd:perm(weather) or perm(Builder)"
     help_category = "building"
 
     def func(self):
@@ -701,6 +702,7 @@ class CmdWeather(MuxCommand):
 
 class CmdAppear(MuxCommand):
     key = "appear"
+    locks = "cmd:perm(appear) or perm(Builder)"
     help_category = "building"
 
     def func(self):
@@ -971,9 +973,11 @@ class MyCmdSetHelp(CmdSetHelp):
                 self.msg(f"Error when creating topic '{topicstr}'{aliastxt}! Contact an admin.")
 
 
-class CmdEditQuest(MuxCommand):
-    key = "editquest"
+class CmdQuestEdit(MuxCommand):
+    key = "questedit"
+    aliases = ("qe",)
     switch_options = ("desc", "level", "objtype")
+    locks = "cmd:perm(questedit) or perm(Builder)"
     help_category = "building"
 
     def func(self):
@@ -993,7 +997,8 @@ class CmdEditQuest(MuxCommand):
                 if len(num_input) > 1:
                     stage = int(num_input[1])
             except ValueError:
-                self.caller.msg(f"Couldn't get integers from {self.lhs} (Usage: {appearance.cmd}editquest <qid>[:<stage>])")
+                self.caller.msg(
+                    f"Couldn't get integers from {self.lhs} (Usage: {appearance.cmd}editquest <qid>[:<stage>])")
                 return
             if not self.rhs:
                 quest = quests[qid]
@@ -1023,9 +1028,10 @@ class CmdEditQuest(MuxCommand):
                         try:
                             evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["stages"][stage]["desc"] = self.rhs
                         except KeyError:
-                            evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["stages"][stage] = {"desc": self.rhs,
-                                                                                                        "objective_type":
-                                                                                                        ""}
+                            evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["stages"][stage] = {
+                                "desc": self.rhs,
+                                "objective_type":
+                                    ""}
                         return
                 elif "level" in self.switches:
                     try:
@@ -1047,6 +1053,37 @@ class CmdEditQuest(MuxCommand):
                     return
 
 
+class CmdQuestHook(MuxCommand):
+    key = "questhook"
+    aliases = ("qh",)
+    switch_options = ("add",)
+    locks = "cmd:perm(questhook) or perm(Builder)"
+    help_category = "building"
+
+    def func(self):
+        if not self.lhs:
+            self.caller.msg(f"Usage: {appearance.cmd}questhook/add <object>")
+            return
+        # Arg left of "=" is object quest hook should be attached to
+        obj_input = self.lhs
+        obj = self.caller.search(obj_input)
+        if not obj:
+            return
+
+        if "add" in self.switches:
+            if not self.rhs:
+                self.caller.msg(f"Need a hook type! Usage: {appearance.cmd}questhook/add <object> = <hook type>")
+                return
+            objective_type = self.rhs
+            if objective_type not in obj.db.quest_hooks:
+                self.caller.msg(f"{obj.key} doesn't handle quest hooks of that type. "
+                                f"Handles: {[typ for typ in obj.db.quest_hooks]}")
+                return
+            else:
+                hook = {}
+                #obj.db.quest_hooks[objective_type].append(hook)
+
+
 class MyCmdHome(CmdHome):
     locks = "cmd:perm(Builder)"
     help_category = "navigation"
@@ -1065,4 +1102,5 @@ class BuildingCmdSet(CmdSet):
         self.add(CmdWeather)
         self.add(CmdAppear)
         self.add(MyCmdSetHelp)
-        self.add(CmdEditQuest)
+        self.add(CmdQuestEdit)
+        self.add(CmdQuestHook)

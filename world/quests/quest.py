@@ -1,3 +1,34 @@
+"""
+QUEST HOOKS:
+    Items
+        at_give
+            qid
+            msg
+            next_stage
+    Characters
+        at_talk
+            qid
+            spoken lines
+            next_stage
+        at_told
+            qid
+            options
+                keywords
+                spoken lines
+                next_stage
+        at_defeat
+            qid
+            next_stage
+        at_object_receive
+            qid
+            spoken lines
+            next_stage
+    Rooms
+        at_object_receive
+            qid
+            next_stage
+"""
+
 from evennia import GLOBAL_SCRIPTS
 
 from typeclasses.scripts.scripts import Script
