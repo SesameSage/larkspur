@@ -24,7 +24,8 @@ from world.locations.areas import Area
 from world.locations.localities import Locality
 from world.locations.regions import Region
 from world.locations.zones import Zone
-from world.quests.quest import all_quests, print_quest_hooks
+from world.quests.quest import all_quests
+from world.quests.quest_hooks import get_hook_type, print_quest_hooks
 
 
 # Extended to add new room to current area unless using "delocalize" switch
@@ -1056,13 +1057,13 @@ class CmdQuestEdit(MuxCommand):
 class CmdQuestHook(MuxCommand):
     key = "questhook"
     aliases = ("qh",)
-    switch_options = ("add",)
+    switch_options = ("add", "edit")
     locks = "cmd:perm(questhook) or perm(Builder)"
     help_category = "building"
 
     def func(self):
         if not self.lhs:
-            self.caller.msg(f"Usage: {appearance.cmd}questhook/add <object> = <qid>.<stage>:<hook type>")
+            self.caller.msg(f"Must supply an object e.g. {appearance.cmd}questhook/<switch> <object> = ...")
             return
         # Arg left of "=" is object quest hook should be attached to
         obj_input = self.lhs
@@ -1073,10 +1074,13 @@ class CmdQuestHook(MuxCommand):
             self.caller.msg(f"{obj.name} doesn't handle quest hooks!")
             return
 
-        if "add" in self.switches:
-            # Right of = is QID.stage:hook i.e. = 3.1:at_give
+        # Creating or altering a quest hook
+        if self.switches:
+            error_msgs = [f"Need a QID and arg! Usage: ", f"{appearance.cmd}questhook/add <object> = <qid>:<hook type>",
+                          f"{appearance.cmd}questhook/msg <object> = <qid>:<stage>"]
             if not self.rhs:
-                self.caller.msg(f"Need a QID and hook type! Usage: {appearance.cmd}questhook/add <object> = <qid>:<hook type>")
+                for msg in error_msgs:
+                    self.caller.msg(msg)
                 return
             rhs_args = self.rhs.split(":")
             numbers = rhs_args[0].split(".")
@@ -1089,8 +1093,17 @@ class CmdQuestHook(MuxCommand):
             if len(rhs_args) < 2:
                 self.caller.msg(
                     f"Need a QID and hook type! Usage: {appearance.cmd}questhook/add <object> = <qid>.<stage>:<hook type>")
+                for msg in error_msgs:
+                    self.caller.msg(msg)
                 return
 
+        # No switch statements: display quest hooks
+        else:
+            print_quest_hooks(obj, self.caller)
+            return
+
+        if "add" in self.switches:
+            # Right of = is QID:hook i.e. = 3:at_give
             objective_type = rhs_args[1]
             if objective_type not in obj.db.quest_hooks:
                 self.caller.msg(f"{obj.key} doesn't handle quest hooks of that type. "
@@ -1100,9 +1113,10 @@ class CmdQuestHook(MuxCommand):
             obj.db.quest_hooks[objective_type][qid] = {}
             obj.db.quest_hooks[objective_type][qid][stage] = {}
 
-        # No switch statements: display quest hooks
-        else:
-            print_quest_hooks(obj, self.caller)
+        elif "edit" in self.switches:
+            pass
+
+
 
 
 class MyCmdHome(CmdHome):
