@@ -1182,9 +1182,12 @@ class CmdQuestHook(MuxCommand):
         elif "edit" in self.switches:
             hook_type = get_hook_type(obj, qid, stage)
             options = []
-            if hook_type in ["at_give", "at_defeat"] or hasattr(obj, "area") and hook_type == "at_object_receive":
+            if (hook_type in ["at_give", "at_defeat"] or
+                    inherits_from(obj, "world.locations.rooms.Room") and hook_type == "at_object_receive"):
                 options.append("msg")
-            if hook_type == "at_talk" or hasattr(obj, "hp") and hook_type == "at_object_receive":
+            if (hook_type == "at_talk" or
+                    inherits_from(obj, "typeclasses.living.living_entities.LivingEntity")
+                    and hook_type == "at_object_receive"):
                 options.append("spoken_lines")
             if hook_type == "at_told":
                 options.append("options")
