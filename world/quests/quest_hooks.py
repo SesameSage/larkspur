@@ -23,15 +23,15 @@ def print_quest_hooks(obj, caller):
         caller.msg("--------------------------------------")
 
         for qid in hooks:
-            desc = all_quests()[qid]["desc"]
-            caller.msg(f"   |wQuest #{qid} - {desc}")
+            desc = all_quests()[qid].get("desc", "")
+            caller.msg(f"|wQuest #{qid} - {desc}")
             for stage in hooks[qid]:
                 quest_hook = hooks[qid][stage]
                 try:
                     desc = all_quests()[qid]["stages"][stage]["desc"]
                     caller.msg(f"      Stage {stage}: ({desc})")
                 except KeyError:
-                    caller.msg(f"      Stage {stage}:")
+                    caller.msg(f"   Stage {stage}:")
                 for hook_attr_key in quest_hook:
                     if hook_attr_key == "qid" or hook_attr_key == "stage":
                         continue  # Already listed above
@@ -39,7 +39,7 @@ def print_quest_hooks(obj, caller):
 
                     # at_told options have nested containers
                     if hook_attr_key == "options":
-                        caller.msg(f"         options:")
+                        caller.msg(f"      options:")
                         for i, option in enumerate(value):
                             caller.msg(f"            {i}:")
                             for option_attr_key in option:
@@ -81,7 +81,3 @@ def print_quest_hooks(obj, caller):
                         caller.msg(f"      {hook_attr_key}: {value}")
 
                 caller.msg("---------------------------------")  # After each quest hook
-
-
-def set_stage_msg(obj, qid, stage, msg):
-    obj.db.quest_hooks[get_hook_type(obj, qid, stage)][qid][stage][msg] = msg

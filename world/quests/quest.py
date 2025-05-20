@@ -2,31 +2,25 @@
 QUEST HOOKS:
     Items
         at_give
-            qid
             msg
             next_stage
     Characters
         at_talk
-            qid
             spoken_lines
             next_stage
         at_told
-            qid
             options
                 keywords
                 spoken_lines
                 next_stage
         at_defeat
-            qid
             msg
             next_stage
         at_object_receive
-            qid
             spoken_lines
             next_stage
     Rooms
         at_object_receive
-            qid
             msg
             next_stage
 """

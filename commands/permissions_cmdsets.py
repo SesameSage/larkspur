@@ -987,7 +987,9 @@ class CmdQuestEdit(MuxCommand):
             table = EvTable("QID", "Level", "Description")
             for qid in quests:
                 quest = quests[qid]
-                table.add_row(qid, quest["recommended_level"], quest["desc"])
+                level = quest.get("recommended_level", "")
+                desc = quest.get("desc", "")
+                table.add_row(qid, level, desc)
             self.caller.msg(table)
             return
         else:
@@ -1009,10 +1011,10 @@ class CmdQuestEdit(MuxCommand):
                 for stage_num in stages:
                     stage = stages[stage_num]
                     try:
-                        desc = stage["desc"]
+                        stage_desc = stage["desc"]
                     except KeyError:
-                        desc = ""
-                    table.add_row(stage_num, desc, stage["objective_type"], stage["object"])
+                        stage_desc = ""
+                    table.add_row(stage_num, stage_desc, stage["objective_type"], stage["object"])
                 self.caller.msg(table)
                 return
             else:
@@ -1024,7 +1026,10 @@ class CmdQuestEdit(MuxCommand):
 
                 if "desc" in self.switches:
                     if stage is None:
-                        evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["desc"] = self.rhs
+                        try:
+                            evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["desc"] = self.rhs
+                        except KeyError:
+                            evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid] = {"desc": self.rhs}
                         return
                     else:
                         try:
@@ -1069,10 +1074,13 @@ class CmdQuestHook(MuxCommand):
             return
 
         # Creating or altering a quest hook
+        rhs_needed = True
+        if "remove" in self.switches or "edit" in self.switches:
+            rhs_needed = False
         if self.switches:
             error_msgs = [f"Need a QID and arg! Usage: ", f"{appearance.cmd}questhook/add <object> = <qid>:<hook type>",
                           f"{appearance.cmd}questhook/msg <object> = <qid>:<stage>"]
-            if not self.rhs and "remove" not in self.switches:
+            if not self.rhs and rhs_needed:
                 for msg in error_msgs:
                     self.caller.msg(msg)
                 return
@@ -1084,7 +1092,7 @@ class CmdQuestHook(MuxCommand):
             except ValueError:
                 self.caller.msg(f"Couldn't parse {numbers[0]}.{numbers[1]} as a QID.stage integer pair")
                 return
-            if len(rhs_args) < 2 and "remove" not in self.switches:
+            if len(rhs_args) < 2 and rhs_needed:
                 for msg in error_msgs:
                     self.caller.msg(msg)
                 return
@@ -1125,11 +1133,71 @@ class CmdQuestHook(MuxCommand):
             del quests[qid]["stages"][stage]
 
         elif "edit" in self.switches:
-            pass
+            hook_type = get_hook_type(obj, qid, stage)
+            options = []
+            if hook_type in ["at_give", "at_defeat"] or hasattr(obj, "area") and hook_type == "at_object_receive":
+                options.append("msg")
+            if hook_type == "at_talk" or hasattr(obj, "hp") and hook_type == "at_object_receive":
+                options.append("spoken_lines")
+            if hook_type == "at_told":
+                options.append("options")
+            if hook_type != "at_told":
+                options.append("next_stage")
 
-        # No switch statements: display quest hooks
-        else:
-            print_quest_hooks(obj, self.caller)
+            inpt = yield f"Select quest hook attribute to edit: ({str(options)})"
+            match inpt:
+                case "msg":
+                    msg = yield "Enter message:"
+                    obj.db.quest_hooks[hook_type][qid][stage]["msg"] = msg
+
+                case "next_stage":
+                    next_stage = yield "Enter next stage:"
+                    obj.db.quest_hooks[hook_type][qid][stage]["next_stage"] = next_stage
+
+                case "spoken_lines":
+                    line_inpt = yield "Write lines separated by '/':"
+                    lines = line_inpt.split("/")
+                    lines = [line.strip() for line in lines]
+                    obj.db.quest_hooks[hook_type][qid][stage]["spoken_lines"] = lines
+
+                case "options":
+                    opt_num = yield "Option number to edit:"
+                    try:
+                        opt_num = int(opt_num)
+                    except ValueError:
+                        self.caller.msg("Couldn't get an integer from " + opt_num)
+                        return
+                    try:
+                        opt_dict = obj.db.quest_hooks[hook_type][qid][stage]["options"][opt_num]
+                    except KeyError:
+                        opt_dict = {"keywords": [], "spoken_lines": [], "next_stage": None}
+                    attr = yield "Edit keywords, spoken_lines, or next_stage?:"
+                    match attr:
+                        case "keywords":
+                            keywords = yield "Enter keywords separated by comma:"
+                            words = keywords.split(",")
+                            words = [word.strip() for word in words]
+                            opt_dict["keywords"] = words
+                        case "spoken_lines":
+                            line_inpt = yield "Write lines separated by '/':"
+                            lines = line_inpt.split("/")
+                            lines = [line.strip() for line in lines]
+                            opt_dict["spoken_lines"] = lines
+                        case "next_stage":
+                            next_stage = yield "Enter next stage:"
+                            opt_dict["next_stage"] = next_stage
+                        case _:
+                            self.caller.msg("No valid option found for " + attr)
+                            return
+
+                    try:
+                        obj.db.quest_hooks[hook_type][qid][stage]["options"][opt_num] = opt_dict
+                    except KeyError:
+                        obj.db.quest_hooks[hook_type][qid][stage]["options"] = []
+                        obj.db.quest_hooks[hook_type][qid][stage]["options"][opt_num] = opt_dict
+
+                case _:
+                    self.caller.msg("No valid option found for " + inpt)
 
 
 class MyCmdHome(CmdHome):
