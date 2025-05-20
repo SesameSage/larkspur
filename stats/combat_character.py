@@ -552,6 +552,7 @@ class CombatEntity(EquipmentEntity):
         for quest_hook in self.db.quest_hooks["at_defeat"]:
             for enemy in enemies:
                 if enemy.attributes.has("quest_stages") and enemy.quests.at_stage(quest_hook):
+                    enemy.msg(quest_hook["msg"])
                     enemy.quests.advance_to(quest_hook)
 
         return True

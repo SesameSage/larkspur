@@ -18,6 +18,7 @@ QUEST HOOKS:
                 next_stage
         at_defeat
             qid
+            msg
             next_stage
         at_object_receive
             qid
@@ -26,6 +27,7 @@ QUEST HOOKS:
     Rooms
         at_object_receive
             qid
+            msg
             next_stage
 """
 
