@@ -11,7 +11,6 @@ from evennia.commands.default.muxcommand import MuxCommand
 from evennia.locks.lockhandler import LockException
 from evennia.utils import inherits_from, create
 from evennia.utils.create import create_object
-from evennia.utils.dbserialize import _SaverList
 from evennia.utils.eveditor import EvEditor
 from evennia.utils.evtable import EvTable
 
@@ -25,7 +24,7 @@ from world.locations.areas import Area
 from world.locations.localities import Locality
 from world.locations.regions import Region
 from world.locations.zones import Zone
-from world.quests.quest import all_quests
+from world.quests.quest import all_quests, print_quest_hooks
 
 
 # Extended to add new room to current area unless using "delocalize" switch
@@ -1100,49 +1099,7 @@ class CmdQuestHook(MuxCommand):
 
         # No switch statements: display quest hooks
         else:
-            for hook_type in obj.db.quest_hooks:
-                if len(obj.db.quest_hooks[hook_type]) < 1:
-                    continue
-                self.caller.msg(f"|w{hook_type} hooks:")
-                self.caller.msg("--------------------------------------")
-
-                for quest_hook in obj.db.quest_hooks[hook_type]:
-                    try:
-                        stage = quest_hook["stage"]
-                        self.caller.msg(f"   |wQuest #{quest_hook["qid"]}.{stage}")
-                    except KeyError:
-                        self.caller.msg(f"   |wQuest #{quest_hook["qid"]}")
-
-                    for hook_attr_key in quest_hook:
-                        if hook_attr_key == "qid" or hook_attr_key == "stage":
-                            continue  # Already listed above
-                        value = quest_hook[hook_attr_key]
-
-                        # at_told options have nested containers
-                        if hook_attr_key == "options":
-                            self.caller.msg(f"      options:")
-                            for i, option in enumerate(value):
-                                self.caller.msg(f"         {i}:")
-                                for option_attr_key in option:
-                                    option_attr_value = option[option_attr_key]
-                                    if isinstance(option_attr_value, _SaverList):  # Keywords and spoken lines
-                                        self.caller.msg(f"            {option_attr_key}:")
-                                        for val in option_attr_value:
-                                            self.caller.msg(f"               {appearance.say}{val}")
-                                    else:
-                                        self.caller.msg(f"            {option_attr_key}: {option_attr_value}")
-
-                        # Spoken lines are contained in a list
-                        elif hook_attr_key == "spoken lines":
-                            self.caller.msg(f"      {hook_attr_key}:")
-                            for line in value:
-                                self.caller.msg(f"         {appearance.say}{line}")
-
-                        # All other quest hook attributes without nested containers
-                        else:  #
-                            self.caller.msg(f"      {hook_attr_key}: {value}")
-
-                    self.caller.msg("---------------------------------")  # After each quest hook
+            print_quest_hooks(obj, self.caller)
 
 
 class MyCmdHome(CmdHome):
