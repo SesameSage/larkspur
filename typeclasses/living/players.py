@@ -31,8 +31,8 @@ class PlayerCharacter(Character):
         self.db.carry_weight = BASE_CARRY_WEIGHT
         self.db.max_carry_count = BASE_CARRY_COUNT
 
+        self.db.quest_stages = {}
         self.db.kill_counters = {}
-        # TODO: Story point and portal key handler
 
         if not self.attributes.has("prefs", category="ooc"):
             self.attributes.add(key="prefs", value={"more_info": False}, category="ooc")

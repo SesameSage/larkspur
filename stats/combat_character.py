@@ -7,6 +7,7 @@ from evennia.utils import inherits_from
 from combat.combat_handler import COMBAT
 from combat.effects import DurationEffect
 from combat.turn_handler import start_join_fight
+from server import appearance
 from stats.stats_constants import MAX_HP_BASE, LVL_TO_MAXHP, CON_TO_MAXHP, MAX_MANA_BASE, LVL_TO_MAXMANA, \
     SPIRIT_TO_MAXMANA, MAX_STAM_BASE, LVL_TO_MAXSTAM, STR_TO_MAXSTAM, CON_TO_DEFENSE, DEXT_TO_EVADE, WIS_TO_RESIST
 from typeclasses.inanimate.fixtures import Fireplace
@@ -58,6 +59,7 @@ class CombatEntity(EquipmentEntity):
 
         self.db.hostile_to_players = False
         self.db.dies = True
+        self.db.quest_hooks = {"at_defeat": {}}
 
         tickerhandler.add(1, self.at_tick, idstring="tick_effects")
 
@@ -549,11 +551,28 @@ class CombatEntity(EquipmentEntity):
             pass  # Be knocked out
 
         enemies = COMBAT.get_enemies(self)
+        # Quest stages tied to killing this specific entity
         for quest_hook in self.db.quest_hooks["at_defeat"]:
             for enemy in enemies:
                 if enemy.attributes.has("quest_stages") and enemy.quests.at_stage(quest_hook):
                     enemy.msg(quest_hook["msg"])
                     enemy.quests.advance_to(quest_hook)
+
+        # Quest stages tied to killing a number of enemies of a type
+        for enemy in enemies:
+            if not inherits_from(enemy, "typeclasses.living.players.PlayerCharacter"):
+                continue
+            kill_counters = enemy.db.kill_counters
+            for enemy_type in kill_counters:
+                if inherits_from(self, enemy_type):
+                    enemy.db.kill_counters[enemy_type]["killed"] += 1
+                if enemy.db.kill_counters[enemy_type]["killed"] >= kill_counters[enemy_type]["needed"]:
+                    enemy.msg(f"{appearance.notify}You have completed: Kill {kill_counters[enemy_type]["needed"]} "
+                              f"{enemy_type.__name__}!")
+                    qid = kill_counters[enemy_type]["QID"]
+                    stage = kill_counters[enemy_type]["next_stage"]
+                    enemy.quests.advance_to(qid=qid, stage=stage)
+
 
         return True
     # </editor-fold>

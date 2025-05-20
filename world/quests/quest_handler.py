@@ -1,10 +1,10 @@
 class QuestHandler:
     def __init__(self, player):
         self.player = player
-        self._save()
+        self.data = self.player.db.quest_stages
 
     def _save(self):
-        self.data = self.player.attributes.get("quest_stages", default={})
+        self.player.db.quest_stages = self.data
 
     def at_stage(self, quest_hook: dict):
         """Given a quest hook dict containing a quest id and stage number, returns true if the player is currently at
