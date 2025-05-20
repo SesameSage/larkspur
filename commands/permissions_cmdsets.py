@@ -992,14 +992,14 @@ class CmdQuestEdit(MuxCommand):
             return
         else:
             try:
-                num_input = self.lhs.split(":")
+                num_input = self.lhs.split(".")
                 qid = int(num_input[0])
                 stage = None
                 if len(num_input) > 1:
                     stage = int(num_input[1])
             except ValueError:
                 self.caller.msg(
-                    f"Couldn't get integers from {self.lhs} (Usage: {appearance.cmd}questedit <qid>[:<stage>])")
+                    f"Couldn't get integers from {self.lhs} (Usage: {appearance.cmd}questedit <qid>[.<stage>])")
                 return
             if not self.rhs:
                 quest = quests[qid]
@@ -1008,7 +1008,11 @@ class CmdQuestEdit(MuxCommand):
                 stages = quest["stages"]
                 for stage_num in stages:
                     stage = stages[stage_num]
-                    table.add_row(stage_num, stage["desc"], stage["objective_type"])
+                    try:
+                        desc = stage["desc"]
+                    except KeyError:
+                        desc = ""
+                    table.add_row(stage_num, desc, stage["objective_type"])
                 self.caller.msg(table)
                 return
             else:
@@ -1017,8 +1021,9 @@ class CmdQuestEdit(MuxCommand):
                 except KeyError:
                     evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid] = \
                         {"desc": "", "recommended_level": None, "stages": {}}
+
                 if "desc" in self.switches:
-                    if not stage:
+                    if stage is None:
                         evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["desc"] = self.rhs
                         return
                     else:
@@ -1091,11 +1096,13 @@ class CmdQuestHook(MuxCommand):
                 self.caller.msg(f"Couldn't parse {numbers[0]}.{numbers[1]} as a QID.stage integer pair")
                 return
             if len(rhs_args) < 2:
-                self.caller.msg(
-                    f"Need a QID and hook type! Usage: {appearance.cmd}questhook/add <object> = <qid>.<stage>:<hook type>")
                 for msg in error_msgs:
                     self.caller.msg(msg)
                 return
+            try:
+                qid = int(rhs_args[0])
+            except ValueError:
+                self.caller.msg(f"Couldn't get a QID integer from '{rhs_args[1]}'")
 
         # No switch statements: display quest hooks
         else:
@@ -1116,7 +1123,9 @@ class CmdQuestHook(MuxCommand):
         elif "edit" in self.switches:
             pass
 
-
+        # No switch statements: display quest hooks
+        else:
+            print_quest_hooks(obj, self.caller)
 
 
 class MyCmdHome(CmdHome):
