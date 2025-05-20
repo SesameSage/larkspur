@@ -24,7 +24,7 @@ from world.locations.areas import Area
 from world.locations.localities import Locality
 from world.locations.regions import Region
 from world.locations.zones import Zone
-from world.quests.quest import all_quests
+from world.quests.quest import all_quests, quest_desc
 from world.quests.quest_hooks import get_hook_type, print_quest_hooks
 
 
@@ -1015,7 +1015,7 @@ class CmdQuestEdit(MuxCommand):
             for qid in quests:
                 quest = quests[qid]
                 level = quest.get("recommended_level", "")
-                desc = quest.get("desc", "")
+                desc = quest_desc(qid)
                 table.add_row(qid, level, desc)
             self.caller.msg(table)
             return
@@ -1032,15 +1032,12 @@ class CmdQuestEdit(MuxCommand):
                 return
             if not self.rhs:
                 quest = quests[qid]
-                self.caller.msg(f"Quest #{qid}: {quest["desc"]}")
+                self.caller.msg(f"Quest #{qid}: {quest_desc(qid)}")
                 table = EvTable("Stages:", "Decription", "Objective", "Object")
                 stages = quest["stages"]
                 for stage_num in stages:
                     stage = stages[stage_num]
-                    try:
-                        stage_desc = stage["desc"]
-                    except KeyError:
-                        stage_desc = ""
+                    stage_desc = quest_desc(qid, stage_num)
                     table.add_row(stage_num, stage_desc, stage["objective_type"], stage["object"])
                 self.caller.msg(table)
                 return

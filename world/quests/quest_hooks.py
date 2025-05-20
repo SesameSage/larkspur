@@ -1,7 +1,7 @@
 from evennia.utils.dbserialize import _SaverList
 
 from server import appearance
-from world.quests.quest import all_quests
+from world.quests.quest import all_quests, quest_desc
 
 
 def get_hook_type(obj, qid, stage):
@@ -23,15 +23,12 @@ def print_quest_hooks(obj, caller):
         caller.msg("--------------------------------------")
 
         for qid in hooks:
-            desc = all_quests()[qid].get("desc", "")
+            desc = quest_desc(qid)
             caller.msg(f"|wQuest #{qid} - {desc}")
             for stage in hooks[qid]:
                 quest_hook = hooks[qid][stage]
-                try:
-                    desc = all_quests()[qid]["stages"][stage]["desc"]
-                    caller.msg(f"      Stage {stage}: ({desc})")
-                except KeyError:
-                    caller.msg(f"   Stage {stage}:")
+                desc = quest_desc(qid, stage)
+                caller.msg(f"      Stage {stage}: ({desc})")
                 for hook_attr_key in quest_hook:
                     if hook_attr_key == "qid" or hook_attr_key == "stage":
                         continue  # Already listed above
@@ -70,11 +67,9 @@ def print_quest_hooks(obj, caller):
 
                     # Get description of next stage
                     elif hook_attr_key == "next_stage":
-                        try:
-                            desc = all_quests()[quest_hook["qid"]]["stages"][value]["desc"]
-                            caller.msg(f"      {hook_attr_key}: {value} - {desc}")
-                        except KeyError:
-                            caller.msg(f"      {hook_attr_key}: {value}")
+                        qid = quest_hook["qid"]
+                        desc = quest_desc(qid, value)
+                        caller.msg(f"      {hook_attr_key}: {value} - {desc}")
 
                     # All other quest hook attributes
                     else:  #

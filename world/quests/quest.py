@@ -36,6 +36,13 @@ def all_quests():
     return quests
 
 
+def quest_desc(qid, stage=None):
+    if stage is not None:
+        return all_quests()[qid]["stages"][stage]["desc"]
+    else:
+        return all_quests()[qid]["desc"]
+
+
 class Quest(Script):
     def at_script_creation(self):
         super().at_script_creation()
