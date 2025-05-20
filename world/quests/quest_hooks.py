@@ -28,7 +28,7 @@ def print_quest_hooks(obj, caller):
             for stage in hooks[qid]:
                 quest_hook = hooks[qid][stage]
                 desc = quest_desc(qid, stage)
-                caller.msg(f"      Stage {stage}: ({desc})")
+                caller.msg(f"   Stage {stage}: ({desc})")
                 for hook_attr_key in quest_hook:
                     if hook_attr_key == "qid" or hook_attr_key == "stage":
                         continue  # Already listed above
@@ -52,9 +52,9 @@ def print_quest_hooks(obj, caller):
                                 elif option_attr_key == "next_stage":
                                     try:
                                         desc = all_quests()[quest_hook["qid"]]["stages"][option_attr_value]["desc"]
-                                        caller.msg(f"               {option_attr_key}: {option_attr_value} - {desc}")
+                                        caller.msg(f"                  {option_attr_key}: {option_attr_value} - {desc}")
                                     except KeyError:
-                                        caller.msg(f"            {option_attr_key}: {option_attr_value}")
+                                        caller.msg(f"               {option_attr_key}: {option_attr_value}")
 
                                 else:
                                     caller.msg(f"               {option_attr_key}: {option_attr_value}")
