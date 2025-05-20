@@ -7,9 +7,11 @@ from world.quests.quest import all_quests
 def get_hook_type(obj, qid, stage):
     quest_hooks = obj.db.quest_hooks
     for hook_type in quest_hooks:
-        for hook in quest_hooks[hook_type]:
-            if hook["qid"] == qid and hook["stage"] == stage:
-                return hook_type
+        for hook_qid in quest_hooks[hook_type]:
+            if hook_qid == qid:
+                for hook_stage in quest_hooks[hook_type][qid]:
+                    if hook_stage == stage:
+                        return hook_type
 
 
 def print_quest_hooks(obj, caller):

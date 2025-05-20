@@ -1051,7 +1051,7 @@ class CmdQuestEdit(MuxCommand):
 class CmdQuestHook(MuxCommand):
     key = "questhook"
     aliases = ("qh",)
-    switch_options = ("add", "edit")
+    switch_options = ("add", "remove", "edit")
     locks = "cmd:perm(questhook) or perm(Builder)"
     help_category = "building"
 
@@ -1072,7 +1072,7 @@ class CmdQuestHook(MuxCommand):
         if self.switches:
             error_msgs = [f"Need a QID and arg! Usage: ", f"{appearance.cmd}questhook/add <object> = <qid>:<hook type>",
                           f"{appearance.cmd}questhook/msg <object> = <qid>:<stage>"]
-            if not self.rhs:
+            if not self.rhs and "remove" not in self.switches:
                 for msg in error_msgs:
                     self.caller.msg(msg)
                 return
@@ -1084,7 +1084,7 @@ class CmdQuestHook(MuxCommand):
             except ValueError:
                 self.caller.msg(f"Couldn't parse {numbers[0]}.{numbers[1]} as a QID.stage integer pair")
                 return
-            if len(rhs_args) < 2:
+            if len(rhs_args) < 2 and "remove" not in self.switches:
                 for msg in error_msgs:
                     self.caller.msg(msg)
                 return
@@ -1107,10 +1107,22 @@ class CmdQuestHook(MuxCommand):
 
             quests = evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests
             try:
+                quests[qid]
+            except KeyError:
+                quests[qid] = {"stages": {}}
+            try:
+                quests[qid]["stages"][stage] = {}
                 quests[qid]["stages"][stage]["objective_type"] = objective_type
                 quests[qid]["stages"][stage]["object"] = obj
             except KeyError:
                 quests[qid]["stages"][stage] = {"objective_type": objective_type, "object": obj}
+
+        elif "remove" in self.switches:
+            objective_type = get_hook_type(obj, qid, stage)
+            del obj.db.quest_hooks[objective_type][qid][stage]
+            del obj.db.quest_hooks[objective_type][qid]
+            quests = evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests
+            del quests[qid]["stages"][stage]
 
         elif "edit" in self.switches:
             pass
