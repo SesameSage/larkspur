@@ -977,7 +977,7 @@ class MyCmdSetHelp(CmdSetHelp):
 class CmdQuestEdit(MuxCommand):
     key = "questedit"
     aliases = ("qe",)
-    switch_options = ("desc", "level", "objtype")
+    switch_options = ("desc", "level")
     locks = "cmd:perm(questedit) or perm(Builder)"
     help_category = "building"
 
@@ -1004,7 +1004,7 @@ class CmdQuestEdit(MuxCommand):
             if not self.rhs:
                 quest = quests[qid]
                 self.caller.msg(f"Quest #{qid}: {quest["desc"]}")
-                table = EvTable("Stages:", "Decription", "Objective")
+                table = EvTable("Stages:", "Decription", "Objective", "Object")
                 stages = quest["stages"]
                 for stage_num in stages:
                     stage = stages[stage_num]
@@ -1012,7 +1012,7 @@ class CmdQuestEdit(MuxCommand):
                         desc = stage["desc"]
                     except KeyError:
                         desc = ""
-                    table.add_row(stage_num, desc, stage["objective_type"])
+                    table.add_row(stage_num, desc, stage["objective_type"], stage["object"])
                 self.caller.msg(table)
                 return
             else:
@@ -1045,17 +1045,6 @@ class CmdQuestEdit(MuxCommand):
                     except ValueError:
                         self.caller.msg("Couldn't get an integer level from " + self.rhs)
                     evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["recommended_level"] = level
-                    return
-                elif "objtype" in self.switches:
-                    if stage is None:
-                        self.caller.msg("Must provide a quest stage to set objective type!")
-                        return
-                    try:
-                        evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["stages"][stage]["objective_type"] = (
-                            self.rhs)
-                    except KeyError:
-                        evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["stages"][stage] = \
-                            {"objective_type": self.rhs}
                     return
 
 
@@ -1099,10 +1088,6 @@ class CmdQuestHook(MuxCommand):
                 for msg in error_msgs:
                     self.caller.msg(msg)
                 return
-            try:
-                qid = int(rhs_args[0])
-            except ValueError:
-                self.caller.msg(f"Couldn't get a QID integer from '{rhs_args[1]}'")
 
         # No switch statements: display quest hooks
         else:
@@ -1119,6 +1104,13 @@ class CmdQuestHook(MuxCommand):
 
             obj.db.quest_hooks[objective_type][qid] = {}
             obj.db.quest_hooks[objective_type][qid][stage] = {}
+
+            quests = evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests
+            try:
+                quests[qid]["stages"][stage]["objective_type"] = objective_type
+                quests[qid]["stages"][stage]["object"] = obj
+            except KeyError:
+                quests[qid]["stages"][stage] = {"objective_type": objective_type, "object": obj}
 
         elif "edit" in self.switches:
             pass
