@@ -447,7 +447,7 @@ class TurnHandler(Script):
                 if fighter.attributes.has("xp"):
                     fighter.gain_xp(defeated.get_defeat_xp())
 
-        defeated.location.scripts.get("Combat Turn Handler")[0].all_defeat_check()
+        self.all_defeat_check()
 
         if defeated.is_turn():
             self.spend_action(defeated, actions="all")
