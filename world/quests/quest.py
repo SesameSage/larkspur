@@ -74,6 +74,9 @@ def print_quest_hooks(obj, caller):
                                 caller.msg(f"            {option_attr_key}:")
                                 for val in option_attr_value:
                                     caller.msg(f"               {appearance.say}{val}")
+                            elif option_attr_key == "next_stage":
+                                desc = all_quests()[quest_hook["qid"]]["stages"][option_attr_value]["desc"]
+                                caller.msg(f"            {option_attr_key}: {option_attr_value} - {desc}")
                             else:
                                 caller.msg(f"            {option_attr_key}: {option_attr_value}")
 
@@ -83,7 +86,12 @@ def print_quest_hooks(obj, caller):
                     for line in value:
                         caller.msg(f"         {appearance.say}{line}")
 
-                # All other quest hook attributes without nested containers
+                # Get description of next stage
+                elif hook_attr_key == "next_stage":
+                    desc = all_quests()[quest_hook["qid"]]["stages"][value]["desc"]
+                    caller.msg(f"      {hook_attr_key}: {value} - {desc}")
+
+                # All other quest hook attributes
                 else:  #
                     caller.msg(f"      {hook_attr_key}: {value}")
 

@@ -998,7 +998,7 @@ class CmdQuestEdit(MuxCommand):
                     stage = int(num_input[1])
             except ValueError:
                 self.caller.msg(
-                    f"Couldn't get integers from {self.lhs} (Usage: {appearance.cmd}editquest <qid>[:<stage>])")
+                    f"Couldn't get integers from {self.lhs} (Usage: {appearance.cmd}questedit <qid>[:<stage>])")
                 return
             if not self.rhs:
                 quest = quests[qid]
@@ -1041,7 +1041,7 @@ class CmdQuestEdit(MuxCommand):
                     evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["recommended_level"] = level
                     return
                 elif "objtype" in self.switches:
-                    if not stage:
+                    if stage is None:
                         self.caller.msg("Must provide a quest stage to set objective type!")
                         return
                     try:
