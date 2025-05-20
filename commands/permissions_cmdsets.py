@@ -1062,7 +1062,7 @@ class CmdQuestHook(MuxCommand):
 
     def func(self):
         if not self.lhs:
-            self.caller.msg(f"Usage: {appearance.cmd}questhook/add <object> = <qid>:<hook type>")
+            self.caller.msg(f"Usage: {appearance.cmd}questhook/add <object> = <qid>.<stage>:<hook type>")
             return
         # Arg left of "=" is object quest hook should be attached to
         obj_input = self.lhs
@@ -1074,28 +1074,31 @@ class CmdQuestHook(MuxCommand):
             return
 
         if "add" in self.switches:
-            # Right of = is QID:hook i.e. = 3:at_give
+            # Right of = is QID.stage:hook i.e. = 3.1:at_give
             if not self.rhs:
                 self.caller.msg(f"Need a QID and hook type! Usage: {appearance.cmd}questhook/add <object> = <qid>:<hook type>")
                 return
             rhs_args = self.rhs.split(":")
+            numbers = rhs_args[0].split(".")
+            try:
+                qid = int(numbers[0])
+                stage = int(numbers[1])
+            except ValueError:
+                self.caller.msg(f"Couldn't parse {numbers[0]}.{numbers[1]} as a QID.stage integer pair")
+                return
             if len(rhs_args) < 2:
                 self.caller.msg(
-                    f"Need a QID and hook type! Usage: {appearance.cmd}questhook/add <object> = <qid>:<hook type>")
+                    f"Need a QID and hook type! Usage: {appearance.cmd}questhook/add <object> = <qid>.<stage>:<hook type>")
                 return
 
-            try:
-                qid = int(rhs_args[0])
-            except ValueError:
-                self.caller.msg(f"Couldn't get a QID integer from '{rhs_args[1]}'")
             objective_type = rhs_args[1]
             if objective_type not in obj.db.quest_hooks:
                 self.caller.msg(f"{obj.key} doesn't handle quest hooks of that type. "
                                 f"Handles: {[typ for typ in obj.db.quest_hooks]}")
                 return
 
-            hook = {"qid": qid}
-            obj.db.quest_hooks[objective_type].append(hook)
+            obj.db.quest_hooks[objective_type][qid] = {}
+            obj.db.quest_hooks[objective_type][qid][stage] = {}
 
         # No switch statements: display quest hooks
         else:

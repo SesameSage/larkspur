@@ -51,55 +51,53 @@ def print_quest_hooks(obj, caller):
         caller.msg(f"|w{hook_type} hooks:")
         caller.msg("--------------------------------------")
 
-        for quest_hook in obj.db.quest_hooks[hook_type]:
-            try:
-                stage = quest_hook["stage"]
-                caller.msg(f"   |wQuest #{quest_hook["qid"]}.{stage}")
-            except KeyError:
-                caller.msg(f"   |wQuest #{quest_hook["qid"]}")
+        quest_hooks = obj.db.quest_hooks[hook_type]
+        for qid in quest_hooks:
+            caller.msg(f"Quest {qid}:")
+            for stage in quest_hooks[qid]:
+                caller.msg(f"   Stage {stage}:")
+                quest_hook = obj.db.quest_hooks[hook_type][qid][stage]
 
-            for hook_attr_key in quest_hook:
-                if hook_attr_key == "qid" or hook_attr_key == "stage":
-                    continue  # Already listed above
-                value = quest_hook[hook_attr_key]
+                for hook_attr_key in quest_hook:
+                    value = quest_hook[hook_attr_key]
 
-                # at_told options have nested containers
-                if hook_attr_key == "options":
-                    caller.msg(f"      options:")
-                    for i, option in enumerate(value):
-                        caller.msg(f"         {i}:")
-                        for option_attr_key in option:
-                            option_attr_value = option[option_attr_key]
-                            if isinstance(option_attr_value, _SaverList):  # Keywords and spoken lines
-                                caller.msg(f"            {option_attr_key}:")
-                                for val in option_attr_value:
-                                    caller.msg(f"               {appearance.say}{val}")
-                            elif option_attr_key == "next_stage":
-                                try:
-                                    desc = all_quests()[quest_hook["qid"]]["stages"][option_attr_value]["desc"]
-                                    caller.msg(f"            {option_attr_key}: {option_attr_value} - {desc}")
-                                except KeyError:
+                    # at_told options have nested containers
+                    if hook_attr_key == "options":
+                        caller.msg(f"      options:")
+                        for i, option in enumerate(value):
+                            caller.msg(f"         {i}:")
+                            for option_attr_key in option:
+                                option_attr_value = option[option_attr_key]
+                                if isinstance(option_attr_value, _SaverList):  # Keywords and spoken lines
+                                    caller.msg(f"            {option_attr_key}:")
+                                    for val in option_attr_value:
+                                        caller.msg(f"               {appearance.say}{val}")
+                                elif option_attr_key == "next_stage":
+                                    try:
+                                        desc = all_quests()[quest_hook["qid"]]["stages"][option_attr_value]["desc"]
+                                        caller.msg(f"            {option_attr_key}: {option_attr_value} - {desc}")
+                                    except KeyError:
+                                        caller.msg(f"            {option_attr_key}: {option_attr_value}")
+                                else:
                                     caller.msg(f"            {option_attr_key}: {option_attr_value}")
-                            else:
-                                caller.msg(f"            {option_attr_key}: {option_attr_value}")
 
-                # Spoken lines are contained in a list
-                elif hook_attr_key == "spoken_lines":
-                    caller.msg(f"      {hook_attr_key}:")
-                    for line in value:
-                        caller.msg(f"         {appearance.say}{line}")
+                    # Spoken lines are contained in a list
+                    elif hook_attr_key == "spoken_lines":
+                        caller.msg(f"      {hook_attr_key}:")
+                        for line in value:
+                            caller.msg(f"         {appearance.say}{line}")
 
-                # Get description of next stage
-                elif hook_attr_key == "next_stage":
-                    try:
-                        desc = all_quests()[quest_hook["qid"]]["stages"][value]["desc"]
-                        caller.msg(f"      {hook_attr_key}: {value} - {desc}")
-                    except KeyError:
+                    # Get description of next stage
+                    elif hook_attr_key == "next_stage":
+                        try:
+                            desc = all_quests()[qid]["stages"][value]["desc"]
+                            caller.msg(f"      {hook_attr_key}: {value} - {desc}")
+                        except KeyError:
+                            caller.msg(f"      {hook_attr_key}: {value}")
+
+                    # All other quest hook attributes
+                    else:  #
                         caller.msg(f"      {hook_attr_key}: {value}")
-
-                # All other quest hook attributes
-                else:  #
-                    caller.msg(f"      {hook_attr_key}: {value}")
 
             caller.msg("---------------------------------")  # After each quest hook
 
