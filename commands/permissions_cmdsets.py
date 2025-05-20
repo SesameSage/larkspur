@@ -11,20 +11,21 @@ from evennia.commands.default.muxcommand import MuxCommand
 from evennia.locks.lockhandler import LockException
 from evennia.utils import inherits_from, create
 from evennia.utils.create import create_object
+from evennia.utils.dbserialize import _SaverList
 from evennia.utils.eveditor import EvEditor
 from evennia.utils.evtable import EvTable
 
 from combat.abilities.all_abilities import ALL_ABILITIES
 from combat.combat_constants import DIRECTION_NAMES_OPPOSITES
 from server import appearance
+from server.appearance import ENVIRONMENTS_BY_TYPE
 from typeclasses.base.objects import Object
+from typeclasses.scripts.weather import WEATHERS
 from world.locations.areas import Area
 from world.locations.localities import Locality
 from world.locations.regions import Region
-from world.quests.quest import all_quests
-from server.appearance import ENVIRONMENTS_BY_TYPE
 from world.locations.zones import Zone
-from typeclasses.scripts.weather import WEATHERS
+from world.quests.quest import all_quests
 
 
 # Extended to add new room to current area unless using "delocalize" switch
@@ -1062,26 +1063,86 @@ class CmdQuestHook(MuxCommand):
 
     def func(self):
         if not self.lhs:
-            self.caller.msg(f"Usage: {appearance.cmd}questhook/add <object>")
+            self.caller.msg(f"Usage: {appearance.cmd}questhook/add <object> = <qid>:<hook type>")
             return
         # Arg left of "=" is object quest hook should be attached to
         obj_input = self.lhs
         obj = self.caller.search(obj_input)
         if not obj:
             return
+        elif not obj.db.quest_hooks:
+            self.caller.msg(f"{obj.name} doesn't handle quest hooks!")
+            return
 
         if "add" in self.switches:
+            # Right of = is QID:hook i.e. = 3:at_give
             if not self.rhs:
-                self.caller.msg(f"Need a hook type! Usage: {appearance.cmd}questhook/add <object> = <hook type>")
+                self.caller.msg(f"Need a QID and hook type! Usage: {appearance.cmd}questhook/add <object> = <qid>:<hook type>")
                 return
-            objective_type = self.rhs
+            rhs_args = self.rhs.split(":")
+            if len(rhs_args) < 2:
+                self.caller.msg(
+                    f"Need a QID and hook type! Usage: {appearance.cmd}questhook/add <object> = <qid>:<hook type>")
+                return
+
+            try:
+                qid = int(rhs_args[0])
+            except ValueError:
+                self.caller.msg(f"Couldn't get a QID integer from '{rhs_args[1]}'")
+            objective_type = rhs_args[1]
             if objective_type not in obj.db.quest_hooks:
                 self.caller.msg(f"{obj.key} doesn't handle quest hooks of that type. "
                                 f"Handles: {[typ for typ in obj.db.quest_hooks]}")
                 return
-            else:
-                hook = {}
-                #obj.db.quest_hooks[objective_type].append(hook)
+
+            hook = {"qid": qid}
+            obj.db.quest_hooks[objective_type].append(hook)
+
+        # No switch statements: display quest hooks
+        else:
+            for hook_type in obj.db.quest_hooks:
+                if len(obj.db.quest_hooks[hook_type]) < 1:
+                    continue
+                self.caller.msg(f"|w{hook_type} hooks:")
+                self.caller.msg("--------------------------------------")
+
+                for quest_hook in obj.db.quest_hooks[hook_type]:
+                    try:
+                        stage = quest_hook["stage"]
+                        self.caller.msg(f"   |wQuest #{quest_hook["qid"]}.{stage}")
+                    except KeyError:
+                        self.caller.msg(f"   |wQuest #{quest_hook["qid"]}")
+
+                    for hook_attr_key in quest_hook:
+                        if hook_attr_key == "qid" or hook_attr_key == "stage":
+                            continue  # Already listed above
+                        value = quest_hook[hook_attr_key]
+
+                        # at_told options have nested containers
+                        if hook_attr_key == "options":
+                            self.caller.msg(f"      options:")
+                            for i, option in enumerate(value):
+                                self.caller.msg(f"         {i}:")
+                                for option_attr_key in option:
+                                    option_attr_value = option[option_attr_key]
+                                    if isinstance(option_attr_value, _SaverList):  # Keywords and spoken lines
+                                        self.caller.msg(f"            {option_attr_key}:")
+                                        for val in option_attr_value:
+                                            self.caller.msg(f"               {appearance.say}{val}")
+                                    else:
+                                        self.caller.msg(f"            {option_attr_key}: {option_attr_value}")
+
+                        # Spoken lines are contained in a list
+                        elif hook_attr_key == "spoken lines":
+                            self.caller.msg(f"      {hook_attr_key}:")
+                            for line in value:
+                                self.caller.msg(f"         {appearance.say}{line}")
+
+                        # All other quest hook attributes without nested containers
+                        else:  #
+                            self.caller.msg(f"      {hook_attr_key}: {value}")
+
+                    self.caller.msg("---------------------------------")  # After each quest hook
 
 
 class MyCmdHome(CmdHome):
