@@ -975,6 +975,33 @@ class MyCmdSetHelp(CmdSetHelp):
 
 
 class CmdQuestEdit(MuxCommand):
+    """
+        show or edit player-facing quest data
+
+        Usage:
+          questedit                      (all quests)
+          qe <QID>                       (all stages of this quest)
+          qe/level <QID> = <level>       (set quest level)
+          qe/desc <QID> = <quest desc>   (set quest desc)
+          qe/desc <QID>.<stage> = <desc> (set stage desc)
+
+        Examples:
+           qe 12
+           qe/level 8 = 2
+           qe/desc 0 = Start your journey
+           qe/desc 0.0 = Talk to the trainer
+
+        ('qe'): Show all quests by quest ID, recommended level, and quest description.
+
+        ('qe <QID>'): Show all stages of this quest, their descriptions, objective types, and object the quest hook
+        is attached to.
+
+        ('qe/desc <QID>'): Edit the description of an entire quest
+
+        ('qe/level <QID>'): Edit the recommended level for a quest
+
+        ('qe/desc <QID>.<stage>'): Edit the description of a specific quest objective/stage
+        """
     key = "questedit"
     aliases = ("qe",)
     switch_options = ("desc", "level")
@@ -1054,6 +1081,26 @@ class CmdQuestEdit(MuxCommand):
 
 
 class CmdQuestHook(MuxCommand):
+    # TODO: help quest hooks
+    """
+        view, add, edit, and remove quest hooks from objects
+
+        Usage:
+            questhook <object>
+            qh/add <object> = <QID>.<stage>:<hook_type>
+            qh/remove <object> = <QID>.<stage>
+            qh/edit <object> = <QID>.<stage>
+
+        Examples:
+           questhook attoah
+           qh/add package = 4.0:at_give
+           qh/remove package = 4.0
+           qh/edit attoah = 12.2
+
+        Available hook types for different object types in 'help quest hooks'.
+        Editing a quest hook prompts which attribute to edit and what value to give.
+        Adding a quest hook automatically sets attributes on the quest stage in the all_quests container.
+        """
     key = "questhook"
     aliases = ("qh",)
     switch_options = ("add", "remove", "edit")
