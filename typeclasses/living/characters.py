@@ -40,7 +40,7 @@ class Character(LivingEntity):
         super().at_object_receive(moved_obj, source_location, move_type, **kwargs)
         for quest_hook in self.db.quest_hooks["at_object_receive"]:
             if source_location.attributes.has("quest_stages") and source_location.quests.at_stage(quest_hook):
-                for line in quest_hook["spoken lines"]:
+                for line in quest_hook["spoken_lines"]:
                     self.say_to(source_location, line)
                 source_location.quests.advance_quest(quest_hook)
 
@@ -209,7 +209,7 @@ class Character(LivingEntity):
                         if keyword not in message.split(" "):  # Keyword missing from this dialogue option
                             continue  # Try the next option
                         else:  # All keywords in this dialogue option present in the message
-                            for line in option["spoken lines"]:
+                            for line in option["spoken_lines"]:
                                 self.say_to(teller, line)
                             teller.quests.advance_to(quest_hook["qid"], option["next_stage"])
                             return

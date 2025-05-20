@@ -78,7 +78,7 @@ def print_quest_hooks(obj, caller):
                                 caller.msg(f"            {option_attr_key}: {option_attr_value}")
 
                 # Spoken lines are contained in a list
-                elif hook_attr_key == "spoken lines":
+                elif hook_attr_key == "spoken_lines":
                     caller.msg(f"      {hook_attr_key}:")
                     for line in value:
                         caller.msg(f"         {appearance.say}{line}")
