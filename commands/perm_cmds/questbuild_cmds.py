@@ -193,7 +193,7 @@ class CmdQuestHook(MuxCommand):
             except ValueError:
                 self.caller.msg(f"Couldn't parse {numbers[0]}.{numbers[1]} as a QID.stage integer pair")
                 return
-            if len(rhs_args) < 2 and rhs_needed:
+            if len(rhs_args) < 2 and len(numbers) < 2 and rhs_needed:
                 for msg in error_msgs:
                     self.caller.msg(msg)
                 return

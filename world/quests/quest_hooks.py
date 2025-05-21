@@ -51,7 +51,7 @@ def print_quest_hooks(obj, caller):
                                 # Get description of next stage
                                 elif option_attr_key == "next_stage":
                                     try:
-                                        desc = all_quests()[quest_hook["qid"]]["stages"][option_attr_value]["desc"]
+                                        desc = all_quests()[qid]["stages"][option_attr_value]["desc"]
                                         caller.msg(f"                  {option_attr_key}: {option_attr_value} - {desc}")
                                     except KeyError:
                                         caller.msg(f"               {option_attr_key}: {option_attr_value}")
@@ -67,7 +67,6 @@ def print_quest_hooks(obj, caller):
 
                     # Get description of next stage
                     elif hook_attr_key == "next_stage":
-                        qid = quest_hook["qid"]
                         desc = quest_desc(qid, value)
                         caller.msg(f"      {hook_attr_key}: {value} - {desc}")
 
