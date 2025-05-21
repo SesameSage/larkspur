@@ -1010,7 +1010,8 @@ class CmdQuestEdit(MuxCommand):
 
     def func(self):
         quests = all_quests()
-        if not self.lhs:  # No args; display all quests
+        # If no args, display all quests
+        if not self.lhs:
             table = EvTable("QID", "Level", "Description")
             for qid in quests:
                 quest = quests[qid]
@@ -1019,7 +1020,10 @@ class CmdQuestEdit(MuxCommand):
                 table.add_row(qid, level, desc)
             self.caller.msg(table)
             return
+
+        # If a quest is specified
         else:
+            # Parse QID and stage if given
             try:
                 num_input = self.lhs.split(".")
                 qid = int(num_input[0])
@@ -1030,6 +1034,8 @@ class CmdQuestEdit(MuxCommand):
                 self.caller.msg(
                     f"Couldn't get integers from {self.lhs} (Usage: {appearance.cmd}questedit <qid>[.<stage>])")
                 return
+
+            # Display stages of this quest if no edit is being made
             if not self.rhs:
                 quest = quests[qid]
                 self.caller.msg(f"Quest #{qid}: {quest_desc(qid)}")
@@ -1045,38 +1051,49 @@ class CmdQuestEdit(MuxCommand):
                     table.add_row(stage_num, stage_desc, stage["objective_type"], obj)
                 self.caller.msg(table)
                 return
+
+            # If making an edit / setting a value
             else:
+                # Default to empty quest info dict if this is the first data on this QID
                 try:
-                    quest = evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]
+                    evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]
                 except KeyError:
                     evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid] = \
                         {"desc": "", "recommended_level": None, "stages": {}}
 
                 if "desc" in self.switches:
-                    if stage is None:
-                        try:
-                            evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["desc"] = self.rhs
-                        except KeyError:
-                            evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid] = {"desc": self.rhs}
-                        return
-                    else:
+                    if stage is None:  # Set description for entire quest
+                        evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["desc"] = self.rhs
+                    else:  # Set description for quest stage
+                        # Ensure quest data has the "stages" dict
                         try:
                             evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["stages"]
                         except KeyError:
                             evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["stages"] = {}
+                        # Ensure the stages data includes this stage
                         try:
                             evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["stages"][stage]["desc"] = self.rhs
                         except KeyError:
                             evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["stages"][stage] = {
                                 "desc": self.rhs,
-                                "objective_type":
-                                    ""}
+                                "objective_type": ""}
                         return
+
                 elif "level" in self.switches:
+                    # Parse level value
                     try:
                         level = int(self.rhs)
                     except ValueError:
                         self.caller.msg("Couldn't get an integer level from " + self.rhs)
+
+                    # Default to empty quest info dict if this is the first data on this QID
+                    try:
+                        evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]
+                    except KeyError:
+                        evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid] = \
+                            {"desc": "", "recommended_level": None, "stages": {}}
+
+                    # Set recommended level in quest data
                     evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["recommended_level"] = level
                     return
 
@@ -1121,7 +1138,7 @@ class CmdQuestHook(MuxCommand):
             self.caller.msg(f"{obj.name} doesn't handle quest hooks!")
             return
 
-        # Creating or altering a quest hook
+        # Creating or altering a quest hook; parse right of = if needed
         rhs_needed = True
         if "remove" in self.switches or "edit" in self.switches:
             rhs_needed = False
@@ -1150,18 +1167,20 @@ class CmdQuestHook(MuxCommand):
             print_quest_hooks(obj, self.caller)
             return
 
-        if "add" in self.switches:
-            # Right of = is QID:hook i.e. = 3:at_give
+        if "add" in self.switches:  # Right of = is QID:hook i.e. = 3:at_give
+            # Make sure this object handles hooks of this type
             objective_type = rhs_args[1]
             if objective_type not in obj.db.quest_hooks:
                 self.caller.msg(f"{obj.key} doesn't handle quest hooks of that type. "
                                 f"Handles: {[typ for typ in obj.db.quest_hooks]}")
                 return
 
+            # Create the data for the quest hook on the object
             obj.db.quest_hooks[objective_type][qid] = {}
             obj.db.quest_hooks[objective_type][qid][stage] = {}
 
-            quests = evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests
+            # Add hook info to quest data
+            quests = all_quests()
             try:
                 quests[qid]
             except KeyError:
@@ -1181,6 +1200,7 @@ class CmdQuestHook(MuxCommand):
             del quests[qid]["stages"][stage]
 
         elif "edit" in self.switches:
+            # Show the proper attributes editable according to objective/hook type
             hook_type = get_hook_type(obj, qid, stage)
             options = []
             if (hook_type in ["at_give", "at_defeat"] or
@@ -1195,7 +1215,9 @@ class CmdQuestHook(MuxCommand):
             if hook_type != "at_told":
                 options.append("next_stage")
 
+            # Choose aspect of hook to edit
             inpt = yield f"Select quest hook attribute to edit: ({str(options)})"
+            # Set value
             match inpt:
                 case "msg":
                     msg = yield "Enter message:"
@@ -1211,36 +1233,47 @@ class CmdQuestHook(MuxCommand):
                     lines = [line.strip() for line in lines]
                     obj.db.quest_hooks[hook_type][qid][stage]["spoken_lines"] = lines
 
+                # Dialogue options in at_told hooks
                 case "options":
-                    opt_num = yield "Option number to edit:"
+                    # Option index
+                    opt_num = yield "Option number to edit (0 indexed):"
                     try:
                         opt_num = int(opt_num)
                     except ValueError:
                         self.caller.msg("Couldn't get an integer from " + opt_num)
                         return
+
+                    # Option data
                     try:
                         opt_dict = obj.db.quest_hooks[hook_type][qid][stage]["options"][opt_num]
                     except KeyError:
                         opt_dict = {"keywords": [], "spoken_lines": [], "next_stage": None}
+
+                    # Choose attribute of dialogue option to edit
                     attr = yield "Edit keywords, spoken_lines, or next_stage?:"
+                    # Set value
                     match attr:
                         case "keywords":
                             keywords = yield "Enter keywords separated by comma:"
                             words = keywords.split(",")
                             words = [word.strip() for word in words]
                             opt_dict["keywords"] = words
+
                         case "spoken_lines":
                             line_inpt = yield "Write lines separated by '/':"
                             lines = line_inpt.split("/")
                             lines = [line.strip() for line in lines]
                             opt_dict["spoken_lines"] = lines
+
                         case "next_stage":
                             next_stage = yield "Enter next stage:"
                             opt_dict["next_stage"] = next_stage
+
                         case _:
                             self.caller.msg("No valid option found for " + attr)
                             return
 
+                    # Save option data for this dialogue option to the quest hook data
                     try:
                         obj.db.quest_hooks[hook_type][qid][stage]["options"][opt_num] = opt_dict
                     except KeyError:
@@ -1318,7 +1351,6 @@ class CmdKillCounter(MuxCommand):
 
         # Reflect changed data in all_quests container
         all_quests()[qid]["stages"][stage] = stage_dict
-
 
 
 class MyCmdHome(CmdHome):
