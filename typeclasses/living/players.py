@@ -16,8 +16,6 @@ class PlayerCharacter(Character):
     """A character intended to be played by a user. """
 
     def at_object_creation(self):
-        from evennia import set_trace;
-        set_trace()
         super().at_object_creation()
         self.db.unique_name = True
         self.permissions.add("Player")
