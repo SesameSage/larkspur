@@ -23,6 +23,7 @@ from world.locations.regions import Region
 from server.appearance import ENVIRONMENTS_BY_TYPE
 from world.locations.zones import Zone
 from typeclasses.scripts.weather import WEATHERS
+from world.world_constants import INDOOR_ENVIRONMENTS
 
 
 # Extended to add new room to current area unless using "delocalize" switch
@@ -212,6 +213,8 @@ class MyCmdDig(CmdDig):
             env = old_room.db.environment
             if env:
                 new_room.db.environment = env
+                if env in INDOOR_ENVIRONMENTS:
+                    new_room.db.is_outdoors = False
                 self.caller.msg(f"{new_room.name} environment set to {env}.")
 
 
@@ -598,7 +601,6 @@ class CmdEnv(MuxCommand):
     help_category = "building"
 
     def func(self):
-        indoor_environments = ["wood room", "stone room", "cave"]
         # With no arguments, display all environment syntaxes
         if not self.lhs:
             for environment_appearance in ENVIRONMENTS_BY_TYPE:
@@ -610,7 +612,7 @@ class CmdEnv(MuxCommand):
             room = self.caller.location
             room.db.environment = environment
             self.caller.msg(f"Set {room.name} to environment: {environment}")
-            if environment in indoor_environments:
+            if environment in INDOOR_ENVIRONMENTS:
                 room.db.is_outdoors = False
 
 
