@@ -175,11 +175,12 @@ class CmdQuestHook(MuxCommand):
 
         # Creating or altering a quest hook; parse right of = if needed
         rhs_needed = True
-        if "remove" in self.switches or "edit" in self.switches:
+        if "remove" in self.switches:
             rhs_needed = False
         if self.switches:
             error_msgs = [f"Need a QID and arg! Usage: ", f"{appearance.cmd}questhook/add <object> = <qid>:<hook type>",
-                          f"{appearance.cmd}questhook/msg <object> = <qid>:<stage>"]
+                          f"{appearance.cmd}questhook/edit <object> = <qid>:<stage>",
+                          f"{appearance.cmd}questhook/remove <object> = <qid>:<stage>"]
             if not self.rhs and rhs_needed:
                 for msg in error_msgs:
                     self.caller.msg(msg)
