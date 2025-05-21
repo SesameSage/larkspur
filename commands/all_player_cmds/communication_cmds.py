@@ -1,3 +1,4 @@
+from evennia.commands.cmdset import CmdSet
 from evennia.commands.default.muxcommand import MuxCommand
 
 from server import appearance
@@ -23,3 +24,8 @@ class CmdTell(MuxCommand):
                                                                     + "{speech}")
         self.caller.at_tell(receiver, msg)
         receiver.at_told(self.caller, msg)
+
+
+class CommsCmdSet(CmdSet):
+    def at_cmdset_creation(self):
+        self.add(CmdTell)

@@ -2,11 +2,13 @@ from collections import defaultdict
 from itertools import chain
 
 from evennia import Command
+from evennia.commands.cmdset import CmdSet
 from evennia.commands.default.help import CmdHelp, HelpCategory
 from evennia.help.utils import help_search_with_index, parse_entry_for_subcategories
 from evennia.utils import inherits_from
 
 
+# Overridden to hide commands with empty string as help_category
 class MyCmdHelp(CmdHelp):
     def func(self):
         """
@@ -266,3 +268,10 @@ class CmdHere(Command):
                         f"|wLocality:|n {locality}\n"
                         f"|wZone:|n {zone}\n"
                         f"|wRegion:|n {region}\n")
+
+
+class InfoCmdSet(CmdSet):
+    def at_cmdset_creation(self):
+        self.add(MyCmdHelp)
+        self.add(CmdMoreInfo)
+        self.add(CmdHere)

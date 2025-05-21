@@ -47,6 +47,14 @@ BASE_EXIT_TYPECLASS = "world.locations.exits.Exit"
 BASE_SCRIPT_TYPECLASS = "typeclasses.scripts.scripts.Script"
 BASE_CHANNEL_TYPECLASS = "typeclasses.ooc.channels.Channel"
 
+CMDSET_CHARACTER = "commands.character_cmdsets.PlayerCmdSet"
+CMDSET_FALLBACKS = {
+    CMDSET_CHARACTER: "evennia.commands.default.cmdset_character.CharacterCmdSet",
+    CMDSET_ACCOUNT: "evennia.commands.default.cmdset_account.AccountCmdSet",
+    CMDSET_SESSION: "evennia.commands.default.cmdset_session.SessionCmdSet",
+    CMDSET_UNLOGGEDIN: "evennia.commands.default.cmdset_unloggedin.UnloggedinCmdSet",
+}
+
 PROTOTYPE_MODULES = ["world.prototypes.prototypes", "world.prototypes.entity_protos", "world.prototypes.item_protos",
                      "world.prototypes.equipment.weapon_protos", "world.prototypes.consumable_protos",
                      "world.prototypes.equipment.armor_protos", "world.prototypes.equipment.apparel_protos",

@@ -1,11 +1,20 @@
-from commands.communication_cmds import CmdTell
-from commands.info_commands import CmdMoreInfo, CmdHere, MyCmdHelp
-from commands.permissions_cmdsets import BuildingCmdSet
-from commands.refiled_cmds import *
-from commands.stats_commands import CmdClasses, CmdLearn, CmdSpells, StatsCmdSet
+from evennia.commands.cmdset import CmdSet
+from evennia.contrib.grid.simpledoor import SimpleDoorCmdSet
+
+from commands.all_player_cmds.combat_cmds import BattleCmdSet
+from commands.all_player_cmds.communication_cmds import CommsCmdSet
+from commands.all_player_cmds.info_cmds import InfoCmdSet
+from commands.all_player_cmds.interaction_cmds import InteractionCmdSet
+from commands.all_player_cmds.item_cmds import ItemCmdSet
+from commands.all_player_cmds.refiled_cmds import RefiledCmdSet
+from commands.all_player_cmds.stats_cmds import StatsCmdSet
+from commands.perm_cmds.building_cmds import BuildingCmdSet
+from commands.perm_cmds.game_data_cmds import GameDataCmdSet
+from commands.perm_cmds.location_data_cmds import LocationCmdSet
+from commands.perm_cmds.object_data_cmds import ObjectDataCmdSet
+from commands.perm_cmds.questbuild_cmds import QuestBuildCmdSet
 from typeclasses.inanimate.items.containers import ContainerCmdSet
-from typeclasses.inanimate.items.items import CmdIdentify, CmdBuy, CmdShop
-from typeclasses.inanimate.portals import CmdTravel
+from typeclasses.inanimate.items.equipment.equipment import EquipmentCharacterCmdSet
 from typeclasses.living.talking_npc import TalkingCmdSet
 
 
@@ -14,21 +23,29 @@ class PlayerCmdSet(CmdSet):
 
     def at_cmdset_creation(self):
         super().at_cmdset_creation()
+
+        # Builders only
+        self.add(GameDataCmdSet)
         self.add(BuildingCmdSet)
-        self.add(TalkingCmdSet)
-        self.add(ContainerCmdSet)
+        self.add(LocationCmdSet)
+        self.add(QuestBuildCmdSet)
+        self.add(ObjectDataCmdSet)
+
+        # General
         self.add(StatsCmdSet)
+        self.add(InfoCmdSet)
+        self.add(CommsCmdSet)
+        self.add(BattleCmdSet)
+        self.add(ItemCmdSet)
 
-        self.add(MyCmdHelp)
-        self.add(CmdMoreInfo)
-        self.add(CmdHere)
-        self.add(CmdClasses)
-        self.add(CmdLearn)
-        self.add(CmdSpells)
+        # Specific objects
+        self.add(InteractionCmdSet)
+        self.add(TalkingCmdSet)
+        self.add(SimpleDoorCmdSet)
+        self.add(EquipmentCharacterCmdSet)
+        self.add(ContainerCmdSet)
 
-        self.add(CmdTravel)
-        self.add(CmdIdentify)
-        self.add(CmdBuy)
-        self.add(CmdShop)
+        # Refiled under different help categories
+        self.add(RefiledCmdSet)
 
-        self.add(CmdTell)
+

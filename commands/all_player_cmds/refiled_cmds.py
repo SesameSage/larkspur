@@ -5,7 +5,7 @@ from evennia.commands.default.account import CmdColorTest, CmdQuit, CmdSessions,
     CmdOOC, CmdOption
 from evennia.commands.default.comms import CmdChannel, CmdPage
 from evennia.commands.default.general import CmdSay, CmdWhisper, CmdDrop, CmdGive, CmdNick, CmdPose, \
-    CmdAccess, CmdSetDesc
+    CmdAccess, CmdSetDesc, CmdHome
 from evennia.contrib.game_systems.containers.containers import CmdPut
 from evennia.contrib.grid.simpledoor.simpledoor import CmdOpenCloseDoor
 
@@ -61,26 +61,6 @@ class MyCmdSetDesc(CmdSetDesc):
     help_category = "character"
 
 
-class RefiledCmdSet(CmdSet):
-    key = "PlayerCharacter"
-
-    def at_cmdset_creation(self):
-        super().at_cmdset_creation()
-        self.add(MyCmdSay)
-        self.add(MyCmdWhisper)
-        self.add(MyCmdChannel)
-        self.add(MyCmdPage)
-        self.add(MyCmdDrop)
-        self.add(MyCmdGive)
-        self.add(MyCmdPut)
-        self.add(MyCmdNick)
-        self.add(MyCmdPose)
-        self.add(MyCmdMap)
-        self.add(MyCmdAccess)
-        self.add(MyCmdSetDesc)
-        self.add(MyCmdOpenDoor)
-
-
 class MyCmdColor(CmdColorTest):
     help_category = "appearance"
 
@@ -119,3 +99,29 @@ class MyCmdOption(CmdOption):
 
 class MyCmdOpenDoor(CmdOpenCloseDoor):
     help_category = "navigation"
+
+
+class MyCmdHome(CmdHome):
+    locks = "cmd:perm(Builder)"
+    help_category = "navigation"
+
+
+class RefiledCmdSet(CmdSet):
+    key = "PlayerCharacter"
+
+    def at_cmdset_creation(self):
+        super().at_cmdset_creation()
+        self.add(MyCmdSay)
+        self.add(MyCmdWhisper)
+        self.add(MyCmdChannel)
+        self.add(MyCmdPage)
+        self.add(MyCmdDrop)
+        self.add(MyCmdGive)
+        self.add(MyCmdPut)
+        self.add(MyCmdNick)
+        self.add(MyCmdPose)
+        self.add(MyCmdMap)
+        self.add(MyCmdAccess)
+        self.add(MyCmdSetDesc)
+        self.add(MyCmdOpenDoor)
+        self.add(MyCmdHome)

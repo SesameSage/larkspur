@@ -15,11 +15,9 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 """
 
 from evennia import default_cmds
-from evennia.contrib.grid.simpledoor import SimpleDoorCmdSet
 
-import commands.combat_commands
-from commands.refiled_cmds import *
-from typeclasses.inanimate.items.equipment.equipment import EquipmentCharacterCmdSet
+from commands.all_player_cmds.info_cmds import MyCmdHelp
+from commands.all_player_cmds.refiled_cmds import *
 
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
@@ -39,11 +37,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         #
         # any commands you add below will overload the default ones.
         #
-        self.add(SimpleDoorCmdSet)
-        self.add(EquipmentCharacterCmdSet)
-        self.add(commands.combat_commands.BattleCmdSet())
-
-        self.add(RefiledCmdSet)
+        self.add(MyCmdHelp)
 
 
 class AccountCmdSet(default_cmds.AccountCmdSet):

@@ -621,4 +621,9 @@ class StatsCmdSet(CmdSet):
         self.add(CmdEffects)
         self.add(CmdAP)
         self.add(CmdXP)
+
+        self.add(CmdClasses)
+        self.add(CmdLearn)
+        self.add(CmdSpells)
+
         self.add(CmdLevelUp)

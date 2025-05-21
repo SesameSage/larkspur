@@ -110,7 +110,7 @@ class CmdCast(MuxCommand):
                 # Search for object target otherwise
                 if x is None or y is None:
                     target = self.caller.search(target_string, candidates=[
-                    content for content in self.caller.location.contents if content.attributes.has("hp")])
+                        content for content in self.caller.location.contents if content.attributes.has("hp")])
                 else:
                     target = (x, y)
             if not target:
@@ -218,6 +218,7 @@ class CmdSouth(DirCmd):
     key = "south"
     aliases = ["s"]
 
+
 class CmdEast(DirCmd):
     key = "east"
     aliases = ["e"]
@@ -246,6 +247,8 @@ class CmdSouthwest(DirCmd):
 class CmdSoutheast(DirCmd):
     key = "southeast"
     aliases = ["se"]
+
+
 # </editor-fold>
 
 
