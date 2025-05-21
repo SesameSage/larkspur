@@ -1,4 +1,4 @@
-from world.quests.quest import all_quests
+from world.quests.quest import all_quests, get_stage
 
 
 class QuestHandler:
@@ -30,13 +30,9 @@ class QuestHandler:
         self.data[qid] = stage
 
         # Add kill counters to player if this stage is a kill counter objective
-        check_objective = True
-        try:
-            stage_dict = all_quests()[qid]["stages"][stage]
-        except KeyError:
-            check_objective = False
-        if check_objective:
-            if stage is not None and stage_dict["objective_type"] == "kill_counter":
+        stage_dict = get_stage(qid, stage)
+        if stage_dict is not None:
+            if stage_dict["objective_type"] == "kill_counter":
                 kc_dict = {"QID": qid, "stage": stage, "target_type": stage_dict["target_type"], "killed": 0,
                            "needed": stage_dict["kill_num"], "next_stage": stage_dict["next_stage"]}
                 self.player.db.kill_counters.append(kc_dict)

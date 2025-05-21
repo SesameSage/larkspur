@@ -1,8 +1,12 @@
 """
 QUEST HOOKS:
     Items
+        at_get
+            msg
+            next_stage
         at_give
             msg
+            getter
             next_stage
     Characters
         at_talk
@@ -36,11 +40,39 @@ def all_quests():
     return quests
 
 
+def get_quest(qid):
+    try:
+        return all_quests()[qid]
+    except KeyError:
+        return None
+
+
+def get_stage(qid, stage):
+    quest_data = get_quest(qid)
+    if quest_data is None or stage is None:
+        return None
+    try:
+        return quest_data["stages"][stage]
+    except KeyError:
+        return None
+
+
 def quest_desc(qid, stage=None):
     if stage is not None:
-        return all_quests()[qid]["stages"][stage]["desc"]
+        stage_dict = get_stage(qid, stage)
+        if stage_dict is None:
+            return ""
+        else:
+            try:
+                return stage_dict["desc"]
+            except KeyError:
+                return ""
     else:
-        return all_quests()[qid]["desc"]
+        quest_dict = get_quest(qid)
+        if quest_dict is None:
+            return ""
+        else:
+            return quest_dict["desc"]
 
 
 class Quest(Script):

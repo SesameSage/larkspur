@@ -5,7 +5,7 @@ from evennia.utils import inherits_from
 from evennia.utils.evtable import EvTable
 
 from server import appearance
-from world.quests.quest import all_quests, quest_desc
+from world.quests.quest import all_quests, quest_desc, get_quest, get_stage
 from world.quests.quest_hooks import print_quest_hooks, get_hook_type
 
 
@@ -82,7 +82,10 @@ class CmdQuestEdit(MuxCommand):
                     try:
                         obj = stage["object"]
                     except KeyError:
-                        obj = stage["target_type"]
+                        try:
+                            obj = stage["target_type"]
+                        except KeyError:
+                            obj = ""
                     table.add_row(stage_num, stage_desc, stage["objective_type"], obj)
                 self.caller.msg(table)
                 return
@@ -179,8 +182,8 @@ class CmdQuestHook(MuxCommand):
             rhs_needed = False
         if self.switches:
             error_msgs = [f"Need a QID and arg! Usage: ", f"{appearance.cmd}questhook/add <object> = <qid>:<hook type>",
-                          f"{appearance.cmd}questhook/edit <object> = <qid>:<stage>",
-                          f"{appearance.cmd}questhook/remove <object> = <qid>:<stage>"]
+                          f"{appearance.cmd}questhook/edit <object> = <qid>.<stage>",
+                          f"{appearance.cmd}questhook/remove <object> = <qid>.<stage>"]
             if not self.rhs and rhs_needed:
                 for msg in error_msgs:
                     self.caller.msg(msg)
@@ -212,8 +215,11 @@ class CmdQuestHook(MuxCommand):
                 return
 
             # Create the data for the quest hook on the object
-            obj.db.quest_hooks[objective_type][qid] = {}
-            obj.db.quest_hooks[objective_type][qid][stage] = {}
+            try:
+                obj.db.quest_hooks[objective_type][qid][stage] = {}
+            except KeyError:
+                obj.db.quest_hooks[objective_type][qid] = {}
+                obj.db.quest_hooks[objective_type][qid][stage] = {}
 
             # Add hook info to quest data
             quests = all_quests()
@@ -239,13 +245,15 @@ class CmdQuestHook(MuxCommand):
             # Show the proper attributes editable according to objective/hook type
             hook_type = get_hook_type(obj, qid, stage)
             options = []
-            if (hook_type in ["at_give", "at_defeat"] or
+            if (hook_type in ["at_give", "at_defeat", "at_get"] or
                     inherits_from(obj, "world.locations.rooms.Room") and hook_type == "at_object_receive"):
                 options.append("msg")
             if (hook_type == "at_talk" or
                     inherits_from(obj, "typeclasses.living.living_entities.LivingEntity")
                     and hook_type == "at_object_receive"):
                 options.append("spoken_lines")
+            if hook_type == "at_give":
+                options.append("getter")
             if hook_type == "at_told":
                 options.append("options")
             if hook_type != "at_told":
@@ -282,7 +290,7 @@ class CmdQuestHook(MuxCommand):
                     # Option data
                     try:
                         opt_dict = obj.db.quest_hooks[hook_type][qid][stage]["options"][opt_num]
-                    except KeyError:
+                    except (KeyError, IndexError):
                         opt_dict = {"keywords": [], "spoken_lines": [], "next_stage": None}
 
                     # Choose attribute of dialogue option to edit
@@ -369,14 +377,12 @@ class CmdKillCounter(MuxCommand):
             return
 
         # Get quest and stage data
-        try:
-            quest_dict = all_quests()[qid]
-        except KeyError:
+        quest_dict = get_quest(qid)
+        if quest_dict is None:
             quest_dict = {"desc": "", "stages": {}}
             all_quests()[qid] = quest_dict
-        try:
-            stage_dict = quest_dict["stages"][stage]
-        except KeyError:
+        stage_dict = get_stage(qid, stage)
+        if stage_dict is None:
             stage_dict = {"desc": ""}
 
         # Set relevant stage data
