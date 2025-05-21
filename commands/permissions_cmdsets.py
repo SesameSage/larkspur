@@ -1038,7 +1038,11 @@ class CmdQuestEdit(MuxCommand):
                 for stage_num in stages:
                     stage = stages[stage_num]
                     stage_desc = quest_desc(qid, stage_num)
-                    table.add_row(stage_num, stage_desc, stage["objective_type"], stage["object"])
+                    try:
+                        obj = stage["object"]
+                    except KeyError:
+                        obj = stage["target_type"]
+                    table.add_row(stage_num, stage_desc, stage["objective_type"], obj)
                 self.caller.msg(table)
                 return
             else:
@@ -1247,6 +1251,76 @@ class CmdQuestHook(MuxCommand):
                     self.caller.msg("No valid option found for " + inpt)
 
 
+class CmdKillCounter(MuxCommand):
+    """
+        tie a quest stage to a kill counter objective
+
+        Usage:
+            killcounter <QID>.<stage>:<next_stage> = <num_to_kill> <path.to.class>
+
+        Examples:
+           kc 0.2:3 = 5 typeclasses.living.enemies.Enemy
+
+        Generates an objective to kill the specified number of the specified type of enemy, and set it as the
+        stage objective for the given quest stage.
+        Use questedit/desc <QID>.<stage> = <desc> to set the stage/objective's description.
+        """
+    key = "killcounter"
+    aliases = ("kc",)
+    locks = "cmd:perm(questhook) or perm(Builder)"
+    help_category = "building"
+
+    def func(self):
+        usage = f"Usage: {appearance.cmd}killcounter <QID>.<stage>:<next_stage> = <num_to_kill> <path.to.class>"
+
+        # Parse lhs as QID.stage:next_stage =
+        try:
+            numbers = self.lhs.split(":")
+            quest_nums = numbers[0].split(".")
+            next_stage = int(numbers[1])
+            qid = int(quest_nums[0])
+            stage = int(quest_nums[1])
+        except ValueError:
+            self.caller.msg(f"Couldn't parse '{self.lhs}' as a <QID>.<stage>:<next_stage> integer sequence")
+            return
+        except IndexError:
+            self.caller.msg(usage)
+            return
+
+        # Parse rhs as = <number> <path.to.type>
+        try:
+            rhs = self.rhs.split()
+            num_to_kill = int(rhs[0])
+            path_to_type = rhs[1]
+        except ValueError:
+            self.caller.msg(usage)
+            return
+        except IndexError:
+            self.caller.msg(usage)
+            return
+
+        # Get quest and stage data
+        try:
+            quest_dict = all_quests()[qid]
+        except KeyError:
+            quest_dict = {"desc": "", "stages": {}}
+            all_quests()[qid] = quest_dict
+        try:
+            stage_dict = quest_dict["stages"][stage]
+        except KeyError:
+            stage_dict = {"desc": ""}
+
+        # Set relevant stage data
+        stage_dict["objective_type"] = "kill_counter"
+        stage_dict["target_type"] = path_to_type
+        stage_dict["kill_num"] = num_to_kill
+        stage_dict["next_stage"] = next_stage
+
+        # Reflect changed data in all_quests container
+        all_quests()[qid]["stages"][stage] = stage_dict
+
+
+
 class MyCmdHome(CmdHome):
     locks = "cmd:perm(Builder)"
     help_category = "navigation"
@@ -1267,3 +1341,4 @@ class BuildingCmdSet(CmdSet):
         self.add(MyCmdSetHelp)
         self.add(CmdQuestEdit)
         self.add(CmdQuestHook)
+        self.add(CmdKillCounter)

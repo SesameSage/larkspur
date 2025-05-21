@@ -13,6 +13,7 @@ from stats.stats_constants import MAX_HP_BASE, LVL_TO_MAXHP, CON_TO_MAXHP, MAX_M
 from typeclasses.inanimate.fixtures import Fireplace
 from typeclasses.inanimate.items.equipment.equipment import EquipmentEntity
 from typeclasses.living.corpses import make_corpse, set_to_respawn
+from world.quests.quest import all_quests, quest_desc
 
 
 class CombatEntity(EquipmentEntity):
@@ -563,13 +564,17 @@ class CombatEntity(EquipmentEntity):
             if not inherits_from(enemy, "typeclasses.living.players.PlayerCharacter"):
                 continue
             kill_counters = enemy.db.kill_counters
+
             for i, kill_counter in enumerate(kill_counters):
+                # Increment kill counter if defeated entity is of target type
                 enemy_type = kill_counter["target_type"]
                 if inherits_from(self, enemy_type):
                     enemy.db.kill_counters[i]["killed"] += 1
-                if enemy.db.kill_counters[i]["killed"] >= kill_counters[i]["needed"]:
-                    enemy.msg(f"{appearance.notify}You have completed: Kill {kill_counters[i]["needed"]} "
-                              f"{enemy_type.__name__}!")
+
+                # Check if kill counter has been filled, and advance to next stage if so
+                if kill_counter["killed"] >= kill_counter["needed"]:
+                    stage_desc = quest_desc(qid=kill_counter["QID"], stage=kill_counter["stage"])
+                    enemy.msg(f"{appearance.notify}You have completed: {stage_desc}!")
                     qid = kill_counters[i]["QID"]
                     stage = kill_counters[i]["next_stage"]
                     enemy.quests.advance_to(qid=qid, stage=stage)
