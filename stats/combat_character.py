@@ -563,16 +563,16 @@ class CombatEntity(EquipmentEntity):
             if not inherits_from(enemy, "typeclasses.living.players.PlayerCharacter"):
                 continue
             kill_counters = enemy.db.kill_counters
-            for enemy_type in kill_counters:
+            for i, kill_counter in enumerate(kill_counters):
+                enemy_type = kill_counter["target_type"]
                 if inherits_from(self, enemy_type):
-                    enemy.db.kill_counters[enemy_type]["killed"] += 1
-                if enemy.db.kill_counters[enemy_type]["killed"] >= kill_counters[enemy_type]["needed"]:
-                    enemy.msg(f"{appearance.notify}You have completed: Kill {kill_counters[enemy_type]["needed"]} "
+                    enemy.db.kill_counters[i]["killed"] += 1
+                if enemy.db.kill_counters[i]["killed"] >= kill_counters[i]["needed"]:
+                    enemy.msg(f"{appearance.notify}You have completed: Kill {kill_counters[i]["needed"]} "
                               f"{enemy_type.__name__}!")
-                    qid = kill_counters[enemy_type]["QID"]
-                    stage = kill_counters[enemy_type]["next_stage"]
+                    qid = kill_counters[i]["QID"]
+                    stage = kill_counters[i]["next_stage"]
                     enemy.quests.advance_to(qid=qid, stage=stage)
-
 
         return True
     # </editor-fold>
