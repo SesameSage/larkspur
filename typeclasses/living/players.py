@@ -16,6 +16,8 @@ class PlayerCharacter(Character):
     """A character intended to be played by a user. """
 
     def at_object_creation(self):
+        from evennia import set_trace;
+        set_trace()
         super().at_object_creation()
         self.db.unique_name = True
         self.permissions.add("Player")
@@ -73,6 +75,8 @@ class PlayerCharacter(Character):
     # TODO: is_outdoors doesn't set on auto env set at room creation
     def at_post_move(self, source_location, move_type="move", **kwargs):
         super().at_post_move(source_location, move_type, **kwargs)
+        if not self.location or not source_location:
+            return
         if self.location.db.is_outdoors and not source_location.db.is_outdoors:
             self.print_ambient(self.location.zone().db.current_weather["ongoing_msg"])
     # </editor-fold>
