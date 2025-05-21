@@ -51,7 +51,7 @@ def print_quest_hooks(obj, caller):
                                 # Get description of next stage
                                 elif option_attr_key == "next_stage":
                                     desc = quest_desc(qid, option_attr_value)
-                                    caller.msg(f"                  {option_attr_key}: {option_attr_value} - {desc}")
+                                    caller.msg(f"               {option_attr_key}: {option_attr_value} - {desc}")
 
                                 else:
                                     caller.msg(f"               {option_attr_key}: {option_attr_value}")

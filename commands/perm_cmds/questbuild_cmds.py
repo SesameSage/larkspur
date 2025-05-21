@@ -322,7 +322,9 @@ class CmdQuestHook(MuxCommand):
                         obj.db.quest_hooks[hook_type][qid][stage]["options"][opt_num] = opt_dict
                     except KeyError:
                         obj.db.quest_hooks[hook_type][qid][stage]["options"] = []
-                        obj.db.quest_hooks[hook_type][qid][stage]["options"][opt_num] = opt_dict
+                        obj.db.quest_hooks[hook_type][qid][stage]["options"].append(opt_dict)
+                    except IndexError:
+                        obj.db.quest_hooks[hook_type][qid][stage]["options"].insert(opt_num, opt_dict)
 
                 case _:
                     self.caller.msg("No valid option found for " + inpt)
