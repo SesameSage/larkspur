@@ -274,17 +274,23 @@ class Item(Object):
 
     def at_get(self, getter, **kwargs):
         super().at_get(getter, **kwargs)
-        for quest_hook in self.db.quest_hooks["at_get"]:
-            if getter.attributes.has("quest_stages") and getter.quests.at_stage(quest_hook):
-                getter.msg(quest_hook["msg"])
-                getter.quests.advance_quest(quest_hook)
+        hooks = self.db.quest_hooks["at_get"]
+        for qid in hooks:
+            for stage in hooks[qid]:
+                hook_data = hooks[qid][stage]
+                if getter.attributes.has("quest_stages") and getter.quests.at_stage(qid, stage):
+                    getter.msg(hook_data["msg"])
+                    getter.quests.advance_quest(qid, hook_data["next_stage"])
 
     def at_give(self, giver, getter, **kwargs):
         super().at_give(giver, getter, **kwargs)
-        for quest_hook in self.db.quest_hooks["at_give"]:
-            if giver.attributes.has("quest_stages") and giver.quests.at_stage(quest_hook):
-                getter.msg(quest_hook["msg"])
-                getter.quests.advance_quest(quest_hook)
+        hooks = self.db.quest_hooks["at_give"]
+        for qid in hooks:
+            for stage in hooks[qid]:
+                hook_data = hooks[qid][stage]
+                if getter.attributes.has("quest_stages") and getter.quests.at_stage(qid, stage):
+                    getter.msg(hook_data["msg"])
+                    getter.quests.advance_quest(qid, hook_data["next_stage"])
 
 
 class LightItem(Item):

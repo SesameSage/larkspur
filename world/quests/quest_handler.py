@@ -10,12 +10,10 @@ class QuestHandler:
         """Ensures that the handler's modified data is reflected in the player's quest data."""
         self.player.db.quest_stages = self.data
 
-    def at_stage(self, quest_hook: dict):
+    def at_stage(self, qid, stage):
         """Given a quest hook dict containing a quest id and stage number, returns true if the player is currently at
         the given stage in the given quest."""
-        quest = quest_hook["qid"]
-        stage = quest_hook["stage"]
-        if self.data.get(quest, 0) == stage:
+        if self.data.get(qid, 0) == stage:
             return True
         else:
             return False

@@ -43,10 +43,13 @@ class Room(Object, DefaultRoom):
 
     def at_object_receive(self, moved_obj, source_location, move_type="move", **kwargs):
         super().at_object_receive(moved_obj, source_location, move_type, **kwargs)
-        for quest_hook in self.db.quest_hooks["at_object_receive"]:
-            if moved_obj.attributes.has("quest_stages") and moved_obj.quests.at_stage(quest_hook):
-                moved_obj.msg(quest_hook["msg"])
-                moved_obj.quests.advance_quest(quest_hook)
+        hooks = self.db.quest_hooks["at_object_receive"]
+        for qid in hooks:
+            for stage in hooks[qid]:
+                hook_data = hooks[qid][stage]
+                if moved_obj.attributes.has("quest_stages") and moved_obj.quests.at_stage(qid, stage):
+                    moved_obj.msg(hook_data["msg"])
+                    moved_obj.quests.advance_quest(qid, hook_data["next_stage"])
 
     # <editor-fold desc="Properties">
     @lazy_property

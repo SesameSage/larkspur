@@ -554,11 +554,14 @@ class CombatEntity(EquipmentEntity):
 
         enemies = COMBAT.get_enemies(self)
         # Quest stages tied to killing this specific entity
-        for quest_hook in self.db.quest_hooks["at_defeat"]:
-            for enemy in enemies:
-                if enemy.attributes.has("quest_stages") and enemy.quests.at_stage(quest_hook):
-                    enemy.msg(quest_hook["msg"])
-                    enemy.quests.advance_to(quest_hook)
+        hooks = self.db.quest_hooks["at_defeat"]
+        for qid in hooks:
+            for stage in hooks[qid]:
+                hook_data = hooks[qid][stage]
+                for enemy in enemies:
+                    if enemy.attributes.has("quest_stages") and enemy.quests.at_stage(qid, stage):
+                        enemy.msg(hook_data["msg"])
+                        enemy.quests.advance_to(qid, hook_data["next_stage"])
 
         # Quest stages tied to killing a number of enemies of a type
         for enemy in enemies:

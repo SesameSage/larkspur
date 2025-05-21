@@ -311,7 +311,11 @@ class CmdQuestHook(MuxCommand):
 
                         case "next_stage":
                             next_stage = yield "Enter next stage:"
-                            opt_dict["next_stage"] = next_stage
+                            try:
+                                opt_dict["next_stage"] = int(next_stage)
+                            except ValueError:
+                                self.caller.msg(f"Failed to parse {next_stage} as in integer")
+                                return
 
                         case _:
                             self.caller.msg("No valid option found for " + attr)
