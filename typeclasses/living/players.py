@@ -70,7 +70,6 @@ class PlayerCharacter(Character):
         if self.attributes.get("prefs", category="ooc")["more_info"]:
             self.msg(appearance.moreinfo + string)
 
-    # TODO: is_outdoors doesn't set on auto env set at room creation
     def at_post_move(self, source_location, move_type="move", **kwargs):
         super().at_post_move(source_location, move_type, **kwargs)
         if not self.location or not source_location:

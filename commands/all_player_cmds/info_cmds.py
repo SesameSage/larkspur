@@ -6,10 +6,15 @@ from evennia.commands.cmdset import CmdSet
 from evennia.commands.default.help import CmdHelp, HelpCategory
 from evennia.help.utils import help_search_with_index, parse_entry_for_subcategories
 from evennia.utils import inherits_from
+from evennia.utils.evtable import EvTable
+
+from world.quests.quest import quest_desc, get_quest
 
 
 # Overridden to hide commands with empty string as help_category
 class MyCmdHelp(CmdHelp):
+    help_category = "info"
+
     def func(self):
         """
         Run the dynamic help entry creator.
@@ -234,7 +239,7 @@ class CmdMoreInfo(Command):
         on the status of calculations in combat.
         """
     key = "moreinfo"
-    help_category = "appearance"
+    help_category = "info"
 
     def func(self):
         self.caller.attributes.get("prefs", category="ooc")["more_info"] = \
@@ -270,8 +275,44 @@ class CmdHere(Command):
                         f"|wRegion:|n {region}\n")
 
 
+class CmdQuests(Command):
+    key = "quests"
+    aliases = ("quest", "ques")
+    help_category = "info"
+
+    def func(self):
+        player = self.caller
+        quest_data = player.db.quest_stages
+        quest_infos = []
+
+        for qid in quest_data:
+            quest = get_quest(qid)
+            if quest is None:
+                continue
+            rec_level = quest["recommended_level"]
+            q_desc = quest_desc(qid=qid)
+            current_stage = quest_data[qid]
+            current_objective = quest_desc(qid, current_stage)
+            quest_infos.append({
+                "rec_level": rec_level,
+                "q_desc": q_desc,
+                "current_objective": current_objective,
+            })
+
+        quest_infos = sorted(quest_infos, key=lambda x: x["rec_level"])
+
+        table = EvTable("|wQuests", pretty_corners=True)
+        for info_dict in quest_infos:
+            table.add_row(f"✼ {info_dict["q_desc"]}")
+            table.add_row(f"|=a____|w⇛ {info_dict["current_objective"]}")
+            table.add_row("")
+
+        player.msg(table)
+
+
 class InfoCmdSet(CmdSet):
     def at_cmdset_creation(self):
         self.add(MyCmdHelp)
         self.add(CmdMoreInfo)
         self.add(CmdHere)
+        self.add(CmdQuests)
