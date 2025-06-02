@@ -4,10 +4,12 @@ from itertools import chain
 from evennia import Command
 from evennia.commands.cmdset import CmdSet
 from evennia.commands.default.help import CmdHelp, HelpCategory
+from evennia.commands.default.muxcommand import MuxCommand
 from evennia.help.utils import help_search_with_index, parse_entry_for_subcategories
 from evennia.utils import inherits_from
 from evennia.utils.evtable import EvTable
 
+from server import appearance
 from world.quests.quest import quest_desc, get_quest
 
 
@@ -275,7 +277,7 @@ class CmdHere(Command):
                         f"|wRegion:|n {region}\n")
 
 
-class CmdQuests(Command):
+class CmdQuests(MuxCommand):
     key = "quests"
     aliases = ("quest", "ques")
     help_category = "info"
@@ -293,21 +295,43 @@ class CmdQuests(Command):
             q_desc = quest_desc(qid=qid)
             current_stage = quest_data[qid]
             current_objective = quest_desc(qid, current_stage)
+            quest_long = quest.get("long_desc", "")
+            stage_long = quest["stages"][current_stage].get("long_desc", "")
             quest_infos.append({
                 "rec_level": rec_level,
                 "q_desc": q_desc,
+                "quest_long": quest_long,
                 "current_objective": current_objective,
+                "stage_long": stage_long
             })
 
         quest_infos = sorted(quest_infos, key=lambda x: x["rec_level"])
 
-        table = EvTable("|wQuests", pretty_corners=True)
-        for info_dict in quest_infos:
-            table.add_row(f"✼ {info_dict["q_desc"]}")
-            table.add_row(f"|=a____|w⇛ {info_dict["current_objective"]}")
-            table.add_row("")
+        if not self.lhs:
+            current_quests = EvTable("|wQuests", pretty_corners=True)
+            for i, info_dict in enumerate(quest_infos):
+                current_quests.add_row(f"{i + 1}. {info_dict["q_desc"]}")
+                current_quests.add_row(f"|=a____|w⇛ {info_dict["current_objective"]}")
+                current_quests.add_row("")
 
-        player.msg(table)
+            player.msg(current_quests)
+        else:
+            try:
+                quest_num = int(self.lhs)
+            except ValueError:
+                self.caller.msg(f"Argument must be a quest number! Usage: {appearance.cmd}quest 2")
+                return
+            try:
+                quest = quest_infos[quest_num - 1]
+            except IndexError:
+                self.caller.msg(f"Index {quest_num} is not currently present in your quest list.")
+                return
+            player.msg(f"|wQuest Detail: {quest["q_desc"]}|n\n"
+                       f"{quest["quest_long"]}\n"
+                       f"\n"
+                       f"|wCurrent Objective:|n\n"
+                       f"⇛ {quest["current_objective"]}\n"
+                       f"{quest["stage_long"]}")
 
 
 class InfoCmdSet(CmdSet):
