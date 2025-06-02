@@ -59,9 +59,8 @@ PROTOTYPE_MODULES = ["world.prototypes.prototypes", "world.prototypes.entity_pro
                      "world.prototypes.equipment.weapon_protos", "world.prototypes.consumable_protos",
                      "world.prototypes.equipment.armor_protos", "world.prototypes.equipment.apparel_protos",
                      "world.prototypes.equipment.equipment_protos"]
-FILE_HELP_ENTRY_MODULES = ["world.help_entries", "combat.help_combat", "typclasses.living.help_characters",
-                           "typeclasses.inanimate.items.help_items", "typeclasses.ooc.help_ooc",
-                           "combat.help_abilities",]
+FILE_HELP_ENTRY_MODULES = ["world.help.help_entries", "world.help.help_combat", "world.help.help_characters",
+                           "world.help.help_items", "world.help.help_ooc", "world.help.help_builders"]
 
 ######################################################################
 # Settings given in secret_settings.py override those in this file.
