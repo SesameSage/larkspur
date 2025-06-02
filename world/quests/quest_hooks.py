@@ -1,7 +1,38 @@
+"""
+QUEST HOOKS:
+    Items
+        at_get
+            msg
+            next_stage
+        at_give
+            msg
+            getter
+            next_stage
+    Characters
+        at_talk
+            spoken_lines
+            next_stage
+        at_told
+            options
+                keywords
+                spoken_lines
+                next_stage
+        at_defeat
+            msg
+            next_stage
+        at_object_receive
+            spoken_lines
+            next_stage
+    Rooms
+        at_object_receive
+            msg
+            next_stage
+"""
+from evennia.utils import inherits_from
 from evennia.utils.dbserialize import _SaverList
 
 from server import appearance
-from world.quests.quest import all_quests, quest_desc
+from world.quests.quest import get_stage, quest_desc
 
 
 def get_hook_type(obj, qid, stage):
@@ -12,6 +43,26 @@ def get_hook_type(obj, qid, stage):
                 for hook_stage in quest_hooks[hook_type][qid]:
                     if hook_stage == stage:
                         return hook_type
+
+
+def location_string(qid, stage, objective_type=None, obj=None):
+    stage = get_stage(qid, stage)
+    objective_type = objective_type or stage.get("objective_type", "")
+    obj = obj or stage.get("object", None)
+
+    if objective_type == "at_give":
+        obj = stage.get("getter", None)
+    elif objective_type == "kill_counter":
+        return ""
+
+    if not obj:
+        return ""
+
+    area_string = f"{obj.location.db.area.key}, {obj.location.locality().key}, {obj.location.zone().key}"
+    if inherits_from(obj, "typeclasses.living.living_entities.LivingEntity") and objective_type != "at_defeat":
+        return f"{obj.location.key}, " + area_string
+    else:
+        return area_string
 
 
 def print_quest_hooks(obj, caller):

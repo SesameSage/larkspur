@@ -11,6 +11,7 @@ from evennia.utils.evtable import EvTable
 
 from server import appearance
 from world.quests.quest import quest_desc, get_quest
+from world.quests.quest_hooks import location_string
 
 
 # Overridden to hide commands with empty string as help_category
@@ -278,6 +279,16 @@ class CmdHere(Command):
 
 
 class CmdQuests(MuxCommand):
+    """
+        view your current quests
+
+        Usage:
+          quests           (all quests)
+          quests <number>  (info on a quest)
+
+        View all your current quests in brief, or detailed info on a
+        particular quest in the list by number.
+        """
     key = "quests"
     aliases = ("quest", "ques")
     help_category = "info"
@@ -295,6 +306,7 @@ class CmdQuests(MuxCommand):
             q_desc = quest_desc(qid=qid)
             current_stage = quest_data[qid]
             current_objective = quest_desc(qid, current_stage)
+            location = quest["stages"][current_stage].get("location", location_string(qid, current_stage))
             quest_long = quest.get("long_desc", "")
             stage_long = quest["stages"][current_stage].get("long_desc", "")
             quest_infos.append({
@@ -302,11 +314,13 @@ class CmdQuests(MuxCommand):
                 "q_desc": q_desc,
                 "quest_long": quest_long,
                 "current_objective": current_objective,
+                "location": location,
                 "stage_long": stage_long
             })
 
         quest_infos = sorted(quest_infos, key=lambda x: x["rec_level"])
 
+        # No args = Display current quests in brief
         if not self.lhs:
             current_quests = EvTable("|wQuests", pretty_corners=True)
             for i, info_dict in enumerate(quest_infos):
@@ -315,6 +329,8 @@ class CmdQuests(MuxCommand):
                 current_quests.add_row("")
 
             player.msg(current_quests)
+
+        # Arg is index of specific quest to view (index according to player-view list)
         else:
             try:
                 quest_num = int(self.lhs)
@@ -331,6 +347,7 @@ class CmdQuests(MuxCommand):
                        f"\n"
                        f"|wCurrent Objective:|n\n"
                        f"⇛ {quest["current_objective"]}\n"
+                       f"◈ {quest["location"]}"
                        f"{quest["stage_long"]}")
 
 

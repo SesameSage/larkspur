@@ -1,40 +1,6 @@
-"""
-QUEST HOOKS:
-    Items
-        at_get
-            msg
-            next_stage
-        at_give
-            msg
-            getter
-            next_stage
-    Characters
-        at_talk
-            spoken_lines
-            next_stage
-        at_told
-            options
-                keywords
-                spoken_lines
-                next_stage
-        at_defeat
-            msg
-            next_stage
-        at_object_receive
-            spoken_lines
-            next_stage
-    Rooms
-        at_object_receive
-            msg
-            next_stage
-"""
-
 from evennia import GLOBAL_SCRIPTS
 
 from typeclasses.scripts.scripts import Script
-
-
-# TODO: Quest stage location info
 
 def all_quests():
     quests = GLOBAL_SCRIPTS.get("All Quests").db.quests
@@ -74,7 +40,11 @@ def quest_desc(qid, stage=None):
         if quest_dict is None:
             return ""
         else:
-            return quest_dict["desc"]
+            try:
+                return quest_dict["desc"]
+            except KeyError:
+                quest_dict["desc"] = ""
+                return quest_dict["desc"]
 
 
 class Quest(Script):

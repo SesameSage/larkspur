@@ -81,7 +81,10 @@ class CmdLocations(MuxCommand):
                         # easily set by creating them in a new, delocalized room
                         adjacent_room_localities = [obj.destination.locality() for obj in current_room.contents if
                                                     obj.destination]
-                        adjacent_locality = adjacent_room_localities[0]
+                        try:
+                            adjacent_locality = adjacent_room_localities[0]
+                        except IndexError:
+                            adjacent_locality = None
                         if not all(locality == adjacent_locality for locality in adjacent_room_localities):
                             self.caller.msg("Multiple adjacent localities - set locality manually.")
                             return

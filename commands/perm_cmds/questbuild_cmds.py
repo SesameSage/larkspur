@@ -6,7 +6,7 @@ from evennia.utils.evtable import EvTable
 
 from server import appearance
 from world.quests.quest import all_quests, quest_desc, get_quest, get_stage
-from world.quests.quest_hooks import print_quest_hooks, get_hook_type
+from world.quests.quest_hooks import print_quest_hooks, get_hook_type, location_string
 
 
 class CmdQuestEdit(MuxCommand):
@@ -82,7 +82,7 @@ class CmdQuestEdit(MuxCommand):
                     self.caller.msg(quest["long_desc"])
                 except KeyError:
                     pass
-                table = EvTable("Stages:", "Decription", "Objective", "Object", "Long")
+                table = EvTable("#", "Decription", "Objective", "Object", "Location", "Long")
                 stages = quest["stages"]
                 for stage_num in stages:
                     stage = stages[stage_num]
@@ -100,7 +100,8 @@ class CmdQuestEdit(MuxCommand):
                             long = long[:35] + "..."
                     except KeyError:
                         long = ""
-                    table.add_row(stage_num, stage_desc, stage["objective_type"], obj, long)
+                    location = stage.get("location", "")
+                    table.add_row(stage_num, stage_desc, stage["objective_type"], obj, location, long)
                 self.caller.msg(table)
                 return
 
@@ -265,8 +266,13 @@ class CmdQuestHook(MuxCommand):
                 quests[qid]["stages"][stage] = {}
                 quests[qid]["stages"][stage]["objective_type"] = objective_type
                 quests[qid]["stages"][stage]["object"] = obj
+                quests[qid]["stages"][stage]["location"] = location_string(qid, stage,
+                                                                           objective_type=objective_type, obj=obj)
             except KeyError:
                 quests[qid]["stages"][stage] = {"objective_type": objective_type, "object": obj}
+                quests[qid]["stages"][stage]["location"] = location_string(qid, stage)
+
+            evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests = quests
 
         elif "remove" in self.switches:
             objective_type = get_hook_type(obj, qid, stage)
