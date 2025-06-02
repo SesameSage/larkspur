@@ -23,14 +23,6 @@ class PlayerCmdSet(CmdSet):
 
     def at_cmdset_creation(self):
         super().at_cmdset_creation()
-
-        # Builders only
-        self.add(GameDataCmdSet)
-        self.add(BuildingCmdSet)
-        self.add(LocationCmdSet)
-        self.add(QuestBuildCmdSet)
-        self.add(ObjectDataCmdSet)
-
         # General
         self.add(StatsCmdSet)
         self.add(InfoCmdSet)
@@ -47,5 +39,12 @@ class PlayerCmdSet(CmdSet):
 
         # Refiled under different help categories
         self.add(RefiledCmdSet)
+
+        # Builders only
+        self.add(GameDataCmdSet)
+        self.add(BuildingCmdSet)
+        self.add(LocationCmdSet)
+        self.add(QuestBuildCmdSet)
+        self.add(ObjectDataCmdSet)
 
 

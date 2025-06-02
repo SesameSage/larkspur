@@ -177,7 +177,7 @@ class Ability(Object):
         cost_string = cost_string[:-2]
         return cost_string
 
-    def requires_string(self):
+    def requirements_string(self):
         string = ""
         for requirement in self.db.requires:
             stat, amt = requirement
@@ -195,7 +195,7 @@ class Ability(Object):
         |wCosts|n: {self.cost_string()}
         |wCooldown|n: {self.db.cooldown}s / {self.db.cooldown // SECS_PER_TURN}t
         
-        |wRequires|n: {self.requires_string()}
+        |wRequires|n: {self.requirements_string()}
         """
 
 
