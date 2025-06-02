@@ -34,6 +34,8 @@ from evennia import GLOBAL_SCRIPTS
 from typeclasses.scripts.scripts import Script
 
 
+# TODO: Quest stage location info
+
 def all_quests():
     quests = GLOBAL_SCRIPTS.get("All Quests").db.quests
     quests = dict(sorted(quests.items()))
@@ -81,4 +83,5 @@ class Quest(Script):
         self.db.qid = None
         self.db.recommended_level = None
         self.db.desc = ""
+        self.db.long_desc = ""
         self.db.stages = {}  # Number: desc

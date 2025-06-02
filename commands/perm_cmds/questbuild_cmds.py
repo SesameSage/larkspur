@@ -19,12 +19,16 @@ class CmdQuestEdit(MuxCommand):
           qe/level <QID> = <level>       (set quest level)
           qe/desc <QID> = <quest desc>   (set quest desc)
           qe/desc <QID>.<stage> = <desc> (set stage desc)
+          qe/long <QID> = <quest long_desc>   (set quest long_desc)
+          qe/long <QID>.<stage> = <long_desc> (set stage long_desc)
+
 
         Examples:
            qe 12
            qe/level 8 = 2
            qe/desc 0 = Start your journey
            qe/desc 0.0 = Talk to the trainer
+           qe/long 16.4 = I've found the relic in the tomb. I should return to Lorto.
 
         ('qe'): Show all quests by quest ID, recommended level, and quest description.
 
@@ -39,7 +43,7 @@ class CmdQuestEdit(MuxCommand):
         """
     key = "questedit"
     aliases = ("qe",)
-    switch_options = ("desc", "level")
+    switch_options = ("level", "desc", "long")
     locks = "cmd:perm(questedit) or perm(Builder)"
     help_category = "building"
 
@@ -74,7 +78,11 @@ class CmdQuestEdit(MuxCommand):
             if not self.rhs:
                 quest = quests[qid]
                 self.caller.msg(f"Quest #{qid}: {quest_desc(qid)}")
-                table = EvTable("Stages:", "Decription", "Objective", "Object")
+                try:
+                    self.caller.msg(quest["long_desc"])
+                except KeyError:
+                    pass
+                table = EvTable("Stages:", "Decription", "Objective", "Object", "Long")
                 stages = quest["stages"]
                 for stage_num in stages:
                     stage = stages[stage_num]
@@ -86,7 +94,13 @@ class CmdQuestEdit(MuxCommand):
                             obj = stage["target_type"]
                         except KeyError:
                             obj = ""
-                    table.add_row(stage_num, stage_desc, stage["objective_type"], obj)
+                    try:
+                        long = stage["long_desc"]
+                        if len(long) > 35:
+                            long = long[:35] + "..."
+                    except KeyError:
+                        long = ""
+                    table.add_row(stage_num, stage_desc, stage["objective_type"], obj, long)
                 self.caller.msg(table)
                 return
 
@@ -115,6 +129,26 @@ class CmdQuestEdit(MuxCommand):
                             evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["stages"][stage] = {
                                 "desc": self.rhs,
                                 "objective_type": ""}
+                        return
+
+                elif "long" in self.switches:
+                    if stage is None:  # Set long_desc for entire quest
+                        evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["long_desc"] = self.rhs
+                    else:  # Set long_desc for quest stage
+                        # Ensure quest data has the "stages" dict
+                        try:
+                            evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["stages"]
+                        except KeyError:
+                            evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["stages"] = {}
+                        # Ensure the stages data includes this stage
+                        try:
+                            evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["stages"][stage]["long_desc"] = (
+                                self.rhs)
+                        except KeyError:
+                            evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["stages"][stage] = {
+                                "desc": "",
+                                "objective_type": "",
+                                "long_desc": self.rhs}
                         return
 
                 elif "level" in self.switches:
