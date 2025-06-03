@@ -192,7 +192,7 @@ class Character(LivingEntity):
                 if player.quests.at_stage(qid, stage):
                     for line in hook_data["spoken_lines"]:
                         self.say_to(player, line)
-                    player.quests.advance_quest(qid, hook_data["next_stage"])
+                    player.quests.advance_quest(hook_data["next_stage"])
                     break
 
     def at_tell(self, receiver, message: str):
@@ -230,7 +230,7 @@ class Character(LivingEntity):
                             for line in option["spoken_lines"]:
                                 self.say_to(teller, line)
                             spoken = True
-                            teller.quests.advance_quest(qid, option["next_stage"])
+                            teller.quests.advance_quest(option["next_stage"])
                             break  # from options list
         if not spoken:
             self.say_to(teller, "Hmm?")

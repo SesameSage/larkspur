@@ -280,7 +280,7 @@ class Item(Object):
                 hook_data = hooks[qid][stage]
                 if getter.attributes.has("quest_stages") and getter.quests.at_stage(qid, stage):
                     getter.msg(hook_data["msg"])
-                    getter.quests.advance_quest(qid, hook_data["next_stage"])
+                    getter.quests.advance_quest(hook_data["next_stage"])
 
     def at_give(self, giver, getter, **kwargs):
         super().at_give(giver, getter, **kwargs)
@@ -290,7 +290,7 @@ class Item(Object):
                 hook_data = hooks[qid][stage]
                 if getter.attributes.has("quest_stages") and getter.quests.at_stage(qid, stage):
                     getter.msg(hook_data["msg"])
-                    getter.quests.advance_quest(qid, hook_data["next_stage"])
+                    getter.quests.advance_quest(hook_data["next_stage"])
 
 
 class LightItem(Item):

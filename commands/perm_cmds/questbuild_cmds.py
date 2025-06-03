@@ -199,6 +199,21 @@ class CmdQuestHook(MuxCommand):
     help_category = "building"
 
     def func(self):
+        def valiate_next_stage(stage_input):
+            if stage_input != "None":
+                numbers = stage_input.split(".")
+                if len(numbers) != 2:
+                    self.caller.msg("Next stage must be 'None' or an integer pair formatted as "
+                                    "QID.Stage")
+                    return False
+                for number in numbers:
+                    try:
+                        int(number)
+                    except ValueError:
+                        self.caller.msg(f"Couldn't parse '{stage_input}' as a pair of integers.")
+                        return False
+            return True
+
         if not self.lhs:
             self.caller.msg(f"Must supply an object e.g. {appearance.cmd}questhook/<switch> <object> = ...")
             return
@@ -308,8 +323,9 @@ class CmdQuestHook(MuxCommand):
                     obj.db.quest_hooks[hook_type][qid][stage]["msg"] = msg
 
                 case "next_stage":
-                    next_stage = yield "Enter next stage:"
-                    obj.db.quest_hooks[hook_type][qid][stage]["next_stage"] = next_stage
+                    stage_input = yield "Enter next stage as QID.Stage:"
+                    if valiate_next_stage(stage_input):
+                        obj.db.quest_hooks[hook_type][qid][stage]["next_stage"] = stage_input
 
                 case "spoken_lines":
                     line_inpt = yield "Write lines separated by '/':"
@@ -350,12 +366,9 @@ class CmdQuestHook(MuxCommand):
                             opt_dict["spoken_lines"] = lines
 
                         case "next_stage":
-                            next_stage = yield "Enter next stage:"
-                            try:
-                                opt_dict["next_stage"] = int(next_stage)
-                            except ValueError:
-                                self.caller.msg(f"Failed to parse {next_stage} as in integer")
-                                return
+                            stage_input = yield "Enter next stage as QID.Stage:"
+                            if valiate_next_stage(stage_input):
+                                opt_dict["next_stage"] = stage_input
 
                         case _:
                             self.caller.msg("No valid option found for " + attr)

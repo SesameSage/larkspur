@@ -49,7 +49,7 @@ class Room(Object, DefaultRoom):
                 hook_data = hooks[qid][stage]
                 if moved_obj.attributes.has("quest_stages") and moved_obj.quests.at_stage(qid, stage):
                     moved_obj.msg(hook_data["msg"])
-                    moved_obj.quests.advance_quest(qid, hook_data["next_stage"])
+                    moved_obj.quests.advance_quest(hook_data["next_stage"])
 
     # <editor-fold desc="Properties">
     @lazy_property

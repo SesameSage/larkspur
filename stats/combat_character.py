@@ -561,7 +561,7 @@ class CombatEntity(EquipmentEntity):
                 for enemy in enemies:
                     if enemy.attributes.has("quest_stages") and enemy.quests.at_stage(qid, stage):
                         enemy.msg(hook_data["msg"])
-                        enemy.quests.advance_quest(qid, hook_data["next_stage"])
+                        enemy.quests.advance_quest(hook_data["next_stage"])
 
         # Quest stages tied to killing a number of enemies of a type
         for enemy in enemies:
@@ -579,9 +579,8 @@ class CombatEntity(EquipmentEntity):
                 if kill_counter["killed"] >= kill_counter["needed"]:
                     stage_desc = quest_desc(qid=kill_counter["QID"], stage=kill_counter["stage"])
                     enemy.msg(f"{appearance.notify}You have completed: {stage_desc}!")
-                    qid = kill_counters[i]["QID"]
-                    stage = kill_counters[i]["next_stage"]
-                    enemy.quests.advance_quest(qid=qid, stage=stage)
+                    stage_str = kill_counters[i]["next_stage"]
+                    enemy.quests.advance_quest(stage_str)
 
         return True
     # </editor-fold>

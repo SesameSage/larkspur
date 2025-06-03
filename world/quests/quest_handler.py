@@ -1,4 +1,6 @@
-from world.quests.quest import all_quests, get_stage
+from evennia import logger
+
+from world.quests.quest import get_stage
 
 
 class QuestHandler:
@@ -18,9 +20,23 @@ class QuestHandler:
         else:
             return False
 
-    def advance_quest(self, qid, stage):
+    def advance_quest(self, stage_str):
+        if stage_str == "None":
+            return
+        numbers = stage_str.split(".")
+        if len(numbers) != 2:
+            logger.log_msg(f"advance_quest received a non-pair from '{stage_str}': {str(numbers)}")
+            return
+        qid = numbers[0]
+        stage = numbers[1]
+        self.advance_to(qid, stage)
+
+    def advance_to(self, qid, stage):
         if stage is None or stage == "None":
             return
+        qid = int(qid)
+        stage = int(stage)
+
         # Reflect in the player's data that they are now at the new stage
         self.data[qid] = stage
 
