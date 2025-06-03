@@ -24,7 +24,7 @@ a lot more complex possibilities.
 """
 
 from evennia import CmdSet, DefaultObject, default_cmds
-from evennia.utils.evmenu import EvMenu
+from evennia.utils import inherits_from
 
 # Menu implementing the dialogue tree
 
@@ -119,18 +119,27 @@ class CmdTalk(default_cmds.MuxCommand):
     help_category = "communication"
 
     def func(self):
-        "Implements the command."
-
-        # self.obj is the NPC this is defined on
-        self.caller.msg("(You walk up and talk to %s.)" % self.obj.key)
-
-        # Initiate the menu. Change this if you are putting this on
-        # some other custom NPC class.
-        EvMenu(
-            self.caller,
-            "typeclasses.living.talking_npc",
-            startnode="menu_start_node(kwargs=<npc>)",
-        )
+        npc_input = self.lhs
+        if not npc_input:
+            self.caller.msg("Talk to whom?")
+            return
+        npc = self.caller.search(npc_input)
+        if not npc:
+            return
+        if not inherits_from(npc, "typeclasses.living.characters.Character"):
+            self.caller.msg(npc.key + " is not a character you can talk to!")
+            return
+        npc.at_talk(self.caller)
+        # # self.obj is the NPC this is defined on
+        # self.caller.msg("(You walk up and talk to %s.)" % self.obj.key)
+        #
+        # # Initiate the menu. Change this if you are putting this on
+        # # some other custom NPC class.
+        # EvMenu(
+        #     self.caller,
+        #     "typeclasses.living.talking_npc",
+        #     startnode="menu_start_node(kwargs=<npc>)",
+        # )
 
 
 class TalkingCmdSet(CmdSet):
