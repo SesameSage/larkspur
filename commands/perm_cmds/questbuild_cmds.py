@@ -319,8 +319,15 @@ class CmdQuestHook(MuxCommand):
 
             # Choose aspect of hook to edit
             inpt = yield f"Select quest hook attribute to edit: ({str(options)})"
+            cmd = None
+            for cmd_ref in ["msg", "next_stage", "spoken_lines", "options"]:
+                if cmd_ref.startswith(inpt):
+                    cmd = cmd_ref
+            if not cmd:
+                self.caller.msg("No option found for " + inpt)
+                return
             # Set value
-            match inpt:
+            match cmd:
                 case "msg":
                     msg = yield "Enter message:"
                     obj.db.quest_hooks[hook_type][qid][stage]["msg"] = msg
@@ -353,7 +360,15 @@ class CmdQuestHook(MuxCommand):
                         opt_dict = {"keywords": [], "spoken_lines": [], "next_stage": None}
 
                     # Choose attribute of dialogue option to edit
-                    attr = yield "Edit keywords, spoken_lines, or next_stage?:"
+                    inpt = yield "Edit keywords, spoken_lines, or next_stage?:"
+                    attr = None
+                    for attr_ref in ["keywords", "spoken_lines", "next_stage"]:
+                        if attr_ref.startswith(inpt):
+                            attr = attr_ref
+                    if not attr:
+                        self.caller.msg("No option found for " + inpt)
+                        return
+
                     # Set value
                     match attr:
                         case "keywords":
