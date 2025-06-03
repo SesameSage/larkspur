@@ -18,12 +18,7 @@ class QuestHandler:
         else:
             return False
 
-    def advance_quest(self, quest_hook: dict):
-        next_stage = quest_hook["next_stage"]
-        if next_stage is not None:
-            self.advance_to(quest_hook["qid"], quest_hook["next_stage"])
-
-    def advance_to(self, qid, stage):
+    def advance_quest(self, qid, stage):
         # Reflect in the player's data that they are now at the new stage
         self.data[qid] = stage
 

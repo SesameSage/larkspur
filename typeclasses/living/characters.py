@@ -193,6 +193,7 @@ class Character(LivingEntity):
                     for line in hook_data["spoken_lines"]:
                         self.say_to(player, line)
                     player.quests.advance_quest(qid, hook_data["next_stage"])
+                    break
 
     def at_tell(self, receiver, message: str):
         pass
@@ -220,7 +221,7 @@ class Character(LivingEntity):
                             else:  # All keywords in this dialogue option present in the message
                                 for line in option["spoken_lines"]:
                                     self.say_to(teller, line)
-                                teller.quests.advance_to(qid, option["next_stage"])
+                                teller.quests.advance_quest(qid, option["next_stage"])
                                 return
 
 
