@@ -220,14 +220,18 @@ class Character(LivingEntity):
                 hook_data = hooks[qid][stage]
                 if teller.quests.at_stage(qid, stage):
                     for option in hook_data["options"]:
+                        all_keywords = False
                         for keyword in option["keywords"]:
+                            all_keywords = True
                             if keyword not in message.split(" "):  # Keyword missing from this dialogue option
-                                continue  # Try the next option
-                            else:  # All keywords in this dialogue option present in the message
-                                for line in option["spoken_lines"]:
-                                    self.say_to(teller, line)
-                                spoken = True
-                                teller.quests.advance_quest(qid, option["next_stage"])
+                                all_keywords = False
+                        if all_keywords:
+                            # All keywords in this dialogue option present in the message
+                            for line in option["spoken_lines"]:
+                                self.say_to(teller, line)
+                            spoken = True
+                            teller.quests.advance_quest(qid, option["next_stage"])
+                            break  # from options list
         if not spoken:
             self.say_to(teller, "Hmm?")
 
