@@ -286,6 +286,9 @@ class CmdQuestHook(MuxCommand):
             except KeyError:
                 quests[qid]["stages"][stage] = {"objective_type": objective_type, "object": obj}
                 quests[qid]["stages"][stage]["location"] = location_string(qid, stage)
+            # Auto-set next_stage
+            if objective_type != "at_told":
+                quests[qid]["stages"][stage]["next_stage"] = f"{qid}.{stage + 1}"
 
             evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests = quests
 
