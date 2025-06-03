@@ -19,6 +19,8 @@ class QuestHandler:
             return False
 
     def advance_quest(self, qid, stage):
+        if stage is None or stage == "None":
+            return
         # Reflect in the player's data that they are now at the new stage
         self.data[qid] = stage
 

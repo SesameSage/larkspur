@@ -210,8 +210,13 @@ class Character(LivingEntity):
         :return:
         """
         hooks = self.db.quest_hooks["at_told"]
+        spoken = False
         for qid in hooks:
+            if spoken:
+                break
             for stage in hooks[qid]:
+                if spoken:
+                    break
                 hook_data = hooks[qid][stage]
                 if teller.quests.at_stage(qid, stage):
                     for option in hook_data["options"]:
@@ -221,8 +226,10 @@ class Character(LivingEntity):
                             else:  # All keywords in this dialogue option present in the message
                                 for line in option["spoken_lines"]:
                                     self.say_to(teller, line)
+                                spoken = True
                                 teller.quests.advance_quest(qid, option["next_stage"])
-                                return
+        if not spoken:
+            self.say_to(teller, "Hmm?")
 
 
 class NPC(Character, TalkableNPC):
