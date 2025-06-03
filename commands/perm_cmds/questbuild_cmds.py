@@ -117,6 +117,7 @@ class CmdQuestEdit(MuxCommand):
                 if "desc" in self.switches:
                     if stage is None:  # Set description for entire quest
                         evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["desc"] = self.rhs
+                        self.caller.msg(f"Quest #{qid} short description set to '{self.rhs}'")
                     else:  # Set description for quest stage
                         # Ensure quest data has the "stages" dict
                         try:
@@ -126,15 +127,18 @@ class CmdQuestEdit(MuxCommand):
                         # Ensure the stages data includes this stage
                         try:
                             evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["stages"][stage]["desc"] = self.rhs
+                            self.caller.msg(f"Stage {qid}.{stage} short description set to '{self.rhs}'")
                         except KeyError:
                             evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["stages"][stage] = {
                                 "desc": self.rhs,
                                 "objective_type": ""}
+                            self.caller.msg(f"Stage {qid}.{stage} short description set to '{self.rhs}'")
                         return
 
                 elif "long" in self.switches:
                     if stage is None:  # Set long_desc for entire quest
                         evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["long_desc"] = self.rhs
+                        self.caller.msg(f"Quest #{qid} long description set to '{self.rhs}'")
                     else:  # Set long_desc for quest stage
                         # Ensure quest data has the "stages" dict
                         try:
@@ -145,11 +149,13 @@ class CmdQuestEdit(MuxCommand):
                         try:
                             evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["stages"][stage]["long_desc"] = (
                                 self.rhs)
+                            self.caller.msg(f"Stage {qid}.{stage} long description set to '{self.rhs}'")
                         except KeyError:
                             evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["stages"][stage] = {
                                 "desc": "",
                                 "objective_type": "",
                                 "long_desc": self.rhs}
+                            self.caller.msg(f"Stage {qid}.{stage} long description set to '{self.rhs}'")
                         return
 
                 elif "level" in self.switches:
@@ -168,6 +174,7 @@ class CmdQuestEdit(MuxCommand):
 
                     # Set recommended level in quest data
                     evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["recommended_level"] = level
+                    self.caller.msg(f"Quest #{qid} recommended level set to {level}.")
                     return
 
 
@@ -267,9 +274,18 @@ class CmdQuestHook(MuxCommand):
             # Create the data for the quest hook on the object
             try:
                 obj.db.quest_hooks[objective_type][qid][stage] = {}
+                self.caller.msg(f"Added {objective_type} hook data to {obj.key} for stage {qid}.{stage}")
             except KeyError:
                 obj.db.quest_hooks[objective_type][qid] = {}
                 obj.db.quest_hooks[objective_type][qid][stage] = {}
+                self.caller.msg(f"Added {objective_type} hook data to {obj.key} for stage {qid}.{stage}")
+
+            # Auto-set next_stage
+            if objective_type != "at_told":
+                stage_str = f"{qid}.{stage + 1}"
+                obj.db.quest_hooks[objective_type][qid][stage] = stage_str
+                self.caller.msg(f"Next stage auto-set to {qid}.{stage} - "
+                                f"{appearance.cmd}qh/edit {obj.key} = {qid}.{stage}|n to change")
 
             # Add hook info to quest data
             quests = all_quests()
@@ -283,12 +299,12 @@ class CmdQuestHook(MuxCommand):
                 quests[qid]["stages"][stage]["object"] = obj
                 quests[qid]["stages"][stage]["location"] = location_string(qid, stage,
                                                                            objective_type=objective_type, obj=obj)
+                self.caller.msg("Attributes auto-set in global quest data.")
             except KeyError:
                 quests[qid]["stages"][stage] = {"objective_type": objective_type, "object": obj}
                 quests[qid]["stages"][stage]["location"] = location_string(qid, stage)
-            # Auto-set next_stage
-            if objective_type != "at_told":
-                quests[qid]["stages"][stage]["next_stage"] = f"{qid}.{stage + 1}"
+                self.caller.msg("Attributes auto-set in global quest data.")
+
 
             evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests = quests
 
@@ -298,6 +314,7 @@ class CmdQuestHook(MuxCommand):
             del obj.db.quest_hooks[objective_type][qid]
             quests = evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests
             del quests[qid]["stages"][stage]
+            self.caller.msg(f"Stage {qid}.{stage} {objective_type} hook on {obj.key} removed.")
 
         elif "edit" in self.switches:
             # Show the proper attributes editable according to objective/hook type
@@ -327,21 +344,28 @@ class CmdQuestHook(MuxCommand):
                 self.caller.msg("No option found for " + inpt)
                 return
             # Set value
+            value_set = False
             match cmd:
                 case "msg":
                     msg = yield "Enter message:"
                     obj.db.quest_hooks[hook_type][qid][stage]["msg"] = msg
+                    value_set = True
+                    value = msg
 
                 case "next_stage":
                     stage_input = yield "Enter next stage as QID.Stage:"
                     if valiate_next_stage(stage_input):
                         obj.db.quest_hooks[hook_type][qid][stage]["next_stage"] = stage_input
+                        value_set = True
+                        value = stage_input
 
                 case "spoken_lines":
                     line_inpt = yield "Write lines separated by '/':"
                     lines = line_inpt.split("/")
                     lines = [line.strip() for line in lines]
                     obj.db.quest_hooks[hook_type][qid][stage]["spoken_lines"] = lines
+                    value_set = True
+                    value = lines
 
                 # Dialogue options in at_told hooks
                 case "options":
@@ -370,27 +394,36 @@ class CmdQuestHook(MuxCommand):
                         return
 
                     # Set value
+                    optval_set = False
                     match attr:
                         case "keywords":
                             keywords = yield "Enter keywords separated by comma:"
                             words = keywords.split(",")
                             words = [word.strip() for word in words]
                             opt_dict["keywords"] = words
+                            optval_set = True
+                            value = words
 
                         case "spoken_lines":
                             line_inpt = yield "Write lines separated by '/':"
                             lines = line_inpt.split("/")
                             lines = [line.strip() for line in lines]
                             opt_dict["spoken_lines"] = lines
+                            optval_set = True
+                            value = lines
 
                         case "next_stage":
                             stage_input = yield "Enter next stage as QID.Stage:"
                             if valiate_next_stage(stage_input):
                                 opt_dict["next_stage"] = stage_input
+                                optval_set = True
+                                value = stage_input
 
                         case _:
                             self.caller.msg("No valid option found for " + attr)
                             return
+                    if optval_set:
+                        self.caller.msg(f"Set {attr} to {value}.")
 
                     # Save option data for this dialogue option to the quest hook data
                     try:
@@ -403,6 +436,9 @@ class CmdQuestHook(MuxCommand):
 
                 case _:
                     self.caller.msg("No valid option found for " + inpt)
+
+            if value_set:
+                self.caller.msg(f"Set {cmd} to {value}.")
 
 
 class CmdKillCounter(MuxCommand):
@@ -470,6 +506,9 @@ class CmdKillCounter(MuxCommand):
 
         # Reflect changed data in all_quests container
         all_quests()[qid]["stages"][stage] = stage_dict
+
+        self.caller.msg(f"{qid}.{stage} stored in global quest data as kill counter:")
+        self.caller.msg(stage_dict)
 
 
 class QuestBuildCmdSet(CmdSet):
