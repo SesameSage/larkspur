@@ -6,7 +6,7 @@ from evennia.utils.evtable import EvTable
 
 from server import appearance
 from world.quests.quest import all_quests, quest_desc, get_quest, get_stage
-from world.quests.quest_hooks import print_quest_hooks, get_hook_type, location_string
+from world.quests.quest_hooks import print_all_hooks, get_hook_type, location_string, print_quest_hook
 
 
 class CmdQuestEdit(MuxCommand):
@@ -237,7 +237,7 @@ class CmdQuestHook(MuxCommand):
         rhs_needed = True
         if "remove" in self.switches:
             rhs_needed = False
-        if self.switches:
+        if self.switches or self.rhs:
             error_msgs = [f"Need a QID and arg! Usage: ", f"{appearance.cmd}questhook/add <object> = <qid>:<hook type>",
                           f"{appearance.cmd}questhook/edit <object> = <qid>.<stage>",
                           f"{appearance.cmd}questhook/remove <object> = <qid>.<stage>"]
@@ -250,17 +250,24 @@ class CmdQuestHook(MuxCommand):
             try:
                 qid = int(numbers[0])
                 stage = int(numbers[1])
-            except ValueError:
-                self.caller.msg(f"Couldn't parse {numbers[0]}.{numbers[1]} as a QID.stage integer pair")
+            except (ValueError, IndexError) :
+                self.caller.msg(f"Couldn't parse {self.rhs} as a QID.stage integer pair")
                 return
             if len(rhs_args) < 2 and len(numbers) < 2 and rhs_needed:
                 for msg in error_msgs:
                     self.caller.msg(msg)
                 return
+            # If no switches given, display this quest hook
+            if not self.switches:
+                if qid is None or stage is None:
+                    print_all_hooks(obj, self.caller)
+                    return
+                print_quest_hook(self.caller, qid, stage, obj.db.quest_hooks[get_hook_type(obj, qid, stage)][qid][stage])
+                return
 
-        # No switch statements: display quest hooks
+        # No switch statements or QID/stage args = display all quest hooks
         else:
-            print_quest_hooks(obj, self.caller)
+            print_all_hooks(obj, self.caller)
             return
 
         if "add" in self.switches:  # Right of = is QID:hook i.e. = 3:at_give
