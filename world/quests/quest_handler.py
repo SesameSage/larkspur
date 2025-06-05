@@ -1,6 +1,7 @@
 from evennia import logger
 
-from world.quests.quest import get_stage
+from server import appearance
+from world.quests.quest import get_stage, quest_desc
 
 
 class QuestHandler:
@@ -47,5 +48,8 @@ class QuestHandler:
                 kc_dict = {"QID": qid, "stage": stage, "target_type": stage_dict["target_type"], "killed": 0,
                            "needed": stage_dict["kill_num"], "next_stage": stage_dict["next_stage"]}
                 self.player.db.kill_counters.append(kc_dict)
+
+        # Notify player
+        self.player.msg(f"{appearance.notify}Quest updated: {quest_desc(qid, stage)}")
 
         self._save()

@@ -43,7 +43,7 @@ class CmdQuestEdit(MuxCommand):
         """
     key = "questedit"
     aliases = ("qe",)
-    switch_options = ("level", "desc", "long")
+    switch_options = ("level", "desc", "long", "quiet")
     locks = "cmd:perm(questedit) or perm(Builder)"
     help_category = "building"
 
@@ -78,14 +78,14 @@ class CmdQuestEdit(MuxCommand):
                 return
 
             # Display stages of this quest if no edit is being made
-            if not self.rhs:
+            if not self.rhs and "quiet" not in self.switches:
                 quest = quests[qid]
                 self.caller.msg(f"Quest #{qid}: {quest_desc(qid)}")
                 try:
                     self.caller.msg(quest["long_desc"])
                 except KeyError:
                     pass
-                table = EvTable("#", "Decription", "Objective", "Object", "Location", "Long")
+                table = EvTable("#", "Description", "Quiet", "Objective", "Object", "Location", "Long")
                 stages = quest["stages"]
                 alternate_color = True
                 for stage_num in stages:
@@ -107,7 +107,8 @@ class CmdQuestEdit(MuxCommand):
                     location = stage.get("location", "")
                     alternate_color = not alternate_color
                     color = appearance.table_alt if alternate_color else ""
-                    table.add_row(color + str(stage_num), color + stage_desc, color + stage["objective_type"],
+                    quiet = "" if not stage.get("quiet", False) else "Quiet"
+                    table.add_row(color + str(stage_num), color + stage_desc, color + quiet, color + stage["objective_type"],
                                   color + obj.key, color + location, color + long)
                 self.caller.msg(table)
                 return
@@ -183,6 +184,11 @@ class CmdQuestEdit(MuxCommand):
                     evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["recommended_level"] = level
                     self.caller.msg(f"Quest #{qid} recommended level set to {level}.")
                     return
+
+                elif "quiet" in self.switches:
+                    evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["stages"][stage]["quiet"] = \
+                        not evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["stages"][stage].get("quiet", False)
+                    self.caller.msg(f"Set quiet to {evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests[qid]["stages"][stage]["quiet"]}")
 
 
 class CmdQuestHook(MuxCommand):

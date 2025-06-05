@@ -2,7 +2,7 @@ from evennia.commands.cmdset import CmdSet
 from evennia.contrib.grid.simpledoor import SimpleDoorCmdSet
 
 from commands.all_player_cmds.combat_cmds import BattleCmdSet
-from commands.all_player_cmds.communication_cmds import CommsCmdSet, TalkingCmdSet
+from commands.all_player_cmds.communication_cmds import CommsCmdSet
 from commands.all_player_cmds.info_cmds import InfoCmdSet
 from commands.all_player_cmds.interaction_cmds import InteractionCmdSet
 from commands.all_player_cmds.item_cmds import ItemCmdSet
@@ -31,7 +31,6 @@ class PlayerCmdSet(CmdSet):
 
         # Specific objects
         self.add(InteractionCmdSet)
-        self.add(TalkingCmdSet)
         self.add(SimpleDoorCmdSet)
         self.add(EquipmentCharacterCmdSet)
         self.add(ContainerCmdSet)
