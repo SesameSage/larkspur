@@ -16,7 +16,8 @@ for filename in [".ally_abilities", ".ally_spells", ".damage_abilities", ".damag
         if not isinstance(member[1], type):
             continue
         if inherits_from(member[1], "combat.abilities.abilities.Ability"):
-            if member[0] in ["Ability", "Spell", "SustainedAbility", "SustainedSpell", "BowAbility"]:
+            if member[0] in ["Ability", "Spell", "SustainedAbility", "SustainedSpell", "BowAbility", "TileAbility",
+                             "TileSpell"]:
                 continue
             else:
                 # Add to all abilities

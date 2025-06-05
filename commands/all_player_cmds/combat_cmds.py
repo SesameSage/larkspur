@@ -276,6 +276,7 @@ class CmdPass(Command):
             return
 
         self.caller.location.msg_contents(f"{self.caller.get_display_name(capital=True)} passes the turn.")
+        self.caller.db.combat_lastaction = "pass"
         self.turn_handler.next_turn()
 
     def confirm_in_combat(self):

@@ -74,8 +74,11 @@ class PlayerCharacter(Character):
         super().at_post_move(source_location, move_type, **kwargs)
         if not self.location or not source_location:
             return
+        current_weather = self.location.zone().db.current_weather
+        if not current_weather:
+            return
         if self.location.db.is_outdoors and not source_location.db.is_outdoors:
-            self.print_ambient(self.location.zone().db.current_weather["ongoing_msg"])
+            self.print_ambient(current_weather["ongoing_msg"])
     # </editor-fold>
 
     # <editor-fold desc="Stats">
