@@ -179,7 +179,6 @@ class CmdQuestEdit(MuxCommand):
 
 
 class CmdQuestHook(MuxCommand):
-    # TODO: help quest hooks
     """
         view, add, edit, and remove quest hooks from objects
 
@@ -206,73 +205,53 @@ class CmdQuestHook(MuxCommand):
     help_category = "building"
 
     def func(self):
-        def valiate_next_stage(stage_input):
-            if stage_input != "None":
-                numbers = stage_input.split(".")
-                if len(numbers) != 2:
-                    self.caller.msg("Next stage must be 'None' or an integer pair formatted as "
-                                    "QID.Stage")
-                    return False
-                for number in numbers:
-                    try:
-                        int(number)
-                    except ValueError:
-                        self.caller.msg(f"Couldn't parse '{stage_input}' as a pair of integers.")
-                        return False
-            return True
 
-        if not self.lhs:
-            self.caller.msg(f"Must supply an object e.g. {appearance.cmd}questhook/<switch> <object> = ...")
-            return
-        # Arg left of "=" is object quest hook should be attached to
-        obj_input = self.lhs
-        obj = self.caller.search(obj_input)
-        if not obj:
-            return
-        elif not obj.db.quest_hooks:
-            self.caller.msg(f"{obj.name} doesn't handle quest hooks!")
-            return
+        def parse_lhs():
+            """Get the object to attach the hook to from the argument left of the = sign in the entered command line."""
+            if not self.lhs:
+                self.caller.msg(f"Must supply an object e.g. {appearance.cmd}questhook/<switch> <object> = ...")
+                return
+            obj_input = self.lhs
+            obj = self.caller.search(obj_input)
+            if not obj:
+                return
+            elif not obj.db.quest_hooks:
+                self.caller.msg(f"{obj.name} doesn't handle quest hooks!")
+                return
+            return obj
 
-        # Creating or altering a quest hook; parse right of = if needed
-        rhs_needed = True
-        if "remove" in self.switches:
-            rhs_needed = False
-        if self.switches or self.rhs:
-            error_msgs = [f"Need a QID and arg! Usage: ", f"{appearance.cmd}questhook/add <object> = <qid>:<hook type>",
+        def parse_rhs():
+            """Get the QID, stage, and hook type (if adding a new hook) from the args right of the = sign."""
+            error_msgs = [f"Need a QID and arg! Usage: ", f"{appearance.cmd}questhook/add <object> = "
+                                                          f"<qid>.<stage>:<hook type>",
                           f"{appearance.cmd}questhook/edit <object> = <qid>.<stage>",
                           f"{appearance.cmd}questhook/remove <object> = <qid>.<stage>"]
-            if not self.rhs and rhs_needed:
-                for msg in error_msgs:
-                    self.caller.msg(msg)
+
+            # All switch options require specifying stage right of =
+            if self.switches and not self.rhs:
+                for error_msg in error_msgs:
+                    self.caller.msg(error_msg)
                 return
-            rhs_args = self.rhs.split(":")
-            numbers = rhs_args[0].split(".")
+
+            # Attempt to parse
+            rhs_args = self.rhs.split(":")  # Separates numbers from hook type if adding a new hook
+            numbers = rhs_args[0].split(".")  # Separates QID from stage
             try:
                 qid = int(numbers[0])
                 stage = int(numbers[1])
-            except (ValueError, IndexError) :
+            except (ValueError, IndexError):
                 self.caller.msg(f"Couldn't parse {self.rhs} as a QID.stage integer pair")
                 return
-            if len(rhs_args) < 2 and len(numbers) < 2 and rhs_needed:
+            # Not enough values
+            if len(rhs_args) < 2 and len(numbers) < 2:
                 for msg in error_msgs:
                     self.caller.msg(msg)
                 return
-            # If no switches given, display this quest hook
-            if not self.switches:
-                if qid is None or stage is None:
-                    print_all_hooks(obj, self.caller)
-                    return
-                print_quest_hook(self.caller, qid, stage, obj.db.quest_hooks[get_hook_type(obj, qid, stage)][qid][stage])
-                return
+            return qid, stage, rhs_args
 
-        # No switch statements or QID/stage args = display all quest hooks
-        else:
-            print_all_hooks(obj, self.caller)
-            return
-
-        if "add" in self.switches:  # Right of = is QID:hook i.e. = 3:at_give
+        def add_hook():
             # Make sure this object handles hooks of this type
-            objective_type = rhs_args[1]
+            objective_type = rhs_args[1]  # Right of = is QID:hook i.e. = 3:at_give
             if objective_type not in obj.db.quest_hooks:
                 self.caller.msg(f"{obj.key} doesn't handle quest hooks of that type. "
                                 f"Handles: {[typ for typ in obj.db.quest_hooks]}")
@@ -290,7 +269,7 @@ class CmdQuestHook(MuxCommand):
             # Auto-set next_stage
             if objective_type != "at_told":
                 stage_str = f"{qid}.{stage + 1}"
-                obj.db.quest_hooks[objective_type][qid][stage] = stage_str
+                obj.db.quest_hooks[objective_type][qid][stage]["next_stage"] = stage_str
                 self.caller.msg(f"Next stage auto-set to {qid}.{stage} - "
                                 f"{appearance.cmd}qh/edit {obj.key} = {qid}.{stage}|n to change")
 
@@ -312,8 +291,51 @@ class CmdQuestHook(MuxCommand):
                 quests[qid]["stages"][stage]["location"] = location_string(qid, stage)
                 self.caller.msg("Attributes auto-set in global quest data.")
 
-
             evennia.GLOBAL_SCRIPTS.get("All Quests").db.quests = quests
+
+        def valiate_next_stage(stage_input):
+            if stage_input != "None":
+                numbers = stage_input.split(".")
+                if len(numbers) != 2:
+                    self.caller.msg("Next stage must be 'None' or an integer pair formatted as "
+                                    "QID.Stage")
+                    return False
+                for number in numbers:
+                    try:
+                        int(number)
+                    except ValueError:
+                        self.caller.msg(f"Couldn't parse '{stage_input}' as a pair of integers.")
+                        return False
+            return True
+
+        # Arg left of "=" is object quest hook should be attached to
+        obj = parse_lhs()
+        if not obj:
+            return
+
+        # If creating or altering a hook, or specifying a stage to display, parse right of =
+        if self.switches or self.rhs:
+            rhs_values = parse_rhs()
+            if not rhs_values:
+                return
+            qid, stage, rhs_args = rhs_values
+
+            # If stage given but no switches given, display this quest hook
+            if not self.switches:
+                if qid is None or stage is None:
+                    print_all_hooks(obj, self.caller)
+                    return
+                print_quest_hook(self.caller, qid, stage,
+                                 obj.db.quest_hooks[get_hook_type(obj, qid, stage)][qid][stage])
+                return
+
+        # No switch statements or QID/stage args = display all quest hooks
+        else:
+            print_all_hooks(obj, self.caller)
+            return
+
+        if "add" in self.switches:
+            add_hook()
 
         elif "remove" in self.switches:
             objective_type = get_hook_type(obj, qid, stage)
@@ -344,7 +366,10 @@ class CmdQuestHook(MuxCommand):
             # Choose aspect of hook to edit
             inpt = yield f"Select quest hook attribute to edit: ({str(options)})"
             cmd = None
-            for cmd_ref in ["msg", "next_stage", "spoken_lines", "options"]:
+            if inpt.strip() == "":
+                self.caller.msg("Cancelled.")
+                return
+            for cmd_ref in options:
                 if cmd_ref.startswith(inpt):
                     cmd = cmd_ref
             if not cmd:
