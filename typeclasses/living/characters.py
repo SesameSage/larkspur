@@ -210,6 +210,7 @@ class Character(LivingEntity):
         :return:
         """
         hooks = self.db.quest_hooks["at_told"]
+        stage_ready = False
         spoken = False
         for qid in hooks:
             if spoken:
@@ -219,6 +220,7 @@ class Character(LivingEntity):
                     break
                 hook_data = hooks[qid][stage]
                 if teller.quests.at_stage(qid, stage):
+                    stage_ready = True
                     for option in hook_data["options"]:
                         all_keywords = False
                         for keyword in option["keywords"]:
@@ -232,8 +234,19 @@ class Character(LivingEntity):
                             spoken = True
                             teller.quests.advance_quest(option["next_stage"])
                             break  # from options list
+                    break  # Only handle one quest stage at a time
         if not spoken:
             self.say_to(teller, "Hmm?")
+            if stage_ready:
+                teller.msg(f"{appearance.hint}Hint: Tell {self.key} something including all keywords from one of these options:")
+                for option in hook_data["options"]:
+                    string = "["
+                    for keyword in option["keywords"]:
+                        string = string + keyword + ", "
+                    string = string[:-2]
+                    string = string + "]"
+                    teller.msg(string)
+
 
 
 class NPC(Character, TalkableNPC):
