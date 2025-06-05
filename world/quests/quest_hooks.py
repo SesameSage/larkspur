@@ -136,7 +136,7 @@ def print_all_hooks(obj, caller):
         for stage in hooks[qid]:
             alternate_color = not alternate_color
             quest_hook, hook_type = hooks[qid][stage]
-            color = "|233" if alternate_color else ""
+            color = appearance.table_alt if alternate_color else ""
             table.add_row("", color + f"Stage #{stage}", color + hook_type, color + quest_desc(qid, stage))
         table.add_row()
     caller.msg(table)

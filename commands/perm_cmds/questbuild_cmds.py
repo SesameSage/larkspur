@@ -52,11 +52,14 @@ class CmdQuestEdit(MuxCommand):
         # If no args, display all quests
         if not self.lhs:
             table = EvTable("QID", "Level", "Description")
+            alternate_color = True
             for qid in quests:
+                alternate_color = not alternate_color
+                color = appearance.table_alt if alternate_color else ""
                 quest = quests[qid]
                 level = quest.get("recommended_level", "")
                 desc = quest_desc(qid)
-                table.add_row(qid, level, desc)
+                table.add_row(color + str(qid), color + str(level), color + desc)
             self.caller.msg(table)
             return
 
@@ -84,6 +87,7 @@ class CmdQuestEdit(MuxCommand):
                     pass
                 table = EvTable("#", "Decription", "Objective", "Object", "Location", "Long")
                 stages = quest["stages"]
+                alternate_color = True
                 for stage_num in stages:
                     stage = stages[stage_num]
                     stage_desc = quest_desc(qid, stage_num)
@@ -101,7 +105,10 @@ class CmdQuestEdit(MuxCommand):
                     except KeyError:
                         long = ""
                     location = stage.get("location", "")
-                    table.add_row(stage_num, stage_desc, stage["objective_type"], obj, location, long)
+                    alternate_color = not alternate_color
+                    color = appearance.table_alt if alternate_color else ""
+                    table.add_row(color + str(stage_num), color + stage_desc, color + stage["objective_type"],
+                                  color + obj.key, color + location, color + long)
                 self.caller.msg(table)
                 return
 

@@ -2,6 +2,7 @@ ambient = "|=p"
 story = "|220"
 hint = "|010"
 cmd = "|=a|[=m"
+table_alt = "|233"
 
 notify = "|530"
 attention = "|550"
