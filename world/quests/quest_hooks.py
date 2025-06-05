@@ -65,8 +65,11 @@ Properties of quest hooks by object type and hook type:
             msg
             next_stage
 """
+import collections
+
 from evennia.utils import inherits_from
 from evennia.utils.dbserialize import _SaverList
+from evennia.utils.evtable import EvTable
 
 from server import appearance
 from world.quests.quest import get_stage, quest_desc
@@ -102,6 +105,37 @@ def location_string(qid, stage, objective_type=None, obj=None):
         return f"{obj.location.key}, " + area_string
     else:
         return area_string
+
+
+def print_all_hooks(obj, caller):
+    """Shows the QID and stage # of all quest hooks attached to the given object, sorted by quest and stage."""
+    hooks = {}
+    for hook_type in obj.db.quest_hooks:
+        hooks_of_type = obj.db.quest_hooks[hook_type]
+
+        for qid in hooks_of_type:
+            quest_dict = {}
+            try:
+                hooks[qid]
+            except KeyError:
+                hooks[qid] = {}
+            for stage in hooks_of_type[qid]:
+                quest_hook = hooks_of_type[qid][stage]
+                quest_dict[stage] = quest_hook, hook_type
+
+            quest_dict = collections.OrderedDict(sorted(quest_dict.items()))
+            hooks[qid] = quest_dict
+
+    hooks = collections.OrderedDict(sorted(hooks.items()))
+
+    table = EvTable(pretty_corners=True)
+    for qid in hooks:
+        table.add_row(f"|wQuest #{qid}", "", "", "|w" + quest_desc(qid))
+        for stage in hooks[qid]:
+            quest_hook, hook_type = hooks[qid][stage]
+            table.add_row("", f"Stage #{stage}", hook_type, quest_desc(qid, stage))
+        table.add_row()
+    caller.msg(table)
 
 
 def print_quest_hook(caller, qid, stage, quest_hook):
@@ -150,19 +184,3 @@ def print_quest_hook(caller, qid, stage, quest_hook):
         # All other quest hook attributes
         else:  #
             caller.msg(f"      {hook_attr_key}: {value}")
-
-
-def print_all_hooks(obj, caller):
-    """Shows details on all quest hooks attached to the given object."""
-    for hook_type in obj.db.quest_hooks:
-        hooks = obj.db.quest_hooks[hook_type]
-        if len(hooks) < 1:
-            continue
-        caller.msg(f"|w{hook_type} hooks:")
-        caller.msg("--------------------------------------")
-
-        for qid in hooks:
-            for stage in hooks[qid]:
-                quest_hook = hooks[qid][stage]
-                print_quest_hook(caller, qid, stage, quest_hook)
-                caller.msg("---------------------------------")  # After each quest hook
