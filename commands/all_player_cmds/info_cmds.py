@@ -343,12 +343,13 @@ class CmdQuests(MuxCommand):
                 self.caller.msg(f"Index {quest_num} is not currently present in your quest list.")
                 return
             player.msg(f"|wQuest Detail: {quest["q_desc"]}|n\n"
-                       f"{quest["quest_long"]}\n"
+                       f"|=l(Recommended Level: {quest.get("recommended_level", "-")})|n\n"
+                       f"🗏 {quest["quest_long"]}\n"
                        f"\n"
                        f"|wCurrent Objective:|n\n"
                        f"⇛ {quest["current_objective"]}\n"
-                       f"◈ {quest["location"]}"
-                       f"{quest["stage_long"]}")
+                       f"◈ {quest["location"]}\n"
+                       f"🗏 {quest["stage_long"]}")
 
 
 class InfoCmdSet(CmdSet):
