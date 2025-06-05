@@ -7,6 +7,7 @@ is set up to be the "default" character type created by the default
 creation commands.
 
 """
+import random
 
 from evennia import EvTable
 from evennia.prototypes.spawner import spawn
@@ -14,6 +15,7 @@ from evennia.utils import make_iter
 
 from typeclasses.living.living_entities import *
 from typeclasses.living.talkable import Talkable
+from world.world_constants import DEFAULT_TALK_RESPONSES
 
 
 class Character(LivingEntity):
@@ -171,7 +173,10 @@ class Character(LivingEntity):
 
 
 class NPC(Character, Talkable):
-    pass
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.talk_responses = {0: {0: [random.choice(DEFAULT_TALK_RESPONSES)]}}
 
 
 class Vendor(NPC):
@@ -179,9 +184,11 @@ class Vendor(NPC):
 
     def at_object_creation(self):
         super().at_object_creation()
+        self.db.stock = {}  # {Item: prototype_key}
+
         self.db.unique_name = True
         self.db.dies = False
-        self.db.stock = {}  # {Item: prototype_key}
+        self.db.talk_responses = {0: {0: ["Can I help you?"]}}
 
     def add_to_stock(self, prototype_key):
         """Add a prototype to the vendor's wares."""
@@ -218,9 +225,11 @@ class Trainer(NPC):
 
     def at_object_creation(self):
         super().at_object_creation()
+        self.db.classes = {}  # Ability, price
+
         self.db.unique_name = True
         self.db.dies = False
-        self.db.classes = {}  # Ability, price
+        self.db.talk_responses = {0: {0: ["Here for a lesson?"]}}
 
     def abilities_taught(self):
         return [type(ability) for ability in self.db.classes]

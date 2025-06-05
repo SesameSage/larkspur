@@ -16,4 +16,7 @@ class Enemy(LivingEntity):
 
 
 class EnemyCharacter(Enemy, NPC):
-    pass
+    def at_object_creation(self):
+        super().at_object_creation()
+        # Clear friendly default talk responses set on NPCs
+        self.db.talk_responses = {}
