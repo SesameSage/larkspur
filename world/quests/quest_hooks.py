@@ -128,12 +128,16 @@ def print_all_hooks(obj, caller):
 
     hooks = collections.OrderedDict(sorted(hooks.items()))
 
-    table = EvTable(pretty_corners=True)
+    caller.msg(f"{obj.get_display_name()} has the following quest hooks:")
+    table = EvTable("Quest", "Stage", "Hook Type", "Description", pretty_corners=True)
     for qid in hooks:
         table.add_row(f"|wQuest #{qid}", "", "", "|w" + quest_desc(qid))
+        alternate_color = True
         for stage in hooks[qid]:
+            alternate_color = not alternate_color
             quest_hook, hook_type = hooks[qid][stage]
-            table.add_row("", f"Stage #{stage}", hook_type, quest_desc(qid, stage))
+            color = "|233" if alternate_color else ""
+            table.add_row("", color + f"Stage #{stage}", color + hook_type, color + quest_desc(qid, stage))
         table.add_row()
     caller.msg(table)
 
