@@ -71,6 +71,7 @@ class Revive(Spell):
         self.db.range = 1
 
         self.db.requires = [("spirit", 10)]
+        self.db.ap_cost = 5
         self.db.cost = [("mana", 25)]
         self.db.cooldown = 10 * SECS_PER_TURN
 

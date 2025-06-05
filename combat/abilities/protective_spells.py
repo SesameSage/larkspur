@@ -48,6 +48,7 @@ class ThermalSink(Spell):
         self.db.requires = [("wisdom", 3)]
         self.db.ap_cost = 1
         self.db.cost = [("mana", 8)]
+        self.db.cooldown = 3 * SECS_PER_TURN
 
     def func(self, caster: LivingEntity, target: Object = None):
         attributes = [

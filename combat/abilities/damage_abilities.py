@@ -22,6 +22,7 @@ class FireArrow(BowAbility):
         self.db.targeted = True
         self.db.must_target_entity = True
 
+        self.db.requires = [("perception", 2)]
         self.db.cost = [("stamina", 3)]
         self.db.ap_cost = 3
         self.db.cooldown = 5 * SECS_PER_TURN
@@ -53,6 +54,7 @@ class FocusedShot(BowAbility):
         self.db.targeted = True
         self.db.must_target_entity = False
 
+        self.db.requires = [("perception", 4)]
         self.db.cost = [("stamina", 10)]
         self.db.ap_cost = 5
         self.db.cooldown = 3 * SECS_PER_TURN
@@ -74,6 +76,7 @@ class PoisonArrow(BowAbility):
         self.db.targeted = True
         self.db.must_target_entity = True
 
+        self.db.requires = [("perception", 2)]
         self.db.cost = [("stamina", 3)]
         self.db.ap_cost = 3
         self.db.cooldown = 5 * SECS_PER_TURN

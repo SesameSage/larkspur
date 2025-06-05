@@ -20,6 +20,7 @@ class Ceasefire(Ability):
         self.db.requires = [("wisdom", 4)]
         self.db.ap_cost = 5
         self.db.cost = [("mana", 15)]
+        self.db.cooldown = 15 * SECS_PER_TURN
 
     def func(self, caster: LivingEntity, target: Object = None):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} declares a divine ceasefire!")
