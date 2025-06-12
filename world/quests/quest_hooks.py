@@ -72,7 +72,7 @@ from evennia.utils.dbserialize import _SaverList
 from evennia.utils.evtable import EvTable
 
 from server import appearance
-from world.quests.quest import get_stage, quest_desc
+from world.quests.quest import get_stage, quest_desc, get_hook_data
 
 
 def get_hook_type(obj, qid, stage):
@@ -188,3 +188,17 @@ def print_quest_hook(caller, qid, stage, quest_hook):
         # All other quest hook attributes
         else:  #
             caller.msg(f"      {hook_attr_key}: {value}")
+
+
+def print_dialogue_options(qid, stage):
+    if get_stage(qid, stage)["objective_type"] != "at_told":
+        return ""
+    hook_data = get_hook_data(qid, stage)
+    string = "|wDialogue Options:|n\n"
+    for option in hook_data["options"]:
+        string = string + "["
+        for keyword in option["keywords"]:
+            string = string + keyword + ", "
+        string = string[:-2]
+        string = string + "]\n"
+    return string[:-1]  # Remove last \n

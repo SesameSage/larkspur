@@ -10,8 +10,8 @@ from evennia.utils import inherits_from
 from evennia.utils.evtable import EvTable
 
 from server import appearance
-from world.quests.quest import quest_desc, get_quest
-from world.quests.quest_hooks import location_string
+from world.quests.quest import quest_desc, get_quest, get_stage
+from world.quests.quest_hooks import location_string, print_dialogue_options
 
 
 # Overridden to hide commands with empty string as help_category
@@ -310,6 +310,8 @@ class CmdQuests(MuxCommand):
             quest_long = quest.get("long_desc", "")
             stage_long = quest["stages"][current_stage].get("long_desc", "")
             quest_infos.append({
+                "qid": qid,
+                "stage": current_stage,
                 "rec_level": rec_level,
                 "q_desc": q_desc,
                 "quest_long": quest_long,
@@ -342,14 +344,20 @@ class CmdQuests(MuxCommand):
             except IndexError:
                 self.caller.msg(f"Index {quest_num} is not currently present in your quest list.")
                 return
-            player.msg(f"|wQuest Detail: {quest["q_desc"]}|n\n"
-                       f"|=l(Recommended Level: {quest.get("recommended_level", "-")})|n\n"
-                       f"🗏 {quest["quest_long"]}\n"
-                       f"\n"
-                       f"|wCurrent Objective:|n\n"
-                       f"⇛ {quest["current_objective"]}\n"
-                       f"◈ {quest["location"]}\n"
-                       f"🗏 {quest["stage_long"]}")
+            quest_detail = (f"|wQuest Detail: {quest["q_desc"]}|n\n"
+                            f"|=l(Recommended Level: {quest.get("recommended_level", "-")})|n\n"
+                            f"🗏 {quest["quest_long"]}\n"
+                            f"\n"
+                            f"|wCurrent Objective:|n\n"
+                            f"⇛ {quest["current_objective"]}\n"
+                            f"◈ {quest["location"]}\n"
+                            f"🗏 {quest["stage_long"]}")
+            qid = quest["qid"]
+            stage = quest["stage"]
+            objective_type = get_stage(qid, stage)["objective_type"]
+            if objective_type == "at_told":
+                quest_detail = quest_detail + f"{appearance.say}{print_dialogue_options(qid, stage)}"
+            player.msg(quest_detail)
 
 
 class InfoCmdSet(CmdSet):

@@ -4,5 +4,4 @@ DEFAULT_TALK_RESPONSES = [
         "Hello."
         "G'day!"
         "How're you?"
-        ""
     ]

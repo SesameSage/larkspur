@@ -1,6 +1,7 @@
 from evennia import DefaultObject
 
 from server import appearance
+from world.quests.quest_hooks import print_dialogue_options
 
 
 class Talkable(DefaultObject):
@@ -89,13 +90,7 @@ class Talkable(DefaultObject):
             if stage_ready:
                 teller.msg(
                     f"{appearance.hint}Hint: Tell {self.key} something including all keywords from one of these options:")
-                for option in hook_data["options"]:
-                    string = "["
-                    for keyword in option["keywords"]:
-                        string = string + keyword + ", "
-                    string = string[:-2]
-                    string = string + "]"
-                    teller.msg(string)
+                teller.msg(print_dialogue_options(qid, stage))
             return False
         else:
             return True

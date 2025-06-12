@@ -2,16 +2,19 @@ from evennia import logger
 
 from server import appearance
 from world.quests.quest import get_stage, quest_desc
+from world.quests.quest_hooks import print_dialogue_options
 
 
 class QuestHandler:
     def __init__(self, player):
         self.player = player
-        self.data = self.player.db.quest_stages
-
+        self._load()
     def _save(self):
         """Ensures that the handler's modified data is reflected in the player's quest data."""
         self.player.db.quest_stages = self.data
+
+    def _load(self):
+        self.data = self.player.db.quest_stages
 
     def at_stage(self, qid, stage):
         """Given a quest hook dict containing a quest id and stage number, returns true if the player is currently at
@@ -51,5 +54,6 @@ class QuestHandler:
 
         # Notify player
         self.player.msg(f"{appearance.notify}Quest updated: {quest_desc(qid, stage)}")
+        self.player.msg(print_dialogue_options(qid, stage))
 
         self._save()

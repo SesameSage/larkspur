@@ -48,6 +48,17 @@ def get_stage(qid, stage):
         return None
 
 
+# TODO: Account for multiple objects with hooks per quest stage
+
+def get_hook_object(qid, stage):
+    return get_stage(qid, stage)["object"]
+
+
+def get_hook_data(qid, stage):
+    objective_type = get_stage(qid, stage)["objective_type"]
+    return get_hook_object(qid, stage).db.quest_hooks[objective_type][qid][stage]
+
+
 def quest_desc(qid, stage=None):
     if stage is not None:
         stage_dict = get_stage(qid, stage)
