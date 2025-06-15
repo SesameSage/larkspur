@@ -76,7 +76,7 @@ from world.quests.quest import get_stage, quest_desc, get_hook_data
 
 
 def get_hook_type(obj, qid, stage):
-    """Given an object with quest hooks, returns the hook/objective type assigned to the given qid and stage."""
+    """Given an object with quest hooks, returns the string hook/objective type assigned to the given qid and stage."""
     quest_hooks = obj.db.quest_hooks
     for hook_type in quest_hooks:
         for hook_qid in quest_hooks[hook_type]:
@@ -87,14 +87,23 @@ def get_hook_type(obj, qid, stage):
 
 
 def location_string(qid, stage, objective_type=None, obj=None):
-    """Displays the location of the quest stage, with specificity determined by the objective type and object."""
-    stage = get_stage(qid, stage)
+    """
+    Displays the location of the quest stage, with specificity determined by the objective type and object.
+
+    :param qid: ID of target quest
+    :param stage: Stage # of target stage
+    :param objective_type: Override hook type, e.g. at_talk, at_object_receive, kill_counter
+    :param obj: Override for the object the stage is tied to, indicating where the player needs to go
+    :return: String of location names, increasing in localization
+    """
+    stage = get_stage(qid, stage)  # Use stage # to get the stage data dict
     objective_type = objective_type or stage.get("objective_type", "")
     obj = obj or stage.get("object", None)
 
     if objective_type == "at_give":
+        # at_give is when an item is given to an NPC. Player needs to find the NPC to give to
         obj = stage.get("getter", None)
-    elif objective_type == "kill_counter":
+    elif objective_type == "kill_counter":  # Kill entities of the given type anywhere
         return ""
 
     if not obj:
@@ -119,6 +128,7 @@ def print_all_hooks(obj, caller):
                 hooks[qid]
             except KeyError:
                 hooks[qid] = {}
+
             for stage in hooks_of_type[qid]:
                 quest_hook = hooks_of_type[qid][stage]
                 quest_dict[stage] = quest_hook, hook_type
@@ -143,6 +153,7 @@ def print_all_hooks(obj, caller):
 
 
 def print_quest_hook(caller, qid, stage, quest_hook):
+    """Details for builders on a specific quest hook."""
     q_desc = quest_desc(qid)
     stage_desc = quest_desc(qid, stage)
     caller.msg(f"|wQuest #{qid} - {q_desc}")
@@ -191,6 +202,7 @@ def print_quest_hook(caller, qid, stage, quest_hook):
 
 
 def print_dialogue_options(qid, stage):
+    """Display to a player the keywords for each dialogue option for the given at_told stage."""
     if get_stage(qid, stage)["objective_type"] != "at_told":
         return ""
     hook_data = get_hook_data(qid, stage)

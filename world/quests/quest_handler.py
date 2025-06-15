@@ -9,11 +9,14 @@ class QuestHandler:
     def __init__(self, player):
         self.player = player
         self._load()
+
     def _save(self):
         """Ensures that the handler's modified data is reflected in the player's quest data."""
         self.player.db.quest_stages = self.data
 
     def _load(self):
+        """Update the data used in these methods based on the player's quest stage data every time the handler is
+        called."""
         self.data = self.player.db.quest_stages
 
     def at_stage(self, qid, stage):
@@ -25,6 +28,7 @@ class QuestHandler:
             return False
 
     def advance_quest(self, stage_str):
+        """Advance a player past a quest stage based on command-form quest-stage ID (0.0)"""
         if stage_str == "None":
             return
         numbers = stage_str.split(".")
@@ -36,6 +40,7 @@ class QuestHandler:
         self.advance_to(qid, stage)
 
     def advance_to(self, qid, stage):
+        """Move the player to the given quest stage."""
         if stage is None or stage == "None":
             return
         qid = int(qid)

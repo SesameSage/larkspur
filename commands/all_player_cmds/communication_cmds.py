@@ -9,14 +9,12 @@ from server import appearance
 
 class CmdTalk(MuxCommand):
     """
-    Talks to an npc
+    Hear what an NPC has to say
 
     Usage:
-      talk
+      talk <npc's name>
 
-    This command is only available if a talkative non-player-character
-    (NPC) is actually present. It will strike up a conversation with
-    that NPC and give you options on what to talk about.
+
     """
 
     key = "talk"
