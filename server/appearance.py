@@ -47,7 +47,9 @@ ENVIRONMENTS_BY_TYPE = {
     "sand": ["beach", "desert"],
     "rock": ["rock", "cave"],
     "wood": ["wood room", "wood floor"],
-    "stone": ["stone room", "stone floor"]
+    "stone": ["stone room", "stone floor"],
+    "dirt": ["road", "path"],
+    "snow": ["snow"]
 
 }
 ENV_TYPES_APPEAR = {
@@ -57,8 +59,10 @@ ENV_TYPES_APPEAR = {
     "deep water": {"bg": "|[004", "fg": "|015", "player": "|r"},
     "sand": {"bg": "|[553", "fg": "|530", "player": "|r"},
     "rock": {"bg": "|[=g", "fg": "|=e", "player": "|r"},
-    "wood": {"bg": "|[320", "fg": "|[100", "player": "|r"},
+    "wood": {"bg": "|[210", "fg": "|100", "player": "|r"},
     "stone": {"bg": "|[=s", "fg": "|=m", "player": "|r"},
+    "dirt": {"bg": "|[320", "fg": "|100", "player": "|r"},
+    "snow": {"bg": "|[=v", "fg": "|=l", "player": "|r"},
 }
 
 

@@ -213,7 +213,7 @@ class CmdEnv(MuxCommand):
         Environments (meadow, rainforest, cave, etc.) dictate indoor
         and outdoor effects, the appearance of the map, the spawning
         of gatherables, and more. This command handles setting and
-        resetting wnvironments on the room the caller is standing in.
+        resetting environments on the room the caller is standing in.
         """
     key = "env"
     locks = "cmd:perm(env) or perm(Builder)"
