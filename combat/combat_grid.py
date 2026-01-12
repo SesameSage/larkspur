@@ -59,6 +59,7 @@ class CombatGrid(Script):
             for script in fighter.scripts.all():
                 if inherits_from(script, "combat.tile_effects.TileEffect"):
                     script.delete()
+        return True
 
     def set_coords(self, obj, x, y):
         """
