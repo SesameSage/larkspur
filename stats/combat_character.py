@@ -331,9 +331,11 @@ class CombatEntity(EquipmentEntity):
 
         base = stats[stat]
 
-        effect = 0
-        if stat + "Regen" in self.db.effects:
-            effect = self.db.effects(stat + "Regen")["amount"]
+        effect = Dec(0)
+        if "+" + stat + " Regen" in self.db.effects:
+            effect = Dec(self.db.effects[f"+{stat} Regen"]["amount"])
+        if "-" + stat + " Regen" in self.db.effects:
+            effect = Dec(self.db.effects[f"-{stat} Regen"]["amount"])
 
         return base + effect
 

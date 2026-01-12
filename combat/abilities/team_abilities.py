@@ -8,9 +8,9 @@ from typeclasses.base.objects import Object
 from typeclasses.living.living_entities import LivingEntity
 
 
-class MindClearingTone(Ability):
-    key = "Mind-Clearing Tone"
-    desc = "This meditational tone improves the accuracy of you and your allies."
+class EaglesCall(Ability):
+    key = "Eagle's Call"
+    desc = "This spiritual cry improves your team's accuracy."
 
     def at_object_creation(self):
         super().at_object_creation()
@@ -73,5 +73,27 @@ class WarCry(Ability):
     def func(self, caster: LivingEntity, target: Object = None):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} lets out an earth-splitting war cry!")
         attributes = [("effect_key", "+Damage"), ("amount", 5), ("duration", 4 * SECS_PER_TURN), ("source", self)]
+        for ally in COMBAT.get_allies(caster):
+            ally.add_effect(typeclass=TimedStatMod, attributes=attributes, stack=True)
+
+
+class MindClearingTone(Ability):
+    key = "Mind-Clearing Tone"
+    desc = "Increase the mana regeneration of you and your nearby allies."
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.targeted = False
+        self.db.offensive = False
+        self.db.range = 10
+
+        self.db.requires = [("wisdom", 7)]
+        self.db.ap_cost = 1
+        self.db.cost = [("mana", 10)]
+        self.db.cooldown = 7 * SECS_PER_TURN
+
+    def func(self, caster: LivingEntity, target: Object = None):
+        caster.location.msg_contents(f"{caster.get_display_name(capital=True)} hums a deep meditational tone.")
+        attributes = [("effect_key", "+Mana Regen"), ("amount", 0.50), ("duration", 5 * SECS_PER_TURN), ("source", self)]
         for ally in COMBAT.get_allies(caster):
             ally.add_effect(typeclass=TimedStatMod, attributes=attributes, stack=True)

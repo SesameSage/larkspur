@@ -97,3 +97,27 @@ class PoisonBlade(Ability):
         attributes = [("effect_key", "+Poison Dmg"), ("amount", caster.get_attr("int")),
                       ("duration", 4 * SECS_PER_TURN), ("source", self)]
         caster.add_effect(typeclass=TimedStatMod, attributes=attributes)
+
+
+class Windstep(Ability):
+    desc = "Move with the wind, greatly increasing your evasion."
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.targeted = False
+        self.db.offensive = False
+        self.db.range = 0
+
+        self.db.requires = [("dexterity", 12)]
+        self.db.ap_cost = 6
+        self.db.cost = [("stamina", 5)]
+
+        self.db.duration = 5 * SECS_PER_TURN
+        self.db.cooldown = 10 * SECS_PER_TURN
+
+    def func(self, caster, target=None):
+        caster.location.msg_contents(f"{caster.get_display_name(capital=True)} moves with the wind!")
+        attributes = [("effect_key", "+Evasion"), ("amount", caster.get_attr("dex")),  # TODO: Adjust Windstep amount
+                      ("duration", self.db.duration), ("source", self)]
+        caster.add_effect(typeclass=TimedStatMod, attributes=attributes)
+
