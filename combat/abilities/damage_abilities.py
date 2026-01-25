@@ -1,6 +1,8 @@
 """Abilities focused on dealing damage."""
 from random import randint
 
+from evennia.utils import inherits_from
+
 from combat.abilities.abilities import Ability, BowAbility
 from combat.combat_handler import COMBAT
 from combat.effects import DamageTypes, KnockedDown, Poisoned, Burning, EffectScript
@@ -221,9 +223,14 @@ class Stab(Ability):
         COMBAT.get_weapon_damage(caster)
 
     def func(self, caster: LivingEntity, target: Object = None):
-        percent_ignored = caster.get_attr("dexterity") * 3  # TODO: Adjust percent calculation for Stab
-        attributes = [("effect_key", "Armor Ignored"), ("amount", percent_ignored), ("source", self)]
-        target.add_effect(typeclass=EffectScript, attributes=attributes)
-        COMBAT.resolve_attack(caster, target, self)
-        target.scripts.get("Armor Ignored").delete()
+        percent_ignored = caster.get_attr("dexterity") * 20  # TODO: Adjust percent calculation for Stab
+        attributes = [("effect_key", "Armor Ignored"), ("amount", percent_ignored), ("source", self),
+                      ("key", "Armor Ignored")]
+        target.add_effect(typeclass=EffectScript, attributes=attributes, quiet=True)
+        COMBAT.resolve_attack(caster, target, self, attack_landed=True, damage_values=COMBAT.get_weapon_damage(caster))
+
+        for script in target.scripts.all():
+            if (inherits_from(script, EffectScript) and script.attributes.has("effect_key") and
+                    script.db.effect_key == "Armor Ignored"):
+                script.delete()
         return True

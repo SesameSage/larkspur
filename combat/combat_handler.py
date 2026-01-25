@@ -165,13 +165,14 @@ class CombatHandler:
         damage_values = {}
         # Generate a damage value from wielded weapon if armed
         weapon = attacker.get_weapon()
-        if not isinstance(weapon, str):
+        if not isinstance(weapon, str): # If armed
             for damage_type in weapon.db.damage_ranges:
                 # Roll between minimum and maximum damage
                 range = weapon.db.damage_ranges[damage_type]
                 damage_values[damage_type] = randint(range[0], range[1])
                 attacker.location.more_info(
-                    f"+{damage_values[damage_type]} {damage_type.get_display_name()} damage from {weapon.name} ({attacker.name})")
+                    f"+{damage_values[damage_type]} {damage_type.get_display_name()} "
+                    f"damage from {weapon.name} ({attacker.name})")
                 # Make sure minimum damage is 0
                 if damage_values[damage_type] < 0:
                     damage_values[damage_type] = 0
@@ -321,6 +322,7 @@ class CombatHandler:
             damage_values=None,
             announce_msg=None,
             inflict_condition=[],
+            attack_landed=False
     ):
         """
                Checks if an attack hits or misses, calculates the damage, and applies it, along with announcements.
@@ -414,15 +416,16 @@ class CombatHandler:
         else:
             attack_name = attack.get_display_name()
 
-        # Check if hit or miss
-        attack_landed = True
-        if not self.hit_successful(attacker, defender, accuracy, evasion):
-            attack_landed = False
-            attacker.location.msg_contents(
-                "%s's %s misses %s!" % (
-                    attacker.get_display_name(capital=True), attack_name, defender.get_display_name(article=True))
-            )
-            return attack_landed, {}
+        # Check if hit or miss, unless already determined
+        if not attack_landed == True:
+            attack_landed = True
+            if not self.hit_successful(attacker, defender, accuracy, evasion):
+                attack_landed = False
+                attacker.location.msg_contents(
+                    "%s's %s misses %s!" % (
+                        attacker.get_display_name(capital=True), attack_name, defender.get_display_name(article=True))
+                )
+                return attack_landed, {}
 
         # Get damage
         damage_values, total_damage = get_damage_values(damage_values)
