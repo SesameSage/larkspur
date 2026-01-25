@@ -1,11 +1,9 @@
 """Abilities focused on dealing damage."""
 from random import randint
 
-from evennia.utils import inherits_from
-
 from combat.abilities.abilities import Ability, BowAbility
 from combat.combat_handler import COMBAT
-from combat.effects import DamageTypes, KnockedDown, Poisoned, Burning
+from combat.effects import DamageTypes, KnockedDown, Poisoned, Burning, EffectScript
 from combat.combat_constants import SECS_PER_TURN
 from typeclasses.base.objects import Object
 from typeclasses.inanimate.items.equipment.apparel import Shield
@@ -203,3 +201,29 @@ class SpinningAssault(Ability):
         for fighter in turn_handler.db.fighters:
             if turn_handler.db.grid.distance(caster, fighter) == 1:
                 COMBAT.resolve_attack(attacker=caster, defender=fighter, attack=self, damage_values=ability_damage)
+
+
+class Stab(Ability):
+    desc = "Find a weakness in your opponent’s armor."
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.targeted = True
+        self.db.must_target_entity = False
+        self.db.range = 1
+
+        self.db.requires = [("intelligence", 2)]
+        self.db.cost = [("stamina", 3)]
+        self.db.ap_cost = 2
+        self.db.cooldown = 0
+
+    def get_damage(self, caster):
+        COMBAT.get_weapon_damage(caster)
+
+    def func(self, caster: LivingEntity, target: Object = None):
+        percent_ignored = caster.get_attr("dexterity") * 3  # TODO: Adjust percent calculation for Stab
+        attributes = [("effect_key", "Armor Ignored"), ("amount", percent_ignored), ("source", self)]
+        target.add_effect(typeclass=EffectScript, attributes=attributes)
+        COMBAT.resolve_attack(caster, target, self)
+        target.scripts.get("Armor Ignored").delete()
+        return True

@@ -144,6 +144,7 @@ class CombatHandler:
             evasion_value = defender.get_evasion()
 
         # If the attack value is lower than the defense value, miss. Otherwise, hit.
+        attacker.location.more_info(f"Accuracy {accuracy}, Evasion {evasion_value}")
         if accuracy < evasion_value:
             attacker.location.more_info(f"{accuracy} hit < {evasion_value} evasion (miss)")
             return False

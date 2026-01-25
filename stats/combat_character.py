@@ -5,7 +5,7 @@ from evennia import TICKER_HANDLER as tickerhandler
 from evennia.utils import inherits_from
 
 from combat.combat_handler import COMBAT
-from combat.effects import DurationEffect
+from combat.effects import EffectScript, DurationEffect
 from combat.turn_handler import start_join_fight
 from server import appearance
 from stats.stats_constants import MAX_HP_BASE, LVL_TO_MAXHP, CON_TO_MAXHP, MAX_MANA_BASE, LVL_TO_MAXMANA, \
@@ -193,6 +193,13 @@ class CombatEntity(EquipmentEntity):
                         pass
                 if this_eq_def != 0:
                     eq_defense += this_eq_def  # Add this equipment piece's total defense from this damage
+        # If armor is being ignored, subtract a percentage
+        if self.effect_active("Armor Ignored"):
+            percent = self.db.effects["Armor Ignored"]["amount"]
+            decimal = Dec(percent) / Dec(100)
+            armor_ignored = decimal * eq_defense
+            self.location.more_info(f"{percent}% of {eq_defense} armor ignored = {armor_ignored}")
+            eq_defense -= armor_ignored
 
         effect_def = 0
         if "+Defense" in self.db.effects:
@@ -401,7 +408,7 @@ class CombatEntity(EquipmentEntity):
                 return script
         return False
 
-    def add_effect(self, typeclass, attributes=None, quiet=False, stack=False):
+    def add_effect(self, typeclass=EffectScript, attributes=None, quiet=False, stack=False):
         """Adds or resets an effect with the given typeclass and attributes."""
         if not attributes:  # If attributes not given in call
             attributes = []  # Make sure initialized as a list

@@ -4,7 +4,6 @@ from combat.abilities.spells import Spell
 from combat.combat_handler import COMBAT
 from combat.effects import DamageTypes, Burning
 from combat.combat_constants import SECS_PER_TURN
-from server.appearance import dmg_color
 from typeclasses.base.objects import Object
 from typeclasses.living.living_entities import LivingEntity
 
@@ -25,10 +24,7 @@ class Firebolt(Spell):
         self.db.cooldown = 2 * SECS_PER_TURN
 
     def get_damage(self, caster):
-        damage_mod = caster.db.mods["fire damage"] if "fire damage" in caster.db.mods else 1
-        fire_damage = caster.get_attr("spirit") * damage_mod
-        caster.location.more_info(f"{fire_damage} fire damage = "
-                                  f"{caster.get_attr("spirit")} Spirit * {damage_mod} mod")
+        fire_damage = caster.get_attr("spirit")
         return {DamageTypes.FIRE: fire_damage}
 
     def func(self, caster: LivingEntity, target: Object = None):
@@ -43,6 +39,29 @@ class Firebolt(Spell):
             # TODO: Should immunity to effects be separate?
             target.add_effect(Burning,
                               [("range", (1, 1)), ("duration", 3 * SECS_PER_TURN)])
+
+
+class Smite(Spell):
+    """Deals magic damage."""
+    desc = "Call on the gods to strike your foe."
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.targeted = True
+        self.db.must_target_entity = False
+        self.db.range = 8
+
+        self.db.requires = [("spirit", 1)]
+        self.db.ap_cost = 2
+        self.db.cost = [("mana", 3)]
+        self.db.cooldown = 2 * SECS_PER_TURN
+
+    def get_damage(self, caster):
+        return {DamageTypes.ARCANE: caster.get_attr("spirit")}
+
+    def func(self, caster: LivingEntity, target: Object = None):
+        announce_msg = f"{caster.get_display_name()} prays, and an unseen force strikes {target.get_display_name()}!"
+        COMBAT.resolve_attack(caster, target, self, announce_msg)
 
 
 class WaterWhip(Spell):
