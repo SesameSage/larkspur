@@ -9,6 +9,7 @@ from typeclasses.living.living_entities import LivingEntity
 
 
 class Ceasefire(Ability):
+    key = "Ceasefire"
     desc = "Prevent all combatants from attacking or using offensive spells."
 
     def at_object_creation(self):

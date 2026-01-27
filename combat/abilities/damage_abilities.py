@@ -98,6 +98,7 @@ class PoisonArrow(BowAbility):
 
 
 class Scratch(Ability):
+    key = "Scratch"
     desc = "Scratch your opponent with claws, talons, etc."
 
     def at_object_creation(self):
@@ -206,7 +207,8 @@ class SpinningAssault(Ability):
 
 
 class Stab(Ability):
-    desc = "Find a weakness in your opponent’s armor."
+    key = "Stab"
+    desc = "Find a weakness in your opponent's armor."
 
     def at_object_creation(self):
         super().at_object_creation()

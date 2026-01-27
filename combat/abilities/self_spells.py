@@ -31,6 +31,7 @@ class AbsorbEssence(Spell):
 
 
 class Consume(Spell):
+    key = "Consume"
     desc = "Leech life into your own body as you ravage your opponents."
 
     def at_object_creation(self):

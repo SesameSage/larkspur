@@ -99,6 +99,7 @@ class SolarPlexusStrike(Ability):
 
 class Sweep(Ability):
     """Attempts to knock an opponent down."""
+    key = "Sweep"
     desc = "Sweep your weapon underneath an opponent's legs, attempting to knock them off their feet."
 
     def at_object_creation(self):

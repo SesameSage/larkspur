@@ -31,6 +31,7 @@ class BlindingBeam(Spell):
 
 
 class Curse(Spell):
+    key = "Curse"
     desc = "Inflict your opponent with a curse that strikes them whenever they deal damage."
 
     def at_object_creation(self):
@@ -58,6 +59,7 @@ class Curse(Spell):
 
 
 class Freeze(Spell):
+    key = "Freeze"
     desc = "Encase your opponent in ice, preventing them from acting at all on their turn."
 
     def at_object_creation(self):
@@ -84,6 +86,7 @@ class Freeze(Spell):
 
 
 class Wither(Spell):
+    key = "Wither"
     desc = "Cause an opponent's stamina to wither away over time."
 
     def at_object_creation(self):

@@ -10,6 +10,7 @@ from typeclasses.living.living_entities import LivingEntity
 
 class Firebolt(Spell):
     """Causes fire damage and inflicts Burning, adding more damage over time."""
+    key = "Firebolt"
     desc = "Ignite a bolt of fire and hurl it towards your target for a chance to ignite."
 
     def at_object_creation(self):
@@ -43,6 +44,7 @@ class Firebolt(Spell):
 
 class Smite(Spell):
     """Deals magic damage."""
+    key = "Smite"
     desc = "Call on the gods to strike your foe."
 
     def at_object_creation(self):

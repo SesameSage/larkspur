@@ -7,6 +7,7 @@ from typeclasses.living.living_entities import LivingEntity
 
 
 class Cleanse(Spell):
+    key = "Cleanse"
     desc = "Remove a temporary negative effect from an ally."
 
     def at_object_creation(self):
@@ -61,6 +62,7 @@ class HealWounds(Spell):
 
 
 class Revive(Spell):
+    key = "Revive"
     desc = "Bring back an ally who has been knocked out."
 
     def at_object_creation(self):

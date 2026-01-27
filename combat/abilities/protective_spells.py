@@ -69,6 +69,7 @@ class ThermalSink(Spell):
 
 class Ward(Spell):
     """Target gains 10 resistance through a protective magical shield."""
+    key = "Ward"
     desc = "Protect a target with a magical shield of resistance."
 
     def at_object_creation(self):

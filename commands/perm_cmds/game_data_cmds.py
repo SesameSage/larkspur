@@ -1,3 +1,6 @@
+
+
+from evennia.commands.default.muxcommand import MuxCommand
 from evennia.commands.cmdset import CmdSet
 from evennia.commands.default.help import CmdSetHelp, HelpCategory, DEFAULT_HELP_CATEGORY, _loadhelp, _savehelp, \
     _quithelp
@@ -6,7 +9,9 @@ from evennia.utils import inherits_from, create
 from evennia.utils.create import create_object
 from evennia.utils.eveditor import EvEditor
 
+from combat.abilities import all_abilities
 from combat.abilities.all_abilities import ALL_ABILITIES
+from stats.combat_character import CombatEntity
 
 
 # Overridden to automatically format help for spells/abilities
@@ -256,7 +261,54 @@ class MyCmdSetHelp(CmdSetHelp):
             else:
                 self.msg(f"Error when creating topic '{topicstr}'{aliastxt}! Contact an admin.")
 
+class CmdTeach(MuxCommand):
+    """
+            add an ability to a combat entity
+
+            Usage:
+              teach <character> = <ability>
+
+            Examples:
+               teach lyrik = poison arrow
+
+            Use this to insert an ability into a combat entity's repertoire
+            for testing or fixes. Must be in the same room as the target and
+            use full names.
+            """
+    key = "@teach"
+    switch_options = ()
+    locks = "cmd:perm(teach) or perm(Developer)"
+    help_category = "building"
+
+    def func(self):
+        if not self.lhs or not self.rhs:
+            self.caller.msg("Usage: teach <character> = <ability>")
+            return
+        name_input = self.lhs
+        ability_input = self.rhs
+
+        char = None
+        for obj in self.caller.location.contents:
+            if obj.key.lower() == name_input.lower() and isinstance(obj, CombatEntity):
+                char = obj
+
+        if not char:
+            self.caller.msg(f"No character found here matching '{name_input}'.")
+            return
+
+        ability = all_abilities.get(ability_input.lower())
+        if not ability:
+            self.caller.msg(f"No ability found matching '{ability_input}'.")
+            return
+
+        instance = create_object(typeclass=ability, key = ability.key, location = char)
+        char.db.abilities.append(instance)
+        self.caller.location.msg_contents(f"{self.caller.get_display_name()} taught the {instance.get_display_name()} "
+                                          f"ability to {char.get_display_name()}.")
+
+
 
 class GameDataCmdSet(CmdSet):
     def at_cmdset_creation(self):
         self.add(MyCmdSetHelp)
+        self.add(CmdTeach)

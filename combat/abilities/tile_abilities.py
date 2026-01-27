@@ -8,6 +8,7 @@ from combat.tile_effects import DurationTileEffect, get_tiles, DamagingTile
 
 
 class Swarm(TileAbility):
+    key = "Swarm"
     desc = ("Call insects to swarm on the battlefield, preventing anyone caught in the swarm from attacking or using "
             "abilities.")
 
@@ -40,6 +41,7 @@ class Swarm(TileAbility):
 
 
 class Thistle(TileAbility):
+    key = "Thistle"
     desc = "Cover the ground in thistles to damage anyone stepping through."
 
     def at_object_creation(self):

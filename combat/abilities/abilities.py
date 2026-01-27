@@ -185,6 +185,9 @@ class Ability(Object):
         string = string[:-2]
         return string
 
+    def get_display_name(self):
+        return self.color() + self.key + "|n"
+
     def get_help(self):
         """Formats help entries for individual abilities."""
         return f"""

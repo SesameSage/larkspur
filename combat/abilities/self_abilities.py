@@ -31,6 +31,7 @@ class EnergyTap(Ability):
 
 
 class Expel(Ability):
+    key = "Expel"
     desc = "Collect and expel the negative aura in your body to remove a temporary debuff."
 
     def at_object_creation(self):
@@ -100,6 +101,7 @@ class PoisonBlade(Ability):
 
 
 class Windstep(Ability):
+    key = "Windstep"
     desc = "Move with the wind, greatly increasing your evasion."
 
     def at_object_creation(self):
