@@ -1,9 +1,9 @@
+from cmd import Cmd
 
-
-from evennia.commands.default.muxcommand import MuxCommand
 from evennia.commands.cmdset import CmdSet
 from evennia.commands.default.help import CmdSetHelp, HelpCategory, DEFAULT_HELP_CATEGORY, _loadhelp, _savehelp, \
     _quithelp
+from evennia.commands.default.muxcommand import MuxCommand
 from evennia.locks.lockhandler import LockException
 from evennia.utils import inherits_from, create
 from evennia.utils.create import create_object

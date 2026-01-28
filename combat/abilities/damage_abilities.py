@@ -13,6 +13,42 @@ from typeclasses.inanimate.items.equipment.weapons import Weapon, TwoHanded
 from typeclasses.living.living_entities import LivingEntity
 
 
+class BodySlam(Ability):
+    key = "Body Slam"
+    desc = "Your opponent loses stamina and may be knocked down."
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.targeted = True
+        self.db.must_target_entity = False
+        self.db.range = 1
+
+        self.db.requires = [("constitution", 3)]
+        self.db.cost = [("stamina", 10)]
+        self.db.ap_cost = 2
+        self.db.cooldown = 5 * SECS_PER_TURN
+
+    def get_damage(self, caster):
+        # TODO: Adjust body slam damage and effect amount
+        return {DamageTypes.CRUSHING: caster.get_attr("constitution") * 3}
+
+    def func(self, caster, target=None):
+        target.location.msg_contents(f"{caster.get_display_name()} body-slams into {target.get_display_name()}!")
+
+        target.db.stamina -= 20
+
+        caster_roll = randint(1, 10)
+        target_roll = randint(1, 10)
+        target_con = target.get_attr("constitution")
+        caster_con = caster.get_attr("constitution")
+
+        target.location.more_info(f"{caster.name}: {caster_con} constitution + {caster_roll} roll")
+        target.location.more_info(f"{target.name}: {target_con} constitution + {target_roll} roll")
+
+        if caster_con + caster_roll > target_con + target_roll:
+            target.add_effect(KnockedDown, attributes=[("source", self)])
+
+
 class FireArrow(BowAbility):
     key = "Fire Arrow"
     desc = "Flame-heat an arrow to burn and potentially ignite your foe."
@@ -36,7 +72,6 @@ class FireArrow(BowAbility):
         return damage_values
 
     def func(self, caster, target=None):
-
         hit_result, damage_values = COMBAT.resolve_attack(attacker=caster, defender=target, attack=self)
         if hit_result and DamageTypes.FIRE in damage_values and damage_values[DamageTypes.FIRE] > 0:
             # Inflict poisoning only if the poison damage is not fully resisted
@@ -203,6 +238,7 @@ class SpinningAssault(Ability):
         turn_handler = caster.db.combat_turnhandler
         for fighter in turn_handler.db.fighters:
             if turn_handler.db.grid.distance(caster, fighter) == 1:
+                # Without setting attack_landed, the damage still has a chance to be avoided
                 COMBAT.resolve_attack(attacker=caster, defender=fighter, attack=self, damage_values=ability_damage)
 
 
