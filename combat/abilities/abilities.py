@@ -185,7 +185,7 @@ class Ability(Object):
         string = string[:-2]
         return string
 
-    def get_display_name(self):
+    def get_display_name(self, looker=None, capital=False, article=False, color=True, **kwargs):
         return self.color() + self.key + "|n"
 
     def get_help(self):

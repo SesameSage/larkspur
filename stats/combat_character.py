@@ -96,6 +96,7 @@ class CombatEntity(EquipmentEntity):
         The buildup also carries fractional overflow for regen values over 1, for example handling the additional point
         added every 4 seconds for a regen value of 2.25, while still accurately incrementing the regular 2 per second.
         """
+        #Regenerate everything 3x faster in rooms with fireplaces
         if self.location and inherits_from(self.location, "world.locations.rooms.Room"):
             if self.location.in_room(Fireplace):
                 secs = 3 * secs
