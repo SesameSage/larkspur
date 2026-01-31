@@ -23,6 +23,8 @@ class CombatAI(Script):
         """While the entity has AP remaining, choose and perform an action."""
         if not self.obj.is_in_combat():
             return
+        if not self.obj.is_turn():
+            return
         if not self.check_ap():
             return
         action, target = self.choose_action()
@@ -105,7 +107,8 @@ class CombatAI(Script):
             return  # Stop without calling take_turn
 
         entity.db.combat_lastaction = action
-        self.take_turn()
+        if entity.is_turn():
+            self.take_turn()
 
     def try_heal_below(self, percent_health: int):
         """If entity's HP is below the percent given, looks for a healing ability or item to use."""
@@ -170,6 +173,8 @@ class CombatAI(Script):
         target = self.choose_target(weapon)
 
         # In range? Move toward if not
+        if entity.db.combat_ap < 1:
+            return
         grid = entity.db.combat_turnhandler.db.grid
         if grid.distance(entity, target) > COMBAT.action_range(weapon):
             if self.obj.effect_active("Stuck"):
