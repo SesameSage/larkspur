@@ -42,6 +42,7 @@ class AccursedGround(TileSpell):
         attributes.append(("effect_attributes", effect_attributes))
 
         grid = caster.db.combat_turnhandler.db.grid
+        # TODO: Nonetype create_script
         script = create_script(typeclass=InflictingTile, key=self.key, obj=caster, attributes=attributes)
         script.pre_effect_add()
         grid.db.effects.append(script)

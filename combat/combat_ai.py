@@ -21,6 +21,8 @@ class CombatAI(Script):
 
     def take_turn(self):
         """While the entity has AP remaining, choose and perform an action."""
+        if not self.obj.is_in_combat():
+            return
         if not self.check_ap():
             return
         action, target = self.choose_action()
@@ -170,6 +172,8 @@ class CombatAI(Script):
         # In range? Move toward if not
         grid = entity.db.combat_turnhandler.db.grid
         if grid.distance(entity, target) > COMBAT.action_range(weapon):
+            if self.obj.effect_active("Stuck"):
+                return
             direction_moved = grid.move_toward(entity, target)
             if direction_moved:
                 return direction_moved, target

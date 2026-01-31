@@ -84,6 +84,25 @@ class Freeze(Spell):
         target.add_effect(Frozen, [("duration", 2 * SECS_PER_TURN)])
         return True
 
+class Roots(Spell):
+    key = "Roots"
+    desc = "Shackle an opponent to the earth with tangling roots."
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.targeted = True
+        self.db.must_target_entity = True
+        self.db.range = 8
+
+        self.db.requires = [("intelligence", 4)]
+        self.db.ap_cost = 3
+        self.db.cost = [("mana", 10)]
+        self.db.cooldown = 10 * SECS_PER_TURN
+        self.db.duration = 3 * SECS_PER_TURN
+
+    def func(self, caster: LivingEntity, target: Object = None):
+        target.location.msg_contents(f"Roots rise from the soil and hold {target.get_display_name()} in place!")
+        target.add_effect(typeclass=DurationEffect, attributes=[("effect_key", "Stuck"), ("duration", self.db.duration), ("source", self)])
 
 class Wither(Spell):
     key = "Wither"

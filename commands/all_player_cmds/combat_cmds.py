@@ -206,6 +206,9 @@ class DirCmd(MuxCommand):
             if not found_exit:
                 self.caller.msg("You can't go that way.")
         else:
+            if self.caller.effect_active("Stuck"):
+                self.caller.msg("You're stuck!")
+                return
             self.caller.db.combat_turnhandler.db.grid.step(self.caller, self.aliases[0])
 
 
