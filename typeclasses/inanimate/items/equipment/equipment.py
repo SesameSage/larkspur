@@ -1,5 +1,6 @@
-from evennia import default_cmds, DefaultCharacter
+from evennia import DefaultCharacter
 from evennia.commands.default.muxcommand import MuxCommand
+from evennia.commands.cmdset import CmdSet
 from evennia.utils import (
     at_search_result, inherits_from,
 )
@@ -444,7 +445,7 @@ class CmdInventory(MuxCommand):
         self.caller.msg(self.caller.table_carry_limits())
 
 
-class EquipmentCharacterCmdSet(default_cmds.CharacterCmdSet):
+class EquipmentCharacterCmdSet(CmdSet):
     """
     Command set for clothing, including new versions of 'give' and 'drop'
     that take worn and covered clothing into account, as well as a new
