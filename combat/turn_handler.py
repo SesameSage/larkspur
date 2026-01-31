@@ -414,7 +414,7 @@ class TurnHandler(Script):
         self.db.timer = TURN_TIMEOUT + self.time_until_next_repeat()  # Reset the timer.
         self.db.timeout_warning_given = False  # Reset the timeout warning.
 
-        self.start_turn(newchar)
+        delay(1.1, self.start_turn, character=newchar)
 
         if not self.id:
             return

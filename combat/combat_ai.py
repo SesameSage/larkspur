@@ -21,17 +21,19 @@ class CombatAI(Script):
             self.key = self.__class__.__name__
 
     def take_turn(self):
-        """While the entity has AP remaining, choose and perform an action."""
+        """While the entity has AP remaining, choose and perform an action. This repeats until perform_action() stops
+        calling it back and it returns."""
         if not self.obj.is_in_combat():
             return
         if not self.obj.is_turn():
             return
         if not self.check_ap():
-            return
+            # Don't end the turn due to no AP if we can still move
+            if self.obj.db.combat_stepsleft == 0:
+                return
         action, target = self.choose_action()
         # Less delay between steps than other actions
-        time = 1 if action in ("n", "s", "e", "w") else 2
-        delay(time, self.perform_action, action=action, target=target)
+        delay(1, self.perform_action, action=action, target=target)
 
     def check_ap(self):
         entity = self.obj
@@ -97,6 +99,7 @@ class CombatAI(Script):
             return entity
 
     def perform_action(self, action, target=None):
+        """Interpret the action choice, perform it, and continue the turn if able."""
         entity = self.obj
 
         if action == entity.get_weapon():
@@ -119,6 +122,7 @@ class CombatAI(Script):
             entity.db.combat_turnhandler.next_turn()
             return  # Stop without calling take_turn
 
+        # Continue turn
         entity.db.combat_lastaction = action
         if entity.is_turn():
             self.take_turn()
@@ -133,6 +137,8 @@ class CombatAI(Script):
                         return ability
 
         def use_heal_item(entity):
+            if self.obj.combat_ap < 1:
+                return
             for content in entity.contents:
                 if content.attributes.has("item_func") and content.db.item_func == "heal":
                     return content
@@ -159,7 +165,7 @@ class CombatAI(Script):
         while len(offensive_abilities) > 0:
             ability = random.choice(offensive_abilities)
             target = self.choose_target(ability)
-            if target:  # If a good target is found for this ability
+            if target:  # If a good target is found for this ability, and enough AP
                 if ability.check(caster=entity, target=self.choose_target(ability)):
                     return ability, target
                 else:
@@ -188,7 +194,7 @@ class CombatAI(Script):
         target = self.choose_target(weapon)
 
         # In range? Move toward if not
-        if entity.db.combat_ap < 1:
+        if entity.db.combat_ap < 1 and entity.db.combat_stepsleft < 1:
             return
         grid = entity.db.combat_turnhandler.db.grid
         if grid.distance(entity, target) > COMBAT.action_range(weapon):

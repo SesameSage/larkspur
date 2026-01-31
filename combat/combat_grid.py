@@ -354,7 +354,7 @@ class CombatGrid(Script):
             obj.msg("You can only move on your turn!")
             return False
 
-        if obj.db.combat_ap < 1:
+        if obj.db.combat_ap < 1 and obj.db.combat_stepsleft < 1:
             obj.msg("Not enough AP!")
             return False
 
