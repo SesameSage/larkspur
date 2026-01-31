@@ -1,6 +1,7 @@
 from evennia.utils import inherits_from
 from evennia.utils.evtable import EvTable
 
+from combat.combat_constants import DIRECTION_NAMES_OPPOSITES
 from server import appearance
 from typeclasses.scripts.scripts import Script
 
@@ -327,8 +328,10 @@ class CombatGrid(Script):
                 obj.msg(self.print())
             return True
 
-    def move_toward(self, obj, target):
+    def move_toward(self, obj, target, away=False):
         move_direction = self.direction_to(obj, target)
+        if away:
+            move_direction = DIRECTION_NAMES_OPPOSITES[move_direction][1]
 
         if move_direction:  # We have a direction, now attempt to move
             moved = self.step(obj, move_direction)

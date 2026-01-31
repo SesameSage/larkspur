@@ -110,9 +110,9 @@ class Sweep(Ability):
         self.db.range = 1
 
         self.db.requires = [("dexterity", 2)]
-
         self.db.ap_cost = 3
         self.db.cost = [("stamina", 1)]
+
         self.db.cooldown = 5 * SECS_PER_TURN
 
     def func(self, caster: LivingEntity, target: Object = None):
@@ -131,3 +131,36 @@ class Sweep(Ability):
                 f"knocking them to the ground!")
             target.add_effect(KnockedDown, attributes=[("source", self)])
         return True
+
+
+class Threaten(Ability):
+    key = "Threaten"
+    desc = "Inflict fear on a weaker enemy, inciting them to run or protect themself."
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.targeted = True
+        self.db.must_target_entity = True
+        self.db.range = 4
+
+        self.db.requires = [("spirit", 4)]
+        self.db.ap_cost = 4
+        self.db.cost = [("mana", 6)]
+
+        self.db.duration = 3 * SECS_PER_TURN
+        self.db.cooldown = 6 * SECS_PER_TURN
+
+    def func(self, caster: LivingEntity, target: Object = None):
+        # Unfazed if target's strength beats caster's constitution, or target's con beats caster's strength
+        if target.get_attr("str") > caster.get_attr("con") and target.get_attr("con") > caster.get_attr("str"):
+            caster.location.msg_contents(f"{target.get_display_name(capital=True)} is unfazed by "
+                                         f"{caster.get_display_name(article=True)}'s threats!'")
+            return
+        else:
+            target.location.msg_contents(f"{caster.get_display_name(capital=True)} threatens "
+                                         f"{caster.get_display_name(article=True)}!")
+            attributes = [("effect_key", "Afraid"), ("duration", 3 * SECS_PER_TURN), ("source", self), ("caster", caster)]
+            target.add_effect(typeclass=DurationEffect, attributes=attributes)
+
+
+

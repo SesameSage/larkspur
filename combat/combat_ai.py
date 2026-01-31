@@ -44,6 +44,16 @@ class CombatAI(Script):
     def choose_action(self):
         """By default, attempts to heal if below 25% HP, attempts to use offensive abilities, then defaults to
         attack."""
+        # Must run if under Fear effect
+        fear_script = self.obj.effect_active("Afraid")
+        if fear_script:
+            caster = fear_script.db.caster
+            grid = self.obj.db.combat_turnhandler.db.grid
+            direction_moved = grid.move_toward(self.obj, caster, away=True)
+            if direction_moved:
+                return direction_moved, caster
+
+        # Choices in order of priority
         for choice in [self.try_heal_below(25), self.try_offensive_abilities(), self.try_attack()]:
             if choice:
                 break
@@ -160,6 +170,7 @@ class CombatAI(Script):
         return
 
     def try_attack(self):
+        """Attempts to attack, or move closer if out of range."""
         entity = self.obj
 
         # Can't attack during Ceasefire
@@ -169,6 +180,7 @@ class CombatAI(Script):
         # Tile effects that prevent attacking
         tile_effects = [eff.db.effect_key for eff in
                         entity.db.combat_turnhandler.db.grid.effects_at(entity.db.combat_x, entity.db.combat_y)]
+        # Can't attack in a swarm
         if "Swarm" in tile_effects:
             return
 
@@ -180,6 +192,7 @@ class CombatAI(Script):
             return
         grid = entity.db.combat_turnhandler.db.grid
         if grid.distance(entity, target) > COMBAT.action_range(weapon):
+            # Can't move when stuck
             if self.obj.effect_active("Stuck"):
                 return
             direction_moved = grid.move_toward(entity, target)
