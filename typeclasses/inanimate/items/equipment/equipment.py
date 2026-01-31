@@ -7,6 +7,7 @@ from evennia.utils import (
 from evennia.utils.evtable import EvTable
 
 from combat.effects import DamageTypes, StatMod
+from commands.default_cmdsets import CharacterCmdSet
 from server import appearance
 from typeclasses.inanimate.items.items import Item
 
@@ -445,7 +446,7 @@ class CmdInventory(MuxCommand):
         self.caller.msg(self.caller.table_carry_limits())
 
 
-class EquipmentCharacterCmdSet(CmdSet):
+class EquipmentCharacterCmdSet(CharacterCmdSet):
     """
     Command set for clothing, including new versions of 'give' and 'drop'
     that take worn and covered clothing into account, as well as a new
