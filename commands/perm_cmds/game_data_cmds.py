@@ -17,6 +17,7 @@ from stats.combat_character import CombatEntity
 # Overridden to automatically format help for spells/abilities
 class MyCmdSetHelp(CmdSetHelp):
     def func(self):
+        # The override
         ability_input = self.lhs
         if ability_input in ALL_ABILITIES:
             obj = create_object(typeclass=ALL_ABILITIES[ability_input], key=ability_input)

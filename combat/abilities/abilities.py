@@ -191,14 +191,15 @@ class Ability(Object):
     def get_help(self):
         """Formats help entries for individual abilities."""
         return f"""
-        {self.get_display_name()}
-        {self.desc}
+{self.get_display_name()}
+{self.desc}
         
-        |wRange|n: {self.db.range}
-        |wCosts|n: {self.cost_string()}
-        |wCooldown|n: {self.db.cooldown}s / {self.db.cooldown // SECS_PER_TURN}t
+|wRequires|n: {self.requirements_string()}
+|wCosts|n: {self.cost_string()}
         
-        |wRequires|n: {self.requirements_string()}
+|wRange|n: {self.db.range}{"\n|wDuration|n: " + str(self.db.duration) if self.attributes.has("duration") else ""}
+|wCooldown|n: {self.db.cooldown}s / {self.db.cooldown // SECS_PER_TURN}t
+        
         """
 
 

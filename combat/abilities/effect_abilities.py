@@ -143,7 +143,7 @@ class Threaten(Ability):
         self.db.must_target_entity = True
         self.db.range = 4
 
-        self.db.requires = [("spirit", 4)]
+        self.db.requires = [("spirit", 3)]
         self.db.ap_cost = 4
         self.db.cost = [("mana", 6)]
 
