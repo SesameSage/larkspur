@@ -261,6 +261,18 @@ class MyCmdSetHelp(CmdSetHelp):
             else:
                 self.msg(f"Error when creating topic '{topicstr}'{aliastxt}! Contact an admin.")
 
+class CmdDataReload(MuxCommand):
+    key = "@datareload"
+    locks = "cmd:perm(datareload) or perm(Developer)"
+    help_category = "data"
+
+    def func(self):
+        # Reset the static properties of all abilities to apply any adjustments from code changes
+        entities = CombatEntity.objects.all_family()
+        for entity in entities:
+            for ability in entity.db.abilities:
+                ability.at_object_creation()
+
 class CmdTeach(MuxCommand):
     """
             add an ability to a combat entity
@@ -278,7 +290,7 @@ class CmdTeach(MuxCommand):
     key = "@teach"
     switch_options = ()
     locks = "cmd:perm(teach) or perm(Developer)"
-    help_category = "building"
+    help_category = "data"
 
     def func(self):
         if not self.lhs or not self.rhs:
@@ -311,4 +323,5 @@ class CmdTeach(MuxCommand):
 class GameDataCmdSet(CmdSet):
     def at_cmdset_creation(self):
         self.add(MyCmdSetHelp)
+        self.add(CmdDataReload)
         self.add(CmdTeach)
