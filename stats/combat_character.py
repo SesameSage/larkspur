@@ -352,9 +352,12 @@ class CombatEntity(EquipmentEntity):
 
     def speed(self):
         """How many squares this character can move per 1 AP spent."""
-        speed = 1 + self.get_attr("dexterity")
+        speed = self.get_attr("dexterity") // 2
         if self.effect_active("Slowed"):
             speed = speed // 2
+
+        if speed < 1:
+            speed = 1
         return speed
 
     # </editor-fold>

@@ -10,6 +10,7 @@ from combat.combat_handler import COMBAT
 from typeclasses.inanimate.items.usables import Usable
 from typeclasses.scripts.scripts import Script
 
+# TODO: enemy turns time out after server restart
 
 class CombatAI(Script):
     """Dictates how an entity decides to take actions in combat."""
@@ -28,7 +29,9 @@ class CombatAI(Script):
         if not self.check_ap():
             return
         action, target = self.choose_action()
-        delay(2, self.perform_action, action=action, target=target)
+        # Less delay between steps than other actions
+        time = 1 if action in ("n", "s", "e", "w") else 2
+        delay(time, self.perform_action, action=action, target=target)
 
     def check_ap(self):
         entity = self.obj
