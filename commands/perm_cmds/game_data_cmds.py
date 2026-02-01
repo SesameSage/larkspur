@@ -11,6 +11,7 @@ from evennia.utils.eveditor import EvEditor
 
 from combat.abilities import all_abilities
 from combat.abilities.all_abilities import ALL_ABILITIES
+from server import appearance
 from stats.combat_character import CombatEntity
 
 
@@ -262,6 +263,18 @@ class MyCmdSetHelp(CmdSetHelp):
             else:
                 self.msg(f"Error when creating topic '{topicstr}'{aliastxt}! Contact an admin.")
 
+class CmdSwatch(MuxCommand):
+    key = "@swatch"
+    switch_options = ()
+    locks = "cmd:perm(swatch) or perm(Developer)"
+    help_category = "data"
+
+    def func(self):
+        for name, value in vars(appearance).items():
+            if isinstance(value, str):
+                self.caller.msg(f"{value}{name}|n")
+
+
 class CmdDataReload(MuxCommand):
     key = "@datareload"
     locks = "cmd:perm(datareload) or perm(Developer)"
@@ -324,5 +337,6 @@ class CmdTeach(MuxCommand):
 class GameDataCmdSet(CmdSet):
     def at_cmdset_creation(self):
         self.add(MyCmdSetHelp)
+        self.add(CmdSwatch)
         self.add(CmdDataReload)
         self.add(CmdTeach)
