@@ -1,29 +1,33 @@
 """
-Quest hooks tie quest stages/objectives to objects in the world and particular actions that can be performed on them.
+Quest hooks tie quest stages/objectives to objects in the world and particular actions that can be
+performed on them.
 
-The logic and progression of quests comes entirely from the triggering of quest hooks by players - performing the
-specified action on the specified object while the player is at the associated quest stage.
+The logic and progression of quests comes entirely from the triggering of quest hooks by players -
+performing the specified action on the specified object while the player is at the associated quest
+stage.
 
 For example:
-    - If an at_talk hook is attached to the character Attoah for stage 12.9 (QID 12, stage 9), and the player
-        enters "talk Attoah":
-        - If the player hasn't started quest 12, or their current objective for quest 12 is a stage other than stage 9,
-            the hook is not triggered.
-        - If the player has stage 9 as their current objective for quest 12, Attoah will speak the dialogue lines in
-            the hook's spoken_lines one by one, and then the player's current objective for quest 12 will be stage 9's
-            next_stage, most likely stage 10.
+    - If an at_talk hook is attached to the character Attoah for stage 12.9 (QID 12, stage 9), and
+    the player enters "talk Attoah":
+        - If the player hasn't started quest 12, or their current objective for quest 12 is a stage
+        other than stage 9, the hook is not triggered.
+        - If the player has stage 9 as their current objective for quest 12, Attoah will speak the
+        dialogue lines inthe hook's spoken_lines one by one, and then the player's current
+        objective for quest 12 will be stage 9's next_stage, most likely stage 10.
 
     - If an at_get hook is attached to a relic item for objective 17.0:
-        - Players default to stage 0 of every quest. Hooks at stage 0 represent an action any player will be able to
-            trigger, as long as they have not yet started this quest.
-        - When a player picks up the relic, quest 17 will start for the player (current stage becomes 1).
+        - Players default to stage 0 of every quest. Hooks at stage 0 represent an action any
+        player will be able to trigger, as long as they have not yet started this quest.
+        - When a player picks up the relic, quest 17 will start for the player (current stage
+        becomes 1).
 
     - If an at_told hook is attached to Attoah for stage 8.1:
         - If the player has not yet started the quest (at stage 0), "tell Attoah" has no effect.
         - If the player is at this quest stage:
-            - Each dialogue option in the hook data has its own keywords, spoken_lines, and next_stage.
-            - If the player uses all of an option's keywords in a "tell" message to Attoah, that option's spoken_lines
-                are said, and the player advanced to that option's next_stage.
+            - Each dialogue option in the hook data has its own keywords, spoken_lines, and
+            next_stage.
+            - If the player uses all of an option's keywords in a "tell" message to Attoah, that
+            option's spoken_lines are said, and the player advanced to that option's next_stage.
 
 Structure of quest hooks:
     {hook_type: {QID: {stage: {hook_data}}}}
