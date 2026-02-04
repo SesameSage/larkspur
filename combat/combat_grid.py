@@ -174,7 +174,7 @@ class CombatGrid(Script):
             origin_x = obj.db.combat_x
             origin_y = obj.db.combat_y
 
-        target_x, target_y = self.get_coords(origin_x, origin_y, direction, distance)
+        target_x, target_y = self.get_coords(origin_x=origin_x, origin_y=origin_y, direction=direction, distance=distance)
 
         return self.get_obj(target_x, target_y)
 

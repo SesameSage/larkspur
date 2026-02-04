@@ -101,7 +101,7 @@ class Ability(Object):
                         if not target.attributes.has("carry_weight"):
                             caster.msg(f"{self.get_display_name()} must target a living thing")
                             return False
-                    if target.attributes.has("hp"):
+                    if not isinstance(target, tuple) and target.attributes.has("hp"):
                         if target.db.hp < 1 and self.__class__.__name__ != "Revive":
                             caster.msg(f"{target.get_display_name(capital=True)} has been defeated!")
                             return False

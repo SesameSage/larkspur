@@ -1,9 +1,12 @@
 """Spells focused on dealing damage."""
+from evennia import logger
+from evennia.utils import inherits_from
 
-from combat.abilities.spells import Spell
+from combat.abilities.spells import Spell, TileSpell
 from combat.combat_handler import COMBAT
 from combat.effects import DamageTypes, Burning
 from combat.combat_constants import SECS_PER_TURN
+from server import appearance
 from typeclasses.base.objects import Object
 from typeclasses.living.living_entities import LivingEntity
 
@@ -40,6 +43,41 @@ class Firebolt(Spell):
             # TODO: Should immunity to effects be separate?
             target.add_effect(Burning,
                               [("range", (1, 1)), ("duration", 3 * SECS_PER_TURN)])
+
+
+class LightningBolt(Spell):
+    key = "Lightning Bolt"
+    desc = "Shoot a bolt of lightning straight out, shocking anything in its path."
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.targeted = True
+        self.db.must_target_entity = False
+        self.db.range = 8
+        self.db.targets_tile = True
+
+        self.db.requires = [("spirit", 3)]
+        self.db.ap_cost = 3
+        self.db.cost = [("mana", 4)]
+
+    def get_damage(self, caster):
+        shock_damage = caster.get_attr("spirit")
+        return {DamageTypes.SHOCK: shock_damage}
+
+    def func(self, caster: LivingEntity, target: Object = None):
+        caster.location.msg_contents(f"Lightning shoots out from {caster.get_display_name()}'s hands!")
+        spell_damage = self.get_damage(caster)
+        grid = caster.db.combat_turnhandler.db.grid
+        direction = grid.direction_to(caster, target)
+
+        for i in range(1, 8):
+            occupant = 0
+            occupant = grid.check_square(direction=direction, obj=caster,     distance=i)
+            if occupant and inherits_from(occupant, "stats.combat_character.CombatEntity"):
+                damage_taken = COMBAT.get_damage_taken(defender=occupant, damage_values=spell_damage)
+                occupant.apply_damage(damage_taken)
+                occupant.location.msg_contents(f"{occupant.get_display_name(capital=True)} is struck by lightning for "
+                                               f"{appearance.dmg_color(occupant)}{damage_taken[DamageTypes.SHOCK]} damage|n!")
 
 
 class Smite(Spell):

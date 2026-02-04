@@ -28,7 +28,7 @@ class Swarm(TileAbility):
         self.db.tile_color = "|210"
 
     def func(self, caster, target=None):
-        caster.location.msg(f"{caster.get_display_name(capital=True)} calls insects to swarm the battlefield!")
+        caster.location.msg_contents(f"{caster.get_display_name(capital=True)} calls insects to swarm the battlefield!")
 
         attributes = self.db.attributes
         attributes.append(

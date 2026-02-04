@@ -84,6 +84,9 @@ class GravityField(TileSpell):
         grid.db.effects.append(script)
 
 
+
+
+
 class SuppressionField(TileSpell):
     key = "Suppression Field"
     desc = "Prevent magic spells from being cast in a target area."
