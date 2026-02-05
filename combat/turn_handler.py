@@ -274,7 +274,7 @@ class TurnHandler(Script):
             character.db.combat_ap += COMBAT.get_ap(character)  # Replenish actions
 
         # Set AP to spend on the first step, then let entity take steps up to speed before spending more
-        character.db.combat_stepsleft = 1
+        character.db.combat_stepsleft = 0
 
         # Display grid
         for content in self.obj.contents:
@@ -389,11 +389,12 @@ class TurnHandler(Script):
         if character.db.combat_ap > 0:
             character.msg(f"You have {appearance.highlight}{character.db.combat_ap} AP.")
         else:  # Character has no actions remaining
-            if not self.id:
+            if character.db.combat_stepsleft == 0:
+                if not self.id:
+                    return
+                character.cap_stats()
+                self.next_turn()
                 return
-            character.cap_stats()
-            self.next_turn()
-            return
 
     def next_turn(self):
         """

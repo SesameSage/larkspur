@@ -1,11 +1,10 @@
 """Spells focused on dealing damage."""
-from evennia import logger
 from evennia.utils import inherits_from
 
-from combat.abilities.spells import Spell, TileSpell
+from combat.abilities.spells import Spell
+from combat.combat_constants import SECS_PER_TURN
 from combat.combat_handler import COMBAT
 from combat.effects import DamageTypes, Burning
-from combat.combat_constants import SECS_PER_TURN
 from server import appearance
 from typeclasses.base.objects import Object
 from typeclasses.living.living_entities import LivingEntity

@@ -13,7 +13,7 @@ from stats.stats_constants import MAX_HP_BASE, LVL_TO_MAXHP, CON_TO_MAXHP, MAX_M
 from typeclasses.inanimate.fixtures import Fireplace
 from typeclasses.inanimate.items.equipment.equipment import EquipmentEntity
 from typeclasses.living.corpses import make_corpse, set_to_respawn
-from world.quests.quest import all_quests, quest_desc
+from world.quests.quest import quest_desc
 
 
 class CombatEntity(EquipmentEntity):

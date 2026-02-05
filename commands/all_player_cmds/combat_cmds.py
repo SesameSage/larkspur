@@ -210,6 +210,7 @@ class DirCmd(MuxCommand):
                 self.caller.msg("You're stuck!")
                 return
             self.caller.db.combat_turnhandler.db.grid.step(self.caller, self.aliases[0])
+            self.caller.db.combat_turnhandler.turn_end_check(self.caller)
 
 
 class CmdNorth(DirCmd):
