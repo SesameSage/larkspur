@@ -509,7 +509,9 @@ class CombatEntity(EquipmentEntity):
             return True
         ext = exts[0]
         if self.is_in_combat():
-            self.db.combat_turnhandler.db.grid.step(obj=self, direction=ext.key[0])
+            turn_handler = self.db.combat_turnhandler
+            turn_handler.db.grid.step(obj=self, direction=ext.key[0])
+            turn_handler.turn_end_check(self)
             return False
         if self.db.HP <= 0:
             self.msg("You can't move, you've been defeated!")
