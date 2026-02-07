@@ -323,7 +323,7 @@ class CombatGrid(Script):
                 effect.apply_to(obj)
             if spend:
                 self.handle_move_ap(obj)
-                if obj.db.combat_ap > 0:
+                if obj.db.combat_ap > 0 or obj.db.combat_stepsleft > 0:
                     obj.msg(self.print())
             else:
                 obj.msg(self.print())
