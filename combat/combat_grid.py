@@ -291,13 +291,18 @@ class CombatGrid(Script):
         """Exchanges AP for a number of steps."""
         if character.db.combat_stepsleft > 0:
             character.db.combat_stepsleft -= 1
-            character.msg(f"{appearance.notify}{character.db.combat_stepsleft} steps remaining")
+            steps = character.db.combat_stepsleft
+            ap = character.db.combat_ap
+            character.msg(f"{steps} steps remaining, {ap} AP")
+            if steps == 0 and ap == 0:
+                character.msg("--Turn end--")
+
         else:
             character.db.combat_stepsleft = character.speed()
             self.db.turn_handler.spend_action(character, 1, action_name="move")
             character.msg(
-                    f"{appearance.notify}-1 AP, {character.db.combat_ap} left. You may take "
-                    f"{character.db.combat_stepsleft} more steps before another action must be spent.")
+                    f"-1 AP, {appearance.highlight}{character.db.combat_ap}|n left. You may take "
+                    f"{appearance.highlight}{character.db.combat_stepsleft}|n more steps before another action must be spent.")
 
     def move_to(self, obj, x, y, displace=False, spend=False):
         """

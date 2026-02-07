@@ -98,7 +98,7 @@ class Room(Object, DefaultRoom):
     # Changes to order and color
     appearance_template = """
 {header}
-|350{name}{extra_name_info}|n
+|331{name}{extra_name_info}|n
 {desc}
 {footer}
 {characters}

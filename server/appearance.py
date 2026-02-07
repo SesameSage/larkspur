@@ -4,13 +4,13 @@ hint = "|010"
 cmd = "|=a|[=m"
 table_alt = "|233"
 
-notify = "|530"
-attention = "|550"
+notify = "|550"
+attention = "|530"
 warning = "|[100|500"
 moreinfo = "|=g"
 highlight = "|353"
 
-say = "|145"
+say = "|245"
 whisper = "|525"
 
 character = "|553"
@@ -34,7 +34,7 @@ effect = "|405"
 good_effect = "|452"
 bad_effect = "|411"
 
-good_damage = "|440"
+good_damage = "|350"
 bad_damage = "|510"
 
 door = "|[210"

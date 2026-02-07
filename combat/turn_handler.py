@@ -292,7 +292,7 @@ class TurnHandler(Script):
             obj.msg(msg)
 
         # Prompt the character for their turn and give some information.
-        character.msg("|[551|=a~~~~~ YOUR TURN ~~~~~~")
+        character.msg(f"|[550|=a~~~~~ YOUR TURN ~~~~~~")
 
         table = evtable.EvTable(pretty_corners=True)
         for fighter in self.db.fighters:
