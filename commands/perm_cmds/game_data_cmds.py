@@ -282,6 +282,14 @@ class CmdDataReload(MuxCommand):
                 ability.at_object_creation()
 
 class CmdMakeEntity(MuxCommand):
+    """
+            create an entity
+
+            Usage:
+              makeentity
+
+            Triggers a menu allowing for the creation of entities with varying attributes.
+            """
     key = "@makeentity"
     locks = "cmd:perm(makeentity) or perm(Builder)"
     help_category = "building"

@@ -225,7 +225,7 @@ class CmdSpells(Command):
           ab
 
         All spells and abilities that you have learned will display here.
-        To cast a spell or ability, use 'cast <ability> <target>' (if the
+        To cast a spell or ability, use 'cast <ability> on <target>' (if the
         ability must have a target) or 'cast <ability>' otherwise.
         """
     key = "spells"
@@ -268,7 +268,7 @@ class CmdHP(Command):
         Hitpoints are analogous to health or life. You are defeated when your hp falls to zero.
         """
     key = "hp"
-    help_category = "stats"
+    help_category = "Statistics"
 
     def func(self):
         if self.args:  # Target given
@@ -297,7 +297,7 @@ class CmdMana(Command):
         Mana is a resource used to cast spells."""
     key = "mana"
     aliases = "man"
-    help_category = "stats"
+    help_category = "Statistics"
 
     def func(self):
         if self.args:  # Target given
@@ -328,7 +328,7 @@ class CmdStamina(Command):
     """
     key = "stamina"
     aliases = "stam"
-    help_category = "stats"
+    help_category = "Statistics"
 
     def func(self):
         if self.args:  # Target given
@@ -362,7 +362,7 @@ class CmdStats(Command):
     """
     key = "stats"
     aliases = "stat"
-    help_category = "stats"
+    help_category = "Statistics"
 
     def func(self):
 
@@ -490,7 +490,7 @@ class CmdEffects(Command):
         """
     key = "effects"
     aliases = "effect", "eff", "ef"
-    help_category = "stats"
+    help_category = "Statistics"
 
     def func(self):
         if self.args:  # Target given
@@ -532,7 +532,7 @@ class CmdAP(Command):
         items, and casting spells.
         """
     key = "ap"
-    help_category = "stats"
+    help_category = "Statistics"
 
     def func(self):
         if self.args:  # Target given
@@ -568,7 +568,7 @@ class CmdXP(Command):
         Show how much experience you have, and how much you need to gain before your next level-up.
         """
     key = "xp"
-    help_category = "stats"
+    help_category = "Statistics"
 
     def func(self):
         """

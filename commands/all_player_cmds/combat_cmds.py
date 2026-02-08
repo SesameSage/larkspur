@@ -70,7 +70,7 @@ class CmdCast(MuxCommand):
 
     Usage:
       cast <ability/spell>
-      cast <ability/spell> <target>
+      cast <ability/spell> on <target>
 
     This attempts to pay the cost and execute one of your abilities or spells by name.
     If a target is required, it must be provided.

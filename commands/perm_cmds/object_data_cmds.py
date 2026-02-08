@@ -5,6 +5,19 @@ from server import appearance
 
 
 class CmdAppear(MuxCommand):
+    """
+            change how an entity appears in the room
+
+            Usage:
+              appear <character> = <string>
+
+            Example:
+            appear wolf = snarls.
+
+            This allows for changing how an entity appears when looking at the room
+            it's in. The subject of the sentence will be added at the beginning
+            automatically, so only the action/appearance must be set.
+            """
     key = "appear"
     locks = "cmd:perm(appear) or perm(Builder)"
     help_category = "building"
