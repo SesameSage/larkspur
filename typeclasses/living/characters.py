@@ -20,12 +20,15 @@ from world.world_constants import DEFAULT_TALK_RESPONSES
 
 class Character(LivingEntity):
     """
-    A sentient living thing that can speak.
+    A named living thing that does not die and can be talked to.
     """
 
     def at_object_creation(self):
         super().at_object_creation()
+        self.db.unique_name = True
         self.db.appear_string = f"{self.get_display_name()} is here."
+        self.db.talk_responses = {0: {0: [random.choice(DEFAULT_TALK_RESPONSES)]}}
+        self.db.dies = False
 
     def color(self):
         return appearance.character
@@ -172,14 +175,7 @@ class Character(LivingEntity):
         pass
 
 
-class NPC(Character, Talkable):
-
-    def at_object_creation(self):
-        super().at_object_creation()
-        self.db.talk_responses = {0: {0: [random.choice(DEFAULT_TALK_RESPONSES)]}}
-
-
-class Vendor(NPC):
+class Vendor(Character):
     """An NPC who can sell items to players."""
 
     def at_object_creation(self):
@@ -220,7 +216,7 @@ class Vendor(NPC):
         player.msg("You receive " + singular + ".")
 
 
-class Trainer(NPC):
+class Trainer(Character):
     """An NPC who can teach the player abilities."""
 
     def at_object_creation(self):

@@ -83,6 +83,7 @@ def choose_attribute(character):
                         "desc": f"({appearance.highlight}{character.db.attribs[attribute]}|n) "
                                 f"|=m{ATTRIBUTES[attribute]["affects"]}\n",
                         "goto": (_increase_attribute, {"attribute": attribute})})
+        # TODO: Remove cancel option
     options.append({"key": "Cancel",
                     "goto": "end_node"})
     options = tuple(options)

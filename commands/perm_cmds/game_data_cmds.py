@@ -1,5 +1,5 @@
-from cmd import Cmd
-
+import evennia
+from evennia.utils.evmenu import EvMenu
 from evennia.commands.cmdset import CmdSet
 from evennia.commands.default.help import CmdSetHelp, HelpCategory, DEFAULT_HELP_CATEGORY, _loadhelp, _savehelp, \
     _quithelp
@@ -13,6 +13,9 @@ from combat.abilities import all_abilities
 from combat.abilities.all_abilities import ALL_ABILITIES
 from server import appearance
 from stats.combat_character import CombatEntity
+from stats.rpg_classes import Templar, Warden, Gladiator, Assassin, Ranger, Monk, Sorcerer, Cleric, Druid, Witch
+from typeclasses.living.characters import Vendor, Trainer, Character
+from typeclasses.living.creatures import Animal, Creature
 
 
 # Overridden to automatically format help for spells/abilities
@@ -263,18 +266,6 @@ class MyCmdSetHelp(CmdSetHelp):
             else:
                 self.msg(f"Error when creating topic '{topicstr}'{aliastxt}! Contact an admin.")
 
-class CmdSwatch(MuxCommand):
-    key = "@swatch"
-    switch_options = ()
-    locks = "cmd:perm(swatch) or perm(Developer)"
-    help_category = "data"
-
-    def func(self):
-        for name, value in vars(appearance).items():
-            if isinstance(value, str):
-                self.caller.msg(f"{value}{name}|n")
-
-
 class CmdDataReload(MuxCommand):
     key = "@datareload"
     locks = "cmd:perm(datareload) or perm(Developer)"
@@ -286,6 +277,187 @@ class CmdDataReload(MuxCommand):
         for entity in entities:
             for ability in entity.db.abilities:
                 ability.at_object_creation()
+
+class CmdMakeEntity(MuxCommand):
+    key = "@makeentity"
+    locks = "cmd:perm(makeentity) or perm(Builder)"
+    help_category = "building"
+
+    def func(self):
+
+        menu_data = {"select_character_creature": select_character_creature, "select_animal": select_animal,
+                     "select_rpg_class": select_rpg_class, "select_vendor_trainer": select_vendor_trainer,
+                     "select_hostile": select_hostile, "get_name": get_name, "end_node": end_node}
+        EvMenu(caller=self.caller, menudata=menu_data, startnode="select_character_creature")
+        #
+            #Animal?
+            #Vendor, Trainer?
+            #Class?
+        #Hostile to players?
+def select_character_creature(caller, raw_string, **kwargs):
+    text = "Character or creature? Characters have names and can be talked to."
+    options = (
+        {
+            "key": ("1", "char", "character"),
+            "desc": "1. Character",
+            "goto": "select_vendor_trainer",
+        },
+        {
+            "key": ("2", "cre", "crea", "creat", "creature"),
+            "desc": "2. Creature",
+            "goto": "select_animal",
+        }
+    )
+    return text, options
+
+def select_animal(caller, raw_string, **kwargs):
+    text = "Animal?"
+    options = (
+        {
+            "key": ("1", "yes", "y"),
+            "desc": "Yes",
+            "goto": ("select_hostile", {"typeclass": Animal}),
+        },
+        {
+            "key": ("2", "no", "n"),
+            "desc": "No",
+            "goto": ("select_hostile", {"typeclass": Creature}),
+        }
+
+
+    )
+    return text, options
+
+
+def select_vendor_trainer(caller, raw_string, **kwargs):
+    text = "Vendor, Trainer, or neither?"
+    options = (
+        {
+            "key": ("1", "v", "Vendor"),
+            "desc": "1. Vendor",
+            "goto": ("select_rpg_class", {"typeclass": Vendor}),
+        },
+        {
+            "key": ("2", "t", "Trainer"),
+            "desc": "2. Trainer",
+            "goto": ("select_rpg_class", {"typeclass": Trainer}),
+        },
+        {
+            "key": ("3", "n", "neither"),
+            "desc": "3. neither",
+            "goto": ("select_rpg_class", {"typeclass": Character})
+        }
+    )
+    return text, options
+
+def select_rpg_class(caller, raw_string, **kwargs):
+    text = "RPG Class?"
+    typeclass = kwargs.get("typeclass")
+    options = (
+        {
+            "key": ("1", "templar", "t"),
+            "desc": "Templar",
+            "goto": ("select_hostile", {"typeclass": typeclass, "rpg_class": Templar}),
+        },
+        {
+            "key": ("2", "warden", "w"),
+            "desc": "Warden",
+            "goto": ("select_hostile", {"typeclass": typeclass, "rpg_class": Warden}),
+        },
+        {
+            "key": ("3", "gladiator", "g"),
+            "desc": "Gladiator",
+            "goto": ("select_hostile", {"typeclass": typeclass, "rpg_class": Gladiator}),
+        },
+        {
+            "key": ("4", "assassin", "a"),
+            "desc": "Assassin",
+            "goto": ("select_hostile", {"typeclass": typeclass, "rpg_class": Assassin}),
+        },
+        {
+            "key": ("5", "ranger", "r"),
+            "desc": "Ranger",
+            "goto": ("select_hostile", {"typeclass": typeclass, "rpg_class": Ranger}),
+        },
+        {
+            "key": ("6", "monk", "m"),
+            "desc": "Monk",
+            "goto": ("select_hostile", {"typeclass": typeclass, "rpg_class": Monk}),
+        },
+        {
+            "key": ("7", "sorcerer", "s"),
+            "desc": "Sorcerer",
+            "goto": ("select_hostile", {"typeclass": typeclass, "rpg_class": Sorcerer}),
+        },
+        {
+            "key": ("8", "cleric", "c"),
+            "desc": "Cleric",
+            "goto": ("select_hostile", {"typeclass": typeclass, "rpg_class": Cleric}),
+        },
+        {
+            "key": ("9", "druid", "d"),
+            "desc": "Druid",
+            "goto": ("select_hostile", {"typeclass": typeclass, "rpg_class": Druid}),
+        },
+        {
+            "key": ("10", "witch", "w"),
+            "desc": "Witch",
+            "goto": ("select_hostile", {"typeclass": typeclass, "rpg_class": Witch}),
+        }
+    )
+    return text, options
+
+
+def select_hostile(caller, raw_string, **kwargs):
+    text = "Hostile to players?"
+    typeclass = kwargs.get("typeclass")
+    rpg_class = kwargs.get("rpg_class")
+    options = (
+        {
+            "key": ("1", "yes", "y"),
+            "desc": "Yes",
+            "goto": ("get_name", {"typeclass": typeclass, "rpg_class": rpg_class, "hostile": True}),
+        },
+        {
+            "key": ("2", "no", "n"),
+            "desc": "No",
+            "goto": ("get_name", {"typeclass": typeclass, "rpg_class": rpg_class, "hostile": False}),
+        }
+    )
+    return text, options
+
+def get_name(caller, raw_string, **kwargs):
+    text = "Name?"
+    typeclass = kwargs.get("typeclass")
+    rpg_class = kwargs.get("rpg_class")
+    hostile = kwargs.get("hostile")
+    options = {"key": "_default",
+               "goto": (_create, {"typeclass": typeclass, "rpg_class": rpg_class, "hostile": hostile})}
+    return text, options
+
+def _create(caller, raw_string, **kwargs):
+    typeclass = kwargs.get("typeclass")
+    rpg_class = kwargs.get("rpg_class")
+    hostile = kwargs.get("hostile")
+    name = raw_string.strip()
+    entity = evennia.utils.create.create_object(typeclass=typeclass, key=name, location=caller.location)
+    entity.db.hostile_to_players = hostile
+    entity.db.rpg_class = rpg_class
+    return "end_node"
+
+def end_node(caller, raw_string, **kwargs):
+    return "", None
+
+class CmdSwatch(MuxCommand):
+    key = "@swatch"
+    switch_options = ()
+    locks = "cmd:perm(swatch) or perm(Developer)"
+    help_category = "data"
+
+    def func(self):
+        for name, value in vars(appearance).items():
+            if isinstance(value, str):
+                self.caller.msg(f"{value}{name}|n")
 
 class CmdTeach(MuxCommand):
     """
@@ -332,11 +504,10 @@ class CmdTeach(MuxCommand):
         self.caller.location.msg_contents(f"{self.caller.get_display_name()} taught the {instance.get_display_name()} "
                                           f"ability to {char.get_display_name()}.")
 
-
-
 class GameDataCmdSet(CmdSet):
     def at_cmdset_creation(self):
         self.add(MyCmdSetHelp)
-        self.add(CmdSwatch)
         self.add(CmdDataReload)
+        self.add(CmdMakeEntity)
+        self.add(CmdSwatch)
         self.add(CmdTeach)
