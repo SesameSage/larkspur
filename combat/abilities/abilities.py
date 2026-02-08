@@ -9,7 +9,7 @@ class Ability(Object):
     allies, some work on the caster, some target tiles on the combat grid, and some have no target at all. Those
     with targets can be cast within a certain range. Most cost a certain amount of action points (AP), as well as
     some mana or stamina. Most can also only be cast again after a cooldown time has passed."""
-    help_category = "spells"
+    help_category = "abilities"
     desc = ""
 
     def at_object_creation(self):

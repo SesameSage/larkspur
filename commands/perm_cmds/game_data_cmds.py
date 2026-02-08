@@ -22,8 +22,10 @@ from typeclasses.living.creatures import Animal, Creature
 class MyCmdSetHelp(CmdSetHelp):
     def func(self):
         # The override
+        ability = False
         ability_input = self.lhs
         if ability_input in ALL_ABILITIES:
+            ability = True
             obj = create_object(typeclass=ALL_ABILITIES[ability_input], key=ability_input)
             self.rhs = obj.get_help()
             obj.delete()
@@ -127,7 +129,7 @@ class MyCmdSetHelp(CmdSetHelp):
                     lockstring = ",".join(lhslist[2:]) if nlist > 2 else old_entry.locks.get()
                     break
 
-        category = category.lower()
+        category = "abilities" if ability else category.lower()
 
         if "edit" in switches:
             # open the line editor to edit the helptext. No = is needed.
@@ -172,6 +174,7 @@ class MyCmdSetHelp(CmdSetHelp):
             old_entry.aliases.add(aliases)
             self.msg(f"Entry updated:\n{old_entry.entrytext}{aliastxt}")
             return
+
 
         if "category" in switches:
             # set the category
@@ -289,22 +292,18 @@ class CmdMakeEntity(MuxCommand):
                      "select_rpg_class": select_rpg_class, "select_vendor_trainer": select_vendor_trainer,
                      "select_hostile": select_hostile, "get_name": get_name, "end_node": end_node}
         EvMenu(caller=self.caller, menudata=menu_data, startnode="select_character_creature")
-        #
-            #Animal?
-            #Vendor, Trainer?
-            #Class?
-        #Hostile to players?
+
 def select_character_creature(caller, raw_string, **kwargs):
     text = "Character or creature? Characters have names and can be talked to."
     options = (
         {
             "key": ("1", "char", "character"),
-            "desc": "1. Character",
+            "desc": "Character",
             "goto": "select_vendor_trainer",
         },
         {
             "key": ("2", "cre", "crea", "creat", "creature"),
-            "desc": "2. Creature",
+            "desc": "Creature",
             "goto": "select_animal",
         }
     )
@@ -328,23 +327,22 @@ def select_animal(caller, raw_string, **kwargs):
     )
     return text, options
 
-
 def select_vendor_trainer(caller, raw_string, **kwargs):
     text = "Vendor, Trainer, or neither?"
     options = (
         {
             "key": ("1", "v", "Vendor"),
-            "desc": "1. Vendor",
+            "desc": "Vendor",
             "goto": ("select_rpg_class", {"typeclass": Vendor}),
         },
         {
             "key": ("2", "t", "Trainer"),
-            "desc": "2. Trainer",
+            "desc": "Trainer",
             "goto": ("select_rpg_class", {"typeclass": Trainer}),
         },
         {
             "key": ("3", "n", "neither"),
-            "desc": "3. neither",
+            "desc": "Neither",
             "goto": ("select_rpg_class", {"typeclass": Character})
         }
     )
@@ -406,7 +404,6 @@ def select_rpg_class(caller, raw_string, **kwargs):
         }
     )
     return text, options
-
 
 def select_hostile(caller, raw_string, **kwargs):
     text = "Hostile to players?"

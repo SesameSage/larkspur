@@ -16,6 +16,7 @@ from typeclasses.living.living_entities import LivingEntity
 class BodySlam(Ability):
     key = "Body Slam"
     desc = "Your opponent loses stamina and may be knocked down."
+    help_category = "abilities"
 
     def at_object_creation(self):
         super().at_object_creation()
