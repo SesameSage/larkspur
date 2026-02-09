@@ -133,6 +133,10 @@ def itemfunc_add_effect(item, user, target, **kwargs):
         user.msg("You can't use %s on that." % item)
         return False  # Returning false aborts the item use
 
+    if target.db.combat_turnhandler.db.grid.distance(user, target) > kwargs["range"]:
+        user.msg("Out of range for this item!")
+        return False
+
     # Retrieve condition / duration from kwargs, if present
     if "effects" in kwargs:
         item_effects = kwargs["effects"]
@@ -147,7 +151,10 @@ def itemfunc_add_effect(item, user, target, **kwargs):
             if entry[0] != "script_key":
                 attr_list.append(entry)
         effect_script = getattr(effects, effect["script_key"])
+        attr_list.append(("source", item.get_display_name()))
         target.add_effect(typeclass=effect_script, attributes=attr_list, stack=True)
+
+    return True
 
 
 def itemfunc_cure_condition(item, user, target, **kwargs):
@@ -259,6 +266,7 @@ class Item(Object):
         self.db.desc = "This is an item."
         self.db.weight = Dec(0)
         self.db.avg_value = 0.0
+        self.db.range = 0
 
         self.db.quest_hooks = {"at_get": {}, "at_give": {}}
 

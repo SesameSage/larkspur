@@ -522,7 +522,8 @@ class CombatHandler:
         # Regardless of what the function returns (if anything), it's still executed.
 
         # This was an "if not" check, but I could not get it to return True
-        item_func(item, user, target, **kwargs)
+        if not item_func(item, user, target, **kwargs):
+            return
 
         # If we haven't returned yet, we assume the item was used successfully.
         # Spend one use if item has limited uses

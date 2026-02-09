@@ -21,7 +21,8 @@ POISON_FLASK = {
                 "duration": 3 * SECS_PER_TURN,
                 "amount": 1
             }
-        ]
+        ],
+        "range": 5,
     },
     "weight": round(Dec(0.5), 1),
 }
