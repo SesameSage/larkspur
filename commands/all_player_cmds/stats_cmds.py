@@ -511,7 +511,7 @@ class CmdEffects(Command):
             name = effect
             effect = target.db.effects[effect]
             amount = effect["amount"] if "amount" in effect else "--"
-            source = effect["source"].key
+            source = effect["source"]
             duration = effect["duration"] if "duration" in effect else "-"
             seconds_passed = effect["seconds passed"] if "seconds passed" in effect else "-"
             table.add_row(name, amount, source, f"{seconds_passed}/{duration}")

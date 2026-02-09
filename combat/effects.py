@@ -26,24 +26,17 @@ class DamageTypes(Enum):
         return name
 
 
+POSITIVE_EFFECTS = []
+NEGATIVE_EFFECTS = ["Poisoned", "Burning", "Frozen", "Cursed", "KnockedDown"]
+NEUTRAL_EFFECTS = ["Ceasefire"]
+
+
 class EffectScript(Script):
 
     def at_script_creation(self):
         self.key = self.__class__.__name__
         self.db.source = None
         self.db.damage_type = None
-
-    def positive(self):
-        if self.db.source.db.offensive:
-            return False
-        else:
-            return True
-
-    def color(self):
-        if self.positive():
-            return appearance.good_effect
-        else:
-            return appearance.bad_effect
 
     def pre_effect_add(self):
         """Called at the beginning of adding the effect to a target."""
@@ -61,6 +54,22 @@ class EffectScript(Script):
         except KeyError:
             pass
         return True
+
+    def color(self):
+        if "+" in self.key:
+            return appearance.good_effect
+        elif "-" in self.key:
+            return appearance.bad_effect
+        elif "Siphon" in self.key:
+            return appearance.good_effect
+
+        if self.key in POSITIVE_EFFECTS:
+            return appearance.good_effect
+        elif self.key in NEGATIVE_EFFECTS:
+            return appearance.bad_effect
+        elif self.key in NEUTRAL_EFFECTS:
+            return appearance.effect
+        return appearance.effect
 
     def reset_seconds(self, duration):
         pass

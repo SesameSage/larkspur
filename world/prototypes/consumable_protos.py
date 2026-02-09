@@ -6,10 +6,10 @@ POTION = {
     "typeclass": "typeclasses.inanimate.items.usables.Potion"
 }
 
-POISON_DART = {
-    "key": "poison dart",
+POISON_FLASK = {
+    "key": "poison flask",
     "typeclass": "typeclasses.inanimate.items.usables.Consumable",
-    "desc": "A thin dart coated in deadly poison. Can be used on enemies in combat.",
+    "desc": "A vial of deadly poison. Can be used on enemies in combat.",
     "item_func": "add_effect",
     "item_notself": True,
     "item_uses": 1,

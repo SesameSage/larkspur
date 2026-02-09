@@ -29,7 +29,7 @@ class KneeSlash(Ability):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} lacerates "
                                      f"{target.get_display_name(article=True)}'s knee!")
 
-        attributes = [("effect_key", "Slowed"), ("duration", 4 * SECS_PER_TURN), ("source", self)]
+        attributes = [("effect_key", "Slowed"), ("duration", 4 * SECS_PER_TURN), ("source", self.get_display_name())]
         target.add_effect(typeclass=DurationEffect, attributes=attributes)
 
 
@@ -88,12 +88,12 @@ class SolarPlexusStrike(Ability):
 
         target.location.msg_contents(f"{caster.get_display_name(capital=True)} strikes at the center of power in "
                                      f"{target.get_display_name()}'s body!")
-        attributes = [("effect_key", "-Damage"), ("amount", -5), ("duration", 4 * SECS_PER_TURN), ("source", self)]
+        attributes = [("effect_key", "-Damage"), ("amount", -5), ("duration", 4 * SECS_PER_TURN), ("source", self.get_display_name())]
         target.add_effect(typeclass=TimedStatMod, stack=True, attributes=attributes)
 
         if target.get_attr("con") < 1.25 * caster.get_attr("dex"):
             if randint(1, 3) > 1:
-                attributes = [("effect_key", "Winded"), ("duration", 3 * SECS_PER_TURN), ("source", self)]
+                attributes = [("effect_key", "Winded"), ("duration", 3 * SECS_PER_TURN), ("source", self.get_display_name())]
                 target.add_effect(typeclass=DurationEffect, attributes=attributes)
 
 
@@ -129,7 +129,7 @@ class Sweep(Ability):
             target.location.msg_contents(
                 f"{caster.get_display_name(capital=True)} sweeps at {target.get_display_name()}'s legs, "
                 f"knocking them to the ground!")
-            target.add_effect(KnockedDown, attributes=[("source", self)])
+            target.add_effect(KnockedDown, attributes=[("source", self.get_display_name())])
         return True
 
 
@@ -159,7 +159,8 @@ class Threaten(Ability):
         else:
             target.location.msg_contents(f"{caster.get_display_name(capital=True)} threatens "
                                          f"{caster.get_display_name(article=True)}!")
-            attributes = [("effect_key", "Afraid"), ("duration", 3 * SECS_PER_TURN), ("source", self), ("caster", caster)]
+            attributes = [("effect_key", "Afraid"), ("duration", 3 * SECS_PER_TURN),
+                          ("source", self.get_display_name()), ("caster", caster)]
             target.add_effect(typeclass=DurationEffect, attributes=attributes)
 
 

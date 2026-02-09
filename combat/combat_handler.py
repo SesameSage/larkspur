@@ -31,7 +31,7 @@ class CombatHandler:
         for effect in ("+AP", "-AP"):
             if character.effect_active(effect):
                 effect_amt = character.db.effects[effect]["amount"]
-                source = character.db.effects[effect]["source"].key
+                source = character.db.effects[effect]["source"]
                 ap += effect_amt
                 character.location.more_info(f"{effect_amt} AP from {source}")
 

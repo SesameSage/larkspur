@@ -53,7 +53,8 @@ class Curse(Spell):
             caster.location.msg_contents(f"{target.get_display_name(capital=True)} wards off the curse!")
             return True
         else:
-            attributes = [("effect_key", "Cursed"), ("duration", 4 * SECS_PER_TURN), ("amount", spirit), ("source", self)]
+            attributes = [("effect_key", "Cursed"), ("duration", 4 * SECS_PER_TURN), ("amount", spirit),
+                          ("source", self.get_display_name())]
             target.add_effect(typeclass=TimedStatMod, attributes=attributes)
         return True
 
@@ -81,7 +82,7 @@ class Freeze(Spell):
                                      f"fingers, pulls it together to engulf {target.get_display_name(article=True)}, "
                                      f"and separates their hands again in a rapid slicing motion.")
 
-        target.add_effect(Frozen, [("duration", 2 * SECS_PER_TURN)])
+        target.add_effect(Frozen, [("duration", 2 * SECS_PER_TURN), ("source", self.get_display_name())])
         return True
 
 class Roots(Spell):
@@ -102,7 +103,8 @@ class Roots(Spell):
 
     def func(self, caster: LivingEntity, target: Object = None):
         target.location.msg_contents(f"Roots rise from the soil and hold {target.get_display_name()} in place!")
-        target.add_effect(typeclass=DurationEffect, attributes=[("effect_key", "Stuck"), ("duration", self.db.duration), ("source", self)])
+        target.add_effect(typeclass=DurationEffect, attributes=[("effect_key", "Stuck"), ("duration", self.db.duration),
+                                                                ("source", self.get_display_name())])
 
 class Wither(Spell):
     key = "Wither"
@@ -128,6 +130,6 @@ class Wither(Spell):
             target.location.msg_contents(f"{caster.get_display_name(capital=True)} casts a trembling over "
                                          f"{target.get_display_name()}'s body, causing their stamina to wither away!")
             attributes = [("effect_key", "Stamina Drain"), ("stat", "stamina"), ("duration", 5 * SECS_PER_TURN),
-                          ("amount", caster.get_attr("spirit")), ("source", self)]
+                          ("amount", caster.get_attr("spirit")), ("source", self.get_display_name())]
             target.add_effect(typeclass=Drain, attributes=attributes)
             return True

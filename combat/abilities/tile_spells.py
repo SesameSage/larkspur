@@ -26,7 +26,8 @@ class AccursedGround(TileSpell):
 
         self.db.tile_color = "|100"
         self.db.script_type = TimedStatMod
-        self.db.effect_attributes = [("effect_key", "Cursed"), ("duration", 4 * SECS_PER_TURN), ("source", self)]
+        self.db.effect_attributes = [("effect_key", "Cursed"), ("duration", 4 * SECS_PER_TURN),
+                                     ("source", self.get_display_name())]
 
     def func(self, caster, target=None):
         caster.location.msg(f"{caster.get_display_name(capital=True)} lays a curse upon the ground!")

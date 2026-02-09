@@ -26,7 +26,7 @@ class Ceasefire(Ability):
     def func(self, caster: LivingEntity, target: Object = None):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} declares a divine ceasefire!")
         # Give dummy longer duration to all other entities in case theirs would tick down first
-        attributes = [("effect_key", "Ceasefire"), ("duration", 3 * SECS_PER_TURN), ("source", self)]
+        attributes = [("effect_key", "Ceasefire"), ("duration", 3 * SECS_PER_TURN), ("source", self.get_display_name())]
 
         entities = [content for content in caster.location.contents if content.attributes.has("hp")]
         entities.remove(caster)

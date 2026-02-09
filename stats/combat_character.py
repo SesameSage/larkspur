@@ -442,7 +442,7 @@ class CombatEntity(EquipmentEntity):
                 return
 
         # Create effect script attached to this entity
-        effect = evennia.create_script(typeclass=typeclass, obj=self, attributes=attributes)
+        effect = evennia.create_script(typeclass=typeclass, obj=self, attributes=attributes, key=effect_key)
         effect.pre_effect_add()  # Call pre_effect_add on the effect script
         if not quiet:
             self.location.msg_contents(f"{self.get_display_name(capital=True)} gains {effect.color()}{effect_key}.")

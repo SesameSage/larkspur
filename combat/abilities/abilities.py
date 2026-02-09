@@ -219,7 +219,7 @@ class TileAbility(Ability):
     def check(self, caster, target):
         if not super().check(caster, target):
             return False
-        self.db.attributes = [("effect_key", self.key), ("tile_color", self.db.tile_color), ("source", self)]
+        self.db.attributes = [("effect_key", self.key), ("tile_color", self.db.tile_color), ("source", self.get_display_name())]
         if self.db.duration:
             self.db.attributes.append(("duration", self.db.duration))
         return True

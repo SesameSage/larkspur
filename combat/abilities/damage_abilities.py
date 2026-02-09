@@ -47,7 +47,7 @@ class BodySlam(Ability):
         target.location.more_info(f"{target.name}: {target_con} constitution + {target_roll} roll")
 
         if caster_con + caster_roll > target_con + target_roll:
-            target.add_effect(KnockedDown, attributes=[("source", self)])
+            target.add_effect(KnockedDown, attributes=[("source", self.get_display_name())])
 
 
 class FireArrow(BowAbility):
@@ -77,7 +77,7 @@ class FireArrow(BowAbility):
         if hit_result and DamageTypes.FIRE in damage_values and damage_values[DamageTypes.FIRE] > 0:
             # Inflict poisoning only if the poison damage is not fully resisted
             target.add_effect(Burning,
-                              [("range", (1, 3)), ("duration", 3 * SECS_PER_TURN), ("source", self)])
+                              [("range", (1, 3)), ("duration", 3 * SECS_PER_TURN), ("source", self.get_display_name())])
 
 
 class FocusedShot(BowAbility):
@@ -130,7 +130,7 @@ class PoisonArrow(BowAbility):
         if hit_result and DamageTypes.POISON in damage_values and damage_values[DamageTypes.POISON] > 0:
             # Inflict poisoning only if the poison damage is not fully resisted
             target.add_effect(Poisoned,
-                              [("range", (1, 3)), ("duration", 3 * SECS_PER_TURN), ("source", self)])
+                              [("range", (1, 3)), ("duration", 3 * SECS_PER_TURN), ("source", self.get_display_name())])
 
 
 class Scratch(Ability):
@@ -196,7 +196,7 @@ class ShieldBash(Ability):
         if knockdown_resistance > knockdown_power:
             caster.location.msg_contents(f"{target.get_display_name(capital=True)} stands strong!")
         else:
-            target.add_effect(KnockedDown, attributes=[("source", self)])
+            target.add_effect(KnockedDown, attributes=[("source", self.get_display_name())])
 
 
 class SpinningAssault(Ability):
@@ -263,7 +263,7 @@ class Stab(Ability):
 
     def func(self, caster: LivingEntity, target: Object = None):
         percent_ignored = caster.get_attr("dexterity") * 20  # TODO: Adjust percent calculation for Stab
-        attributes = [("effect_key", "Armor Ignored"), ("amount", percent_ignored), ("source", self),
+        attributes = [("effect_key", "Armor Ignored"), ("amount", percent_ignored), ("source", self.get_display_name()),
                       ("key", "Armor Ignored")]
         target.add_effect(typeclass=EffectScript, attributes=attributes, quiet=True)
         COMBAT.resolve_attack(caster, target, self, attack_landed=True, damage_values=COMBAT.get_weapon_damage(caster))

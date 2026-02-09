@@ -25,7 +25,7 @@ class AbsorbEssence(Spell):
     def func(self, caster: LivingEntity, target: Object = None):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} creates an inward flow of mental "
                                      f"energy, absorbing mana from their enemies!")
-        attributes = [("effect_key", "Siphon Mana"), ("duration", 5 * SECS_PER_TURN), ("source", self)]
+        attributes = [("effect_key", "Siphon Mana"), ("duration", 5 * SECS_PER_TURN), ("source", self.get_display_name())]
         caster.add_effect(typeclass=DurationEffect, attributes=attributes)
         return True
 
@@ -48,6 +48,6 @@ class Consume(Spell):
     def func(self, caster: LivingEntity, target: Object = None):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} begins grotesquely consuming life from "
                                      f"their foes!")
-        attributes = [("effect_key", "Siphon HP"), ("duration", 5 * SECS_PER_TURN), ("source", self)]
+        attributes = [("effect_key", "Siphon HP"), ("duration", 5 * SECS_PER_TURN), ("source", self.get_display_name())]
         caster.add_effect(typeclass=DurationEffect, attributes=attributes)
         return True
