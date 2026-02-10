@@ -79,7 +79,10 @@ class Blowgun(RangedWeapon):
 
 
 class Bow(RangedWeapon):
-    pass
+    class MeleeWeapon(Weapon):
+        def at_object_creation(self):
+            super().at_object_creation()
+            self.db.range = 10
 
 
 class Crossbow(RangedWeapon):

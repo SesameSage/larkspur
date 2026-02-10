@@ -1,4 +1,6 @@
 """Spells focused on dealing damage."""
+from random import randint
+
 from evennia.utils import inherits_from
 
 from combat.abilities.spells import Spell
@@ -31,8 +33,6 @@ class Firebolt(Spell):
         return {DamageTypes.FIRE: fire_damage}
 
     def func(self, caster: LivingEntity, target: Object = None):
-        ignite_buildup = 0
-
         announce_msg = (f"A bolt of fire ignites in {caster.get_display_name()}'s hand and scorches "
                         f"{target.get_display_name()} for ")
         hit_result, damage_values = COMBAT.resolve_attack(attacker=caster, defender=target, attack=self,
@@ -40,8 +40,9 @@ class Firebolt(Spell):
         if hit_result and DamageTypes.FIRE in damage_values and damage_values[DamageTypes.FIRE] > 0:
             # Inflict burning only if the fire damage is not fully resisted
             # TODO: Should immunity to effects be separate?
-            target.add_effect(Burning,
-                              [("range", (1, 1)), ("duration", 3 * SECS_PER_TURN)])
+            if randint(1,100) + (2 * caster.get_attr("spirit")) > 80: # 20% chance to burn + spirit bonus
+                target.add_effect(Burning,
+                                  [("range", (1, 1)), ("duration", 3 * SECS_PER_TURN)])
 
 
 class LightningBolt(Spell):

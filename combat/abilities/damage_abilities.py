@@ -7,6 +7,7 @@ from combat.abilities.abilities import Ability, BowAbility
 from combat.combat_handler import COMBAT
 from combat.effects import DamageTypes, KnockedDown, Poisoned, Burning, EffectScript
 from combat.combat_constants import SECS_PER_TURN
+from server import appearance
 from typeclasses.base.objects import Object
 from typeclasses.inanimate.items.equipment.apparel import Shield
 from typeclasses.inanimate.items.equipment.weapons import Weapon, TwoHanded
@@ -101,6 +102,32 @@ class FocusedShot(BowAbility):
     def func(self, caster: LivingEntity, target: Object = None):
         COMBAT.resolve_attack(attacker=caster, defender=target, attack=self,
                               accuracy=COMBAT.get_accuracy(caster, target) + 30)
+
+class OilSplash(Ability):
+    key = "Oil Splash"
+    desc = "Cause devastating fire damage to an enemy if they are currently on fire."
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.targeted = True
+        self.db.must_target_entity = False
+        self.db.range = 3
+
+        self.db.requires = [("intelligence", 2)]
+
+        self.db.ap_cost = 2
+        self.db.cost = [("stamina", 3)]
+        self.db.cooldown = 3 * SECS_PER_TURN
+
+    def func(self, caster, target=None):
+        target.location.msg_contents(f"{caster.get_display_name(capital=True)} splashes oil on {target.get_display_name()}!")
+        if target.effect_active("Burning"):
+            dmg = 8 * caster.get_attr("int")
+            target.apply_damage({DamageTypes.FIRE: dmg})
+            target.location.msg_contents(f"{target.get_display_name(capital=True)} takes {appearance.dmg_color(target)}"
+                                         f"{dmg} fire damage!")
+        else:
+            target.location.msg_contents(f"{target.get_display_name(capital=True)} becomes very slippery, but nothing"
+                                         f"else happens!")
 
 
 class PoisonArrow(BowAbility):
