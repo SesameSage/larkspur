@@ -4,6 +4,7 @@ from typeclasses.scripts.scripts import Script
 
 
 class CycleWeather(Script):
+    key = "Cycle Weather"
     def at_script_creation(self):
         self.interval = 600  # Repeat every 10 minutes
         self.db.zone = self.obj.zone()
