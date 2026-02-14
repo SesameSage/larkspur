@@ -32,7 +32,7 @@ class BodySlam(Ability):
 
     def get_damage(self, caster):
         # TODO: Adjust body slam damage and effect amount
-        return {DamageTypes.CRUSHING: caster.get_attr("constitution") * 3}
+        return {DamageTypes.BLUNT: caster.get_attr("constitution") * 3}
 
     def func(self, caster, target=None):
         target.location.msg_contents(f"{caster.get_display_name()} body-slams into {target.get_display_name()}!")
@@ -147,14 +147,14 @@ class PoisonArrow(BowAbility):
     def get_damage(self, caster):
         damage_values = COMBAT.get_weapon_damage(caster)
         try:
-            damage_values[DamageTypes.POISON] += 5
+            damage_values[DamageTypes.NONE] += 5
         except KeyError:
-            damage_values[DamageTypes.POISON] = 5
+            damage_values[DamageTypes.NONE] = 5
         return damage_values
 
     def func(self, caster: LivingEntity, target: Object = None):
         hit_result, damage_values = COMBAT.resolve_attack(attacker=caster, defender=target, attack=self)
-        if hit_result and DamageTypes.POISON in damage_values and damage_values[DamageTypes.POISON] > 0:
+        if hit_result and DamageTypes.NONE in damage_values and damage_values[DamageTypes.NONE] > 0:
             # Inflict poisoning only if the poison damage is not fully resisted
             target.add_effect(Poisoned,
                               [("range", (1, 3)), ("duration", 3 * SECS_PER_TURN), ("source", self.get_display_name())])

@@ -538,7 +538,6 @@ class CombatEntity(EquipmentEntity):
         Args:
             damages (dict): Types and amounts of damage being taken
         """
-        # TODO: Effects of different damage types
         for damage_type in damages:
             self.db.hp -= damages[damage_type]  # Reduce defender's HP by the damage dealt.
 

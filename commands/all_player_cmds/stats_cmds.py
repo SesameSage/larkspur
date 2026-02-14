@@ -391,7 +391,7 @@ class CmdStats(Command):
                 if damage_type in [DamageTypes.BLUNT, DamageTypes.SLASHING, DamageTypes.PIERCING]:
                     stat = target.db.char_defense
                     stat_method = target.get_defense
-                elif damage_type in [DamageTypes.FIRE, DamageTypes.COLD, DamageTypes.SHOCK, DamageTypes.POISON]:
+                elif damage_type in [DamageTypes.FIRE, DamageTypes.COLD, DamageTypes.SHOCK]:
                     stat = target.db.char_resistance
                     stat_method = target.get_resistance
 
@@ -466,12 +466,10 @@ class CmdStats(Command):
                          f"|=oBlunt: \n"
                          f"|=oSlashing: \n"
                          f"|=oPiercing: \n"
-                         f"|=oCrushing: \n"
                          f"|=oArcane: \n"
                          f"|=oFire: \n"
                          f"|=oCold: \n"
-                         f"|=oShock: \n"
-                         f"|=oPoison: \n")
+                         f"|=oShock: \n")
         table.add_column(f"{display_resistances(target)}")
 
         self.caller.msg(table)

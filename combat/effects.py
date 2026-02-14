@@ -9,15 +9,14 @@ from typeclasses.scripts.scripts import Script
 
 
 class DamageTypes(Enum):
+    NONE = 0
     BLUNT = 1
     SLASHING = 2
     PIERCING = 3
-    CRUSHING = 4
     ARCANE = 5
     FIRE = 6
     COLD = 7
     SHOCK = 8
-    POISON = 9
 
     def get_display_name(self, capital=False):
         name = self.name.lower()
@@ -287,7 +286,7 @@ class Burning(DamageOverTime):
 class Poisoned(DamageOverTime):
     fixed_attributes = [
         ("effect_key", "Poisoned"),
-        ("damage_type", DamageTypes.POISON)
+        ("damage_type", DamageTypes.NONE)
     ]
 
 

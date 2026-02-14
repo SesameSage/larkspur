@@ -256,7 +256,7 @@ class CombatHandler:
                     defender.location.more_info(f"-{defense}{type_name} damage from defense")
 
             # Get resistance for magical/other damage
-            elif damage_type in [DamageTypes.FIRE, DamageTypes.COLD, DamageTypes.SHOCK, DamageTypes.POISON]:
+            elif damage_type in [DamageTypes.FIRE, DamageTypes.COLD, DamageTypes.SHOCK]:
                 resistance = defender.get_resistance(damage_type)
                 damage -= resistance
                 if resistance > 0:
