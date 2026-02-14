@@ -4,9 +4,9 @@ from random import randint
 from evennia.utils import inherits_from
 
 from combat.abilities.spells import Spell
-from combat.combat_constants import SECS_PER_TURN
+from combat.combat_constants import SECS_PER_TURN, DamageTypes
 from combat.combat_handler import COMBAT
-from combat.effects import DamageTypes, Burning
+from combat.effects import Burning
 from server import appearance
 from typeclasses.base.objects import Object
 from typeclasses.living.living_entities import LivingEntity

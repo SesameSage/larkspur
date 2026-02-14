@@ -2,8 +2,7 @@
 from evennia.utils.create import create_script
 
 from combat.abilities.abilities import TileAbility
-from combat.combat_constants import SECS_PER_TURN
-from combat.effects import DamageTypes
+from combat.combat_constants import SECS_PER_TURN, DamageTypes
 from combat.tile_effects import DurationTileEffect, get_tiles, DamagingTile
 
 

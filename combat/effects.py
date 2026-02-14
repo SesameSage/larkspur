@@ -1,29 +1,8 @@
-from enum import Enum
 from random import randint
-
-from evennia.utils import inherits_from
 
 from combat.combat_constants import SECS_PER_TURN
 from server import appearance
 from typeclasses.scripts.scripts import Script
-
-
-class DamageTypes(Enum):
-    NONE = 0
-    BLUNT = 1
-    SLASHING = 2
-    PIERCING = 3
-    ARCANE = 5
-    FIRE = 6
-    COLD = 7
-    SHOCK = 8
-
-    def get_display_name(self, capital=False):
-        name = self.name.lower()
-        if capital:
-            name = name.capitalize()
-        return name
-
 
 POSITIVE_EFFECTS = []
 NEGATIVE_EFFECTS = ["Poisoned", "Burning", "Frozen", "Cursed", "KnockedDown"]
@@ -265,15 +244,16 @@ class DamageOverTime(PerSecEffect):
     def increment(self, amount: int, in_combat=False):
         """Apply the damages."""
         if in_combat:
-            self.obj.location.msg_contents(f"{self.obj.get_display_name(capital=True)} "
-                                           f"takes {appearance.dmg_color(self.obj)}{amount} damage|n from {self.color()}{self.db.effect_key}.")
-        self.obj.apply_damage({self.db.damage_type: amount})
+            self.obj.location.msg_contents(f"{self.obj.get_display_name(capital=True)} takes "
+                                           f"{appearance.dmg_color(self.obj)}{amount} damage|n from "
+                                           f"{self.color()}{self.db.effect_key}.")
+        self.obj.db.hp -= amount
+        self.obj.check_zero_hp()
 
 
 class Burning(DamageOverTime):
     fixed_attributes = [
-        ("effect_key", "Burning"),
-        ("damage_type", DamageTypes.FIRE)
+        ("effect_key", "Burning")
     ]
 
     def pre_effect_add(self):
@@ -285,8 +265,7 @@ class Burning(DamageOverTime):
 
 class Poisoned(DamageOverTime):
     fixed_attributes = [
-        ("effect_key", "Poisoned"),
-        ("damage_type", DamageTypes.NONE)
+        ("effect_key", "Poisoned")
     ]
 
 

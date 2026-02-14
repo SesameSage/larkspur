@@ -5,8 +5,8 @@ from evennia.utils import inherits_from
 
 from combat.abilities.abilities import Ability, BowAbility
 from combat.combat_handler import COMBAT
-from combat.effects import DamageTypes, KnockedDown, Poisoned, Burning, EffectScript
-from combat.combat_constants import SECS_PER_TURN
+from combat.effects import KnockedDown, Burning, EffectScript
+from combat.combat_constants import SECS_PER_TURN, DamageTypes
 from server import appearance
 from typeclasses.base.objects import Object
 from typeclasses.inanimate.items.equipment.apparel import Shield
@@ -128,36 +128,6 @@ class OilSplash(Ability):
         else:
             target.location.msg_contents(f"{target.get_display_name(capital=True)} becomes very slippery, but nothing"
                                          f"else happens!")
-
-
-class PoisonArrow(BowAbility):
-    key = "Poison Arrow"
-    desc = "Coat an arrow in poison, and take a shot at getting it into the opponent's blood."
-
-    def at_object_creation(self):
-        super().at_object_creation()
-        self.db.targeted = True
-        self.db.must_target_entity = True
-
-        self.db.requires = [("perception", 2)]
-        self.db.cost = [("stamina", 3)]
-        self.db.ap_cost = 3
-        self.db.cooldown = 5 * SECS_PER_TURN
-
-    def get_damage(self, caster):
-        damage_values = COMBAT.get_weapon_damage(caster)
-        try:
-            damage_values[DamageTypes.NONE] += 5
-        except KeyError:
-            damage_values[DamageTypes.NONE] = 5
-        return damage_values
-
-    def func(self, caster: LivingEntity, target: Object = None):
-        hit_result, damage_values = COMBAT.resolve_attack(attacker=caster, defender=target, attack=self)
-        if hit_result and DamageTypes.NONE in damage_values and damage_values[DamageTypes.NONE] > 0:
-            # Inflict poisoning only if the poison damage is not fully resisted
-            target.add_effect(Poisoned,
-                              [("range", (1, 3)), ("duration", 3 * SECS_PER_TURN), ("source", self.get_display_name())])
 
 
 class Scratch(Ability):

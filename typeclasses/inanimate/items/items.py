@@ -5,7 +5,8 @@ from evennia import EvTable
 from evennia.utils import inherits_from
 
 from combat import effects
-from combat.effects import DamageTypes, EffectScript
+from combat.effects import EffectScript
+from combat.combat_constants import DamageTypes
 from server import appearance
 from typeclasses.base.objects import Object
 

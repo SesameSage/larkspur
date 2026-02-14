@@ -1,3 +1,20 @@
+from enum import Enum
+
+class DamageTypes(Enum):
+    BLUNT = 1
+    SLASHING = 2
+    PIERCING = 3
+    ARCANE = 5
+    FIRE = 6
+    COLD = 7
+    SHOCK = 8
+
+    def get_display_name(self, capital=False):
+        name = self.name.lower()
+        if capital:
+            name = name.capitalize()
+        return name
+
 DIRECTION_NAMES_OPPOSITES = {
         "n": ("north", "s"),
         "ne": ("northeast", "sw"),
@@ -21,3 +38,5 @@ PERCEPT_TO_ACCURACY_BONUS = {  # How much is added to character's hit rolls by t
     4: 20,
     5: 25
 }
+
+

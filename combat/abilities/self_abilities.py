@@ -1,8 +1,8 @@
 """Abilities used on oneself."""
 
 from combat.abilities.abilities import Ability
-from combat.effects import DurationEffect, TimedStatMod, DamageTypes
-from combat.combat_constants import SECS_PER_TURN
+from combat.effects import DurationEffect, TimedStatMod
+from combat.combat_constants import SECS_PER_TURN, DamageTypes
 from typeclasses.base.objects import Object
 from typeclasses.living.living_entities import LivingEntity
 
@@ -95,8 +95,9 @@ class PoisonBlade(Ability):
         self.db.cooldown = 8 * SECS_PER_TURN
 
     def func(self, caster, target=None):
+        # TODO: Poison chance
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} poisons their blade!")
-        attributes = [("effect_key", "+Poison Dmg"), ("amount", caster.get_attr("int")),
+        attributes = [("effect_key", "Poison Chance"), ("amount", caster.get_attr("int")),
                       ("duration", 4 * SECS_PER_TURN), ("source", self.get_display_name())]
         caster.add_effect(typeclass=TimedStatMod, attributes=attributes)
 

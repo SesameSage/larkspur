@@ -1,6 +1,6 @@
 from decimal import Decimal as Dec
 
-from combat.effects import DamageTypes
+from combat.combat_constants import DamageTypes
 
 TRAINING_WEAPON = {
     "desc": "Simplified, flimsy, and poorly balanced, but effective for learning one's way around a weapon type.",

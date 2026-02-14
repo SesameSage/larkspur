@@ -1,6 +1,6 @@
 from decimal import Decimal as Dec
 
-from combat.effects import DamageTypes
+from combat.combat_constants import DamageTypes
 
 LEATHER_VEST = {
     "key": "leather vest",

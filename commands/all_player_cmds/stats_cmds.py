@@ -5,7 +5,7 @@ from evennia.utils.evtable import EvTable
 
 from combat.abilities import all_abilities
 from combat.abilities.spells import Spell
-from combat.effects import DamageTypes
+from combat.combat_constants import DamageTypes
 from server import appearance
 from stats.char_stats import xp_remaining, xp_threshold, level_up
 from typeclasses.living.characters import Trainer

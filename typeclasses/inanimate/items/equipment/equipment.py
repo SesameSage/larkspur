@@ -6,7 +6,8 @@ from evennia.utils import (
 )
 from evennia.utils.evtable import EvTable
 
-from combat.effects import DamageTypes, StatMod
+from combat.effects import StatMod
+from combat.combat_constants import DamageTypes
 from commands.default_cmdsets import CharacterCmdSet
 from server import appearance
 from typeclasses.inanimate.items.items import Item

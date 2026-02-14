@@ -2,10 +2,9 @@ from random import randint
 
 from evennia.prototypes.spawner import spawn
 
-from combat.combat_constants import PERCEPT_TO_ACCURACY_BONUS
+from combat.combat_constants import PERCEPT_TO_ACCURACY_BONUS, DamageTypes
 from server import appearance
 from server.appearance import dmg_color
-from combat.effects import DamageTypes
 from typeclasses.inanimate.items.equipment.weapons import Weapon
 from typeclasses.inanimate.items.items import ITEMFUNCS
 from typeclasses.inanimate.items.usables import Consumable
