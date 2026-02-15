@@ -1,14 +1,10 @@
 from random import randint
 
-from evennia.prototypes.spawner import spawn
-
 from combat.combat_constants import PERCEPT_TO_ACCURACY_BONUS
 from server import appearance
 from server.appearance import dmg_color
 from combat.effects import DamageTypes
 from typeclasses.inanimate.items.equipment.weapons import Weapon
-from typeclasses.inanimate.items.items import ITEMFUNCS
-from typeclasses.inanimate.items.usables import Consumable
 
 
 class CombatHandler:
@@ -151,44 +147,6 @@ class CombatHandler:
         else:
             attacker.location.more_info(f"{accuracy} hit > {evasion_value} evasion (success)")
             return True
-
-    def get_weapon_damage(self, attacker):
-        """
-        Rolls for wielded weapon or unarmed damage.
-
-        Args:
-            attacker (CombatEntity): Entity attacking
-
-        Returns:
-            damage_values (dict): Damage types and values to adjust for effects and pass to the defender's def/resist.
-        """
-        damage_values = {}
-        # Generate a damage value from wielded weapon if armed
-        weapon = attacker.get_weapon()
-        if not isinstance(weapon, str): # If armed
-            for damage_type in weapon.db.damage_ranges:
-                # Roll between minimum and maximum damage
-                range = weapon.db.damage_ranges[damage_type]
-                damage_values[damage_type] = randint(range[0], range[1])
-                attacker.location.more_info(
-                    f"+{damage_values[damage_type]} {damage_type.get_display_name()} "
-                    f"damage from {weapon.name} ({attacker.name})")
-                # Make sure minimum damage is 0
-                if damage_values[damage_type] < 0:
-                    damage_values[damage_type] = 0
-
-        # If not armed, use unarmed damage
-        else:
-            for damage_type in attacker.db.unarmed_damage:
-                range = attacker.db.unarmed_damage[damage_type]
-                damage_values[damage_type] = randint(range[0], range[1])
-
-        attacker.location.more_info(f"Damage roll ({attacker.name}):")
-        attacker.location.more_info(
-            str([f"{damage_type.get_display_name() if damage_type else "Physical Damage"}: {damage_values[damage_type]}"
-                 for damage_type in damage_values]))
-
-        return damage_values
 
     def apply_damage_amt_effects(self, attacker, defender, damage_values):
         """
@@ -347,7 +305,7 @@ class CombatHandler:
             if not damage_values:
                 # If attacking with weapon or unarmed
                 if isinstance(attack, Weapon) or isinstance(attack, str):
-                    damage_values = self.get_weapon_damage(attacker)
+                    damage_values = attacker.get_weapon_damage()
                 # Else attacking with ability
                 else:
                     damage_values = attack.get_damage(attacker)
@@ -442,97 +400,6 @@ class CombatHandler:
         return attack_landed, damage_values
 
     # ITEM RULES
-
-    def spend_item_use(self, item, user):
-        """
-        Spends one use on an item with limited uses.
-
-        Args:
-            item (obj): Item being used
-            user (obj): Character using the item
-
-        Notes:
-            If item.db.item_consumable is 'True', the item is destroyed if it
-            runs out of uses - if it's a string instead of 'True', it will also
-            spawn a new object as residue, using the value of item.db.item_consumable
-            as the name of the prototype to spawn.
-        """
-        item.db.item_uses -= 1  # Spend one use
-
-        if item.db.item_uses > 0:  # Has uses remaining
-            # Inform the player
-            user.msg("%s has %i uses remaining." % (item.key.capitalize(), item.db.item_uses))
-
-        else:  # All uses spent
-            if not isinstance(item, Consumable):  # Item isn't consumable
-                # Just inform the player that the uses are gone
-                user.msg("%s has no uses remaining." % item.key.capitalize())
-
-            else:  # If item is consumable
-                # If the value is 'True', just destroy the item
-                if isinstance(item, Consumable):
-                    user.msg("%s has been consumed." % item.get_display_name(capital=True))
-                    item.delete()  # Delete the spent item
-
-                else:  # If a string, use value of item_consumable to spawn an object in its place
-                    residue = spawn({"prototype": item.db.item_consumable})[0]  # Spawn the residue
-                    # Move the residue to the same place as the item
-                    residue.location = item.location
-                    user.msg("After using %s, you are left with %s." % (item, residue))
-                    item.delete()  # Delete the spent item
-
-    def use_item(self, user, item, target):
-        """
-        Performs the action of using an item.
-
-        Args:
-            user (obj): Character using the item
-            item (obj): Item being used
-            target (obj): Target of the item use
-        """
-        # If item is self only and no target given, set target to self.
-        if item.db.item_selfonly and target is None:
-            target = user
-
-        # If item is self only, abort use if used on others.
-        if item.db.item_selfonly and user != target:
-            user.msg("%s can only be used on yourself." % item)
-            return
-
-        if item.db.item_notself:
-            if target is user or target is None:
-                user.msg(
-                    f"{item.get_display_name()} can't be used on yourself. {appearance.cmd}(use <item> = <target>)")
-                return
-
-        # Set kwargs to pass to item_func
-        kwargs = {}
-        if item.db.kwargs:
-            kwargs = item.db.kwargs
-
-        # Match item_func string to function
-        try:
-            item_func = ITEMFUNCS[item.db.item_func]
-        except KeyError:  # If item_func string doesn't match to a function in ITEMFUNCS
-            user.msg("ERROR: %s not defined in ITEMFUNCS" % item.db.item_func)
-            return
-
-        # Call the item function - abort if it returns False, indicating an error.
-        # This performs the actual action of using the item.
-        # Regardless of what the function returns (if anything), it's still executed.
-
-        # This was an "if not" check, but I could not get it to return True
-        if not item_func(item, user, target, **kwargs):
-            return
-
-        # If we haven't returned yet, we assume the item was used successfully.
-        # Spend one use if item has limited uses
-        if item.db.item_uses:
-            self.spend_item_use(item, user)
-
-        # Spend an action if in combat
-        if user.is_in_combat():
-            user.db.combat_turnhandler.spend_action(user, 1, action_name="item")
 
 
 COMBAT = CombatHandler()

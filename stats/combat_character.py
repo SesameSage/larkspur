@@ -1,4 +1,5 @@
 from decimal import Decimal as Dec
+from random import randint
 
 import evennia
 from evennia import TICKER_HANDLER as tickerhandler
@@ -403,6 +404,41 @@ class CombatEntity(EquipmentEntity):
         else:
             return False
 
+    def get_weapon_damage(self):
+        """
+        Rolls for wielded weapon or unarmed damage.
+
+        Returns:
+            damage_values (dict): Damage types and values to adjust for effects and pass to the defender's def/resist.
+        """
+        damage_values = {}
+        # Generate a damage value from wielded weapon if armed
+        weapon = self.get_weapon()
+        if not isinstance(weapon, str):  # If armed
+            for damage_type in weapon.db.damage_ranges:
+                # Roll between minimum and maximum damage
+                range = weapon.db.damage_ranges[damage_type]
+                damage_values[damage_type] = randint(range[0], range[1])
+                self.location.more_info(
+                    f"+{damage_values[damage_type]} {damage_type.get_display_name()} "
+                    f"damage from {weapon.name} ({self.name})")
+                # Make sure minimum damage is 0
+                if damage_values[damage_type] < 0:
+                    damage_values[damage_type] = 0
+
+        # If not armed, use unarmed damage
+        else:
+            for damage_type in self.db.unarmed_damage:
+                range = self.db.unarmed_damage[damage_type]
+                damage_values[damage_type] = randint(range[0], range[1])
+
+        self.location.more_info(f"Damage roll ({self.name}):")
+        self.location.more_info(
+            str([f"{damage_type.get_display_name() if damage_type else "Physical Damage"}: {damage_values[damage_type]}"
+                 for damage_type in damage_values]))
+
+        return damage_values
+
     # <editor-fold desc="Effects">
     def effect_active(self, effect_key, duration_for_reset=0):
         """If this entity currently has this effect, returns the corresponding script. If this entity does not already
@@ -600,3 +636,5 @@ class CombatEntity(EquipmentEntity):
         return True
     # </editor-fold>
     # TODO: Effect handler?
+
+

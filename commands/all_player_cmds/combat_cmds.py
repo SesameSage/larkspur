@@ -187,7 +187,7 @@ class CmdUse(MuxCommand):
                 return
 
         # If everything checks out, call the use_item function
-        COMBAT.use_item(self.caller, item, target)
+        item.use(self.caller, target)
 
 
 # <editor-fold desc="Directions">

@@ -1,9 +1,10 @@
 from decimal import Decimal as Dec
 
 from evennia import EvTable
+from evennia.prototypes.spawner import spawn
 
 from server import appearance
-from typeclasses.inanimate.items.items import Item
+from typeclasses.inanimate.items.items import Item, ITEMFUNCS
 
 
 class Usable(Item):
@@ -38,6 +39,97 @@ class Usable(Item):
                          header=self.color() + self.__class__.__name__)
         return table
 
+    def spend_item_use(self, user):
+        """
+        Spends one use on an item with limited uses.
+
+        Args:
+            item (obj): Item being used
+            user (obj): Character using the item
+
+        Notes:
+            If item.db.item_consumable is 'True', the item is destroyed if it
+            runs out of uses - if it's a string instead of 'True', it will also
+            spawn a new object as residue, using the value of item.db.item_consumable
+            as the name of the prototype to spawn.
+        """
+        self.db.item_uses -= 1  # Spend one use
+
+        if self.db.item_uses > 0:  # Has uses remaining
+            # Inform the player
+            user.msg("%s has %i uses remaining." % (self.key.capitalize(), self.db.item_uses))
+
+        else:  # All uses spent
+            if not isinstance(self, Consumable):  # Item isn't consumable
+                # Just inform the player that the uses are gone
+                user.msg("%s has no uses remaining." % self.key.capitalize())
+
+            else:  # If item is consumable
+                # If the value is 'True', just destroy the item
+                if isinstance(self, Consumable):
+                    user.msg("%s has been consumed." % self.get_display_name(capital=True))
+                    self.delete()  # Delete the spent item
+
+                else:  # If a string, use value of item_consumable to spawn an object in its place
+                    residue = spawn({"prototype": self.db.item_consumable})[0]  # Spawn the residue
+                    # Move the residue to the same place as the item
+                    residue.location = self.location
+                    user.msg("After using %s, you are left with %s." % (self, residue))
+                    self.delete()  # Delete the spent item
+
+    def use(self, user, target):
+        """
+        Performs the action of using an item.
+
+        Args:
+            user (obj): Character using the item
+            item (obj): Item being used
+            target (obj): Target of the item use
+        """
+        # If item is self only and no target given, set target to self.
+        if self.db.item_selfonly and target is None:
+            target = user
+
+        # If item is self only, abort use if used on others.
+        if self.db.item_selfonly and user != target:
+            user.msg("%s can only be used on yourself." % self)
+            return
+
+        if self.db.item_notself:
+            if target is user or target is None:
+                user.msg(
+                    f"{self.get_display_name()} can't be used on yourself. {appearance.cmd}(use <item> = <target>)")
+                return
+
+        # Set kwargs to pass to item_func
+        kwargs = {}
+        if self.db.kwargs:
+            kwargs = self.db.kwargs
+
+        # Match item_func string to function
+        try:
+            item_func = ITEMFUNCS[self.db.item_func]
+        except KeyError:  # If item_func string doesn't match to a function in ITEMFUNCS
+            user.msg("ERROR: %s not defined in ITEMFUNCS" % self.db.item_func)
+            return
+
+        # Call the item function - abort if it returns False, indicating an error.
+        # This performs the actual action of using the item.
+        # Regardless of what the function returns (if anything), it's still executed.
+
+        # This was an "if not" check, but I could not get it to return True
+        if not item_func(self, user, target, **kwargs):
+            return
+
+        # If we haven't returned yet, we assume the item was used successfully.
+        # Spend one use if item has limited uses
+        if self.db.item_uses:
+            self.spend_item_use(user)
+
+        # Spend an action if in combat
+        if user.is_in_combat():
+            user.db.combat_turnhandler.spend_action(user, 1, action_name="item")
+
 
 class Consumable(Usable):
     """A usable item that is destroyed after a set number of uses."""
@@ -54,3 +146,4 @@ class Potion(Consumable):
         super().at_object_creation()
         self.db.weight = round(Dec(1), 1)
         self.db.item_uses = 1
+

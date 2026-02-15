@@ -211,7 +211,6 @@ def itemfunc_attack(item, user, target, **kwargs):
         return False
 
     damage_ranges = {}
-    accuracy = 0
     effects_inflicted = []
 
     # Retrieve values from kwargs, if present
@@ -223,27 +222,20 @@ def itemfunc_attack(item, user, target, **kwargs):
                 user.msg(appearance.warning + "No damage type matching for " + type_name)
                 return
             damage_ranges[damage_type] = kwargs["damage_ranges"][type_name]
+    else:
+        damage_ranges = {} # TODO continue
 
     if "accuracy" in kwargs:
         accuracy = kwargs["accuracy"]
     # if "effects_inflicted" in kwargs:
     #     effects_inflicted = kwargs["effects_inflicted"]
 
-    # Roll attack and damage
-    attack_value = randint(1, 100) + accuracy
     # TODO: Itemfunc Attack
 
-    # Account for "Accuracy Up" and "Accuracy Down" conditions
-    if "Accuracy Up" in user.db.effects:
-        attack_value += 25
-    if "Blinded" in user.db.effects:
-        attack_value -= attack_value / 2
-
-    user.location.msg_contents("%s attacks %s with %s!" % (user, target, item))
+    #user.location.msg_contents("%s attacks %s with %s!" % (user, target, item))
     user.db.combat_turnhandler.resolve_attack(
         user,
         target,
-        accuracy=attack_value,
         damage_values=damage_ranges,
         inflict_condition=effects_inflicted,
     )

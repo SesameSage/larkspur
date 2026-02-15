@@ -66,7 +66,7 @@ class FireArrow(BowAbility):
         self.db.cooldown = 5 * SECS_PER_TURN
 
     def get_damage(self, caster):
-        damage_values = COMBAT.get_weapon_damage(caster)
+        damage_values = caster.get_weapon_damage()
         try:
             damage_values[DamageTypes.FIRE] += 5
         except KeyError:
@@ -97,7 +97,7 @@ class FocusedShot(BowAbility):
         self.db.cooldown = 3 * SECS_PER_TURN
 
     def get_damage(self, caster):
-        return COMBAT.get_weapon_damage(caster)
+        return caster.get_weapon_damage()
 
     def func(self, caster: LivingEntity, target: Object = None):
         COMBAT.resolve_attack(attacker=caster, defender=target, attack=self,
@@ -145,7 +145,7 @@ class PoisonArrow(BowAbility):
         self.db.cooldown = 5 * SECS_PER_TURN
 
     def get_damage(self, caster):
-        damage_values = COMBAT.get_weapon_damage(caster)
+        damage_values = caster.get_weapon_damage()
         try:
             damage_values[DamageTypes.POISON] += 5
         except KeyError:
@@ -258,7 +258,7 @@ class SpinningAssault(Ability):
                                      f" weapon!")
 
         # Deal half weapon damage to everyone
-        weapon_damage = COMBAT.get_weapon_damage(caster)
+        weapon_damage = caster.get_weapon_damage()
         ability_damage = {}
         for damage_type in weapon_damage:
             ability_damage[damage_type] = weapon_damage[damage_type] // 2
@@ -286,14 +286,14 @@ class Stab(Ability):
         self.db.cooldown = 0
 
     def get_damage(self, caster):
-        COMBAT.get_weapon_damage(caster)
+        caster.get_weapon_damage()
 
     def func(self, caster: LivingEntity, target: Object = None):
         percent_ignored = caster.get_attr("dexterity") * 20  # TODO: Adjust percent calculation for Stab
         attributes = [("effect_key", "Armor Ignored"), ("amount", percent_ignored), ("source", self.get_display_name()),
                       ("key", "Armor Ignored")]
         target.add_effect(typeclass=EffectScript, attributes=attributes, quiet=True)
-        COMBAT.resolve_attack(caster, target, self, attack_landed=True, damage_values=COMBAT.get_weapon_damage(caster))
+        COMBAT.resolve_attack(caster, target, self, attack_landed=True, damage_values=caster.get_weapon_damage())
 
         for script in target.scripts.all():
             if (inherits_from(script, EffectScript) and script.attributes.has("effect_key") and
