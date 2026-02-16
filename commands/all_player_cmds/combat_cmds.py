@@ -1,10 +1,8 @@
 from evennia import Command, default_cmds
 from evennia.commands.default.help import CmdHelp
 from evennia.commands.default.muxcommand import MuxCommand
-from evennia.utils.create import create_script
 
-from combat.combat_handler import COMBAT
-from combat.turn_handler import TurnHandler, start_join_fight
+from combat.turn_handler import start_join_fight
 from server import appearance
 from typeclasses.inanimate.items.usables import Usable, Consumable
 

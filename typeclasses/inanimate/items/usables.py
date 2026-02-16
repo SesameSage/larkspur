@@ -4,7 +4,8 @@ from evennia import EvTable
 from evennia.prototypes.spawner import spawn
 
 from server import appearance
-from typeclasses.inanimate.items.items import Item, ITEMFUNCS
+from typeclasses.inanimate.items.items import Item
+from typeclasses.inanimate.items.item_funcs import ITEMFUNCS
 
 
 class Usable(Item):
@@ -38,44 +39,6 @@ class Usable(Item):
                          f"Function: {func_str}",
                          header=self.color() + self.__class__.__name__)
         return table
-
-    def spend_item_use(self, user):
-        """
-        Spends one use on an item with limited uses.
-
-        Args:
-            item (obj): Item being used
-            user (obj): Character using the item
-
-        Notes:
-            If item.db.item_consumable is 'True', the item is destroyed if it
-            runs out of uses - if it's a string instead of 'True', it will also
-            spawn a new object as residue, using the value of item.db.item_consumable
-            as the name of the prototype to spawn.
-        """
-        self.db.item_uses -= 1  # Spend one use
-
-        if self.db.item_uses > 0:  # Has uses remaining
-            # Inform the player
-            user.msg("%s has %i uses remaining." % (self.key.capitalize(), self.db.item_uses))
-
-        else:  # All uses spent
-            if not isinstance(self, Consumable):  # Item isn't consumable
-                # Just inform the player that the uses are gone
-                user.msg("%s has no uses remaining." % self.key.capitalize())
-
-            else:  # If item is consumable
-                # If the value is 'True', just destroy the item
-                if isinstance(self, Consumable):
-                    user.msg("%s has been consumed." % self.get_display_name(capital=True))
-                    self.delete()  # Delete the spent item
-
-                else:  # If a string, use value of item_consumable to spawn an object in its place
-                    residue = spawn({"prototype": self.db.item_consumable})[0]  # Spawn the residue
-                    # Move the residue to the same place as the item
-                    residue.location = self.location
-                    user.msg("After using %s, you are left with %s." % (self, residue))
-                    self.delete()  # Delete the spent item
 
     def use(self, user, target):
         """
@@ -130,7 +93,6 @@ class Usable(Item):
         if user.is_in_combat():
             user.db.combat_turnhandler.spend_action(user, 1, action_name="item")
 
-
 class Consumable(Usable):
     """A usable item that is destroyed after a set number of uses."""
 
@@ -138,6 +100,43 @@ class Consumable(Usable):
         super().at_object_creation()
         self.item_uses = 0
 
+    def spend_item_use(self, user):
+        """
+        Spends one use on an item with limited uses.
+
+        Args:
+            item (obj): Item being used
+            user (obj): Character using the item
+
+        Notes:
+            If item.db.item_consumable is 'True', the item is destroyed if it
+            runs out of uses - if it's a string instead of 'True', it will also
+            spawn a new object as residue, using the value of item.db.item_consumable
+            as the name of the prototype to spawn.
+        """
+        self.db.item_uses -= 1  # Spend one use
+
+        if self.db.item_uses > 0:  # Has uses remaining
+            # Inform the player
+            user.msg("%s has %i uses remaining." % (self.key.capitalize(), self.db.item_uses))
+
+        else:  # All uses spent
+            if not isinstance(self, Consumable):  # Item isn't consumable
+                # Just inform the player that the uses are gone
+                user.msg("%s has no uses remaining." % self.key.capitalize())
+
+            else:  # If item is consumable
+                # If the value is 'True', just destroy the item
+                if isinstance(self, Consumable):
+                    user.msg("%s has been consumed." % self.get_display_name(capital=True))
+                    self.delete()  # Delete the spent item
+
+                else:  # If a string, use value of item_consumable to spawn an object in its place
+                    residue = spawn({"prototype": self.db.item_consumable})[0]  # Spawn the residue
+                    # Move the residue to the same place as the item
+                    residue.location = self.location
+                    user.msg("After using %s, you are left with %s." % (self, residue))
+                    self.delete()  # Delete the spent item
 
 class Potion(Consumable):
     """A liquid consumable used on the holder for a beneficial effect."""
@@ -147,3 +146,9 @@ class Potion(Consumable):
         self.db.weight = round(Dec(1), 1)
         self.db.item_uses = 1
 
+class Arrow(Consumable):
+    """An arrow with special properties that can be 'used' while wielding a bow."""
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.weight = round(Dec(0.5), 1)
+        self.db.item_uses = 1
