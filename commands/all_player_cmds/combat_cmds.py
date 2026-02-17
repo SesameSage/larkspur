@@ -133,7 +133,7 @@ class CmdCast(MuxCommand):
 
             # If offensive, start/join a fight if applicable and not already in one
             if ability.db.offensive:
-                start_join_fight(self.caller, target, ability)
+                COMBAT.start_join_fight(self.caller, target, ability)
 
             ability.cast(caster=self.caller, target=target)
 
@@ -180,7 +180,7 @@ class CmdUse(MuxCommand):
             self.caller.msg("'%s' is not a usable item." % item.key.capitalize())
             return
 
-        if isinstance(item, Consumable):  # Item has limited uses
+        if inherits_from(item, Consumable):  # Item has limited uses
             if item.db.item_uses <= 0:  # Limited uses are spent
                 self.caller.msg("'%s' has no uses remaining." % item.key.capitalize())
                 return

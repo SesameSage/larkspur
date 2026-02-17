@@ -217,7 +217,7 @@ def itemfunc_attack(item, user, target, **kwargs):
                 damage_type = DamageTypes[type_name]
             except KeyError:
                 user.msg(appearance.warning + "No damage type matching for " + type_name)
-                return
+                return False
             damage_ranges[damage_type] = kwargs["damage_ranges"][type_name]
     else:
         damage_ranges = user.get_weapon_damage()
@@ -235,6 +235,7 @@ def itemfunc_attack(item, user, target, **kwargs):
             effects_inflicted = kwargs["effects_inflicted"]
             for effect_dict in effects_inflicted:
                 pass
+    return True
 
 
 ITEMFUNCS = {

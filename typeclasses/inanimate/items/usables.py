@@ -80,7 +80,6 @@ class Usable(Item):
         # This performs the actual action of using the item.
         # Regardless of what the function returns (if anything), it's still executed.
 
-        # This was an "if not" check, but I could not get it to return True
         if not item_func(self, user, target, **kwargs):
             return
 
