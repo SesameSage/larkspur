@@ -19,7 +19,8 @@ class Usable(Item):
         self.item_func = None
         self.db.targeted = False
         self.db.can_use_on_self = True
-        self.db.self_only = True
+        self.db.self_only = False
+        self.db.range = 1
 
     def color(self):
         return appearance.usable
@@ -59,6 +60,9 @@ class Usable(Item):
             return False
         elif self.db.self_only and user != target:
             user.msg(f"{self.get_display_name(capital=True)} can only be used on yourself.")
+            return False
+        if target.db.combat_turnhandler and target.db.combat_turnhandler.db.grid.distance(user, target) > self.db.range:
+            user.msg("Out of range for this item!")
             return False
         return True
 
