@@ -400,7 +400,7 @@ class CombatHandler:
         if isinstance(attack, str):
             attack_name = attack
         else:
-            attack_name = attack.get_display_name()
+            attack_name = attack.get_display_name(article=False)
 
         # Check if hit or miss, unless already determined
         if not attack_landed == True:

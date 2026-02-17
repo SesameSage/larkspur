@@ -1,7 +1,7 @@
 from combat.combat_constants import SECS_PER_TURN
 
 POISON_ARROW = {
-    "key": "a poison arrow",
+    "key": "poison arrow",
     "typeclass": "typeclasses.inanimate.items.usables.Arrow",
     "desc": "An arrow coated in deadly poison. Can be used on enemies in combat when a bow is equipped.",
     "item_func": "attack",

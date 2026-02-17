@@ -222,7 +222,9 @@ def itemfunc_attack(item, user, target, **kwargs):
     else:
         damage_ranges = user.get_weapon_damage()
 
-    #user.location.msg_contents("%s attacks %s with %s!" % (user, target, item))
+    user.location.msg_contents("%s attacks %s with %s!" % (user.get_display_name(capital=True, article=True),
+                                                           target.get_display_name(article=True),
+                                                           item.get_display_name(article=True)))
     hit_landed, damages = COMBAT.resolve_attack(
         attacker=user,
         defender=target,

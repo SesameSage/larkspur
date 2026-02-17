@@ -127,7 +127,7 @@ class Consumable(Usable):
             else:  # If item is consumable
                 # If the value is 'True', just destroy the item
                 if isinstance(self, Consumable):
-                    user.msg("%s has been consumed." % self.get_display_name(capital=True))
+                    user.msg("%s has been consumed." % self.get_display_name(capital=True, article=True))
                     self.delete()  # Delete the spent item
 
                 else:  # If a string, use value of item_consumable to spawn an object in its place
