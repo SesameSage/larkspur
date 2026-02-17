@@ -7,7 +7,6 @@ from evennia.utils import inherits_from
 
 from combat.combat_handler import COMBAT
 from combat.effects import EffectScript, DurationEffect
-from combat.turn_handler import start_join_fight
 from server import appearance
 from stats.stats_constants import MAX_HP_BASE, LVL_TO_MAXHP, CON_TO_MAXHP, MAX_MANA_BASE, LVL_TO_MAXMANA, \
     SPIRIT_TO_MAXMANA, MAX_STAM_BASE, LVL_TO_MAXSTAM, STR_TO_MAXSTAM, CON_TO_DEFENSE, DEXT_TO_EVADE, WIS_TO_RESIST
@@ -499,6 +498,10 @@ class CombatEntity(EquipmentEntity):
     # </editor-fold>
 
     # <editor-fold desc="Combat handling">
+    def start_fight_with(self, target, action):
+        if not self.is_in_combat():
+            COMBAT.start_join_fight(self, target, action)
+
     def combat_symbol(self):
         return self.color() + self.name[0] + "|n"
 
@@ -559,7 +562,7 @@ class CombatEntity(EquipmentEntity):
         if not COMBAT.check_range(self, target, weapon):
             return
 
-        start_join_fight(self, target, weapon)
+        COMBAT.start_join_fight(self, target, weapon)
         COMBAT.resolve_attack(self, target, attack=weapon)
 
         # Unless that ends the fight, spend an action

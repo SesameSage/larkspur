@@ -3,6 +3,7 @@ from random import randint
 from evennia.utils import inherits_from
 
 from combat import effects
+from combat.combat_handler import COMBAT
 from combat.effects import EffectScript, DamageTypes
 from server import appearance
 
@@ -203,6 +204,9 @@ def itemfunc_attack(item, user, target, **kwargs):
         user.msg("You can't use %s on that." % item)
         return False
 
+    if not user.is_in_combat():
+        user.start_fight_with(target, item)
+
     damage_ranges = {}
     effects_inflicted = []
 
@@ -216,12 +220,13 @@ def itemfunc_attack(item, user, target, **kwargs):
                 return
             damage_ranges[damage_type] = kwargs["damage_ranges"][type_name]
     else:
-        damage_ranges = {user.get_weapon_damage()}
+        damage_ranges = user.get_weapon_damage()
 
     #user.location.msg_contents("%s attacks %s with %s!" % (user, target, item))
-    hit_landed, damages = user.db.combat_turnhandler.resolve_attack(
-        user,
-        target,
+    hit_landed, damages = COMBAT.resolve_attack(
+        attacker=user,
+        defender=target,
+        attack=item,
         damage_values=damage_ranges,
         inflict_condition=effects_inflicted,
     )

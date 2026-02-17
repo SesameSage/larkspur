@@ -1,10 +1,12 @@
 from random import randint
 
+from evennia.utils import inherits_from
+from evennia.utils.create import create_script
+
 from combat.combat_constants import PERCEPT_TO_ACCURACY_BONUS
+from combat.effects import DamageTypes
 from server import appearance
 from server.appearance import dmg_color
-from combat.effects import DamageTypes
-from typeclasses.inanimate.items.equipment.weapons import Weapon
 
 
 class CombatHandler:
@@ -12,6 +14,30 @@ class CombatHandler:
     Handles many combat interactions and calculations as a single instance per server load.
     Functions in this file are listed in the order of their step-by-step logic.
     """
+
+    def start_join_fight(self, attacker, target, action):
+        """Start a fight if not already started, and/or add attacker and target to the fight if not already participating."""
+        # Don't start a fight if the move wasn't offensive or target wasn't an enemy
+        if not target:
+            return
+        if not isinstance(action, str) and action.attributes.has("cooldown"):
+            if not action.db.offensive:
+                return
+        if not isinstance(target, tuple) and attacker.db.hostile_to_players == target.db.hostile_to_players:
+            return
+
+        here = attacker.location
+        if not attacker.is_in_combat():
+            if here.db.combat_turnhandler:
+                here.db.combat_turnhandler.join_fight(attacker)
+            else:
+                rng = COMBAT.action_range(action)
+                create_script(typeclass="combat.turn_handler.TurnHandler", obj=here,
+                              attributes=[("starter", attacker), ("start_target", target),
+                                          ("starter_distance", rng if rng < 8 else 8)])
+        if not isinstance(target, tuple) and not target.is_in_combat():
+            if here.db.combat_turnhandler:
+                here.db.combat_turnhandler.join_fight(target)
 
     def get_ap(self, character):
         """
@@ -304,7 +330,8 @@ class CombatHandler:
         def get_damage_values(damage_values):
             if not damage_values:
                 # If attacking with weapon or unarmed
-                if isinstance(attack, Weapon) or isinstance(attack, str):
+                if (inherits_from(attack, "typeclasses.inanimate.items.equipment.weapons.Weapon")
+                        or isinstance(attack, str)):
                     damage_values = attacker.get_weapon_damage()
                 # Else attacking with ability
                 else:
@@ -403,3 +430,5 @@ class CombatHandler:
 
 
 COMBAT = CombatHandler()
+
+
