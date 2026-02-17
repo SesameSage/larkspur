@@ -2,7 +2,9 @@ from decimal import Decimal as Dec
 
 from evennia import EvTable
 from evennia.prototypes.spawner import spawn
+from win32pipe import PIPE_ACCEPT_REMOTE_CLIENTS
 
+from combat.effects import DamageTypes
 from server import appearance
 from typeclasses.inanimate.items.items import Item
 from typeclasses.inanimate.items.item_funcs import ITEMFUNCS
