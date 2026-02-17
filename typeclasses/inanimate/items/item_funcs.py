@@ -131,7 +131,7 @@ def itemfunc_add_effect(item, user, target, **kwargs):
         user.msg("You can't use %s on that." % item)
         return False  # Returning false aborts the item use
 
-    if target.db.combat_turnhandler.db.grid.distance(user, target) > kwargs["range"]:
+    if target.db.combat_turnhandler and target.db.combat_turnhandler.db.grid.distance(user, target) > kwargs["range"]:
         user.msg("Out of range for this item!")
         return False
 
