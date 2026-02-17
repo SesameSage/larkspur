@@ -2,6 +2,7 @@ from decimal import Decimal as Dec
 
 from evennia import EvTable
 from evennia.prototypes.spawner import spawn
+from evennia.utils import inherits_from
 from win32pipe import PIPE_ACCEPT_REMOTE_CLIENTS
 
 from combat.effects import DamageTypes
@@ -16,6 +17,9 @@ class Usable(Item):
     def at_object_creation(self):
         super().at_object_creation()
         self.item_func = None
+        self.db.targeted = False
+        self.db.can_use_on_self = True
+        self.db.self_only = True
 
     def color(self):
         return appearance.usable
@@ -42,6 +46,22 @@ class Usable(Item):
                          header=self.color() + self.__class__.__name__)
         return table
 
+    def check_usable(self, user, target):
+        """Runs all checks on whether the item can be used in the way it was called."""
+        if self.db.item_uses < 1:
+            user.msg("No uses remaining!")
+            return False
+        if self.db.targeted and not target:
+            user.msg("Must target something!")
+            return False
+        if target == user and not self.db.can_use_on_self:
+            user.msg("You can't use that on yourself.")
+            return False
+        elif self.db.self_only and user != target:
+            user.msg(f"{self.get_display_name(capital=True)} can only be used on yourself.")
+            return False
+        return True
+
     def use(self, user, target):
         """
         Performs the action of using an item.
@@ -52,19 +72,12 @@ class Usable(Item):
             target (obj): Target of the item use
         """
         # If item is self only and no target given, set target to self.
-        if self.db.item_selfonly and target is None:
+        if self.db.self_only and target is None:
             target = user
 
-        # If item is self only, abort use if used on others.
-        if self.db.item_selfonly and user != target:
-            user.msg("%s can only be used on yourself." % self)
+        # Ensure we can use the item the way we are trying to
+        if not self.check_usable(user, target):
             return
-
-        if self.db.item_notself:
-            if target is user or target is None:
-                user.msg(
-                    f"{self.get_display_name()} can't be used on yourself. {appearance.cmd}(use <item> = <target>)")
-                return
 
         # Set kwargs to pass to item_func
         kwargs = {}
@@ -153,3 +166,14 @@ class Arrow(Consumable):
         super().at_object_creation()
         self.db.weight = round(Dec(0.5), 1)
         self.db.item_uses = 1
+        self.db.targeted = True
+        self.db.can_use_on_self = False
+        self.db.self_only = False
+
+    def check_usable(self, user, target):
+        if not super().check_usable(user, target):
+            return False
+        if not inherits_from(user.get_weapon(), "typeclasses.inanimate.items.equipment.weapons.Bow"):
+            user.msg("Must be wielding a bow to use arrows!")
+            return False
+        return True
