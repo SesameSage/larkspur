@@ -7,6 +7,15 @@ from combat.combat_handler import COMBAT
 from combat.effects import EffectScript, DamageTypes
 from server import appearance
 
+def add_effect_from_prototype(item, target, effects_dict):
+    attr_list = []
+    for effect in effects_dict:
+        for entry in effect.items():
+            if entry[0] != "script_key":
+                attr_list.append(entry)
+        effect_script = getattr(effects, effect["script_key"])
+        attr_list.append(("source", item.get_display_name()))
+        target.add_effect(typeclass=effect_script, attributes=attr_list, stack=True)
 
 def itemfunc_heal(item, user, target, **kwargs):
     """
@@ -139,14 +148,7 @@ def itemfunc_add_effect(item, user, target, **kwargs):
         "%s uses %s!" % (user.get_display_name(capital=True), item.get_display_name(article=True)))
 
     # Add conditions to the target
-    attr_list = []
-    for effect in item_effects:
-        for entry in effect.items():
-            if entry[0] != "script_key":
-                attr_list.append(entry)
-        effect_script = getattr(effects, effect["script_key"])
-        attr_list.append(("source", item.get_display_name()))
-        target.add_effect(typeclass=effect_script, attributes=attr_list, stack=True)
+    add_effect_from_prototype(item, target, item_effects)
 
     return True
 
@@ -229,10 +231,9 @@ def itemfunc_attack(item, user, target, **kwargs):
         inflict_condition=effects_inflicted,
     )
     if hit_landed:
-        if "effects_inflicted" in kwargs:
-            effects_inflicted = kwargs["effects_inflicted"]
-            for effect_dict in effects_inflicted:
-                pass
+        if "effects" in kwargs:
+            effects_inflicted = kwargs["effects"]
+            add_effect_from_prototype(item, target, effects_inflicted)
     return True
 
 

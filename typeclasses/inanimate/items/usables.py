@@ -173,6 +173,7 @@ class Arrow(Consumable):
         self.db.targeted = True
         self.db.can_use_on_self = False
         self.db.self_only = False
+        self.db.range = 15
 
     def check_usable(self, user, target):
         if not super().check_usable(user, target):
