@@ -1,44 +1,17 @@
 # TODO: Update TurnHandler docs
 from random import randint
 
-import evennia
 from evennia.utils import evtable, inherits_from, delay
 from evennia.utils.create import create_script
 
+from combat.combat_constants import SECS_PER_TURN
 from combat.combat_grid import CombatGrid
 from combat.combat_handler import COMBAT
-from server import appearance
 from combat.effects import DurationEffect
-from combat.combat_constants import SECS_PER_TURN
-from typeclasses.inanimate.items.equipment.weapons import Weapon
+from server import appearance
 from typeclasses.scripts.scripts import Script
 
 TURN_TIMEOUT = 30  # Time before turns automatically end, in seconds
-
-
-def start_join_fight(attacker, target, action):
-    """Start a fight if not already started, and/or add attacker and target to the fight if not already participating."""
-    # Don't start a fight if the move wasn't offensive or target wasn't an enemy
-    if not target:
-        return
-    if not isinstance(action, str) and action.attributes.has("cooldown"):
-        if not action.db.offensive:
-            return
-    if not isinstance(target, tuple) and attacker.db.hostile_to_players == target.db.hostile_to_players:
-        return
-
-    here = attacker.location
-    if not attacker.is_in_combat():
-        if here.db.combat_turnhandler:
-            here.db.combat_turnhandler.join_fight(attacker)
-        else:
-            rng = COMBAT.action_range(action)
-            create_script(typeclass=TurnHandler, obj=here,
-                          attributes=[("starter", attacker), ("start_target", target),
-                                      ("starter_distance", rng if rng < 8 else 8)])
-    if not isinstance(target, tuple) and not target.is_in_combat():
-        if here.db.combat_turnhandler:
-            here.db.combat_turnhandler.join_fight(target)
 
 
 class TurnHandler(Script):

@@ -5,8 +5,8 @@ from evennia.utils import inherits_from
 
 from combat.abilities.abilities import Ability, BowAbility
 from combat.combat_handler import COMBAT
-from combat.effects import KnockedDown, Burning, EffectScript
-from combat.combat_constants import SECS_PER_TURN, DamageTypes
+from combat.effects import DamageTypes, KnockedDown, Poisoned, Burning, EffectScript
+from combat.combat_constants import SECS_PER_TURN
 from server import appearance
 from typeclasses.base.objects import Object
 from typeclasses.inanimate.items.equipment.apparel import Shield
@@ -32,7 +32,7 @@ class BodySlam(Ability):
 
     def get_damage(self, caster):
         # TODO: Adjust body slam damage and effect amount
-        return {DamageTypes.BLUNT: caster.get_attr("constitution") * 3}
+        return {DamageTypes.CRUSHING: caster.get_attr("constitution") * 3}
 
     def func(self, caster, target=None):
         target.location.msg_contents(f"{caster.get_display_name()} body-slams into {target.get_display_name()}!")
@@ -66,7 +66,7 @@ class FireArrow(BowAbility):
         self.db.cooldown = 5 * SECS_PER_TURN
 
     def get_damage(self, caster):
-        damage_values = COMBAT.get_weapon_damage(caster)
+        damage_values = caster.get_weapon_damage()
         try:
             damage_values[DamageTypes.FIRE] += 5
         except KeyError:
@@ -97,7 +97,7 @@ class FocusedShot(BowAbility):
         self.db.cooldown = 3 * SECS_PER_TURN
 
     def get_damage(self, caster):
-        return COMBAT.get_weapon_damage(caster)
+        return caster.get_weapon_damage()
 
     def func(self, caster: LivingEntity, target: Object = None):
         COMBAT.resolve_attack(attacker=caster, defender=target, attack=self,
@@ -128,6 +128,36 @@ class OilSplash(Ability):
         else:
             target.location.msg_contents(f"{target.get_display_name(capital=True)} becomes very slippery, but nothing"
                                          f"else happens!")
+
+
+class PoisonArrow(BowAbility):
+    key = "Poison Arrow"
+    desc = "Coat an arrow in poison, and take a shot at getting it into the opponent's blood."
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.targeted = True
+        self.db.must_target_entity = True
+
+        self.db.requires = [("perception", 2)]
+        self.db.cost = [("stamina", 3)]
+        self.db.ap_cost = 3
+        self.db.cooldown = 5 * SECS_PER_TURN
+
+    def get_damage(self, caster):
+        damage_values = caster.get_weapon_damage()
+        try:
+            damage_values[DamageTypes.POISON] += 5
+        except KeyError:
+            damage_values[DamageTypes.POISON] = 5
+        return damage_values
+
+    def func(self, caster: LivingEntity, target: Object = None):
+        hit_result, damage_values = COMBAT.resolve_attack(attacker=caster, defender=target, attack=self)
+        if hit_result and DamageTypes.POISON in damage_values and damage_values[DamageTypes.POISON] > 0:
+            # Inflict poisoning only if the poison damage is not fully resisted
+            target.add_effect(Poisoned,
+                              [("range", (1, 3)), ("duration", 3 * SECS_PER_TURN), ("source", self.get_display_name())])
 
 
 class Scratch(Ability):
@@ -228,7 +258,7 @@ class SpinningAssault(Ability):
                                      f" weapon!")
 
         # Deal half weapon damage to everyone
-        weapon_damage = COMBAT.get_weapon_damage(caster)
+        weapon_damage = caster.get_weapon_damage()
         ability_damage = {}
         for damage_type in weapon_damage:
             ability_damage[damage_type] = weapon_damage[damage_type] // 2
@@ -256,14 +286,14 @@ class Stab(Ability):
         self.db.cooldown = 0
 
     def get_damage(self, caster):
-        COMBAT.get_weapon_damage(caster)
+        caster.get_weapon_damage()
 
     def func(self, caster: LivingEntity, target: Object = None):
         percent_ignored = caster.get_attr("dexterity") * 20  # TODO: Adjust percent calculation for Stab
         attributes = [("effect_key", "Armor Ignored"), ("amount", percent_ignored), ("source", self.get_display_name()),
                       ("key", "Armor Ignored")]
         target.add_effect(typeclass=EffectScript, attributes=attributes, quiet=True)
-        COMBAT.resolve_attack(caster, target, self, attack_landed=True, damage_values=COMBAT.get_weapon_damage(caster))
+        COMBAT.resolve_attack(caster, target, self, attack_landed=True, damage_values=caster.get_weapon_damage())
 
         for script in target.scripts.all():
             if (inherits_from(script, EffectScript) and script.attributes.has("effect_key") and

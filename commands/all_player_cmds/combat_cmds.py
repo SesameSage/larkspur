@@ -1,10 +1,9 @@
 from evennia import Command, default_cmds
 from evennia.commands.default.help import CmdHelp
 from evennia.commands.default.muxcommand import MuxCommand
-from evennia.utils.create import create_script
+from evennia.utils import inherits_from
 
 from combat.combat_handler import COMBAT
-from combat.turn_handler import TurnHandler, start_join_fight
 from server import appearance
 from typeclasses.inanimate.items.usables import Usable, Consumable
 
@@ -47,7 +46,7 @@ class CmdAttack(Command):
                 attacker.msg("Can't find " + self.args)
                 return
 
-        start_join_fight(attacker, target, attacker.get_weapon())
+        COMBAT.start_join_fight(attacker, target, attacker.get_weapon())
 
         # Wait to check this until after start_join_fight to make sure combat_ap is accessible
         if attacker.db.combat_ap < attacker.ap_to_attack():
@@ -134,7 +133,7 @@ class CmdCast(MuxCommand):
 
             # If offensive, start/join a fight if applicable and not already in one
             if ability.db.offensive:
-                start_join_fight(self.caller, target, ability)
+                COMBAT.start_join_fight(self.caller, target, ability)
 
             ability.cast(caster=self.caller, target=target)
 
@@ -177,17 +176,17 @@ class CmdUse(MuxCommand):
                 self.caller.msg("You can only use items on your turn.")
                 return
 
-        if not isinstance(item, Usable):  # Object has no item_func, not usable
+        if not inherits_from(item, "typeclasses.inanimate.items.usables.Usable"):
             self.caller.msg("'%s' is not a usable item." % item.key.capitalize())
             return
 
-        if isinstance(item, Consumable):  # Item has limited uses
+        if inherits_from(item, Consumable):  # Item has limited uses
             if item.db.item_uses <= 0:  # Limited uses are spent
                 self.caller.msg("'%s' has no uses remaining." % item.key.capitalize())
                 return
 
         # If everything checks out, call the use_item function
-        COMBAT.use_item(self.caller, item, target)
+        item.use(self.caller, target)
 
 
 # <editor-fold desc="Directions">

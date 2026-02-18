@@ -109,7 +109,7 @@ class CombatAI(Script):
             action.cast(caster=entity, target=target)
 
         elif isinstance(action, Usable):
-            COMBAT.use_item(user=entity, item=action, target=target)
+            action.use(user=entity, target=target)
 
         elif action in DIRECTIONS:
             # Already moved if possible

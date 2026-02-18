@@ -11,15 +11,15 @@ POISON_FLASK = {
     "typeclass": "typeclasses.inanimate.items.usables.Consumable",
     "desc": "A vial of deadly poison. Can be used on enemies in combat.",
     "item_func": "add_effect",
-    "item_notself": True,
+    "can_use_on_self": False,
     "item_uses": 1,
+    "range": 5,
     "kwargs": {
         "effects": [
             {
                 "script_key": "Poisoned",
-                "range": (1, 1),
+                "range": (1, 3),
                 "duration": 3 * SECS_PER_TURN,
-                "amount": 1
             }
         ],
         "range": 5,
