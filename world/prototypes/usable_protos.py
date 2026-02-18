@@ -17,3 +17,15 @@ POISON_ARROW = {
             }],
     },
 }
+FIRE_ARROW = {
+    "prototype_parent": "ARROW",
+    "key": "fire arrow",
+    "desc": "An arrow that ignites on impact. Can be used on enemies in combat when a bow is equipped.",
+    "kwargs": {
+        "effects": [{
+                "script_key": "Burning",
+                "range": (1, 3),
+                "duration": 3 * SECS_PER_TURN
+            }],
+    },
+}

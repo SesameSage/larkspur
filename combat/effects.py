@@ -194,9 +194,11 @@ class PerSecEffect(DurationEffect):
 
     def get_amount(self, in_combat=False):
         min, max = self.db.range
-        amount = randint(min, max)
+
         if in_combat:
-            amount = amount * SECS_PER_TURN
+            amount = sum(randint(min, max) for _ in range(SECS_PER_TURN))
+        else:
+            amount = randint(min, max)
         return amount
 
     def increment(self, amount: int, in_combat=False):
