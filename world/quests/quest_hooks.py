@@ -29,6 +29,10 @@ For example:
             - If the player uses all of an option's keywords in a "tell" message to Attoah, that
             option's spoken_lines are said, and the player advanced to that option's next_stage.
 
+#  SubTopics
+
+## Structure
+
 Structure of quest hooks:
     {hook_type: {QID: {stage: {hook_data}}}}
 
@@ -39,6 +43,8 @@ Structure of quest hooks:
                         objective_type: "",
                         object: obj,
                         location: ""}
+
+##Properties
 
 Properties of quest hooks by object type and hook type:
     Items
