@@ -1,4 +1,4 @@
-DIRECTION_NAMES_OPPOSITES = {
+DIRECTION_NAMES_OPPOSITES = { # Quick reference for which direction names are opposites
         "n": ("north", "s"),
         "ne": ("northeast", "sw"),
         "e": ("east", "w"),

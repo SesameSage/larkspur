@@ -23,19 +23,22 @@ class CombatAI(Script):
     def take_turn(self):
         """While the entity has AP remaining, choose and perform an action. This repeats until perform_action() stops
         calling it back and it returns."""
+        # Ensure we are in combat, it is our turn, and we have AP or movement remaining
         if not self.obj.is_in_combat():
             return
         if not self.obj.is_turn():
             return
         if not self.check_ap():
-            # Don't end the turn due to no AP if we can still move
+            # Don't end the turn due to no AP if we can still take a step
             if self.obj.db.combat_stepsleft == 0:
                 return
+
         action, target = self.choose_action()
         # Less delay between steps than other actions
         delay(1, self.perform_action, action=action, target=target)
 
     def check_ap(self):
+        """Returns True if the entity has AP remaining on this turn."""
         entity = self.obj
         ap_left = entity.db.combat_ap
         if ap_left > 0:
@@ -60,6 +63,7 @@ class CombatAI(Script):
             if choice:
                 break
 
+        # If no move is ideal, pass
         if not choice:
             choice = "pass", None
         return choice
@@ -81,9 +85,9 @@ class CombatAI(Script):
 
                     distance = entity.db.combat_turnhandler.db.grid.distance(entity, fighter)
                     rng = COMBAT.action_range(action)
-                    if distance <= rng:
+                    if distance <= rng: # Target is in range
                         in_range_targets.append(fighter)
-                    else:
+                    else: # Out of range currently
                         all_enemy_targets[fighter] = distance
 
             # Fighters in range
@@ -102,15 +106,19 @@ class CombatAI(Script):
         """Interpret the action choice, perform it, and continue the turn if able."""
         entity = self.obj
 
+        # Weapon: attack
         if action == entity.get_weapon():
             self.obj.attack(target)
 
+        # Ability: cast
         elif isinstance(action, Ability):
             action.cast(caster=entity, target=target)
 
+        # Usable item: use
         elif isinstance(action, Usable):
             action.use(user=entity, target=target)
 
+        # Direction: move
         elif action in DIRECTIONS:
             # Already moved if possible
             dirname = DIRECTION_NAMES_OPPOSITES[action][0]
@@ -143,10 +151,12 @@ class CombatAI(Script):
                 if content.attributes.has("item_func") and content.db.item_func == "heal":
                     return content
 
+        # Convert percent_health to the target health amount
         entity = self.obj
         decimal = percent_health / 100
         minimum = decimal * entity.get_max("hp")
 
+        # Decide to heal if low enough and an ability can be used
         if entity.db.hp < minimum:
             for possible_action in [use_heal_ability, use_heal_item]:
                 action = possible_action(entity)
@@ -158,9 +168,11 @@ class CombatAI(Script):
     def try_offensive_abilities(self):
         """Looks for offensive abilities available to the entity, and casts them if possible."""
         entity = self.obj
+        # Can't use offensive abilities during a Ceasefire - make another choice
         if entity.effect_active("Ceasefire"):
             return
 
+        # Choose a random ability and a target
         offensive_abilities = [ability for ability in entity.db.abilities if ability.db.offensive]
         while len(offensive_abilities) > 0:
             ability = random.choice(offensive_abilities)

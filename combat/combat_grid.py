@@ -18,9 +18,18 @@ DIRECTIONS = {
 
 
 class CombatGrid(Script):
+    """
+    All combat entities are placed on a grid to allow movement and represent distance and direction. Weapons and
+    abilities have ranges and/or areas of effect, and many abilities can be cast on a particular area of the
+    battlefield.
+    The grid is represented in code by a script on the room, like the turn handler script it also links to. The script
+    stores the grid as a dictionary of coordinate tuple keys with their current occupants, or 0 for empty. It also
+    stores all the objects it draws in a list, and any active tile effects in a list.
+    """
     def at_script_creation(self):
         super().at_script_creation()
         self.db.grid = {}
+        # Get the turn handler script from the room
         self.db.turn_handler = self.obj.scripts.get("Combat Turn Handler")[0]
 
         self.db.objects = self.db.turn_handler.db.fighters
@@ -29,7 +38,7 @@ class CombatGrid(Script):
         self.at_start()
 
     def at_start(self, **kwargs):
-        # Skip calls on server reload - only call after initialization
+        # Skip calls on server reload - only call after initializing the grid
         if self.db.turn_handler.db.round != 0:
             return
 
@@ -64,8 +73,8 @@ class CombatGrid(Script):
 
     def set_coords(self, obj, x, y):
         """
-        Place the object by setting its coordinate attributes and setting the corresponding position on the grid as
-        occupied by the object.
+        Place the object by setting its own coordinate attributes, then setting the corresponding position on the grid
+        dictionary as occupied by the object.
 
         :param obj: The object being placed.
         :param x: The x coordinate of the grid position to place the object in.
@@ -88,12 +97,18 @@ class CombatGrid(Script):
         obj.db.combat_y = y
 
     def get_obj(self, x, y):
+        """Get the occupant of the given coordinates, returning empty if the coordinate isn't represented in the
+        grid dictionary."""
         return self.db.grid.get((x, y), 0)
 
     def print(self):
+        """Format the table that can be messaged to players to visually represent the battlefield."""
         if not self.db.grid:
             return "Empty grid"
 
+        # Determine the bounds of the currently relevant battlefield:
+            # Get the farthest occupied coordinates in each direction
+            # Draw up to 1 block beyond these points
         min_x = min([coord[0] for coord in self.db.grid if (self.get_obj(*coord) != 0 or self.effects_at(*coord))])
         max_x = max([coord[0] for coord in self.db.grid if (self.get_obj(*coord) != 0 or self.effects_at(*coord))])
         min_y = min([coord[1] for coord in self.db.grid if (self.get_obj(*coord) != 0 or self.effects_at(*coord))])
@@ -131,7 +146,7 @@ class CombatGrid(Script):
         table.add_row("  ", *x_row)
         return table
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
     def check_collision(self, x, y, displace=False):
         """
@@ -179,6 +194,8 @@ class CombatGrid(Script):
         return self.get_obj(target_x, target_y)
 
     def displace(self, obj):
+        """Find any available square 1 step away, and move the object there. For situations such as being charged
+        and knocked away from a square."""
         if not self.validate_object(obj):
             return
 
@@ -186,6 +203,7 @@ class CombatGrid(Script):
         self.move_to(obj, x, y)
 
     def direction_to(self, origin, target):
+        """Determine which direction the target is from the origin point."""
         if isinstance(origin, tuple):
             current_x, current_y = origin
         else:
