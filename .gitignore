@@ -1,0 +1,21 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual env / tooling
+.venv/
+.python-version
+# Also, virtual env related, but currently no version pinning is used in the project
+pyproject.toml
+uv.lock
+
+# Evennia runtime artifacts
+server/.static/
+server/*.pid
+server/*.restart
+server/evennia.db3
+server/logs/*.log
+
+# Project-local runtime/config
+config/
