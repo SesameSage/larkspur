@@ -18,6 +18,7 @@ POISON_FLASK = {
         "effects": [
             {
                 "script_key": "Poisoned",
+                "effect_key": "Poisoned",
                 "range": (1, 3),
                 "duration": 3 * SECS_PER_TURN,
             }
