@@ -26,7 +26,7 @@ class Room(Object, DefaultRoom):
 
     def at_object_creation(self):
         self.db.area = None
-        self.db.coordinates = ()
+        self.db.coordinates = () # coordinates are per zone
 
         self.db.is_outdoors = True
         self.db.environment = None

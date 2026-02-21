@@ -280,6 +280,9 @@ class MyCmdTunnel(CmdTunnel):
         current_room = self.caller.location
         # Get the new room's coordinates based on direction from current room
         current_room_coords = current_room.db.coordinates
+        if not current_room_coords:
+            self.obj.msg("Set coordinates for the current room first!")
+            return
         x, y, z = current_room_coords
         match exitshort:
             case "n":
@@ -309,6 +312,10 @@ class MyCmdTunnel(CmdTunnel):
             case _:
                 self.caller.msg("NOTICE: No coordinates automatically generated for new room.")
 
+        zone = self.caller.location.zone()
+        if not zone:
+            self.obj.msg("Set a zone first with the locations command! Start with area > locality > zone > region")
+            return
         existing_room = self.caller.location.zone().get_room(x, y, z)
         if existing_room:  # Execute @open
             openstring = f"@open {exitname};{exitshort}{backstring} = #{existing_room.dbid}"
