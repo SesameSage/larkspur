@@ -244,7 +244,11 @@ class CmdSpells(Command):
         for level in range(self.caller.db.level + 1):
             if level == 0:
                 continue
-            for ability in self.caller.db.rpg_class.ability_tree[level]:
+            rpg_class = self.caller.db.rpg_class
+            if not rpg_class:
+                self.obj.msg("Set RPG class first!")
+                return
+            for ability in rpg_class.ability_tree[level]:
                 if not self.caller.knows_ability(ability):
                     color = appearance.spell if isinstance(ability, Spell) else appearance.ability
                     available_spells.add_row(color + ability.key, ability.desc)
