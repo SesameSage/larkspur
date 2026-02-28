@@ -213,7 +213,8 @@ def print_quest_hook(caller, qid, stage, quest_hook):
 
 def print_dialogue_options(qid, stage):
     """Display to a player the keywords for each dialogue option for the given at_told stage."""
-    if get_stage(qid, stage)["objective_type"] != "at_told":
+    quest_stage = get_stage(qid, stage)
+    if not quest_stage or quest_stage["objective_type"] != "at_told":
         return ""
     hook_data = get_hook_data(qid, stage)
     string = "|wDialogue Options:|n\n"
