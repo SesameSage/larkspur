@@ -62,6 +62,7 @@ class CombatEntity(EquipmentEntity):
         self.db.dies = True
         self.db.quest_hooks.update({"at_defeat": {}})
 
+        # TODO: Make regenerating less computationally expensive
         tickerhandler.add(1, self.at_tick, idstring="tick_effects")
 
         self.update_base_stats()

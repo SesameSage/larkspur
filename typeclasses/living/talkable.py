@@ -1,4 +1,5 @@
 from evennia import DefaultObject
+from evennia.utils import delay
 
 from server import appearance
 from world.quests.quest_hooks import print_dialogue_options
@@ -19,10 +20,17 @@ class Talkable(DefaultObject):
                 hook_data = hooks[qid][stage]
                 player = source_location
                 if player.attributes.has("quest_stages") and player.quests.at_stage(qid, stage):
-                    for line in hook_data["spoken_lines"]:
-                        self.say_to(player, line)
-                        # TODO: Delay in say_to lines
-                    player.quests.advance_quest(hook_data["next_stage"])
+                    self.speak_lines(hook_data, player)
+
+    def speak_lines(self, hook_data, player):
+        """Speaks the lines from the given quest hook one-by-one, with 3 seconds between each, then advances the quest."""
+        i = 0
+        for line in hook_data["spoken_lines"]:
+            delay(i * 3, self.say_to, player, line)
+            i += 1
+
+        delay((i-1)*3, player.quests.advance_quest, hook_data["next_stage"])
+        #player.quests.advance_quest(hook_data["next_stage"])
 
     def at_talk(self, player):
         """
@@ -40,9 +48,7 @@ class Talkable(DefaultObject):
             for stage in hooks[qid]:
                 hook_data = hooks[qid][stage]
                 if player.quests.at_stage(qid, stage):  # Player is at a quest stage to talk to this NPC
-                    for line in hook_data["spoken_lines"]:
-                        self.say_to(player, line)
-                    player.quests.advance_quest(hook_data["next_stage"])
+                    self.speak_lines(hook_data, player)
                     advanced = True
                     break # Stop checking hooks. One conversation/quest per command
         if not advanced:
