@@ -289,7 +289,7 @@ class Stab(Ability):
         caster.get_weapon_damage()
 
     def func(self, caster: LivingEntity, target: Object = None):
-        percent_ignored = caster.get_attr("dexterity") * 20  # TODO: Adjust percent calculation for Stab
+        percent_ignored = caster.get_attr("dexterity") * 20
         attributes = [("effect_key", "Armor Ignored"), ("amount", percent_ignored), ("source", self.get_display_name()),
                       ("key", "Armor Ignored")]
         target.add_effect(typeclass=EffectScript, attributes=attributes, quiet=True)

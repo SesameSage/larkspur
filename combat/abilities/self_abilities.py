@@ -120,7 +120,7 @@ class Windstep(Ability):
 
     def func(self, caster, target=None):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} moves with the wind!")
-        attributes = [("effect_key", "+Evasion"), ("amount", caster.get_attr("dex")),  # TODO: Adjust Windstep amount
+        attributes = [("effect_key", "+Evasion"), ("amount", caster.get_attr("dex")),
                       ("duration", self.db.duration), ("source", self.get_display_name())]
         caster.add_effect(typeclass=TimedStatMod, attributes=attributes)
 
