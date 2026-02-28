@@ -18,7 +18,7 @@ from typeclasses.living.talkable import Talkable
 from world.world_constants import DEFAULT_TALK_RESPONSES
 
 
-class Character(LivingEntity):
+class Character(LivingEntity, Talkable):
     """
     A named living thing that does not die and can be talked to.
     """

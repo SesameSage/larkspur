@@ -60,7 +60,7 @@ class CombatEntity(EquipmentEntity):
 
         self.db.hostile_to_players = False
         self.db.dies = True
-        self.db.quest_hooks = {"at_defeat": {}}
+        self.db.quest_hooks.update({"at_defeat": {}})
 
         tickerhandler.add(1, self.at_tick, idstring="tick_effects")
 

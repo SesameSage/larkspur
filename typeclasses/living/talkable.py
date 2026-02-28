@@ -8,7 +8,7 @@ class Talkable(DefaultObject):
 
     def at_object_creation(self):
         super().at_object_creation()
-        self.db.quest_hooks.update({"at_talk": {}, "at_told": {}, "at_object_receive": {}})
+        self.db.quest_hooks = {"at_talk": {}, "at_told": {}, "at_object_receive": {}}
         self.db.talk_responses = {}
 
     def at_object_receive(self, moved_obj, source_location, move_type="move", **kwargs):
