@@ -16,6 +16,9 @@ at_server_cold_start()
 at_server_cold_stop()
 
 """
+import evennia
+
+from typeclasses.scripts.scripts import Script
 
 
 def at_server_init():
@@ -60,7 +63,10 @@ def at_server_cold_start():
     This is called only when the server starts "cold", i.e. after a
     shutdown or a reset.
     """
-    pass
+    if not evennia.GLOBAL_SCRIPTS.get("All Quests"):
+        script = evennia.create_script(typeclass=Script, key="All Quests", obj=None)
+        script.db.quests = {}
+
 
 
 def at_server_cold_stop():
