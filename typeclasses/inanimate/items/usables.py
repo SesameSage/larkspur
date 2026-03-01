@@ -1,6 +1,6 @@
 from decimal import Decimal as Dec
 
-from evennia import EvTable
+from evennia.utils.evtable import EvTable
 from evennia.prototypes.spawner import spawn
 from evennia.utils import inherits_from
 

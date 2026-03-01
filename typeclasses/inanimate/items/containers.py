@@ -33,8 +33,10 @@ or implement the same locks/hooks in your own typeclasses.
 from collections import defaultdict
 
 from django.conf import settings
-from evennia import CmdSet, DefaultObject, EvTable
+from evennia import DefaultObject
+from evennia.utils.evtable import EvTable
 from evennia.commands.default.general import CmdDrop, CmdGet, CmdLook
+from evennia.commands.cmdset import CmdSet
 from evennia.utils import class_from_module
 
 from server import appearance

@@ -1,5 +1,5 @@
 """Spells cast with a coordinate on the battlefield targeted instead of an object."""
-from evennia import create_script
+from evennia.utils.create import create_script
 
 from combat.abilities.spells import TileSpell
 from combat.combat_constants import SECS_PER_TURN
@@ -43,7 +43,6 @@ class AccursedGround(TileSpell):
         attributes.append(("effect_attributes", effect_attributes))
 
         grid = caster.db.combat_turnhandler.db.grid
-        # TODO: Nonetype create_script
         script = create_script(typeclass=InflictingTile, key=self.key, obj=caster, attributes=attributes)
         script.pre_effect_add()
         grid.db.effects.append(script)

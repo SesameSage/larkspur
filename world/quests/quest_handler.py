@@ -1,4 +1,4 @@
-from evennia import logger
+from evennia.utils import logger
 
 from server import appearance
 from world.quests.quest import get_stage, quest_desc

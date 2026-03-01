@@ -1,6 +1,6 @@
 from decimal import Decimal as Dec
 
-from evennia import EvTable
+from evennia.utils.evtable import EvTable
 
 from server import appearance
 from typeclasses.base.objects import Object

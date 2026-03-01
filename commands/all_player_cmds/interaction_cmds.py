@@ -1,4 +1,4 @@
-from evennia import Command
+from evennia.commands.command import Command
 from evennia.commands.cmdset import CmdSet
 
 from typeclasses.inanimate.portals import Portal, PORTAL_KEY_TO_ROOM

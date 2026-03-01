@@ -30,7 +30,7 @@ by performing actions such as talking to NPCs, defeating enemies, or giving and 
 See 'help quest hooks' for more information.
 """
 
-from evennia import GLOBAL_SCRIPTS
+from evennia.utils.containers import GLOBAL_SCRIPTS
 
 from typeclasses.scripts.scripts import Script
 

@@ -2,7 +2,7 @@ from decimal import Decimal as Dec
 from random import randint
 
 import evennia
-from evennia import TICKER_HANDLER as tickerhandler
+from evennia.scripts.tickerhandler import TICKER_HANDLER as tickerhandler
 from evennia.utils import inherits_from
 
 from combat.combat_handler import COMBAT

@@ -1,4 +1,5 @@
-from evennia import Command, CmdSet
+from evennia.commands.command import Command
+from evennia.commands.cmdset import CmdSet
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils.create import create_object
 from evennia.utils.evtable import EvTable

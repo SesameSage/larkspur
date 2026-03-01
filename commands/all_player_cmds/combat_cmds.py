@@ -1,4 +1,5 @@
-from evennia import Command, default_cmds
+from evennia import default_cmds
+from evennia.commands.command import Command
 from evennia.commands.default.help import CmdHelp
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils import inherits_from

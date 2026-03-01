@@ -2,7 +2,7 @@ import decimal
 from decimal import Decimal
 
 import evennia
-from evennia import GLOBAL_SCRIPTS
+from evennia.utils.containers import GLOBAL_SCRIPTS
 from evennia.commands.cmdset import CmdSet
 from evennia.commands.default.muxcommand import MuxCommand
 
@@ -67,7 +67,6 @@ class CmdLocations(MuxCommand):
                 self.caller.msg("What to call the location? Usage: locations/create <type> = <name>")
                 return
             name = self.rhs
-            # TODO: validate if name already in GLOBAL_SCRIPTS.all() (when fixed)
             if name in [script.key for script in GLOBAL_SCRIPTS.all()]:
                 self.obj.msg("There is already a location with that name!")
                 return

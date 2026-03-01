@@ -1,7 +1,7 @@
 from collections import defaultdict
 from itertools import chain
 
-from evennia import Command
+from evennia.commands.command import Command
 from evennia.commands.cmdset import CmdSet
 from evennia.commands.default.help import CmdHelp, HelpCategory
 from evennia.commands.default.muxcommand import MuxCommand
