@@ -46,10 +46,10 @@ class CombatHandler:
         :param character: Character generating AP.
         :return: Amount of AP gained this turn.
         """
-        DEX_BONUS = character.get_attr("dex") // 2
+        AP_DEX_BONUS = character.get_attr("dex") // 2
         ap = 2
-        ap += DEX_BONUS
-        character.location.more_info(f"{DEX_BONUS} AP from Dexterity")
+        ap += AP_DEX_BONUS
+        character.location.more_info(f"{AP_DEX_BONUS} AP from Dexterity")
         for effect in ("+AP", "-AP"):
             if character.effect_active(effect):
                 effect_amt = character.db.effects[effect]["amount"]
