@@ -5,7 +5,7 @@ from evennia.prototypes.spawner import spawn
 from evennia.utils import inherits_from
 from win32pipe import PIPE_ACCEPT_REMOTE_CLIENTS
 
-from combat.effects import DamageTypes
+from combat.combat_constants import DamageTypes
 from server import appearance
 from typeclasses.inanimate.items.items import Item
 from typeclasses.inanimate.items.item_funcs import ITEMFUNCS

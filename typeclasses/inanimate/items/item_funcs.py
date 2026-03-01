@@ -3,8 +3,9 @@ from random import randint
 from evennia.utils import inherits_from
 
 from combat import effects
+from combat.combat_constants import DamageTypes
 from combat.combat_handler import COMBAT
-from combat.effects import EffectScript, DamageTypes
+from combat.effects import EffectScript
 from server import appearance
 
 def add_effect_from_prototype(item, target, effects_dict):
