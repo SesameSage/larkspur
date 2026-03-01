@@ -50,37 +50,6 @@ class BodySlam(Ability):
         if caster_con + caster_roll > target_con + target_roll:
             target.add_effect(KnockedDown, attributes=[("source", self.get_display_name())])
 
-
-class FireArrow(BowAbility):
-    key = "Fire Arrow"
-    desc = "Flame-heat an arrow to burn and potentially ignite your foe."
-
-    def at_object_creation(self):
-        super().at_object_creation()
-        self.db.targeted = True
-        self.db.must_target_entity = True
-
-        self.db.requires = [("perception", 2)]
-        self.db.cost = [("stamina", 3)]
-        self.db.ap_cost = 3
-        self.db.cooldown = 5 * SECS_PER_TURN
-
-    def get_damage(self, caster):
-        damage_values = caster.get_weapon_damage()
-        try:
-            damage_values[DamageTypes.FIRE] += 5
-        except KeyError:
-            damage_values[DamageTypes.FIRE] = 5
-        return damage_values
-
-    def func(self, caster, target=None):
-        hit_result, damage_values = COMBAT.resolve_attack(attacker=caster, defender=target, attack=self)
-        if hit_result and DamageTypes.FIRE in damage_values and damage_values[DamageTypes.FIRE] > 0:
-            # Inflict poisoning only if the poison damage is not fully resisted
-            target.add_effect(Burning,
-                              [("range", (1, 3)), ("duration", 3 * SECS_PER_TURN), ("source", self.get_display_name())])
-
-
 class FocusedShot(BowAbility):
     key = "Focused Shot"
     desc = ("Concentrate deeply on your aim and the enemy's movements to help your arrow find even the most evasive of "
@@ -128,36 +97,6 @@ class OilSplash(Ability):
         else:
             target.location.msg_contents(f"{target.get_display_name(capital=True)} becomes very slippery, but nothing"
                                          f"else happens!")
-
-
-class PoisonArrow(BowAbility):
-    key = "Poison Arrow"
-    desc = "Coat an arrow in poison, and take a shot at getting it into the opponent's blood."
-
-    def at_object_creation(self):
-        super().at_object_creation()
-        self.db.targeted = True
-        self.db.must_target_entity = True
-
-        self.db.requires = [("perception", 2)]
-        self.db.cost = [("stamina", 3)]
-        self.db.ap_cost = 3
-        self.db.cooldown = 5 * SECS_PER_TURN
-
-    def get_damage(self, caster):
-        damage_values = caster.get_weapon_damage()
-        try:
-            damage_values[DamageTypes.POISON] += 5
-        except KeyError:
-            damage_values[DamageTypes.POISON] = 5
-        return damage_values
-
-    def func(self, caster: LivingEntity, target: Object = None):
-        hit_result, damage_values = COMBAT.resolve_attack(attacker=caster, defender=target, attack=self)
-        if hit_result and DamageTypes.POISON in damage_values and damage_values[DamageTypes.POISON] > 0:
-            # Inflict poisoning only if the poison damage is not fully resisted
-            target.add_effect(Poisoned,
-                              [("range", (1, 3)), ("duration", 3 * SECS_PER_TURN), ("source", self.get_display_name())])
 
 
 class Scratch(Ability):
