@@ -68,7 +68,7 @@ def itemfunc_restore_mana(item, user, target, **kwargs):
         return False  # Returning false aborts the item use
 
     if target.db.mana >= target.get_max("mana"):
-        user.msg("%s is already at full health." % target)
+        user.msg("%s is already at full mana." % target)
         return False
 
     # Retrieve healing range from kwargs, if present
@@ -102,7 +102,7 @@ def itemfunc_restore_stamina(item, user, target, **kwargs):
         return False  # Returning false aborts the item use
 
     if target.db.stamina >= target.db.max_stam:
-        user.msg("%s is already at full health." % target)
+        user.msg("%s is already at full stamina." % target)
         return False
 
     # Retrieve healing range from kwargs, if present
