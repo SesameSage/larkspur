@@ -6,7 +6,8 @@ from evennia.utils import (
 )
 from evennia.utils.evtable import EvTable
 
-from combat.effects import DamageTypes, StatMod
+from combat.effects import StatMod
+from combat.combat_constants import DamageTypes
 from commands.default_cmdsets import CharacterCmdSet
 from server import appearance
 from typeclasses.inanimate.items.items import Item
@@ -191,8 +192,7 @@ class EquipmentEntity(DefaultCharacter):
 
         self.db.char_evasion = 0
         self.db.char_defense = {None: 0, DamageTypes.BLUNT: 0, DamageTypes.SLASHING: 0, DamageTypes.PIERCING: 0}
-        self.db.char_resistance = {None: 0, DamageTypes.FIRE: 0, DamageTypes.COLD: 0, DamageTypes.SHOCK: 0,
-                                   DamageTypes.POISON: 0}
+        self.db.char_resistance = {None: 0, DamageTypes.FIRE: 0, DamageTypes.COLD: 0, DamageTypes.SHOCK: 0}
 
         # TODO: Rings
         if not self.db.equipment:

@@ -4,7 +4,7 @@ from evennia.utils.evtable import EvTable
 from evennia.prototypes.spawner import spawn
 from evennia.utils import inherits_from
 
-from combat.effects import DamageTypes
+from combat.combat_constants import DamageTypes
 from server import appearance
 from typeclasses.inanimate.items.items import Item
 from typeclasses.inanimate.items.item_funcs import ITEMFUNCS
@@ -74,8 +74,8 @@ class Usable(Item):
             item (obj): Item being used
             target (obj): Target of the item use
         """
-        # If item is self only and no target given, set target to self.
-        if self.db.self_only and target is None:
+        # If item can be used on self, and no target given, set target to self.
+        if self.db.can_use_on_self and target is None:
             target = user
 
         # Ensure we can use the item the way we are trying to

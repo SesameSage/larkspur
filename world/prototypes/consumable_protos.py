@@ -3,7 +3,8 @@ from decimal import Decimal as Dec
 from combat.combat_constants import SECS_PER_TURN
 
 POTION = {
-    "typeclass": "typeclasses.inanimate.items.usables.Potion"
+    "typeclass": "typeclasses.inanimate.items.usables.Potion",
+    "self_only": True
 }
 
 POISON_FLASK = {

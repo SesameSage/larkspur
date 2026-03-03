@@ -3,8 +3,9 @@ from random import randint
 from evennia.utils import inherits_from
 
 from combat import effects
+from combat.combat_constants import DamageTypes
 from combat.combat_handler import COMBAT
-from combat.effects import EffectScript, DamageTypes
+from combat.effects import EffectScript
 from server import appearance
 
 def add_effect_from_prototype(item, target, effects_dict):
@@ -67,7 +68,7 @@ def itemfunc_restore_mana(item, user, target, **kwargs):
         return False  # Returning false aborts the item use
 
     if target.db.mana >= target.get_max("mana"):
-        user.msg("%s is already at full health." % target)
+        user.msg("%s is already at full mana." % target)
         return False
 
     # Retrieve healing range from kwargs, if present
@@ -101,7 +102,7 @@ def itemfunc_restore_stamina(item, user, target, **kwargs):
         return False  # Returning false aborts the item use
 
     if target.db.stamina >= target.db.max_stam:
-        user.msg("%s is already at full health." % target)
+        user.msg("%s is already at full stamina." % target)
         return False
 
     # Retrieve healing range from kwargs, if present

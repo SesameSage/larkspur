@@ -1,6 +1,6 @@
 from decimal import Decimal as Dec
 
-from combat.effects import DamageTypes
+from combat.combat_constants import DamageTypes
 
 TRAINING_WEAPON = {
     "desc": "Simplified, flimsy, and poorly balanced, but effective for learning one's way around a weapon type.",
@@ -85,7 +85,7 @@ TRAINING_MACE = {
     "key": "training mace",
     "prototype_parent": "TRAINING_WEAPON",
     "typeclass": "typeclasses.inanimate.items.equipment.weapons.Mace",
-    "damage_ranges": {DamageTypes.CRUSHING: (4, 6)},
+    "damage_ranges": {DamageTypes.BLUNT: (4, 6)},
     "weight": Dec(6),
     "ap_to_attack": 2
 }

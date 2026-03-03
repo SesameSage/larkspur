@@ -1,6 +1,7 @@
 """Spells that protect allies."""
 
 from combat.abilities.spells import Spell
+from combat.combat_constants import DamageTypes
 from combat.effects import *
 from typeclasses.base.objects import Object
 from typeclasses.living.living_entities import LivingEntity

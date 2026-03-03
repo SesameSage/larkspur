@@ -578,11 +578,14 @@ class CombatEntity(EquipmentEntity):
         Args:
             damages (dict): Types and amounts of damage being taken
         """
-        # TODO: Effects of different damage types
         for damage_type in damages:
             self.db.hp -= damages[damage_type]  # Reduce defender's HP by the damage dealt.
 
         # If this reduces it to 0 or less, set HP to 0.
+        self.check_zero_hp()
+
+    def check_zero_hp(self):
+        """Triggers defeat at 0 hp, and ensures hp does not fall below 0."""
         if self.db.hp <= 0:
             self.db.hp = 0
             if self.is_in_combat():

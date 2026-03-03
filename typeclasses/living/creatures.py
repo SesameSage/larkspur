@@ -1,4 +1,4 @@
-from combat.effects import DamageTypes
+from combat.combat_constants import DamageTypes
 from typeclasses.living.living_entities import LivingEntity
 
 
