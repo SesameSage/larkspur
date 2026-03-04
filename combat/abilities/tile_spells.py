@@ -4,7 +4,7 @@ from evennia.utils.create import create_script
 from combat.abilities.spells import TileSpell
 from combat.combat_constants import SECS_PER_TURN
 from combat.effects import TimedStatMod
-from combat.tile_effects import get_tiles, DurationTileEffect, InflictingTile
+from combat.tile_effects import get_tiles, DurationTileEffect, InflictingTile, TileEffect
 
 
 class AccursedGround(TileSpell):
@@ -83,8 +83,39 @@ class GravityField(TileSpell):
         script.pre_effect_add()
         grid.db.effects.append(script)
 
+class SummonFog(TileSpell):
+    key = "Summon Fog"
+    desc = "Summon a fog to the battlefield that obstructs the view of anyone who lies inside."
 
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.offensive = True
+        self.db.range = 5
+        self.db.length = 5
+        self.db.width = 5
+        self.db.duration = 5 * SECS_PER_TURN
 
+        self.db.requires = [("intelligence", 3)]
+        self.db.ap_cost = 2
+        self.db.cost = [("mana", 6)]
+        self.db.cooldown = 5 * SECS_PER_TURN
+
+        self.db.tile_color = "|=s"
+
+    def func(self, caster, target=None):
+        caster.location.msg_contents(f"{caster.get_display_name(capital=True)} summons a cloud of fog!")
+
+        attributes = self.db.attributes
+        attributes.append(
+            ("tiles", get_tiles(entity=caster, center=target, length=self.db.length, width=self.db.width))
+        )
+        attributes.remove(("effect_key", self.key))
+        attributes.append(("effect_key", "Fog"))
+
+        grid = caster.db.combat_turnhandler.db.grid
+        script = create_script(typeclass=DurationTileEffect, key="Fog", obj=caster, attributes=attributes)
+        script.pre_effect_add()
+        grid.db.effects.append(script)
 
 
 class SuppressionField(TileSpell):

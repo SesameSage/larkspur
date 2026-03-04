@@ -251,7 +251,7 @@ class TurnHandler(Script):
 
         # Display grid
         for content in self.obj.contents:
-            content.msg(self.db.grid.print())
+            content.msg(self.db.grid.print(content))
 
         # Show turn to other players
         other_fighters = self.obj.contents
@@ -298,6 +298,7 @@ class TurnHandler(Script):
             if character.db.combat_ap > 0:
                 self.next_turn()
 
+        # TODO: Stay knocked down if frozen while knocked down
         if character.effect_active("Knocked Down") and character.db.effects["Knocked Down"]["seconds passed"] <= 3:
             character.location.msg_contents(
                 character.get_display_name(

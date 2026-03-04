@@ -3,6 +3,7 @@ from evennia.utils.evtable import EvTable
 
 from combat.combat_constants import DIRECTION_NAMES_OPPOSITES
 from server import appearance
+from server.appearance import character
 from typeclasses.scripts.scripts import Script
 
 DIRECTIONS = {
@@ -101,18 +102,27 @@ class CombatGrid(Script):
         grid dictionary."""
         return self.db.grid.get((x, y), 0)
 
-    def print(self):
+    def print(self, viewer):
         """Format the table that can be messaged to players to visually represent the battlefield."""
         if not self.db.grid:
             return "Empty grid"
 
         # Determine the bounds of the currently relevant battlefield:
+        viewer_x = viewer.db.combat_x
+        viewer_y = viewer.db.combat_y
+        # Limit view if in fog
+        if "Fog" in [script.key for script in self.effects_at(viewer_x, viewer_y)]:
+            min_x = viewer_x
+            max_x = viewer_x
+            min_y = viewer_y
+            max_y = viewer_y
+        else:
             # Get the farthest occupied coordinates in each direction
             # Draw up to 1 block beyond these points
-        min_x = min([coord[0] for coord in self.db.grid if (self.get_obj(*coord) != 0 or self.effects_at(*coord))])
-        max_x = max([coord[0] for coord in self.db.grid if (self.get_obj(*coord) != 0 or self.effects_at(*coord))])
-        min_y = min([coord[1] for coord in self.db.grid if (self.get_obj(*coord) != 0 or self.effects_at(*coord))])
-        max_y = max([coord[1] for coord in self.db.grid if (self.get_obj(*coord) != 0 or self.effects_at(*coord))])
+            min_x = min([coord[0] for coord in self.db.grid if (self.get_obj(*coord) != 0 or self.effects_at(*coord))])
+            max_x = max([coord[0] for coord in self.db.grid if (self.get_obj(*coord) != 0 or self.effects_at(*coord))])
+            min_y = min([coord[1] for coord in self.db.grid if (self.get_obj(*coord) != 0 or self.effects_at(*coord))])
+            max_y = max([coord[1] for coord in self.db.grid if (self.get_obj(*coord) != 0 or self.effects_at(*coord))])
 
         y_range = range(max_y + 1, min_y - 2, -1)
         x_range = range(min_x - 1, max_x + 2)
@@ -347,9 +357,9 @@ class CombatGrid(Script):
             if spend:
                 self.handle_move_ap(obj)
                 if obj.db.combat_ap > 0 or obj.db.combat_stepsleft > 0:
-                    obj.msg(self.print())
+                    obj.msg(self.print(obj))
             else:
-                obj.msg(self.print())
+                obj.msg(self.print(obj))
             return True
 
     def move_toward(self, obj, target, away=False):

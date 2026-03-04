@@ -5,7 +5,6 @@ from combat.abilities.abilities import TileAbility
 from combat.combat_constants import SECS_PER_TURN, DamageTypes
 from combat.tile_effects import DurationTileEffect, get_tiles, DamagingTile
 
-
 class Swarm(TileAbility):
     key = "Swarm"
     desc = ("Call insects to swarm on the battlefield, preventing anyone caught in the swarm from attacking or using "

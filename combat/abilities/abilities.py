@@ -150,7 +150,7 @@ class Ability(Object):
             self.adjust_cooldowns_stats(caster)
             self.func(caster, target)
             if isinstance(self, TileAbility):
-                caster.msg(caster.db.combat_turnhandler.db.grid.print())
+                caster.msg(caster.db.combat_turnhandler.db.grid.print(caster))
             return True
 
     def in_ability_tree(self, rpg_class):
