@@ -67,7 +67,8 @@ def level_up(character):
         character.db.attr_points += attr_points_gained
         character.msg(f"{appearance.notify}You have {attr_points_gained} new attribute points!")
 
-    spend_attribute_points(character)
+    if character.db.attr_points > 0:
+        spend_attribute_points(character)
 
 
 def spend_attribute_points(character):
