@@ -12,9 +12,9 @@ XP_THRESHOLD_INCREASES = [  # How much more XP it will take to get to this level
 ]
 POINTS_GAINED_BY_LEVEL = {  # How many points for increasing different types of stats are gained on attaining each level
     2: {"attribute": 1},
-    3: {},
+    3: {"attribute": 0},
     4: {"attribute": 1},
-    5: {},
+    5: {"attribute": 0},
     6: {"attribute": 1},
 }
 # </editor-fold>

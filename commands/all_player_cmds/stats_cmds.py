@@ -8,7 +8,7 @@ from combat.abilities import all_abilities
 from combat.abilities.spells import Spell
 from combat.combat_constants import DamageTypes
 from server import appearance
-from stats.char_stats import xp_remaining, xp_threshold, level_up
+from stats.char_stats import xp_remaining, xp_threshold, level_up, spend_attribute_points
 from typeclasses.living.characters import Trainer
 
 
@@ -608,8 +608,11 @@ class CmdLevelUp(Command):
     def func(self):
         caller = self.caller
         if caller.db.xp < xp_threshold(caller.db.level + 1):
-            caller.msg("You do not have enough experience to level up!")
-            return
+            if caller.db.attr_points > 0:
+                spend_attribute_points(caller)
+            else:
+                caller.msg("You do not have enough experience to level up!")
+                return
         else:
             level_up(caller)
 
