@@ -31,7 +31,6 @@ class BodySlam(Ability):
         self.db.cooldown = 5 * SECS_PER_TURN
 
     def get_damage(self, caster):
-        # TODO: Adjust body slam damage and effect amount
         return {DamageTypes.CRUSHING: caster.get_attr("constitution") * 3}
 
     def func(self, caster, target=None):

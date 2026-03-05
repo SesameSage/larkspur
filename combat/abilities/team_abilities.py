@@ -24,7 +24,6 @@ class EaglesCall(Ability):
         self.db.cooldown = 5 * SECS_PER_TURN
 
     def func(self, caster: LivingEntity, target: Object = None):
-        # TODO: Sustained spells and abilities
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} begins a mind-clearing monotonous "
                                      f"hum.")
 

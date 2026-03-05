@@ -95,7 +95,6 @@ class PoisonBlade(Ability):
         self.db.cooldown = 8 * SECS_PER_TURN
 
     def func(self, caster, target=None):
-        # TODO: Poison chance
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} poisons their blade!")
         attributes = [("effect_key", "Poison Chance"), ("amount", caster.get_attr("int")),
                       ("duration", 4 * SECS_PER_TURN), ("source", self.get_display_name())]
