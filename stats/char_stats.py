@@ -1,38 +1,7 @@
 from evennia.utils.evmenu import EvMenu
 
 from server import appearance
-from stats.stats_constants import XP_THRESHOLD_INCREASES, POINTS_GAINED_BY_LEVEL
-
-ATTRIBUTES = {
-    "strength": {
-        "long_desc": "",
-        "affects": "Affects: melee damage, carry weight, max stamina, and use of heavy equipment"
-    },
-    "constitution": {
-        "long_desc": "",
-        "affects": "Affects: physical defense, hitpoints, and stamina regeneration"
-    },
-    "dexterity": {
-        "long_desc": "",
-        "affects": "Affects: evasion, maximum items carried, use of small and ranged weapons, and turn order"
-    },
-    "perception": {
-        "long_desc": "",
-        "affects": "Affects: attack accuracy and detection of sneaking enemies, traps, deception, hidden items, etc."
-    },
-    "intelligence": {
-        "long_desc": "",
-        "affects": "Affects: capability to use abilities, lockpicking, alchemy, trapmaking, deception, and deception "
-                   "detection"
-    },
-    "wisdom": {
-        "long_desc": "",
-        "affects": "Affects: capability to use spells, magic resistance, mana regeneration, amount healed"
-    },
-    "spirit": {
-        "long_desc": "",
-        "affects": "Affects: spell power, maximum mana, hitpoint regeneration, and enchanting"
-    }}
+from stats.stats_constants import XP_THRESHOLD_INCREASES, POINTS_GAINED_BY_LEVEL, ATTRIBUTES
 
 
 def xp_threshold(level: int):
