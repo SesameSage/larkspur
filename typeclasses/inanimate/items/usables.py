@@ -122,7 +122,6 @@ class Consumable(Usable):
         Spends one use on an item with limited uses.
 
         Args:
-            item (obj): Item being used
             user (obj): Character using the item
 
         Notes:

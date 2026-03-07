@@ -61,7 +61,7 @@ ENV_TYPES_APPEAR = {
     "rock": {"bg": "|[=g", "fg": "|=e", "player": "|r"},
     "wood": {"bg": "|[210", "fg": "|100", "player": "|r"},
     "stone": {"bg": "|[=s", "fg": "|=m", "player": "|r"},
-    "dirt": {"bg": "|[320", "fg": "|100", "player": "|r"},
+    "dirt": {"bg": "|[320", "fg": "|100", "player": "|300"},
     "snow": {"bg": "|[=v", "fg": "|=l", "player": "|r"},
 }
 

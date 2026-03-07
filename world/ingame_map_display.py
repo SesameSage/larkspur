@@ -260,18 +260,19 @@ class Map(object):
             right_barrier (str): The last character of the 3-character room depiction.
             char (str): Defaults to none, a special character depicting the room.
         """
-        bg_color, fg_color, player_color = room_colors(room)
-        if not player_color:
-            player_color = "|r"
-        player_appearance = bg_color + player_color
-        wall_appearance = fg_color + bg_color
-
         if room == self.caller.location:
             char = "X"  # Show the player in their current room
 
+        bg_color, fg_color, player_color = room_colors(room)
+        if not player_color:
+            player_color = "|r"
+        char_appearance = bg_color + player_color if char == "X" else bg_color + fg_color
+        wall_appearance = fg_color + bg_color
+
+
         tile = (
             f"{wall_appearance}{left_barrier}|n"
-            f"{player_appearance}{char if char else " "}|n"
+            f"{char_appearance}{char if char else " "}|n"
             f"{wall_appearance}{right_barrier}|n"
         )
 
