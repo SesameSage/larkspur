@@ -366,7 +366,7 @@ def select_rpg_class(caller, raw_string, **kwargs):
             "goto": ("select_hostile", {"typeclass": typeclass, "rpg_class": Templar}),
         },
         {
-            "key": ("2", "warden", "w"),
+            "key": ("2", "warden", "wa", "war"),
             "desc": "Warden",
             "goto": ("select_hostile", {"typeclass": typeclass, "rpg_class": Warden}),
         },
@@ -406,9 +406,14 @@ def select_rpg_class(caller, raw_string, **kwargs):
             "goto": ("select_hostile", {"typeclass": typeclass, "rpg_class": Druid}),
         },
         {
-            "key": ("10", "witch", "w"),
+            "key": ("10", "witch", "wi", "wit"),
             "desc": "Witch",
             "goto": ("select_hostile", {"typeclass": typeclass, "rpg_class": Witch}),
+        },
+        {
+            "key": ("11", "none", "n"),
+            "desc": "None",
+            "goto": ("select_hostile", {"typeclass": typeclass, "rpg_class": None}),
         }
     )
     return text, options
