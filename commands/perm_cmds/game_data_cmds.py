@@ -298,7 +298,7 @@ class CmdMakeEntity(MuxCommand):
 
         menu_data = {"select_character_creature": select_character_creature, "select_animal": select_animal,
                      "select_rpg_class": select_rpg_class, "select_vendor_trainer": select_vendor_trainer,
-                     "select_hostile": select_hostile, "get_name": get_name, "end_node": end_node}
+                     "select_hostile": select_hostile, "get_name": get_name, "is_name_unique": is_name_unique, "end_node": end_node}
         EvMenu(caller=self.caller, menudata=menu_data, startnode="select_character_creature")
 
 def select_character_creature(caller, raw_string, **kwargs):
@@ -442,17 +442,39 @@ def get_name(caller, raw_string, **kwargs):
     rpg_class = kwargs.get("rpg_class")
     hostile = kwargs.get("hostile")
     options = {"key": "_default",
-               "goto": (_create, {"typeclass": typeclass, "rpg_class": rpg_class, "hostile": hostile})}
+               "goto": ("is_name_unique", {"typeclass": typeclass, "rpg_class": rpg_class, "hostile": hostile})}
+    return text, options
+
+def is_name_unique(caller, raw_string, **kwargs):
+    text = "Is name unique (Proper name with its own capitalization?)"
+    typeclass = kwargs.get("typeclass")
+    rpg_class = kwargs.get("rpg_class")
+    hostile = kwargs.get("hostile")
+    options = (
+        {
+            "key": ("1", "yes", "y"),
+            "desc": "Yes",
+            "goto": (_create, {"typeclass": typeclass, "rpg_class": rpg_class, "hostile": hostile, "name": raw_string,
+                               "unique_name": True}),
+        },
+        {
+            "key": ("2", "no", "n"),
+            "desc": "No",
+            "goto": (_create, {"typeclass": typeclass, "rpg_class": rpg_class, "hostile": hostile, "name": raw_string,
+                               "unique_name": False}),
+        })
     return text, options
 
 def _create(caller, raw_string, **kwargs):
     typeclass = kwargs.get("typeclass")
-    rpg_class = kwargs.get("rpg_class")
-    hostile = kwargs.get("hostile")
-    name = raw_string.strip()
+    name = kwargs.get("name").strip()
+
     entity = evennia.utils.create.create_object(typeclass=typeclass, key=name, location=caller.location)
-    entity.db.hostile_to_players = hostile
-    entity.db.rpg_class = rpg_class
+
+    entity.db.hostile_to_players = kwargs.get("hostile")
+    entity.db.rpg_class = kwargs.get("rpg_class")
+    entity.db.unique_name = kwargs.get("unique_name")
+
     return "end_node"
 
 def end_node(caller, raw_string, **kwargs):
