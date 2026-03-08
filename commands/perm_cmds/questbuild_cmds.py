@@ -45,7 +45,7 @@ class CmdQuestEdit(MuxCommand):
     aliases = ("qe",)
     switch_options = ("level", "desc", "long", "quiet")
     locks = "cmd:perm(questedit) or perm(Builder)"
-    help_category = "building"
+    help_category = "data"
 
     def func(self):
         quests = all_quests()
@@ -215,7 +215,7 @@ class CmdQuestHook(MuxCommand):
     aliases = ("qh",)
     switch_options = ("add", "remove", "edit")
     locks = "cmd:perm(questhook) or perm(Builder)"
-    help_category = "building"
+    help_category = "data"
 
     def func(self):
 
@@ -503,7 +503,7 @@ class CmdKillCounter(MuxCommand):
     key = "killcounter"
     aliases = ("kc",)
     locks = "cmd:perm(questhook) or perm(Builder)"
-    help_category = "building"
+    help_category = "data"
 
     def func(self):
         usage = f"Usage: {appearance.cmd}killcounter <QID>.<stage>:<next_stage> = <num_to_kill> <path.to.class>"

@@ -433,7 +433,7 @@ class CmdInventory(MuxCommand):
     aliases = ["inv", "i"]
     locks = "cmd:all()"
     arg_regex = r"$"
-    help_category = "items"
+    help_category = "character"
 
     def func(self):
         """check inventory"""

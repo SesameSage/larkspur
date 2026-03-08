@@ -20,6 +20,7 @@ from typeclasses.living.creatures import Animal, Creature
 
 # Overridden to automatically format help for spells/abilities
 class MyCmdSetHelp(CmdSetHelp):
+    help_category = "data"
     def func(self):
         # The override
         ability = False
@@ -269,7 +270,81 @@ class MyCmdSetHelp(CmdSetHelp):
             else:
                 self.msg(f"Error when creating topic '{topicstr}'{aliastxt}! Contact an admin.")
 
+class CmdAutoLines(MuxCommand):
+    """
+        set or clear an NPC's automatically spoken lines
+
+        Usage:
+          autolines/add Attoah = 0.0
+          autolines/clear Attoah = 2.4
+
+        Auto-lines are spoken by an NPC when a player enters a room. Like talk responses, which are spoken
+        when the player uses 'talk' on the character, they can depend on the player's completion of
+        particular quest stages, and any set to quest 0, stage 0 will function as the default.
+    """
+    key = "autolines"
+    aliases = ("autol",)
+    switch_options = ("add", "clear")
+    locks = "cmd:perm(autolines) or perm(Builder)"
+    help_category = "data"
+
+    def func(self):
+        usage_msg = f"Usage: {appearance.cmd}autolines/add 0.0"
+
+        # Find valid character
+        char_input = self.lhs
+        char = self.caller.search(char_input)
+        if not char or not char.attributes.has("auto_lines"):
+            self.caller.msg("No character found for " + char_input)
+            return
+
+        # Parse quest and stage input
+        qstage_input = self.rhs
+        if not qstage_input:
+            self.caller.msg(usage_msg)
+            return
+
+        quest_input, stage_input = qstage_input.strip().split(".")
+        if not quest_input or not stage_input:
+            self.caller.msg(usage_msg)
+            return
+        try:
+            qid = int(quest_input)
+            stage = int(stage_input)
+        except (ValueError, IndexError):
+            self.caller.msg(usage_msg)
+            return
+
+        if "add" in self.switches:
+
+            # Access the right storage
+            try:
+                char.db.auto_lines[qid]
+                char.db.auto_lines[qid][stage]
+            except KeyError:
+                char.db.auto_lines[qid] = {stage: []}
+
+            line_inpt = yield f"Write lines separated by '/':"
+            lines = line_inpt.split("/")
+            lines = [line.strip() for line in lines]
+
+            char.db.auto_lines[qid][stage].append(lines)
+            return
+
+        elif "clear" in self.switches:
+            char.db.auto_lines[qid][stage] = []
+
 class CmdDataReload(MuxCommand):
+    """
+        reset the static properties of all entities' abilities
+
+        Usage:
+          datereload
+
+        This command currently runs at_object_creation on every ability belonging to every entity, so that
+        their static, non-changing attributes are updated with any potential code changes on the ability's
+        class.
+        """
     key = "@datareload"
     locks = "cmd:perm(datareload) or perm(Developer)"
     help_category = "data"
@@ -301,6 +376,7 @@ class CmdMakeEntity(MuxCommand):
                      "select_hostile": select_hostile, "get_name": get_name, "is_name_unique": is_name_unique, "end_node": end_node}
         EvMenu(caller=self.caller, menudata=menu_data, startnode="select_character_creature")
 
+# <editor-fold desc="EvMenu Nodes for MekeEntity">
 def select_character_creature(caller, raw_string, **kwargs):
     text = "Character or creature? Characters have names and can be talked to."
     options = (
@@ -479,12 +555,13 @@ def _create(caller, raw_string, **kwargs):
 
 def end_node(caller, raw_string, **kwargs):
     return "", None
+# </editor-fold>
 
 class CmdSwatch(MuxCommand):
     key = "@swatch"
     switch_options = ()
     locks = "cmd:perm(swatch) or perm(Developer)"
-    help_category = "data"
+    help_category = "appearance"
 
     def func(self):
         for name, value in vars(appearance).items():
@@ -539,6 +616,7 @@ class CmdTeach(MuxCommand):
 class GameDataCmdSet(CmdSet):
     def at_cmdset_creation(self):
         self.add(MyCmdSetHelp)
+        self.add(CmdAutoLines)
         self.add(CmdDataReload)
         self.add(CmdMakeEntity)
         self.add(CmdSwatch)

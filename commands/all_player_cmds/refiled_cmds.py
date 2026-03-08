@@ -3,6 +3,7 @@
 from evennia.commands.cmdset import CmdSet
 from evennia.commands.default.account import CmdColorTest, CmdQuit, CmdSessions, CmdStyle, CmdWho, CmdPassword, CmdIC, \
     CmdOOC, CmdOption
+from evennia.commands.default.building import CmdExamine, CmdSetAttribute
 from evennia.commands.default.comms import CmdChannel, CmdPage
 from evennia.commands.default.general import CmdSay, CmdWhisper, CmdDrop, CmdGive, CmdNick, CmdPose, \
     CmdAccess, CmdSetDesc, CmdHome
@@ -100,6 +101,11 @@ class MyCmdOption(CmdOption):
 class MyCmdOpenDoor(CmdOpenCloseDoor):
     help_category = "navigation"
 
+class MyCmdSet(CmdSetAttribute):
+    help_category = "data"
+
+class MyCmdExamine(CmdExamine):
+    help_category = "data"
 
 class MyCmdHome(CmdHome):
     locks = "cmd:perm(Builder)"
@@ -124,4 +130,6 @@ class RefiledCmdSet(CmdSet):
         self.add(MyCmdAccess)
         self.add(MyCmdSetDesc)
         self.add(MyCmdOpenDoor)
+        self.add(MyCmdSet)
+        self.add(MyCmdExamine)
         self.add(MyCmdHome)
