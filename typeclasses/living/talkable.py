@@ -120,7 +120,7 @@ class Talkable(DefaultObject):
                     response = responses[qid][stage]
         return response
 
-    def say_lines(self, player, responses):
+    def find_and_say_lines(self, player, responses):
         """
         Speaks each line with a delay of 3 seconds between each. Returns the final count of 3-second delays so that
         further action in other functions can be timed correctly.
@@ -134,21 +134,23 @@ class Talkable(DefaultObject):
         return i - 1
 
     def say_auto_lines(self, player):
+        """Handles choosing and speaking lines that are automatically spoken when a player enters."""
         responses = self.db.auto_lines
         if not responses:
             return
-        self.say_lines(player, responses)
+        self.find_and_say_lines(player, responses)
 
     def give_talk_response(self, player):
+        """Handles choosing and speaking lines that are said when a player uses the 'talk' command."""
         responses = self.db.talk_responses
         if not responses:
             player.msg(self.key + " doesn't have anything to say to you.")
             return
-        self.say_lines(player, responses)
+        self.find_and_say_lines(player, responses)
 
     def say_quest_lines(self, hook_data, player):
         """Speaks the lines from the given quest hook one-by-one, with 3 seconds between each, then advances the quest."""
-        num_delays = self.say_lines(player, hook_data["spoken lines"])
+        num_delays = self.find_and_say_lines(player, hook_data["spoken lines"])
         delay((num_delays)*3, player.quests.advance_quest, hook_data["next_stage"])
     # </editor-fold>
 
