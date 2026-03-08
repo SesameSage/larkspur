@@ -1,3 +1,5 @@
+import random
+
 from evennia import DefaultObject
 from evennia.utils import delay
 
@@ -117,7 +119,8 @@ class Talkable(DefaultObject):
                 if response:
                     break
                 if player.db.quest_stages.get(qid, 0) >= stage:
-                    response = responses[qid][stage]
+                    lst = responses[qid][stage]
+                    response = random.choice(lst)
         return response
 
     def find_and_say_lines(self, player, responses):
