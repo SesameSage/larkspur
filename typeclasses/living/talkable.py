@@ -11,7 +11,8 @@ class Talkable(DefaultObject):
         super().at_object_creation()
         self.db.quest_hooks = {"at_talk": {}, "at_told": {}, "at_object_receive": {}}
         self.db.talk_responses = {}
-
+        self.db.auto_lines = {}
+    # <editor-fold desc="Quest Hook Functions">
     def at_object_receive(self, moved_obj, source_location, move_type="move", **kwargs):
         super().at_object_receive(moved_obj, source_location, move_type, **kwargs)
         hooks = self.db.quest_hooks["at_object_receive"]
@@ -20,17 +21,7 @@ class Talkable(DefaultObject):
                 hook_data = hooks[qid][stage]
                 player = source_location
                 if player.attributes.has("quest_stages") and player.quests.at_stage(qid, stage):
-                    self.speak_lines(hook_data, player)
-
-    def speak_lines(self, hook_data, player):
-        """Speaks the lines from the given quest hook one-by-one, with 3 seconds between each, then advances the quest."""
-        i = 0
-        for line in hook_data["spoken_lines"]:
-            delay(i * 3, self.say_to, player, line)
-            i += 1
-
-        delay((i-1)*3, player.quests.advance_quest, hook_data["next_stage"])
-        #player.quests.advance_quest(hook_data["next_stage"])
+                    self.say_quest_lines(hook_data, player)
 
     def at_talk(self, player):
         """
@@ -48,7 +39,7 @@ class Talkable(DefaultObject):
             for stage in hooks[qid]:
                 hook_data = hooks[qid][stage]
                 if player.quests.at_stage(qid, stage):  # Player is at a quest stage to talk to this NPC
-                    self.speak_lines(hook_data, player)
+                    self.say_quest_lines(hook_data, player)
                     advanced = True
                     break # Stop checking hooks. One conversation/quest per command
         if not advanced:
@@ -106,18 +97,13 @@ class Talkable(DefaultObject):
             return False  # NPC didn't speak yet
         else:
             return True  # We initiated a conversation
+    # </editor-fold>
 
-    def give_talk_response(self, player):
-        """
-        Performs the NPC's response to the talk command. Among responses associated with the completion of quest
-        stages, finds the response corresponding to the highest-number stage in the highest-number quest that the
-        player talking has completed. Default responses are set to 0:0 to show to all created players.
-        """
-        responses = self.db.talk_responses
-        if not responses:
-            player.msg(self.key + " doesn't have anything to say to you.")
-            return
-
+    # <editor-fold desc="Speaking Functions">
+    def find_highest_quest_response(self, player, responses):
+        """Spoken sets of lines are identified by which quest stage the player must have passed for the response to be
+        spoken. This function finds the response corresponding to the highest number quest completed, or the furthest
+        in story progression. Default responses are set to 0:0 to show to all created players."""
         # Find response for highest quest stage player has completed
         sorted_qids = sorted(responses.keys(), reverse=True)
 
@@ -132,5 +118,38 @@ class Talkable(DefaultObject):
                     break
                 if player.db.quest_stages.get(qid, 0) >= stage:
                     response = responses[qid][stage]
+        return response
+
+    def say_lines(self, player, responses):
+        """
+        Speaks each line with a delay of 3 seconds between each. Returns the final count of 3-second delays so that
+        further action in other functions can be timed correctly.
+        """
+        response = self.find_highest_quest_response(player, responses)
+        i = 0
         for line in response:
-            self.say_to(player, line)
+            delay(i * 3, self.say_to, player, line)
+            i += 1
+        # Subtract 1 to undo the extraneous incrementation from the previous line
+        return i - 1
+
+    def say_auto_lines(self, player):
+        responses = self.db.auto_lines
+        if not responses:
+            return
+        self.say_lines(player, responses)
+
+    def give_talk_response(self, player):
+        responses = self.db.talk_responses
+        if not responses:
+            player.msg(self.key + " doesn't have anything to say to you.")
+            return
+        self.say_lines(player, responses)
+
+    def say_quest_lines(self, hook_data, player):
+        """Speaks the lines from the given quest hook one-by-one, with 3 seconds between each, then advances the quest."""
+        num_delays = self.say_lines(player, hook_data["spoken lines"])
+        delay((num_delays)*3, player.quests.advance_quest, hook_data["next_stage"])
+    # </editor-fold>
+
+
