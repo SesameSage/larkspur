@@ -275,6 +275,10 @@ class CmdAutoLines(MuxCommand):
         set or clear an NPC's automatically spoken lines
 
         Usage:
+          autolines/add <character> = <qid>.<stage>
+          autolines/clear <character> = <qid>.<stage>
+
+        Examples:
           autolines/add Attoah = 0.0
           autolines/clear Attoah = 2.4
 
