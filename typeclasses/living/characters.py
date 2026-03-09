@@ -183,7 +183,7 @@ class Vendor(Character):
 
         self.db.unique_name = True
         self.db.dies = False
-        self.db.talk_responses = {0: {0: ["Can I help you?"]}}
+        self.db.talk_responses = {0: {0: [["Can I help you?"]]}}
 
     def add_to_stock(self, prototype_key):
         """Add a prototype to the vendor's wares."""
@@ -224,7 +224,7 @@ class Trainer(Character):
 
         self.db.unique_name = True
         self.db.dies = False
-        self.db.talk_responses = {0: {0: ["Here for a lesson?"]}}
+        self.db.talk_responses = {0: {0: [["Here for a lesson?"]]}}
 
     def abilities_taught(self):
         return [type(ability) for ability in self.db.classes]
