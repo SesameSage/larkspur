@@ -6,7 +6,7 @@ class Creature(LivingEntity):
     """Entities without proper/given names that cannot be talked to."""
     def at_object_creation(self):
         super().at_object_creation()
-        self.db.appear_string = f"A {self.get_display_name()} is here."
+        self.db.unique_name = False
 
 
 class Animal(Creature):

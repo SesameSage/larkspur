@@ -24,44 +24,10 @@ class LivingEntity(Object, CombatEntity):
 {things}
 {footer}
     """
-        self.db.appear_string = f"{self.get_display_name(article=True, capital=True)} is here."
+        self.db.appear_string = "is here."
 
         self.db.carry_weight = BASE_CARRY_WEIGHT
         self.db.max_carry_count = BASE_CARRY_COUNT
-
-    def color(self):
-        if self.db.hostile_to_players:
-            return appearance.enemy
-        else:
-            return appearance.character
-
-    def carried_count(self):
-        carried_count = 0
-        for item in self.contents:
-            if isinstance(item, Item):
-                if item.attributes.has("equipped") and item.db.equipped:
-                    continue
-                carried_count += 1
-        return carried_count
-
-    def encumbrance(self):
-        encumbrance = Dec(0)
-        for item in self.contents:
-            if isinstance(item, Item):
-                if item.attributes.has("equipped") and item.db.equipped:
-                    continue
-                if item.contents:
-                    for content in item.contents:
-                        encumbrance += content.db.weight
-                encumbrance += item.db.weight
-
-        return encumbrance
-
-    def table_carry_limits(self):
-        table = EvTable(border=None)
-        table.add_row(str(self.carried_count()), "/", self.db.max_carry_count, "items")
-        table.add_row(format(self.encumbrance(), ".2g"), "/", self.db.carry_weight, "weight")
-        return table
 
     def announce_move_to(self, source_location, msg=None, mapping=None, move_type="move", **kwargs):
         """
@@ -228,3 +194,39 @@ class LivingEntity(Object, CombatEntity):
         location.msg_contents(
             (appearance.ambient + string, {"type": move_type}), exclude=(self,), from_obj=self, mapping=mapping
         )
+
+    def color(self):
+        if self.db.hostile_to_players:
+            return appearance.enemy
+        else:
+            return appearance.character
+
+    def carried_count(self):
+        carried_count = 0
+        for item in self.contents:
+            if isinstance(item, Item):
+                if item.attributes.has("equipped") and item.db.equipped:
+                    continue
+                carried_count += 1
+        return carried_count
+
+    def encumbrance(self):
+        encumbrance = Dec(0)
+        for item in self.contents:
+            if isinstance(item, Item):
+                if item.attributes.has("equipped") and item.db.equipped:
+                    continue
+                if item.contents:
+                    for content in item.contents:
+                        encumbrance += content.db.weight
+                encumbrance += item.db.weight
+
+        return encumbrance
+
+    def table_carry_limits(self):
+        table = EvTable(border=None)
+        table.add_row(str(self.carried_count()), "/", self.db.max_carry_count, "items")
+        table.add_row(format(self.encumbrance(), ".2g"), "/", self.db.carry_weight, "weight")
+        return table
+
+

@@ -415,7 +415,7 @@ def select_vendor_trainer(caller, raw_string, **kwargs):
     text = "Vendor, Trainer, or neither?"
     options = (
         {
-            "key": ("1", "v", "Vendor"),
+            "key": ("1", "v", "Vendor", "vend"),
             "desc": "Vendor",
             "goto": ("select_rpg_class", {"typeclass": Vendor}),
         },

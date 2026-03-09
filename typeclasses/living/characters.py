@@ -26,7 +26,6 @@ class Character(LivingEntity, Talkable):
     def at_object_creation(self):
         super().at_object_creation()
         self.db.unique_name = True
-        self.db.appear_string = f"{self.get_display_name(capital=True, article=True)} is here."
         self.db.talk_responses = {0: {0: [random.choice(DEFAULT_TALK_RESPONSES)]}}
         self.db.dies = False
 

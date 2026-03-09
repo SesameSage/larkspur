@@ -60,6 +60,8 @@ class CombatEntity(EquipmentEntity):
 
         self.db.hostile_to_players = False
         self.db.dies = True
+        if not self.db.quest_hooks:
+            self.db.quest_hooks = [] = {}
         self.db.quest_hooks.update({"at_defeat": {}})
 
         # TODO: Make regenerating less computationally expensive

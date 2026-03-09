@@ -39,8 +39,7 @@ class CmdAppear(MuxCommand):
             self.caller.msg("No character here found for " + character_input)
             return
 
-        character.db.appear_string = f"{character.get_display_name(article=True, capital=True)} {string_input}"
-        self.caller.msg(character.db.appear_string)
+        character.db.appear_string = str(string_input)
 
 
 class ObjectDataCmdSet(CmdSet):

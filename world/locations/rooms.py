@@ -145,10 +145,11 @@ class Room(Object, DefaultRoom):
         first_line = True
         for character in characters:
             if first_line:
-                string = character.db.appear_string
+                string = character.get_display_name(article=True, capital=True) + " " + character.db.appear_string
                 first_line = False
             else:
-                string = string + "\n" + character.db.appear_string
+                string = (string + "\n" +
+                          character.get_display_name(article=True, capital=True) + " " + character.db.appear_string)
 
         return string
 
