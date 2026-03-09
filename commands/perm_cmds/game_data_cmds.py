@@ -289,7 +289,7 @@ class CmdAutoLines(MuxCommand):
     help_category = "data"
 
     def func(self):
-        usage_msg = f"Usage: {appearance.cmd}autolines/add 0.0"
+        usage_msg = f"Usage: {appearance.cmd}autolines/add <character> = <qid>.<stage>"
 
         # Find valid character
         char_input = self.lhs
@@ -333,6 +333,8 @@ class CmdAutoLines(MuxCommand):
 
         elif "clear" in self.switches:
             char.db.auto_lines[qid][stage] = []
+        else:
+            self.caller.msg(usage_msg)
 
 class CmdDataReload(MuxCommand):
     """
