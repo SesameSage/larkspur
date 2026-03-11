@@ -377,8 +377,8 @@ class CmdDigDoor(MuxCommand):
             return
 
         # Turn both exits into doors
-        self.execute_cmd(f"@type/update #{recent_objects[0].id} = typeclasses.inanimate.locations.exits.Door")
-        self.execute_cmd(f"@type/update #{recent_objects[1].id} = typeclasses.inanimate.locations.exits.Door")
+        self.execute_cmd(f"@type/update #{recent_objects[0].id} = world.locations.exits.Door")
+        self.execute_cmd(f"@type/update #{recent_objects[1].id} = world.locations.exits.Door")
 
         # Set them as each other's return exit
         recent_objects[1].db.return_exit = recent_objects[0]
