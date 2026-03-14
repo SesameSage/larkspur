@@ -71,8 +71,11 @@ class PlayerCharacter(Character):
             self.msg(appearance.moreinfo + string)
 
     def at_post_move(self, source_location, move_type="move", **kwargs):
+        """Called after the player moves. Prints the weather if going outdoors."""
         super().at_post_move(source_location, move_type, **kwargs)
         if not self.location or not source_location:
+            return
+        if not self.location.zone():
             return
         current_weather = self.location.zone().db.current_weather
         if not current_weather:
