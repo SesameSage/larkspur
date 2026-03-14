@@ -385,8 +385,26 @@ class CmdDigDoor(MuxCommand):
         recent_objects[0].db.return_exit = recent_objects[1]
 
 
+class CmdOpenExits(MuxCommand):
+    key = "openexits"
+    aliases = ("oex", "openex")
+    locks = "cmd:perm(openexits) or perm(Builder)"
+    help_category = "building"
+
+    def func(self):
+        self.caller.execute_cmd("tunnel n")
+        self.caller.execute_cmd("tunnel s")
+        self.caller.execute_cmd("tunnel e")
+        self.caller.execute_cmd("tunnel w")
+        self.caller.execute_cmd("tunnel nw")
+        self.caller.execute_cmd("tunnel ne")
+        self.caller.execute_cmd("tunnel sw")
+        self.caller.execute_cmd("tunnel se")
+
+
 class BuildingCmdSet(CmdSet):
     def at_cmdset_creation(self):
         self.add(MyCmdDig)
         self.add(MyCmdTunnel)
         self.add(CmdDigDoor())
+        self.add(CmdOpenExits())
