@@ -200,6 +200,7 @@ class Map(object):
             self.update_pos(room, ex_name.lower())
             self.draw_room_on_map(ex.destination, max_distance - 1)
 
+    # TODO: Draw corner exits without gaps
     def draw_exits(self, room):
         """
         Draw a given room's exit paths
