@@ -41,7 +41,7 @@ door = "|[111"
 
 ENVIRONMENTS_BY_TYPE = {
     "grass": ["field", "meadow", "garden"],
-    "foliage": ["forest", "woodland"],
+    "foliage": ["trees", "forest", "woodland"],
     "shallow water": ["pond", "riverbank", "shore"],
     "deep water": ["river", "ocean", "lake"],
     "sand": ["beach", "desert"],
@@ -54,13 +54,13 @@ ENVIRONMENTS_BY_TYPE = {
 }
 ENV_TYPES_APPEAR = {
     "grass": {"bg": "|[250", "fg": "|030", "player": "|503"},
-    "foliage": {"bg": "|[020", "fg": "|320", "player": "|502"},
+    "foliage": {"bg": "|[020", "fg": "|320", "player": "|300"},
     "shallow water": {"bg": "|[045", "fg": "|025", "player": "|r"},
-    "deep water": {"bg": "|[004", "fg": "|015", "player": "|r"},
+    "deep water": {"bg": "|[004", "fg": "|015", "player": "|503"},
     "sand": {"bg": "|[553", "fg": "|530", "player": "|r"},
-    "rock": {"bg": "|[=g", "fg": "|=e", "player": "|r"},
-    "wood": {"bg": "|[210", "fg": "|100", "player": "|r"},
-    "stone": {"bg": "|[=s", "fg": "|=m", "player": "|r"},
+    "rock": {"bg": "|[=g", "fg": "|=e", "player": "|300"},
+    "wood": {"bg": "|[210", "fg": "|100", "player": "|300"},
+    "stone": {"bg": "|[=l", "fg": "|=s", "player": "|300"},
     "dirt": {"bg": "|[320", "fg": "|100", "player": "|300"},
     "snow": {"bg": "|[=v", "fg": "|=l", "player": "|r"},
 }

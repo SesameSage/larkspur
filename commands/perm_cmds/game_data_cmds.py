@@ -575,6 +575,9 @@ class CmdSwatch(MuxCommand):
         for name, value in vars(appearance).items():
             if isinstance(value, str):
                 self.caller.msg(f"{value}{name}|n")
+        for key, value in appearance.ENV_TYPES_APPEAR.items():
+            self.caller.msg(f"{value["bg"]}{value["fg"]}[{value["player"]}X{value["fg"]}]|n {key}")
+
 
 class CmdTeach(MuxCommand):
     """
