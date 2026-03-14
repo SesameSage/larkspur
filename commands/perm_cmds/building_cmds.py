@@ -386,6 +386,12 @@ class CmdDigDoor(MuxCommand):
 
 
 class CmdOpenExits(MuxCommand):
+    """
+    Tunnel out exits in all cardinal directions.
+
+    Usage:
+      openexits
+      """
     key = "openexits"
     aliases = ("oex", "openex")
     locks = "cmd:perm(openexits) or perm(Builder)"
