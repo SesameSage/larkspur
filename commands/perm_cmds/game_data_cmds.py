@@ -362,6 +362,8 @@ class CmdDataReload(MuxCommand):
             for ability in entity.db.abilities:
                 ability.at_object_creation()
 
+# TODO: Toggle "dies"
+
 class CmdMakeEntity(MuxCommand):
     """
             create an entity

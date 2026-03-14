@@ -65,7 +65,7 @@ from evennia.commands.default.muxcommand import MuxCommand
 from server import appearance
 from world.locations.exits import Door
 
-_BASIC_MAP_SIZE = settings.BASIC_MAP_SIZE if hasattr(settings, "BASIC_MAP_SIZE") else 2
+_BASIC_MAP_SIZE = settings.BASIC_MAP_SIZE if hasattr(settings, "BASIC_MAP_SIZE") else 10
 _MAX_MAP_SIZE = settings.BASIC_MAP_SIZE if hasattr(settings, "MAX_MAP_SIZE") else 10
 
 # TODO: Show only one grid space worth of exits between each room
