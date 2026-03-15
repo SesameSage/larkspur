@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from evennia import DefaultCharacter
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia.commands.cmdset import CmdSet
@@ -265,11 +267,34 @@ class EquipmentEntity(DefaultCharacter):
 
         # sort and handle same-named things
         things = _filter_visible(self.contents_get(content_type="object"))
-
         carried = [item for item in things if not item.db.equipped]
+        grouped_things = defaultdict(list)
+        for item in carried:
+            grouped_things[item.get_display_name(looker, **kwargs)].append(item)
+
         carry_table = EvTable(border="header")
         carry_table.add_row("\n|wCarrying:|n")
-        for item in carried:
+
+        for thingname, thinglist in sorted(grouped_things.items()):
+            nthings = len(thinglist)
+            thing = thinglist[0]
+            singular, plural = thing.get_numbered_name(nthings, looker, key=thingname)
+
+            desc = thing.get_display_desc(looker, **kwargs)
+            if len(desc) > 60:
+                desc = desc[:58] + "..."
+
+            thing_name = singular if nthings == 1 else plural + "s"
+
+            carry_table.add_row(thing.color() + thing_name, thing.db.weight, desc)
+
+        if carry_table.nrows <= 1:
+            carry_table.add_row("Nothing.")
+
+        return carry_table
+
+
+        """for item in carried:
             desc = item.get_display_desc(looker=looker)
             if len(desc) > 60:
                 desc = desc[:58] + "..."
@@ -279,7 +304,7 @@ class EquipmentEntity(DefaultCharacter):
 
         return carry_table
 
-        """grouped_things = defaultdict(list)
+        grouped_things = defaultdict(list)
         for thing in things:
             grouped_things[thing.get_display_name(looker, **kwargs)].append(thing)
 
