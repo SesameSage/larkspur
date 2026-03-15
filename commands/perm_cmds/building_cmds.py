@@ -1,9 +1,11 @@
 from evennia.commands.cmdset import CmdSet
 from evennia.commands.default.building import CmdDig, CmdTunnel
 from evennia.commands.default.muxcommand import MuxCommand
+from evennia.utils.containers import GLOBAL_SCRIPTS
 
 from combat.combat_constants import DIRECTION_NAMES_OPPOSITES
 from typeclasses.base.objects import Object
+from world.locations.areas import Area
 
 
 # Extended to add new room to current area unless using "delocalize" switch
@@ -337,6 +339,43 @@ class MyCmdTunnel(CmdTunnel):
             new_room.db.coordinates = (x, y, z)
 
 
+class CmdDestroyArea(MuxCommand):
+    """
+    destroy an entire area at once
+
+    Usage:
+        destroyarea <area name>
+    """
+    key = "destroyarea"
+    locks = "cmd:perm(destroyarea) or perm(Builder)"
+    help_category = "building"
+
+    def func(self):
+        area_input = self.lhs
+        areas = [script for script in GLOBAL_SCRIPTS.all() if isinstance(script, Area)]
+        area_to_delete = None
+        for area in areas:
+            if area.key == area_input:
+                area_to_delete = area
+                break
+        if not area_to_delete:
+            self.caller.msg(f"There is no area with the name '{area_input}'")
+            return
+
+        # Remove the area from its locality's list of areas
+        room = area_to_delete.db.rooms[0]
+        locality = room.locality()
+        locality.db.areas.remove(area_to_delete)
+        self.caller.msg(f"{area_to_delete.key} area removed from locality {locality.key}")
+
+        # Destroy rooms
+        i = 0
+        for room in area_to_delete.db.rooms:
+            room.delete()
+            i += 1
+        self.caller.msg(f"Destroyed {i} rooms")
+
+
 class CmdDigDoor(MuxCommand):
     """
     Tunnel a new room with a door in between.
@@ -412,5 +451,6 @@ class BuildingCmdSet(CmdSet):
     def at_cmdset_creation(self):
         self.add(MyCmdDig)
         self.add(MyCmdTunnel)
+        self.add(CmdDestroyArea)
         self.add(CmdDigDoor())
         self.add(CmdOpenExits())

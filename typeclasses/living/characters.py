@@ -214,6 +214,7 @@ class Vendor(Character):
         item_to_sell.move_to(destination=player, quiet=True, move_type="purchase")
         singular = item_to_sell.get_numbered_name(count=1, looker=player)[0]
         player.msg("You receive " + singular + ".")
+        return True
 
 
 class Trainer(Character):
