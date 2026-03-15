@@ -1,4 +1,5 @@
 import evennia
+from evennia.prototypes.spawner import spawn
 from evennia.utils.evmenu import EvMenu
 from evennia.commands.cmdset import CmdSet
 from evennia.commands.default.help import CmdSetHelp, HelpCategory, DEFAULT_HELP_CATEGORY, _loadhelp, _savehelp, \
@@ -565,7 +566,95 @@ def end_node(caller, raw_string, **kwargs):
     return "", None
 # </editor-fold>
 
+class CmdStock(MuxCommand):
+    """change a vendor's stocked items
+
+        Usage:
+            stock <prototype_key> = <cost>
+            stock <item name> = <cost>
+            stock/remove <item name>
+            stock/cost <item name> = <cost>
+
+        Examples:
+            stock poison_arrow = 10
+            stock poison arrow = 10
+            stock/remove sword
+            stock/cost poison arrow = 10
+
+        Edit what a vendor NPC has to sell. When adding items using the item name instead of a prototype
+        name, the item must be in the room or on the vendor's person."""
+    key = "@stock"
+    switch_options = ("remove", "cost")
+    locks = "cmd:perm(stock) or perm(Developer)"
+    help_category = "data"
+
+    def func(self):
+        # Find vendor in the room. There should only ever be one
+        vendor = None
+        for content in self.caller.location.contents:
+            if isinstance(content, Vendor):
+                vendor = content
+        if not vendor:
+            self.caller.msg("Couldn't find a vendor here.")
+            return
+
+        # Get item and cost input
+        item_input = self.lhs
+        if not item_input:
+            self.caller.msg("Which item?")
+            return
+        cost_input = self.rhs
+        if "remove" not in self.switches:
+            if not cost_input:
+                self.caller.msg("At what cost?")
+                return
+            try:
+                cost = int(cost_input)
+            except ValueError:
+                self.caller.msg("Couldn't convert cost to an integer.")
+                return
+
+        # If editing/removing a listing, find the item in stock
+        if self.switches:
+            item = vendor.search(item_input)
+            if not item:
+                self.caller.msg(f"Couldn't find an item matching '{item_input}'")
+                return
+
+        # Add, remove, or edit info
+        if "remove" in self.switches: # Remove an item from the stock
+            try:
+                del vendor.db.stock[item]
+                self.caller.msg(f"{item.key} removed from stock.")
+                item.delete()
+            except KeyError:
+                self.caller.msg(f"This item is not in stock.")
+
+        elif "cost" in self.switches: # Change cost
+            vendor.db.stock[item] = cost
+            self.caller.msg(f"{item.key.capitalize()} price set to {cost} gold")
+
+        else: # No switches = add to stock
+            try:  # Try to match to a prototype name
+                item = spawn(item_input, only_validate=False)[0]
+                item.move_to(vendor)
+            except:  # Try to match to an item the vendor has or can see
+                item = vendor.search(item_input)
+            if not item:
+                self.caller.msg("Couldn't find a matching prototype or nearby item.")
+                return
+            vendor.db.stock[item] = cost
+            self.caller.msg(f"{item.key.capitalize()} added to stock at {cost} gold")
+
+
+
+
 class CmdSwatch(MuxCommand):
+    """show a summary of all color styles in the game
+
+        Usage:
+          swatch
+"""
     key = "@swatch"
     switch_options = ()
     locks = "cmd:perm(swatch) or perm(Developer)"
@@ -577,7 +666,6 @@ class CmdSwatch(MuxCommand):
                 self.caller.msg(f"{value}{name}|n")
         for key, value in appearance.ENV_TYPES_APPEAR.items():
             self.caller.msg(f"{value["bg"]}{value["fg"]}[{value["player"]}X{value["fg"]}]|n {key}")
-
 
 class CmdTeach(MuxCommand):
     """
@@ -630,5 +718,6 @@ class GameDataCmdSet(CmdSet):
         self.add(CmdAutoLines)
         self.add(CmdDataReload)
         self.add(CmdMakeEntity)
+        self.add(CmdStock)
         self.add(CmdSwatch)
         self.add(CmdTeach)
