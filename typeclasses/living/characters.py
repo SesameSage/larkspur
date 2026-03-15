@@ -202,16 +202,22 @@ class Vendor(Character):
 
     def sell_item(self, player, input):
         """Takes gold from a player, copies the item selected, and gives it to the player."""
+        # Find relevant item
         stock_item = self.search(input, candidates=self.db.stock.keys())
         if not stock_item:
             return False
+        # Check player has enough gold
         if player.db.gold < self.db.stock[stock_item]:
             self.say_to(player, "That's not enough gold for that item.")
             return False
+        # Create item copy
         item_to_sell = ObjectDB.objects.copy_object(stock_item)
-        player.db.gold -= stock_item.db.avg_value
-        self.db.gold += stock_item.db.avg_value
+        # Exchange gold
+        player.db.gold -= self.db.stock[stock_item]
+        self.db.gold += self.db.stock[stock_item]
+        # Give item
         item_to_sell.move_to(destination=player, quiet=True, move_type="purchase")
+        # Announce
         singular = item_to_sell.get_numbered_name(count=1, looker=player)[0]
         player.msg("You receive " + singular + ".")
         return True
