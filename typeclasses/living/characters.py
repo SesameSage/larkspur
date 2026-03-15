@@ -9,6 +9,7 @@ creation commands.
 """
 import random
 
+from evennia.utils.create import ObjectDB
 from evennia.utils.evtable import EvTable
 from evennia.prototypes.spawner import spawn
 from evennia.utils import make_iter
@@ -200,14 +201,14 @@ class Vendor(Character):
         player.msg(table)
 
     def sell_item(self, player, input):
-        """Takes gold from a player, spawns one of the items selected, and gives it to the player."""
+        """Takes gold from a player, copies the item selected, and gives it to the player."""
         stock_item = self.search(input, candidates=self.db.stock.keys())
         if not stock_item:
             return False
-        if player.db.gold < stock_item.db.avg_value:
+        if player.db.gold < self.db.stock[stock_item]:
             self.say_to(player, "That's not enough gold for that item.")
             return False
-        item_to_sell = spawn(self.db.stock[stock_item])[0]
+        item_to_sell = ObjectDB.objects.copy_object(stock_item)
         player.db.gold -= stock_item.db.avg_value
         self.db.gold += stock_item.db.avg_value
         item_to_sell.move_to(destination=player, quiet=True, move_type="purchase")
