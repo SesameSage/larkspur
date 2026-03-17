@@ -388,8 +388,11 @@ class Room(Object, DefaultRoom):
                 return content
 
     def update_weather(self, weather):
-        """Messages characters here about the new weather."""
+        """Messages characters about the new weather if they are outside."""
         self.db.current_weather = weather
-        self.print_ambient(weather["start_msg"])
+        for content in self.contents:
+            if content.location.db.is_outdoors:
+                content.msg(appearance.ambient + weather["start_msg"])
+
         if weather["effect"]:
             pass
