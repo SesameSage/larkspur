@@ -19,6 +19,7 @@ class CombatAI(Script):
         super().at_script_creation()
         if not self.key:
             self.key = self.__class__.__name__
+            self.obj.db.ai = self
 
     def take_turn(self):
         """While the entity has AP remaining, choose and perform an action. This repeats until perform_action() stops
