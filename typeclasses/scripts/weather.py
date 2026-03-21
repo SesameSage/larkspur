@@ -2,6 +2,7 @@ import random
 
 from typeclasses.scripts.scripts import Script
 
+# TODO: Make lower percentage weathers last longer
 
 class CycleWeather(Script):
     key = "Cycle Weather"

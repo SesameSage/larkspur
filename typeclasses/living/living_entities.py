@@ -174,7 +174,9 @@ class LivingEntity(Object, CombatEntity):
             if direction:  # Exit is in a direction
                 if not msg:
                     # "Lyrik goes east." "A hellhound goes out."
-                    string = string + f"goes {direction}."
+                    string = string + f"leaves {direction}."
+                    if direction in ("up", "down"):
+                        string = string[:-1] + "wards."
             else:
                 string = string + "leaves."
         else:
