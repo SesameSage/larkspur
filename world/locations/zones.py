@@ -18,7 +18,7 @@ class Zone(Script):
         for locality in self.db.localities:
             for area in locality.db.areas:
                 for room in area.db.rooms:
-                    if room.db.is_outdoors:
+                    if room.is_outdoors():
                         room.update_weather(weather)
 
     def get_room(self, x, y, z):

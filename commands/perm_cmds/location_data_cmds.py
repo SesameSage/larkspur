@@ -223,13 +223,10 @@ class CmdEnv(MuxCommand):
     help_category = "building"
 
     def func(self):
-        indoor_environments = ["wood room", "stone room", "cave"]
         # With no arguments, display all environment syntaxes
         if not self.lhs:
             for environment_appearance in ENVIRONMENTS_BY_TYPE:
                 self.caller.msg(f"{environment_appearance}: {ENVIRONMENTS_BY_TYPE[environment_appearance]}")
-
-
 
         # If args given, set current room's environment to the arg
         else:
@@ -237,8 +234,6 @@ class CmdEnv(MuxCommand):
             room = self.caller.location
             room.db.environment = environment
             self.caller.msg(f"Set {room.name} to environment: {environment}")
-            if environment in indoor_environments:
-                room.db.is_outdoors = False
 
 
 class CmdWeather(MuxCommand):

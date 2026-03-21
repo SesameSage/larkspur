@@ -28,7 +28,6 @@ class Room(Object, DefaultRoom):
         self.db.area = None
         self.db.coordinates = () # coordinates are per zone
 
-        self.db.is_outdoors = True
         self.db.environment = None
 
         self.db.current_weather = None
@@ -82,6 +81,12 @@ class Room(Object, DefaultRoom):
     def region(self):
         if self.zone():
             return self.zone().db.region
+
+    def is_outdoors(self):
+        if self.db.environment in ("wood room", "stone room", "cave"):
+            return False
+        else:
+            return True
 
     def has_water(self):
         if self.db.environment in ENVIRONMENTS_BY_TYPE["water"]:
@@ -391,7 +396,7 @@ class Room(Object, DefaultRoom):
         """Messages characters about the new weather if they are outside."""
         self.db.current_weather = weather
         for content in self.contents:
-            if content.location.db.is_outdoors:
+            if content.location.is_outdoors():
                 content.msg(appearance.ambient + weather["start_msg"])
 
         if weather["effect"]:

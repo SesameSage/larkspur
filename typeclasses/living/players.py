@@ -80,7 +80,7 @@ class PlayerCharacter(Character):
         current_weather = self.location.zone().db.current_weather
         if not current_weather:
             return
-        if self.location.db.is_outdoors and not source_location.db.is_outdoors:
+        if self.location.is_outdoors() and not source_location.is_outdoors():
             self.print_ambient(current_weather["ongoing_msg"])
     # </editor-fold>
 
