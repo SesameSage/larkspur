@@ -1,3 +1,5 @@
+from evennia.utils import inherits_from
+
 from combat.combat_handler import COMBAT
 from combat.effects import *
 from typeclasses.base.objects import Object
