@@ -146,6 +146,18 @@ class Ability(Object):
 
         return True
 
+    def check_ai(self, caster, target):
+        """
+        Run individualized logic to determine if this ability should be used now.
+        Args:
+            caster: Entity calling the ability/spell.
+            target: Entity targeted, if any.
+
+        Returns:
+            Boolean whether the check passed.
+        """
+        return True
+
     def color(self):
         return appearance.ability
 

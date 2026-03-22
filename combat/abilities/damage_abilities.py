@@ -3,6 +3,7 @@ from random import randint
 
 from evennia.utils import inherits_from
 
+from combat import combat_grid
 from combat.abilities.abilities import Ability, BowAbility
 from combat.combat_handler import COMBAT
 from combat.effects import KnockedDown, Poisoned, Burning, EffectScript
@@ -190,6 +191,16 @@ class SpinningAssault(Ability):
             caster.msg("You need a two-handed weapon!")
             return False
         return True
+
+    def check_ai(self, caster, target):
+        num_targets = 0
+        for direction in combat_grid.DIRECTIONS:
+            if caster.db.combat_turnhandler.db.grid.check_square(direction=direction, obj=caster):
+                num_targets += 1
+        if not num_targets:
+            return False
+        else:
+            return True
 
     def func(self, caster, target=None):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} spins a circle with the weight of their"

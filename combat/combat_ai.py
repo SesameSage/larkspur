@@ -186,14 +186,15 @@ class CombatAI(Script):
             if ability.db.targeted:
                 target = self.choose_target(ability)
                 if target:  # If a good target is found for this ability, and enough AP
-                    if ability.check(caster=entity, target=self.choose_target(ability)):
+                    if ability.check(caster=entity, target=self.choose_target(ability))\
+                            and ability.check_ai(caster=entity, target=target):
                         return ability, target
                     else:
                         offensive_abilities.remove(ability)
                 else: # Remove from candidates
                     offensive_abilities.remove(ability)
             else: # If not a targeted ability, check we can cast it, and cast it
-                if ability.check(caster=entity, target=None):
+                if ability.check(caster=entity, target=None) and ability.check_ai(caster=entity, target=None):
                     return ability, None
                 else:
                     offensive_abilities.remove(ability)
