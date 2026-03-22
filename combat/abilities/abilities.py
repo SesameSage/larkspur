@@ -35,6 +35,38 @@ class Ability(Object):
         self.db.cost = []  # Mana and stamina costs
         self.db.cooldown = 0  # How long before it can be cast again
 
+    def adjust_cooldowns_stats(self, caster):
+        """
+        Reset ability cooldown on caster, and remove cost from their mana/stamina.
+        """
+        if self.db.cooldown > 0:
+            caster.db.cooldowns[self.key] = self.db.cooldown
+        for stat, amt in self.db.cost:
+            match stat:
+                case "mana":
+                    caster.db.mana -= amt
+                case "stamina":
+                    caster.db.stamina -= amt
+
+        if caster.is_in_combat():
+            caster.db.combat_turnhandler.spend_action(caster, self.db.ap_cost or 2, action_name="cast")
+
+    def cast(self, caster, target=None):
+        """
+        If the ability's check passes, call the cooldown and cost adjuster, perform the ability, and spend the AP.
+        :param caster: The entity casting the ability
+        :param target: The target of the ability, if any
+        :return: Bool whether the check passed and spell was successfully cast
+        """
+        if not self.check(caster, target):
+            return False
+        else:
+            self.adjust_cooldowns_stats(caster)
+            self.func(caster, target)
+            if isinstance(self, TileAbility):
+                caster.msg(caster.db.combat_turnhandler.db.grid.print(caster))
+            return True
+
     def check(self, caster, target):
         """
         Checks whether an ability/spell can be cast and is being cast properly before running any casting logic.
@@ -114,58 +146,6 @@ class Ability(Object):
 
         return True
 
-    def func(self, caster, target=None):
-        """
-        Performs the ability's function.
-        Args:
-            caster: Entity calling the ability/spell.
-            target: Entity targeted, if any
-        """
-        pass
-
-    def adjust_cooldowns_stats(self, caster):
-        """
-        Reset ability cooldown on caster, and remove cost from their mana/stamina.
-        """
-        if self.db.cooldown > 0:
-            caster.db.cooldowns[self.key] = self.db.cooldown
-        for stat, amt in self.db.cost:
-            match stat:
-                case "mana":
-                    caster.db.mana -= amt
-                case "stamina":
-                    caster.db.stamina -= amt
-
-        if caster.is_in_combat():
-            caster.db.combat_turnhandler.spend_action(caster, self.db.ap_cost or 2, action_name="cast")
-
-    def cast(self, caster, target=None):
-        """
-        If the ability's check passes, call the cooldown and cost adjuster, perform the ability, and spend the AP.
-        :param caster: The entity casting the ability
-        :param target: The target of the ability, if any
-        :return: Bool whether the check passed and spell was successfully cast
-        """
-        if not self.check(caster, target):
-            return False
-        else:
-            self.adjust_cooldowns_stats(caster)
-            self.func(caster, target)
-            if isinstance(self, TileAbility):
-                caster.msg(caster.db.combat_turnhandler.db.grid.print(caster))
-            return True
-
-    def in_ability_tree(self, rpg_class):
-        """
-        Returns true if this ability is found in the given class's ability tree, i.e. if the given class can learn this
-        ability through normal means.
-        """
-        ability_tree = rpg_class.ability_tree
-        for level in ability_tree:
-            if type(self) in ability_tree[level]:
-                return True
-        return False
-
     def color(self):
         return appearance.ability
 
@@ -179,13 +159,14 @@ class Ability(Object):
         cost_string = cost_string[:-2]
         return cost_string
 
-    def requirements_string(self):
-        string = ""
-        for requirement in self.db.requires:
-            stat, amt = requirement
-            string = string + f"{amt} {stat.capitalize()}, "
-        string = string[:-2]
-        return string
+    def func(self, caster, target=None):
+        """
+        Performs the ability's function.
+        Args:
+            caster: Entity calling the ability/spell.
+            target: Entity targeted, if any
+        """
+        pass
 
     def get_display_name(self, looker=None, capital=False, article=False, color=True, **kwargs):
         return self.color() + self.key + "|n"
@@ -193,17 +174,34 @@ class Ability(Object):
     def get_help(self):
         """Formats help entries for individual abilities."""
         return f"""
-{self.get_display_name()}
-{self.desc}
+        {self.get_display_name()}
+        {self.desc}
         
-|wRequires|n: {self.requirements_string()}
-|wCosts|n: {self.cost_string()}
+        |wRequires|n: {self.requirements_string()}
+        |wCosts|n: {self.cost_string()}
         
-|wRange|n: {self.db.range}{"\n|wDuration|n: " + str(self.db.duration) if self.attributes.has("duration") else ""}
-|wCooldown|n: {self.db.cooldown}s / {self.db.cooldown // SECS_PER_TURN}t
-        
-        """
+        |wRange|n: {self.db.range}{"\n|wDuration|n: " + str(self.db.duration) if self.attributes.has("duration") else ""}
+        |wCooldown|n: {self.db.cooldown}s / {self.db.cooldown // SECS_PER_TURN}t
 
+        """
+    def in_ability_tree(self, rpg_class):
+        """
+        Returns true if this ability is found in the given class's ability tree, i.e. if the given class can learn this
+        ability through normal means.
+        """
+        ability_tree = rpg_class.ability_tree
+        for level in ability_tree:
+            if type(self) in ability_tree[level]:
+                return True
+        return False
+
+    def requirements_string(self):
+        string = ""
+        for requirement in self.db.requires:
+            stat, amt = requirement
+            string = string + f"{amt} {stat.capitalize()}, "
+        string = string[:-2]
+        return string
 
 class TileAbility(Ability):
     def at_object_creation(self):
