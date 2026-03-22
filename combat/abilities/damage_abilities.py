@@ -186,7 +186,7 @@ class SpinningAssault(Ability):
         if not isinstance(weapon, Weapon):
             caster.msg("You don't have a weapon for this move!")
             return False
-        if not isinstance(weapon, TwoHanded):
+        if not inherits_from(weapon, TwoHanded):
             caster.msg("You need a two-handed weapon!")
             return False
         return True

@@ -67,7 +67,7 @@ TRAINING_SWORD = {
     "key": "training sword",
     "prototype_parent": "TRAINING_WEAPON",
     "typeclass": "typeclasses.inanimate.items.equipment.weapons.Sword",
-    "damage_ranges": {DamageTypes.SLASHING: (2, 3), DamageTypes.PIERCING: (2, 3)},
+    "damage_ranges": {DamageTypes.SLASHING: (4, 6)},
     "weight": Dec(5),
     "ap_to_attack": 2
 }
@@ -76,7 +76,7 @@ TRAINING_AXE = {
     "key": "training axe",
     "prototype_parent": "TRAINING_WEAPON",
     "typeclass": "typeclasses.inanimate.items.equipment.weapons.Axe",
-    "damage_ranges": {DamageTypes.SLASHING: (4, 6)},
+    "damage_ranges": {DamageTypes.SLASHING: (2, 3), DamageTypes.BLUNT: (2, 3)},
     "weight": Dec(6),
     "ap_to_attack": 2
 }
@@ -85,7 +85,7 @@ TRAINING_MACE = {
     "key": "training mace",
     "prototype_parent": "TRAINING_WEAPON",
     "typeclass": "typeclasses.inanimate.items.equipment.weapons.Mace",
-    "damage_ranges": {DamageTypes.BLUNT: (4, 6)},
+    "damage_ranges": {DamageTypes.BLUNT: (2, 3), DamageTypes.PIERCING: (2, 3)},
     "weight": Dec(6),
     "ap_to_attack": 2
 }
@@ -103,7 +103,7 @@ TRAINING_GREATSWORD = {
     "key": "training greatsword",
     "prototype_parent": "TRAINING_WEAPON",
     "typeclass": "typeclasses.inanimate.items.equipment.weapons.Greatsword",
-    "damage_ranges": {DamageTypes.SLASHING: (3, 4), DamageTypes.PIERCING: (3, 4)},
+    "damage_ranges": {DamageTypes.SLASHING: (6, 8)},
     "weight": Dec(8),
     "ap_to_attack": 3
 }
@@ -112,7 +112,7 @@ TRAINING_GREATAXE = {
     "key": "training greatsword",
     "prototype_parent": "TRAINING_WEAPON",
     "typeclass": "typeclasses.inanimate.items.equipment.weapons.Greatsword",
-    "damage_ranges": {DamageTypes.SLASHING: (6, 9)},
+    "damage_ranges": {DamageTypes.SLASHING: (3, 4), DamageTypes.BLUNT: (3, 4)},
     "weight": Dec(9),
     "ap_to_attack": 3
 }

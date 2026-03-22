@@ -167,7 +167,10 @@ class CombatAI(Script):
         return False
 
     def try_offensive_abilities(self):
-        """Looks for offensive abilities available to the entity, and casts them if possible."""
+        """Looks for offensive abilities available to the entity, and casts them if possible.
+
+        Returns:
+            (ability, target) if enough AP and a good target found, None if not"""
         entity = self.obj
         # Can't use offensive abilities during a Ceasefire - make another choice
         if entity.effect_active("Ceasefire"):
@@ -175,18 +178,28 @@ class CombatAI(Script):
 
         # Choose a random ability and a target
         offensive_abilities = [ability for ability in entity.db.abilities if ability.db.offensive]
+        # While there are candidates for abilities to cast
         while len(offensive_abilities) > 0:
+            # Start with a random ability
             ability = random.choice(offensive_abilities)
-            target = self.choose_target(ability)
-            if target:  # If a good target is found for this ability, and enough AP
-                if ability.check(caster=entity, target=self.choose_target(ability)):
-                    return ability, target
+            # Choose a target if necessary
+            if ability.db.targeted:
+                target = self.choose_target(ability)
+                if target:  # If a good target is found for this ability, and enough AP
+                    if ability.check(caster=entity, target=self.choose_target(ability)):
+                        return ability, target
+                    else:
+                        offensive_abilities.remove(ability)
+                else: # Remove from candidates
+                    offensive_abilities.remove(ability)
+            else: # If not a targeted ability, check we can cast it, and cast it
+                if ability.check(caster=entity, target=None):
+                    return ability, None
                 else:
                     offensive_abilities.remove(ability)
-            else:
-                offensive_abilities.remove(ability)
 
-        return
+        # If no ability returned and no candidates left
+        return None
 
     def try_attack(self):
         """Attempts to attack, or move closer if out of range."""
@@ -194,26 +207,26 @@ class CombatAI(Script):
 
         # Can't attack during Ceasefire
         if entity.effect_active("Ceasefire"):
-            return
+            return None
 
         # Tile effects that prevent attacking
         tile_effects = [eff.db.effect_key for eff in
                         entity.db.combat_turnhandler.db.grid.effects_at(entity.db.combat_x, entity.db.combat_y)]
         # Can't attack in a swarm
         if "Swarm" in tile_effects:
-            return
+            return None
 
         weapon = entity.get_weapon()
         target = self.choose_target(weapon)
 
         # In range? Move toward if not
         if entity.db.combat_ap < 1 and entity.db.combat_stepsleft < 1:
-            return
+            return None
         grid = entity.db.combat_turnhandler.db.grid
         if grid.distance(entity, target) > COMBAT.action_range(weapon):
             # Can't move when stuck
             if self.obj.effect_active("Stuck"):
-                return
+                return None
             direction_moved = grid.move_toward(entity, target)
             if direction_moved:
                 return direction_moved, target
