@@ -193,14 +193,15 @@ class SpinningAssault(Ability):
         return True
 
     def check_ai(self, caster, target):
+        """Check that there are multiple targets in range before AI decides to cast."""
         num_targets = 0
         for direction in combat_grid.DIRECTIONS:
             if caster.db.combat_turnhandler.db.grid.check_square(direction=direction, obj=caster):
                 num_targets += 1
-        if not num_targets:
-            return False
-        else:
+        if num_targets > 1:
             return True
+        else:
+            return False
 
     def func(self, caster, target=None):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} spins a circle with the weight of their"
