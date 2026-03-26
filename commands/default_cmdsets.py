@@ -37,7 +37,6 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         #
         # any commands you add below will overload the default ones.
         #
-        self.add(MyCmdHelp)
 
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
@@ -58,6 +57,7 @@ class AccountCmdSet(default_cmds.AccountCmdSet):
         #
         # any commands you add below will overload the default ones.
         #
+        self.add(MyCmdHelp)
         self.add(MyCmdColor)
         self.add(MyCmdQuit)
         self.add(MyCmdSessions)

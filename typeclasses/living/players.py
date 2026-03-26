@@ -1,7 +1,6 @@
 from evennia.utils import lazy_property
 
 from commands.character_cmdsets import PlayerCmdSet
-from commands.all_player_cmds.refiled_cmds import RefiledCmdSet
 from commands.overloaded_cmdset import OverloadedCmdSet
 from server import appearance
 from stats.char_stats import xp_threshold
@@ -38,6 +37,7 @@ class PlayerCharacter(Character):
         if not self.attributes.has("prefs", category="ooc"):
             self.attributes.add(key="prefs", value={"more_info": False}, category="ooc")
 
+        self.cmdset.add(PlayerCmdSet)
         self.cmdset.add(OverloadedCmdSet, persistent=True)
 
         self.update_base_stats()

@@ -24,6 +24,8 @@ several more options for customizing the Guest account system.
 
 from evennia.accounts.accounts import DefaultAccount, DefaultGuest
 
+from commands.default_cmdsets import AccountCmdSet
+
 
 # TODO: Change character creation and sign-in
 class Account(DefaultAccount):
@@ -137,7 +139,8 @@ class Account(DefaultAccount):
 
     """
 
-    pass
+    def at_account_creation(self):
+        self.cmdset.add(AccountCmdSet)
 
 
 class Guest(DefaultGuest):
