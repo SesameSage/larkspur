@@ -16,6 +16,7 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 
 from evennia import default_cmds
 
+from commands.all_player_cmds.account_cmds import OOCCmdSet
 from commands.all_player_cmds.info_cmds import MyCmdHelp
 from commands.all_player_cmds.refiled_cmds import *
 
@@ -57,6 +58,7 @@ class AccountCmdSet(default_cmds.AccountCmdSet):
         #
         # any commands you add below will overload the default ones.
         #
+        self.add(OOCCmdSet)
         self.add(MyCmdHelp)
         self.add(MyCmdColor)
         self.add(MyCmdQuit)
@@ -64,7 +66,6 @@ class AccountCmdSet(default_cmds.AccountCmdSet):
         self.add(MyCmdStyle)
         self.add(MyCmdWho)
         self.add(MyCmdPassword)
-        self.add(MyCmdIC)
         self.add(MyCmdOOC)
         self.add(MyCmdOption)
 

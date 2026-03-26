@@ -22,7 +22,8 @@ several more options for customizing the Guest account system.
 
 """
 
-from evennia.accounts.accounts import DefaultAccount, DefaultGuest
+from evennia.accounts.accounts import DefaultAccount, DefaultGuest, _MAX_NR_CHARACTERS
+from evennia.utils import is_iter
 
 from commands.default_cmdsets import AccountCmdSet
 
@@ -141,6 +142,121 @@ class Account(DefaultAccount):
 
     def at_account_creation(self):
         self.cmdset.add(AccountCmdSet)
+
+    # Organizes the main menu appearance
+    ooc_appearance_template = """
+    --------------------------------------------------------------------
+    {header}
+
+    {sessions}
+    
+    {characters}
+
+    |wplay|n - enter the game as your last character played
+    |wplay <name>|n - enter the game as character (|wooc|n to get back here)
+    |wcharcreate <name>|n - create new character
+    |wpublic <text>|n - talk on the public chat channel
+    |whelp|n - more commands
+
+    {footer}
+    --------------------------------------------------------------------
+    """
+
+    # Defines the out-of-character menu screen. Copied and changed for style
+    def at_look(self, target=None, session=None, **kwargs):
+        """
+        Called when this object executes a look. It allows to customize
+        just what this means.
+
+        Args:
+            target (Object or list, optional): An object or a list
+                objects to inspect. This is normally a list of characters.
+            session (Session, optional): The session doing this look.
+            **kwargs (dict): Arbitrary, optional arguments for users
+                overriding the call (unused by default).
+
+        Returns:
+            look_string (str): A prepared look string, ready to send
+                off to any recipient (usually to ourselves)
+
+        """
+
+        if target and not is_iter(target):
+            # single target - just show it
+            if hasattr(target, "return_appearance"):
+                return target.return_appearance(self)
+            else:
+                return f"{target} has no in-game appearance."
+
+        # multiple targets - this is a list of characters
+        characters = list(tar for tar in target if tar) if target else []
+        ncars = len(characters)
+        sessions = self.sessions.all()
+        nsess = len(sessions)
+
+        if not nsess:
+            # no sessions, nothing to report
+            return ""
+
+        # header text
+        txt_header = f"Account |g{self.name}|n"
+
+        # sessions
+        sess_strings = []
+        for isess, sess in enumerate(sessions):
+            ip_addr = sess.address[0] if isinstance(sess.address, tuple) else sess.address
+            addr = f"{sess.protocol_key} ({ip_addr})"
+            sess_str = (
+                f"|w     * {isess + 1}|n"
+                if session and session.sessid == sess.sessid
+                else f"  {isess + 1}"
+            )
+
+            sess_strings.append(f"{sess_str} {addr}")
+
+        txt_sessions = "|wConnected sessions:|n\n" + "\n".join(sess_strings)
+
+        if not characters:
+            txt_characters = "You don't have a character yet. Use |wcharcreate|n."
+        else:
+            max_chars = (
+                "unlimited"
+                if self.is_superuser or _MAX_NR_CHARACTERS is None
+                else _MAX_NR_CHARACTERS
+            )
+
+            char_strings = []
+            for char in characters:
+                rpg_class = "None" if char.db.rpg_class is None else char.db.rpg_class.__name__
+                csessions = char.sessions.all()
+                if csessions:
+                    for sess in csessions:
+                        # character is already puppeted
+                        sid = sess in sessions and sessions.index(sess) + 1
+                        if sess and sid:
+                            char_strings.append(
+                                f" - |G{char.name}|n ({rpg_class})"
+                                f"(played by you in session {sid})"
+                            )
+                        else:
+                            char_strings.append(
+                                f" - |R{char.name}|n ({rpg_class})"
+                                "(played by someone else)"
+                            )
+                else:
+                    # character is "free to puppet"
+                    char_strings.append(f"    - |550{char.name}|n ({rpg_class})")
+
+            txt_characters = (
+                f"|wAvailable characters:|n ({ncars}/{max_chars})\n"
+                + "\n".join(char_strings)
+            )
+        return self.ooc_appearance_template.format(
+            header=txt_header,
+            sessions=txt_sessions,
+            characters=txt_characters,
+            footer="",
+        )
 
 
 class Guest(DefaultGuest):
