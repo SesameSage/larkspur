@@ -10,6 +10,7 @@ from commands.all_player_cmds.item_cmds import ItemCmdSet
 from commands.all_player_cmds.refiled_cmds import RefiledCmdSet
 from commands.all_player_cmds.stats_cmds import StatsCmdSet
 from commands.perm_cmds.building_cmds import BuildingCmdSet
+from commands.perm_cmds.cheat_cmds import CheatCmdSet
 from commands.perm_cmds.game_data_cmds import GameDataCmdSet
 from commands.perm_cmds.location_data_cmds import LocationCmdSet
 from commands.perm_cmds.object_data_cmds import ObjectDataCmdSet
@@ -45,5 +46,6 @@ class PlayerCmdSet(CmdSet):
         self.add(LocationCmdSet)
         self.add(QuestBuildCmdSet)
         self.add(ObjectDataCmdSet)
+        self.add(CheatCmdSet)
 
 

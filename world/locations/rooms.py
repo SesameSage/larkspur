@@ -59,8 +59,6 @@ class Room(Object, DefaultRoom):
             if content.db.hostile_to_players:
                 delay(1, content.db.ai.start_fight)
 
-
-
     # <editor-fold desc="Properties">
     @lazy_property
     def x(self):
