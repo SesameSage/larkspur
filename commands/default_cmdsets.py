@@ -66,7 +66,6 @@ class AccountCmdSet(default_cmds.AccountCmdSet):
         self.add(MyCmdStyle)
         self.add(MyCmdWho)
         self.add(MyCmdPassword)
-        self.add(MyCmdOOC)
         self.add(MyCmdOption)
 
 

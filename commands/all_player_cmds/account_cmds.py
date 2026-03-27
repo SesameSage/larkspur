@@ -1,6 +1,18 @@
 from evennia.commands.cmdset import CmdSet
-from evennia.commands.default.account import CmdIC
+from evennia.commands.default.account import CmdIC, CmdOOC
 
+
+class CmdMainMenu(CmdOOC):
+    """
+    return to the character selection screen
+
+    Usage:
+      mainmenu
+      menu
+    """
+    key = "mainmenu"
+    aliases = ("menu",)
+    help_category = "account"
 
 class CmdPlay(CmdIC):
     """
@@ -18,4 +30,5 @@ class CmdPlay(CmdIC):
 class OOCCmdSet(CmdSet):
     def at_cmdset_creation(self):
         super().at_cmdset_creation()
+        self.add(CmdMainMenu())
         self.add(CmdPlay())

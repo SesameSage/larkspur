@@ -153,7 +153,7 @@ class Account(DefaultAccount):
     {characters}
 
     |wplay|n - enter the game as your last character played
-    |wplay <name>|n - enter the game as character (|wooc|n to get back here)
+    |wplay <name>|n - enter the game as character (|wmainmenu|n to get back here)
     |wcharcreate <name>|n - create new character
     |wpublic <text>|n - talk on the public chat channel
     |whelp|n - more commands
