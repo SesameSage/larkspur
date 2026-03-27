@@ -563,7 +563,7 @@ class CombatEntity(EquipmentEntity):
     def attack(self, target):
         weapon = self.get_weapon()
         if not COMBAT.check_range(self, target, weapon):
-            return
+            return False
 
         COMBAT.start_join_fight(self, target, weapon)
         COMBAT.resolve_attack(self, target, attack=weapon)
@@ -571,6 +571,7 @@ class CombatEntity(EquipmentEntity):
         # Unless that ends the fight, spend an action
         if self.is_in_combat():
             self.db.combat_turnhandler.spend_action(self, self.ap_to_attack(), action_name="attack")
+        return True
 
     def apply_damage(self, damages):
         """

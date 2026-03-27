@@ -55,6 +55,11 @@ class Room(Object, DefaultRoom):
         for content in self.contents:
             if content.db.auto_lines:
                 delay(1, content.say_auto_lines, moved_obj)
+            # Start a battle with any hostiles in the room when a player enters
+            if content.db.hostile_to_players:
+                delay(1, content.db.ai.start_fight)
+
+
 
     # <editor-fold desc="Properties">
     @lazy_property

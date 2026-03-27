@@ -21,6 +21,16 @@ class CombatAI(Script):
             self.key = self.__class__.__name__
             self.obj.db.ai = self
 
+    def start_fight(self):
+        """Defines the first combat action the entity makes when a player enters the room. By default, attacks."""
+        # Attack the first target we see
+        for content in self.obj.location.contents:
+            if content.attributes.has("hostile_to_players") and not content.db.hostile_to_players:
+                # If we can successfully attack, stop there
+                if self.obj.attack(content):
+                    break
+
+
     def take_turn(self):
         """While the entity has AP remaining, choose and perform an action. This repeats until perform_action() stops
         calling it back and it returns."""
