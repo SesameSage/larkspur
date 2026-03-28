@@ -21,7 +21,7 @@ from world.world_constants import DEFAULT_TALK_RESPONSES
 
 class Character(LivingEntity, Talkable):
     """
-    A named living thing that does not die and can be talked to.
+    A named living thing that does not die (by default) and can be talked to.
     """
 
     def at_object_creation(self):
@@ -29,9 +29,6 @@ class Character(LivingEntity, Talkable):
         self.db.unique_name = True
         self.db.talk_responses = {0: {0: [random.choice(DEFAULT_TALK_RESPONSES)]}}
         self.db.dies = False
-
-    def color(self):
-        return appearance.character
 
     def say(self, msg):
         self.at_say(message=msg, msg_self=True)

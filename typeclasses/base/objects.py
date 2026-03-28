@@ -226,7 +226,7 @@ class Object(ObjectParent, DefaultObject):
 
     def at_object_creation(self):
         super().at_object_creation()
-        self.db.unique_name = False  # For now, largely just affects capitalization
+        self.db.unique_name = False  # Affects capitalization and insertion of articles
         self.db.plural_name = False
         self.db.long_desc = None
 
