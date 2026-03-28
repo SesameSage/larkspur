@@ -1,12 +1,14 @@
+import math
 from random import randint
 
 from evennia.utils import inherits_from
 from evennia.utils.create import create_script
 
-from combat.combat_constants import PERCEPT_TO_ACCURACY_BONUS
+from combat.combat_constants import PERCEPT_TO_ACCURACY_BONUS, RAIN_FIRE_DMG_REDUCTION
 from combat.combat_constants import DamageTypes
 from server import appearance
 from server.appearance import dmg_color
+from typeclasses.scripts.weather import RAINING
 
 
 class CombatHandler:
@@ -176,7 +178,8 @@ class CombatHandler:
 
     def apply_damage_amt_effects(self, attacker, defender, damage_values):
         """
-        Applies to the given damage_values any effects on the attacker or defender that increase or decrease damage.
+        Applies to the given damage_values any effects on the attacker, defender, or environment that increase or
+        decrease damage.
 
         Args:
             attacker (CombatEntity): Entity attacking
@@ -186,6 +189,14 @@ class CombatHandler:
         Returns:
             Adjusted damage values to pass to the defender's get_damage_taken method.
         """
+        # Apply environment effects
+        if DamageTypes.FIRE in damage_values:
+            if defender.location.zone().db.current_weather == RAINING:
+                original_dmg = damage_values[DamageTypes.FIRE]
+                damage_values[DamageTypes.FIRE] = int(damage_values[DamageTypes.FIRE] * RAIN_FIRE_DMG_REDUCTION)
+                defender.location.more_info(f"{math.ceil(RAIN_FIRE_DMG_REDUCTION * 100)}% fire damage due to rain = "
+                                            f"{original_dmg} to {damage_values[DamageTypes.FIRE]} dmg")
+
         # Apply attacker's relevant effects
         for damage_type in DamageTypes:
             effect_amt = 0
@@ -240,7 +251,7 @@ class CombatHandler:
                     defender.location.more_info(f"-{defense}{type_name} damage from defense")
 
             # Get resistance for magical/other damage
-            elif damage_type in [DamageTypes.FIRE, DamageTypes.COLD, DamageTypes.SHOCK, DamageTypes.POISON]:
+            elif damage_type in [DamageTypes.FIRE, DamageTypes.COLD, DamageTypes.SHOCK]:
                 resistance = defender.get_resistance(damage_type)
                 damage -= resistance
                 if resistance > 0:
@@ -352,6 +363,7 @@ class CombatHandler:
                     and defender.db.rpg_class.__name__ == "Monk" and defender.db.combat_lastaction == "pass"):
                 attacker.location.msg_contents(f"{defender.get_display_name(capital=True)} counterattacks!")
                 defender.attack(attacker)
+
             if defender.effect_active("Retaliation"):
                 effect = defender.db.effects["Retaliation"]
                 retal_damage = self.get_damage_taken(attacker, {effect["damage_type"]: effect["amount"]})
@@ -359,17 +371,20 @@ class CombatHandler:
                 defender.location.msg_contents(f"{attacker.get_display_name(capital=True)} takes "
                                                f"{retal_damage[effect["damage_type"]]} damage from "
                                                f"{defender.get_display_name()}'s {appearance.effect}Retaliation|n!")
+
             if attacker.effect_active("Cursed"):
                 amount = attacker.db.effects["Cursed"]["amount"]
                 attacker.apply_damage({DamageTypes.ARCANE: amount})
                 attacker.location.msg_contents(f"{attacker.get_display_name(capital=True)} takes {amount} damage from "
                                                f"their curse!")
+
             if attacker.effect_active("Siphon HP"):
                 siphoned = int(total_damage / 3)
                 attacker.db.hp += siphoned
                 attacker.location.msg_contents(f"{attacker.get_display_name(capital=True)} siphons {siphoned} HP from "
                                                f"{defender.get_display_name()}!")
                 attacker.cap_stats()
+
             if attacker.effect_active("Siphon Mana"):
                 siphoned = int(total_damage / 2)
                 attacker.db.mana += siphoned
@@ -377,6 +392,7 @@ class CombatHandler:
                     f"{attacker.get_display_name(capital=True)} siphons {siphoned} mana from "
                     f"{defender.get_display_name()}!")
                 attacker.cap_stats()
+
             if attacker.effect_active("Siphon Stamina"):
                 siphoned = int(total_damage / 2)
                 if attacker.db.stamina < siphoned:

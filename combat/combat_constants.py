@@ -1,4 +1,5 @@
 from enum import Enum
+from decimal import Decimal as Dec
 
 class DamageTypes(Enum):
     BLUNT = 1
@@ -38,5 +39,6 @@ PERCEPT_TO_ACCURACY_BONUS = {  # How much is added to character's hit rolls by t
     4: 20,
     5: 25
 }
+RAIN_FIRE_DMG_REDUCTION = Dec(0.7)  # What percentage fire damage should be reduced to in the rain
 
 
