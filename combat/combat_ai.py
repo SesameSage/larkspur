@@ -27,8 +27,7 @@ class CombatAI(Script):
         for content in self.obj.location.contents:
             if content.attributes.has("hostile_to_players") and not content.db.hostile_to_players:
                 # If we can successfully attack, stop there
-                if self.obj.attack(content):
-                    break
+                COMBAT.start_join_fight(attacker=self.obj, target=content, action=self.obj.get_weapon())
 
 
     def take_turn(self):

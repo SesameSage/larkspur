@@ -1,4 +1,4 @@
-from evennia.utils import lazy_property
+from evennia.utils import lazy_property, delay
 
 from commands.character_cmdsets import PlayerCmdSet
 from commands.overloaded_cmdset import OverloadedCmdSet

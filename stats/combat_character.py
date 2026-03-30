@@ -504,6 +504,7 @@ class CombatEntity(EquipmentEntity):
     def start_fight_with(self, target, action):
         if not self.is_in_combat():
             COMBAT.start_join_fight(self, target, action)
+            target.location.more_info("run from start_fight_with")
 
     def combat_symbol(self):
         return self.color() + self.name[0] + "|n"
@@ -571,6 +572,7 @@ class CombatEntity(EquipmentEntity):
         # Unless that ends the fight, spend an action
         if self.is_in_combat():
             self.db.combat_turnhandler.spend_action(self, self.ap_to_attack(), action_name="attack")
+            self.db.combat_lastaction = "attack"
         return True
 
     def apply_damage(self, damages):
