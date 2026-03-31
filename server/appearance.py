@@ -37,7 +37,7 @@ bad_effect = "|411"
 good_damage = "|350"
 bad_damage = "|510"
 
-door = "|[111"
+door = "|[431"
 
 ENVIRONMENTS_BY_TYPE = {
     "grass": ["field", "meadow", "garden"],

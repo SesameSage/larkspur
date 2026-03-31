@@ -44,4 +44,6 @@ class Exit(Object, DefaultExit):
 
 
 class Door(Exit, SimpleDoor):
-    pass
+    def at_object_creation(self, **kwargs):
+        super().at_object_creation()
+        self.locks.add("traverse:false()")

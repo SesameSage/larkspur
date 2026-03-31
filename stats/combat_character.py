@@ -15,6 +15,7 @@ from typeclasses.inanimate.items.equipment.equipment import EquipmentEntity
 from typeclasses.living.corpses import make_corpse, set_to_respawn
 from world.quests.quest import quest_desc
 
+# TODO: Track character-gained max hp/mana/stamina separately from base so that everyone's changes when base changes
 
 class CombatEntity(EquipmentEntity):
     """
