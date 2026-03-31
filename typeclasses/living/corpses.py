@@ -1,4 +1,4 @@
-from evennia.utils.create import create_object
+from evennia.utils.create import create_object, ObjectDB
 
 from server import appearance
 from typeclasses.inanimate.items.containers import Container
@@ -24,8 +24,10 @@ def make_corpse(entity):
 
     corpse = create_object(typeclass=Corpse, key=key, location=entity.location)
 
+    # Copy entity's items over to the corpse
     for item in contents:
-        item.move_to(corpse, quiet=True)
+        new_item = ObjectDB.objects.copy_object(item)
+        new_item.move_to(corpse, quiet=True)
 
 
 def set_to_respawn(entity):

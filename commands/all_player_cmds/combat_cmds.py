@@ -39,6 +39,7 @@ class CmdAttack(Command):
             if len(valid_targets) > 1:
                 attacker.msg("Attack whom? " + str(valid_targets))
                 return
+            # TODO: no valid targets
             else:
                 target = valid_targets[0]
         else:

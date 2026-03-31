@@ -12,7 +12,7 @@ from server import appearance
 from typeclasses.scripts.scripts import Script
 
 TURN_TIMEOUT = 30  # Time before turns automatically end, in seconds
-
+# TODO: Battle ending twice on enemy defeat
 
 class TurnHandler(Script):
     """
