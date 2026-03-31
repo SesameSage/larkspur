@@ -6,6 +6,8 @@ set and has a single command defined on itself with the same name as its key,
 for allowing Characters to traverse the exit to its destination.
 
 """
+# TODO: Doors open per player
+
 from evennia.contrib.grid.simpledoor import SimpleDoor
 from evennia.objects.objects import DefaultExit
 

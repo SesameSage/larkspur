@@ -18,6 +18,7 @@ class CmdEndCombat(MuxCommand):
         for script in room.scripts.all():
             if script.attributes.has("round"):
                 script.delete()
+                room.msg_contents("Combat ended!")
                 break
 
 class CheatCmdSet(CmdSet):
