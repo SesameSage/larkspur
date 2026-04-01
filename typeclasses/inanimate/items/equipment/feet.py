@@ -2,12 +2,18 @@ from typeclasses.inanimate.items.equipment.apparel import Footwear
 
 
 class Footwraps(Footwear):
-    pass
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.aliases.add("wraps")
 
 
 class Boots(Footwear):
-    pass
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.aliases.add("boots")
 
 
 class Shoes(Footwear):
-    pass
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.aliases.add("shoes")

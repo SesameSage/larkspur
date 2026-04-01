@@ -2,11 +2,15 @@ from typeclasses.inanimate.items.equipment.apparel import Bodywear
 
 
 class Cape(Bodywear):
-    pass
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.aliases.add("cape")
 
 
 class Robe(Bodywear):
-    pass
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.aliases.add("robe")
 
 
 class Fur(Bodywear):

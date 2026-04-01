@@ -2,12 +2,18 @@ from typeclasses.inanimate.items.equipment.apparel import Headwear
 
 
 class Helmet(Headwear):
-    pass
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.aliases.add("helmet")
 
 
 class Hood(Headwear):
-    pass
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.aliases.add("hood")
 
 
 class Circlet(Headwear):
-    pass
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.aliases.add("circlet")

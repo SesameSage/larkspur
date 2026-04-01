@@ -2,7 +2,9 @@ from typeclasses.inanimate.items.equipment.apparel import Neckwear
 
 
 class Necklace(Neckwear):
-    pass
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.aliases.add("necklace")
 
 
 class Choker(Neckwear):

@@ -99,6 +99,8 @@ class Legwear(Apparel):
     def at_object_creation(self):
         super().at_object_creation()
         self.db.equipment_slot = "legs"
+        self.db.plural_name = True
+        self.aliases.add("pants")
 
 
 class Footwear(Apparel):

@@ -43,11 +43,15 @@ class Sword(OneHanded):
 
 
 class Greatsword(TwoHanded):
-    pass
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.aliases.add("sword")
 
 
 class Handaxe(OneHanded):
-    pass
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.aliases.add("axe")
 
 
 class Mace(OneHanded):
@@ -55,11 +59,15 @@ class Mace(OneHanded):
 
 
 class Warhammer(TwoHanded):
-    pass
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.aliases.add("hammer")
 
 
 class Greataxe(TwoHanded):
-    pass
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.aliases.add("axe")
 
 
 class Dagger(OneHanded):
@@ -67,7 +75,9 @@ class Dagger(OneHanded):
 
 
 class Quarterstaff(TwoHanded):
-    pass
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.aliases.add("staff")
 
 
 class Javelin(ThrownWeapon):
