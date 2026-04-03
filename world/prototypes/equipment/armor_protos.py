@@ -19,7 +19,7 @@ KINETIC_FOOTWRAPS = {
     "evasion": 10,
     "equip_effects": {
         "Max Stamina": 10,
-        "Dexterity": 2
+        "+Dexterity": 2
     }
 }
 HIDE_BRACERS = {
