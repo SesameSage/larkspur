@@ -120,7 +120,10 @@ class StatMod(EffectScript):
         super().pre_effect_add()
         if self.db.amount:
             try:
+                # The += on its own was causing the amounts to be doubled, although I can't find where else the
+                # amount is being added that makes this duplicative. This should be here
                 self.obj.db.effects[self.db.effect_key]["amount"] += self.db.amount
+                self.obj.db.effects[self.db.effect_key]["amount"] -= self.db.amount
             except KeyError:
                 self.obj.db.effects[self.db.effect_key]["amount"] = self.db.amount
         if not self.attributes.has("stat"):
