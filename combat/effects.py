@@ -132,7 +132,7 @@ class StatMod(EffectScript):
             if self.obj.db.effects[self.db.effect_key]["amount"] <= self.db.amount:
                 del self.obj.db.effects[self.db.effect_key]
             else:
-                self.obj.db.effects[self.db.effect_key] -= self.db.amount
+                self.obj.db.effects[self.db.effect_key]["amount"] -= self.db.amount
         except KeyError:
             pass
         return True
