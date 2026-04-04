@@ -200,6 +200,7 @@ class DirCmd(MuxCommand):
     help_category = ""
 
     def func(self):
+        # Out of combat
         if not self.caller.is_in_combat():
             found_exit = False
             for ext in self.caller.location.exits:
@@ -208,11 +209,13 @@ class DirCmd(MuxCommand):
                     found_exit = True
             if not found_exit:
                 self.caller.msg("You can't go that way.")
+        # In combat
         else:
             if self.caller.effect_active("Pinned"):
                 self.caller.msg("You're pinned!")
                 return
-            self.caller.db.combat_turnhandler.db.grid.step(self.caller, self.aliases[0])
+            if self.caller.db.combat_turnhandler.db.grid.step(self.caller, self.aliases[0]):
+                self.caller.location.msg_contents(f"{self.caller.get_display_name(capital=True)} moves {self.key}.")
             self.caller.db.combat_turnhandler.turn_end_check(self.caller)
 
 
