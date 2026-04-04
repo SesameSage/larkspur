@@ -234,8 +234,8 @@ class CombatAI(Script):
             return None
         grid = entity.db.combat_turnhandler.db.grid
         if grid.distance(entity, target) > COMBAT.action_range(weapon):
-            # Can't move when stuck
-            if self.obj.effect_active("Stuck"):
+            # Can't move when pinned
+            if self.obj.effect_active("Pinned"):
                 return None
             direction_moved = grid.move_toward(entity, target)
             if direction_moved:

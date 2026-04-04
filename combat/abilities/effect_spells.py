@@ -103,7 +103,7 @@ class Roots(Spell):
 
     def func(self, caster: LivingEntity, target: Object = None):
         target.location.msg_contents(f"Roots rise from the soil and hold {target.get_display_name()} in place!")
-        target.add_effect(typeclass=DurationEffect, attributes=[("effect_key", "Stuck"), ("duration", self.db.duration),
+        target.add_effect(typeclass=DurationEffect, attributes=[("effect_key", "Pinned"), ("duration", self.db.duration),
                                                                 ("source", self.get_display_name())])
 
 class Wither(Spell):

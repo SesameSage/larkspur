@@ -63,6 +63,35 @@ class NeutralizingHum(Ability):
 
         return True
 
+class PinningShot(Ability):
+    key = "Pinning Shot"
+    desc = "Attempt to temporarily prevent an enemy from moving."
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.targeted = True
+        self.db.range = 10
+
+        self.db.requires = [("Perception", 3)]
+        self.db.ap_cost = 2
+        self.db.cost = [("stamina", 6)]
+
+        self.db.duration = 2
+        self.db.cooldown = 6
+
+    def func(self, caster, target=None):
+        caster.location.msg_contents(f"{caster.get_display_name(capital=True)} fires a shot at the feet of "
+                                     f"{target.get_display_name(article=True)}!")
+
+        attributes = [("effect_key", "Pinned"), ("duration", 2 * SECS_PER_TURN), ("source", self.get_display_name())]
+        caster_roll = caster.get_attr("perception") + randint(1, 25)
+        caster.location.more_info("Caster roll "+ str(caster_roll))
+        target_roll = caster.get_defense() + randint(1, 25)
+        target.location.more_info("Target roll "+ str(target_roll))
+        if caster_roll > target_roll:
+            target.add_effect(typeclass=DurationEffect, attributes=attributes, stack=False)
+        else:
+            target.location.msg_contents(f"Failed to pin!")
 
 class SolarPlexusStrike(Ability):
     key = "Solar Plexus Strike"
@@ -88,7 +117,8 @@ class SolarPlexusStrike(Ability):
 
         target.location.msg_contents(f"{caster.get_display_name(capital=True)} strikes at the center of power in "
                                      f"{target.get_display_name()}'s body!")
-        attributes = [("effect_key", "-Damage"), ("amount", -5), ("duration", 4 * SECS_PER_TURN), ("source", self.get_display_name())]
+        attributes = [("effect_key", "-Damage"), ("amount", -5), ("duration", 4 * SECS_PER_TURN),
+                      ("source", self.get_display_name())]
         target.add_effect(typeclass=TimedStatMod, stack=True, attributes=attributes)
 
         if target.get_attr("con") < 1.25 * caster.get_attr("dex"):

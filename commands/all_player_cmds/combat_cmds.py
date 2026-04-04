@@ -51,7 +51,6 @@ class CmdAttack(Command):
                 return
 
         COMBAT.start_join_fight(attacker, target, attacker.get_weapon())
-        attacker.location.more_info("run from cmdattack")
 
         # Wait to check this until after start_join_fight to make sure combat_ap is accessible
         if attacker.db.combat_ap < attacker.ap_to_attack():
@@ -139,7 +138,6 @@ class CmdCast(MuxCommand):
             # If offensive, start/join a fight if applicable and not already in one
             if ability.db.offensive:
                 COMBAT.start_join_fight(self.caller, target, ability)
-                target.location.more_info("run from cmdcast")
 
             ability.cast(caster=self.caller, target=target)
 
@@ -211,8 +209,8 @@ class DirCmd(MuxCommand):
             if not found_exit:
                 self.caller.msg("You can't go that way.")
         else:
-            if self.caller.effect_active("Stuck"):
-                self.caller.msg("You're stuck!")
+            if self.caller.effect_active("Pinned"):
+                self.caller.msg("You're pinned!")
                 return
             self.caller.db.combat_turnhandler.db.grid.step(self.caller, self.aliases[0])
             self.caller.db.combat_turnhandler.turn_end_check(self.caller)
