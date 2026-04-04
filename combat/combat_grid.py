@@ -345,7 +345,7 @@ class CombatGrid(Script):
         :return: True if movement was successful, False if stopped.
         """
         if not self.validate_object(obj):
-            return
+            return False
 
         if self.check_collision(x, y, displace):
             obj.msg("The way is blocked!")
@@ -359,7 +359,7 @@ class CombatGrid(Script):
                 if obj.db.combat_ap > 0 or obj.db.combat_stepsleft > 0:
                     obj.msg(self.print(obj))
             else:
-                obj.msg(self.print(obj))
+                obj.msg(self.print(obj)) # Show the player the new grid
             return True
 
     def move_toward(self, obj, target, away=False):

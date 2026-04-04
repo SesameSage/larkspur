@@ -5,6 +5,7 @@ import evennia
 from evennia.scripts.tickerhandler import TICKER_HANDLER as tickerhandler
 from evennia.utils import inherits_from
 
+from combat.combat_constants import DIRECTION_NAMES_OPPOSITES
 from combat.combat_handler import COMBAT
 from combat.effects import EffectScript, DurationEffect
 from server import appearance
@@ -554,7 +555,9 @@ class CombatEntity(EquipmentEntity):
         ext = exts[0]
         if self.is_in_combat():
             turn_handler = self.db.combat_turnhandler
-            turn_handler.db.grid.step(obj=self, direction=ext.key[0])
+            if turn_handler.db.grid.step(obj=self, direction=ext.key[0]):
+                self.location.msg_contents(f"{self.get_display_name(capital=True)} "
+                                           f"moves {DIRECTION_NAMES_OPPOSITES[ext.key[0]][0]}.")
             turn_handler.turn_end_check(self)
             return False
         if self.db.HP <= 0:
