@@ -195,6 +195,7 @@ class Vendor(Character):
         table = EvTable("Item", "Type", "Cost", pretty_corners=True)
         for item in self.db.stock:
             table.add_row(item.get_display_name(), item.__class__.__name__, appearance.gold + str(self.db.stock[item]))
+        player.msg(f"{self.get_display_name(capital=True, article=True)} is selling:")
         player.msg(table)
 
     def sell_item(self, player, input):
