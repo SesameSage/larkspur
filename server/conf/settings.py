@@ -57,8 +57,11 @@ CMDSET_FALLBACKS = {
 
 PROTOTYPE_MODULES = ["world.prototypes.prototypes", "world.prototypes.entity_protos", "world.prototypes.item_protos",
                      "world.prototypes.equipment.weapon_protos", "world.prototypes.consumable_protos",
-                     "world.prototypes.equipment.armor_protos", "world.prototypes.equipment.apparel_protos",
-                     "world.prototypes.equipment.equipment_protos", "world.prototypes.usable_protos"]
+                     "world.prototypes.equipment.apparel_protos", "world.prototypes.equipment.equipment_protos",
+                     "world.prototypes.usable_protos", "world.prototypes.armor_protos.arm_protos",
+                     "world.prototypes.armor_protos.footwear_protos", "world.prototypes.armor_protos.headwear_protos",
+                     "world.prototypes.armor_protos.legwear_protos", "world.prototypes.armor_protos.torso_protos",
+                     "world.prototypes.armor_protos.waist_protos"]
 FILE_HELP_ENTRY_MODULES = ["world.help.help_entries", "world.help.help_combat", "world.help.help_characters",
                            "world.help.help_items", "world.help.help_ooc", "world.help.help_builders"]
 
