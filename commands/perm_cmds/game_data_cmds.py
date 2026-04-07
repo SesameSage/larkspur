@@ -582,7 +582,9 @@ class CmdStock(MuxCommand):
             stock/cost poison arrow = 10
 
         Edit what a vendor NPC has to sell. When adding items using the item name instead of a prototype
-        name, the item must be in the room or on the vendor's person."""
+        name, the item must be in the room or on the vendor's person. When removing items, keep in mind that they are
+        found by search by the vendor, so the recognition may fail if there is more than one result for the query.
+        """
     key = "@stock"
     switch_options = ("remove", "cost")
     locks = "cmd:perm(stock) or perm(Developer)"
@@ -618,7 +620,7 @@ class CmdStock(MuxCommand):
         if self.switches:
             item = vendor.search(item_input)
             if not item:
-                self.caller.msg(f"Couldn't find an item matching '{item_input}'")
+                self.caller.msg(f"Couldn't find an item matching '{item_input}', or found more than one")
                 return
 
         # Add, remove, or edit info

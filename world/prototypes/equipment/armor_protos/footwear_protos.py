@@ -15,3 +15,10 @@ KINETIC_FOOTWRAPS = {
         "+Dexterity": 2
     }
 }
+STEEL_GREAVES = {
+    "key": "steel greaves",
+    "typeclass": "typeclasses.inanimate.items.equipment.feet.Boots",
+    "weight": Dec(5),
+    "defense": {None: 10},
+    "heavy": True,
+}

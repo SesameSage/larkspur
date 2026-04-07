@@ -16,6 +16,7 @@ class Apparel(Equipment):
         self.db.evasion = 0
         self.db.defense = {None: 0, DamageTypes.BLUNT: 0, DamageTypes.SLASHING: 0, DamageTypes.PIERCING: 0}
         self.db.resistance = {None: 0, DamageTypes.FIRE: 0, DamageTypes.COLD: 0, DamageTypes.SHOCK: 0}
+        self.db.heavy = False
 
     def at_pre_drop(self, dropper, **kwargs):
         """

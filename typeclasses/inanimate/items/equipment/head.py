@@ -1,6 +1,5 @@
 from typeclasses.inanimate.items.equipment.apparel import Headwear
 
-
 class Helmet(Headwear):
     def at_object_creation(self):
         super().at_object_creation()
