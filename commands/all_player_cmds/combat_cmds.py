@@ -211,6 +211,10 @@ class DirCmd(MuxCommand):
                 self.caller.msg("You can't go that way.")
         # In combat
         else:
+            self.caller.msg(self.key)
+            if self.key in ("up", "down"):
+                self.caller.msg("Can't change rooms during a fight!")
+                return
             if self.caller.effect_active("Pinned"):
                 self.caller.msg("You're pinned!")
                 return
@@ -257,6 +261,15 @@ class CmdSouthwest(DirCmd):
 class CmdSoutheast(DirCmd):
     key = "southeast"
     aliases = ["se"]
+
+
+class CmdUp(DirCmd):
+    key = "up"
+
+
+class CmdDown(DirCmd):
+    key = "down"
+    aliases = ["d"]
 
 
 # </editor-fold>
@@ -353,3 +366,5 @@ class BattleCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdNorthwest)
         self.add(CmdSoutheast)
         self.add(CmdSouthwest)
+        self.add(CmdUp)
+        self.add(CmdDown)

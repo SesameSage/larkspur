@@ -554,6 +554,9 @@ class CombatEntity(EquipmentEntity):
             return True
         ext = exts[0]
         if self.is_in_combat():
+            if ext.key in ("up", "down") or "up" in ext.aliases.all() or "down" in ext.aliases.all():
+                self.msg("Can't change rooms during a fight!")
+                return False
             turn_handler = self.db.combat_turnhandler
             if turn_handler.db.grid.step(obj=self, direction=ext.key[0]):
                 self.location.msg_contents(f"{self.get_display_name(capital=True)} "
