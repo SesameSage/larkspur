@@ -40,7 +40,7 @@ class Firebolt(Spell):
         if hit_result and DamageTypes.FIRE in damage_values and damage_values[DamageTypes.FIRE] > 0:
             # Inflict burning only if the fire damage is not fully resisted
             # TODO: Should immunity to effects be separate?
-            if randint(1,100) + (2 * caster.get_attr("spirit")) > 80: # 20% chance to burn + spirit bonus
+            if randint(1,100) + (2 * caster.get_attr("spirit")) > 0: # 20% chance to burn + spirit bonus
                 target.add_effect(Burning,
                                   [("range", (1, 1)), ("duration", 3 * SECS_PER_TURN)])
 

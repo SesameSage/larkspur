@@ -1,3 +1,5 @@
+import random
+
 from evennia.utils import inherits_from
 
 from combat.combat_handler import COMBAT
@@ -158,6 +160,10 @@ class Ability(Object):
         """
         return True
 
+    def choose_target(self, caster, in_range_targets):
+        target = random.choice(in_range_targets)
+        return target
+
     def color(self):
         return appearance.ability
 
@@ -196,6 +202,7 @@ class Ability(Object):
         |wCooldown|n: {self.db.cooldown}s / {self.db.cooldown // SECS_PER_TURN}t
 
         """
+
     def in_ability_tree(self, rpg_class):
         """
         Returns true if this ability is found in the given class's ability tree, i.e. if the given class can learn this

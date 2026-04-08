@@ -87,6 +87,19 @@ class OilSplash(Ability):
         self.db.cost = [("stamina", 3)]
         self.db.cooldown = 3 * SECS_PER_TURN
 
+    def choose_target(self, caster, in_range_targets):
+        for potential_target in in_range_targets:
+            if potential_target.effect_active("Burning"):
+                return potential_target
+        return None
+
+    def check_ai(self, caster, target):
+        super().check_ai(caster, target)
+        if target.effect_active("Burning"):
+            return True
+        else:
+            return False
+
     def func(self, caster, target=None):
         target.location.msg_contents(f"{caster.get_display_name(capital=True)} splashes oil on {target.get_display_name()}!")
         if target.effect_active("Burning"):
@@ -95,8 +108,10 @@ class OilSplash(Ability):
             target.location.msg_contents(f"{target.get_display_name(capital=True)} takes {appearance.dmg_color(target)}"
                                          f"{dmg} fire damage!")
         else:
-            target.location.msg_contents(f"{target.get_display_name(capital=True)} becomes very slippery, but nothing"
+            target.location.msg_contents(f"{target.get_display_name(capital=True)} becomes very slippery, but nothing "
                                          f"else happens!")
+
+
 
 
 class Scratch(Ability):

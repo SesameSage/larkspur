@@ -1,6 +1,6 @@
 import random
 
-from evennia.utils import delay
+from evennia.utils import delay, inherits_from
 
 from combat.abilities.abilities import Ability
 from combat.abilities.all_abilities import HEALING_ABILITIES
@@ -80,6 +80,7 @@ class CombatAI(Script):
 
     def choose_target(self, action):
         """By default, chooses a random fighter on the enemy side for offensive moves, or self for non-offensive."""
+        # TODO: Target selection for tile abilities
         entity = self.obj
         weapon = entity.get_weapon()
 
@@ -102,7 +103,11 @@ class CombatAI(Script):
 
             # Fighters in range
             if len(in_range_targets) > 0:
-                target = random.choice(in_range_targets)
+                # If casting an ability, use its logic for target selection
+                if inherits_from(action, Ability):
+                    target = action.choose_target(entity, in_range_targets)
+                else:
+                    target = random.choice(in_range_targets)
                 return target
 
             # Fighters out of range
