@@ -92,7 +92,7 @@ class Room(Object, DefaultRoom):
             return True
 
     def has_water(self):
-        if self.db.environment in ENVIRONMENTS_BY_TYPE["water"]:
+        if self.db.environment in ENVIRONMENTS_BY_TYPE["shallow water"] + ENVIRONMENTS_BY_TYPE["deep water"]:
             return True
 
         if self.in_room(Fountain):
