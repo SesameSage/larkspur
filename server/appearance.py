@@ -44,7 +44,7 @@ ENVIRONMENTS_BY_TYPE = {
     "foliage": ["trees", "forest", "woodland"],
     "shallow water": ["pond", "riverbank", "shore"],
     "deep water": ["river", "ocean", "lake"],
-    "sand": ["beach", "desert"],
+    "sand": ["beach", "desert", "sand"],
     "rock": ["rock", "cave"],
     "wood": ["wood room", "wood floor"],
     "stone": ["stone room", "stone floor"],
