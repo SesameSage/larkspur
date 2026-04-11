@@ -38,18 +38,15 @@ class CombatEntity(EquipmentEntity):
                            "dexterity": 1, "perception": 1, "intelligence": 1,
                            "wisdom": 1, "spirit": 1}
 
-        self.db.max_hp = MAX_HP_BASE
-        self.db.hp = self.db.max_hp
+        self.db.max_hp_gained = 0
         self.db.hp_regen = round(Dec(0.2), 2)
         self.db.hp_buildup = Dec(0.0)
 
-        self.db.max_stam = MAX_STAM_BASE
-        self.db.stamina = self.db.max_stam
+        self.db.max_stam_gained = 0
         self.db.stam_regen = round(Dec(0.2), 2)
         self.db.stam_buildup = Dec(0.0)
 
-        self.db.max_mana = MAX_MANA_BASE
-        self.db.mana = self.db.max_mana
+        self.db.max_mana_gained = 0
         self.db.mana_regen = round(Dec(0.2), 2)
         self.db.mana_buildup = Dec(0.0)
 
@@ -129,6 +126,15 @@ class CombatEntity(EquipmentEntity):
 
     # <editor-fold desc="Stats handling">
     # <editor-fold desc="Get stats in current effective form">
+    def hp(self):
+        return
+
+    def mana(self):
+        return
+
+    def stamina(self):
+        return
+
     def get_attr(self, att_input: str):
         """Gets the current effective Strength, Intelligence, etc. for this entity by attribute name."""
         # Standardize to full capitalized name
@@ -323,7 +329,9 @@ class CombatEntity(EquipmentEntity):
         return base_resist + dt_resist + eq_resist + effect_resist
 
     def get_max(self, stat_input):
-        stats = {"HP": self.db.max_hp, "Stamina": self.db.max_stam, "Mana": self.db.max_mana}
+        stats = {"HP": MAX_HP_BASE + self.db.max_hp_gained,
+                 "Stamina": MAX_STAM_BASE + self.db.max_stam_gained,
+                 "Mana": MAX_MANA_BASE + self.db.max_mana_gained}
         stat = None
         for i_stat in stats:
             if i_stat.lower().startswith(stat_input.lower()):
