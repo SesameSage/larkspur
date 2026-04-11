@@ -38,14 +38,17 @@ class CombatEntity(EquipmentEntity):
                            "dexterity": 1, "perception": 1, "intelligence": 1,
                            "wisdom": 1, "spirit": 1}
 
+        self.db.hp = MAX_HP_BASE
         self.db.max_hp_gained = 0
         self.db.hp_regen = round(Dec(0.2), 2)
         self.db.hp_buildup = Dec(0.0)
 
+        self.db.stamina = MAX_STAM_BASE
         self.db.max_stam_gained = 0
         self.db.stam_regen = round(Dec(0.2), 2)
         self.db.stam_buildup = Dec(0.0)
 
+        self.db.mana = MAX_MANA_BASE
         self.db.max_mana_gained = 0
         self.db.mana_regen = round(Dec(0.2), 2)
         self.db.mana_buildup = Dec(0.0)
@@ -126,14 +129,6 @@ class CombatEntity(EquipmentEntity):
 
     # <editor-fold desc="Stats handling">
     # <editor-fold desc="Get stats in current effective form">
-    def hp(self):
-        return
-
-    def mana(self):
-        return
-
-    def stamina(self):
-        return
 
     def get_attr(self, att_input: str):
         """Gets the current effective Strength, Intelligence, etc. for this entity by attribute name."""
