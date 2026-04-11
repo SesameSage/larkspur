@@ -3,7 +3,7 @@ from random import randint
 
 import evennia
 from evennia.scripts.tickerhandler import TICKER_HANDLER as tickerhandler
-from evennia.utils import inherits_from
+from evennia.utils import inherits_from, logger
 
 from combat.combat_constants import DIRECTION_NAMES_OPPOSITES
 from combat.combat_handler import COMBAT
@@ -324,9 +324,13 @@ class CombatEntity(EquipmentEntity):
 
     def get_max(self, stat_input):
         stats = {"HP": self.db.max_hp, "Stamina": self.db.max_stam, "Mana": self.db.max_mana}
+        stat = None
         for i_stat in stats:
-            if i_stat.lower().startswith(stat_input):
+            if i_stat.lower().startswith(stat_input.lower()):
                 stat = i_stat
+        if stat is None:
+            logger.log_msg("No stat found for " + stat_input)
+            return
 
         base = stats[stat]
 
