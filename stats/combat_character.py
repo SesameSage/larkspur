@@ -567,7 +567,7 @@ class CombatEntity(EquipmentEntity):
                                            f"moves {DIRECTION_NAMES_OPPOSITES[ext.key[0]][0]}.")
             turn_handler.turn_end_check(self)
             return False
-        if self.db.HP <= 0:
+        if self.db.hp <= 0:
             self.msg("You can't move, you've been defeated!")
             return False
         return True
