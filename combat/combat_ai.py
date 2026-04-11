@@ -148,7 +148,6 @@ class CombatAI(Script):
         entity.db.combat_lastaction = action
         if entity.is_turn():
             self.take_turn()
-            entity.location.msg_contents(f"returning a perform_Action")
 
     def try_heal_below(self, percent_health: int):
         """If entity's HP is below the percent given, looks for a healing ability or item to use."""
@@ -240,13 +239,11 @@ class CombatAI(Script):
         # In range? Move toward if not
         grid = entity.db.combat_turnhandler.db.grid
         if grid.distance(entity, target) > COMBAT.action_range(weapon):  # If we are out of range
-            entity.location.msg_contents("Out of range")
             # Can't move when pinned
             if self.obj.effect_active("Pinned"):
                 return None # Give up on moving and attacking this turn
             else: # If we can move freely
                 direction_moved = grid.move_toward(entity, target)
-                entity.location.msg_contents(direction_moved)
                 if direction_moved:
                     return direction_moved, target
         # Else, we are in range to attack
