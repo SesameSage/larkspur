@@ -249,7 +249,6 @@ class CombatAI(Script):
                 else:
                     return None
         # Else, we are in range to attack
-        entity.location.msg_contents("In range")
 
         # Enough AP to attack?
         if target and entity.db.combat_ap >= entity.ap_to_attack():

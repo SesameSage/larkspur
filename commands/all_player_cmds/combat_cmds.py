@@ -26,6 +26,10 @@ class CmdAttack(Command):
 
     def func(self):
         attacker = self.caller
+        if attacker.is_in_combat() and not attacker.is_turn():
+            attacker.msg("You can only attack on your turn!")
+            return
+
         if attacker.effect_active("Ceasefire"):
             attacker.msg("Can't attack during a ceasefire!")
             return
@@ -84,6 +88,10 @@ class CmdCast(MuxCommand):
     help_category = "combat"
 
     def func(self):
+        if self.caller.is_in_combat() and not self.caller.is_turn():
+            self.caller.msg("You can only do that on your turn!")
+            return
+
         # Left is ability/spell name
         if not self.lhs:
             self.caller.msg(
