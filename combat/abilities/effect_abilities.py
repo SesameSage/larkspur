@@ -63,6 +63,7 @@ class NeutralizingHum(Ability):
 
         return True
 
+
 class PinningShot(Ability):
     key = "Pinning Shot"
     desc = "Attempt to temporarily prevent an enemy from moving."
@@ -92,6 +93,7 @@ class PinningShot(Ability):
             target.add_effect(typeclass=DurationEffect, attributes=attributes, stack=False)
         else:
             target.location.msg_contents(f"Failed to pin!")
+
 
 class SolarPlexusStrike(Ability):
     key = "Solar Plexus Strike"
@@ -191,6 +193,35 @@ class Threaten(Ability):
                                          f"{caster.get_display_name(article=True)}!")
             attributes = [("effect_key", "Afraid"), ("duration", 3 * SECS_PER_TURN),
                           ("source", self.get_display_name()), ("caster", caster)]
+            target.add_effect(typeclass=DurationEffect, attributes=attributes)
+
+
+class TwistKnife(Ability):
+    key = "Twist Knife"
+    desc = "Cause your opponent to bleed."
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.targeted = True
+        self.db.must_target_entity = True
+        self.db.range = 1
+
+        self.db.requires = [("dexterity", 4)]
+        self.db.ap_cost = 3
+        self.db.cost = [("stamina", 4)]
+
+        self.db.duration = 3 * SECS_PER_TURN
+        self.db.cooldown = 6 * SECS_PER_TURN
+
+    def get_damage(self, caster):
+        return caster.get_weapon_damage()
+
+    def func(self, caster: LivingEntity, target: Object = None):
+        attributes = [("effect_key", "Bleeding"), ("duration", self.db.duration),
+                          ("source", self.get_display_name()), ("caster", caster)]
+
+        result = COMBAT.resolve_attack(attacker=caster, defender=target, attack=self)
+        if result[0]:
             target.add_effect(typeclass=DurationEffect, attributes=attributes)
 
 

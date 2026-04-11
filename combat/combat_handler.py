@@ -41,6 +41,13 @@ class CombatHandler:
             if here.db.combat_turnhandler:
                 here.db.combat_turnhandler.join_fight(target)
 
+    def at_post_move(self, entity):
+        if entity.effect_active("Bleeding"):
+            amount = int(entity.get_max("HP") / 20)
+            entity.apply_damage({None: amount})  # 5% max health damage from bleeding
+            entity.location.msg_contents(f"{entity.get_display_name(capital=True)} takes {appearance.dmg_color(entity)}"
+                                         f"{amount} damage|n from bleeding!")
+
     def get_ap(self, character):
         """
         Returns the amount of AP a character gains this turn based on their stats.
@@ -377,6 +384,13 @@ class CombatHandler:
                 attacker.apply_damage({DamageTypes.ARCANE: amount})
                 attacker.location.msg_contents(f"{attacker.get_display_name(capital=True)} takes {amount} damage from "
                                                f"their curse!")
+
+            if attacker.effect_active("Bleeding"):
+                amount = int(attacker.get_max("HP") / 20)  # 5% max health damage from bleeding
+                attacker.location.msg_contents(f"apply post attack effects")
+                attacker.apply_damage({None: amount})
+                attacker.location.msg_contents(f"{attacker.get_display_name(capital=True)} takes "
+                                               f"{appearance.dmg_color(attacker)}{amount} damage|n from bleeding!")
 
             if attacker.effect_active("Siphon HP"):
                 siphoned = int(total_damage / 3)

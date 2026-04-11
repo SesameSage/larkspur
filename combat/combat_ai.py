@@ -29,7 +29,6 @@ class CombatAI(Script):
                 # If we can successfully attack, stop there
                 COMBAT.start_join_fight(attacker=self.obj, target=content, action=self.obj.get_weapon())
 
-
     def take_turn(self):
         """While the entity has AP remaining, choose and perform an action. This repeats until perform_action() stops
         calling it back and it returns."""

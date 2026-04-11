@@ -2,8 +2,8 @@ from evennia.utils import inherits_from
 from evennia.utils.evtable import EvTable
 
 from combat.combat_constants import DIRECTION_NAMES_OPPOSITES
+from combat.combat_handler import COMBAT
 from server import appearance
-from server.appearance import character
 from typeclasses.scripts.scripts import Script
 
 DIRECTIONS = {
@@ -395,7 +395,10 @@ class CombatGrid(Script):
         target_x, target_y = self.get_coords(origin_x=obj.db.combat_x, origin_y=obj.db.combat_y,
                                              direction=direction, distance=1)
 
-        return self.move_to(obj=obj, x=target_x, y=target_y, displace=displace, spend=True)
+        result = self.move_to(obj=obj, x=target_x, y=target_y, displace=displace, spend=True)
+        if result:
+            COMBAT.at_post_move(obj)
+        return result
 
     def take_steps(self, obj, direction, distance, displace=False):
         """

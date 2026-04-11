@@ -50,6 +50,7 @@ class BodySlam(Ability):
         if caster_con + caster_roll > target_con + target_roll:
             target.add_effect(KnockedDown, attributes=[("source", self.get_display_name())])
 
+
 class FocusedShot(BowAbility):
     key = "Focused Shot"
     desc = ("Concentrate deeply on your aim and the enemy's movements to help your arrow find even the most evasive of "
@@ -71,6 +72,7 @@ class FocusedShot(BowAbility):
     def func(self, caster: LivingEntity, target: Object = None):
         COMBAT.resolve_attack(attacker=caster, defender=target, attack=self,
                               accuracy=COMBAT.get_accuracy(caster, target) + 30)
+
 
 class OilSplash(Ability):
     key = "Oil Splash"
@@ -110,8 +112,6 @@ class OilSplash(Ability):
         else:
             target.location.msg_contents(f"{target.get_display_name(capital=True)} becomes very slippery, but nothing "
                                          f"else happens!")
-
-
 
 
 class Scratch(Ability):
