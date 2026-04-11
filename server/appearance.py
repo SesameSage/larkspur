@@ -67,7 +67,7 @@ ENV_TYPES_APPEAR = {
 
 
 def dmg_color(receiver):
-    return bad_damage if receiver.db.hostile_to_players else good_damage
+    return good_damage if receiver.db.hostile_to_players else bad_damage
 
 
 
