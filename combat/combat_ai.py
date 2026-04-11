@@ -246,6 +246,8 @@ class CombatAI(Script):
                 direction_moved = grid.move_toward(entity, target)
                 if direction_moved:
                     return direction_moved, target
+                else:
+                    return None
         # Else, we are in range to attack
         entity.location.msg_contents("In range")
 
