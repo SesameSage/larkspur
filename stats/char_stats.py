@@ -27,9 +27,18 @@ def level_up(character):
     character.db.level += 1
     new_level = character.db.level
     character.msg(f"{appearance.notify}You are now level {new_level}!")
-    for attribute, amt in character.db.rpg_class.level_to_attributes[new_level]:
+    for attribute, amt in character.db.rpg_class.LEVEL_TO_ATTRIBUTES[new_level]:
         character.db.attribs[attribute.lower()] += amt
         character.msg(f"{appearance.notify}Your {attribute} has increased by {amt}.")
+    for stat, amt in character.db.rpg_class.LEVEL_TO_MAX_STAT[new_level]:
+        if stat == "hp":
+            character.db.max_hp_gained += amt
+        elif stat == "stamina":
+            character.db.max_stam_gained += amt
+        elif stat == "mana":
+            character.db.max_mana_gained += amt
+
+        character.msg(f"{appearance.notify}Your max {stat} has increased by {amt}.")
 
     attr_points_gained = POINTS_GAINED_BY_LEVEL[new_level]["attribute"]
     if attr_points_gained:
