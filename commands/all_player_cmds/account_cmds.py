@@ -19,7 +19,7 @@ class CmdPlay(CmdIC):
     enter the world as the given character
 
     Usage:
-      playas <character>
+      play <character>
 
     Take control of a character to play the game.
     """

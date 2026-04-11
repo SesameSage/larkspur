@@ -38,8 +38,9 @@ class CombatAI(Script):
         if not self.obj.is_turn():
             return
         if not self.check_ap():
-            # Don't end the turn due to no AP if we can still take a step
+            # Only end the turn if there's no AP *and* no steps remaining
             if self.obj.db.combat_stepsleft == 0:
+                self.obj.db.combat_turnhandler.turn_end_check(self.obj)
                 return
 
         action, target = self.choose_action()
@@ -79,7 +80,6 @@ class CombatAI(Script):
 
     def choose_target(self, action):
         """By default, chooses a random fighter on the enemy side for offensive moves, or self for non-offensive."""
-        # TODO: Target selection for tile abilities
         entity = self.obj
         weapon = entity.get_weapon()
 
@@ -148,6 +148,7 @@ class CombatAI(Script):
         entity.db.combat_lastaction = action
         if entity.is_turn():
             self.take_turn()
+            entity.location.msg_contents(f"returning a perform_Action")
 
     def try_heal_below(self, percent_health: int):
         """If entity's HP is below the percent given, looks for a healing ability or item to use."""
@@ -233,18 +234,24 @@ class CombatAI(Script):
         weapon = entity.get_weapon()
         target = self.choose_target(weapon)
 
-        # In range? Move toward if not
         if entity.db.combat_ap < 1 and entity.db.combat_stepsleft < 1:
             return None
+
+        # In range? Move toward if not
         grid = entity.db.combat_turnhandler.db.grid
-        if grid.distance(entity, target) > COMBAT.action_range(weapon):
+        if grid.distance(entity, target) > COMBAT.action_range(weapon):  # If we are out of range
+            entity.location.msg_contents("Out of range")
             # Can't move when pinned
             if self.obj.effect_active("Pinned"):
-                return None
-            direction_moved = grid.move_toward(entity, target)
-            if direction_moved:
-                return direction_moved, target
+                return None # Give up on moving and attacking this turn
+            else: # If we can move freely
+                direction_moved = grid.move_toward(entity, target)
+                entity.location.msg_contents(direction_moved)
+                if direction_moved:
+                    return direction_moved, target
+        # Else, we are in range to attack
+        entity.location.msg_contents("In range")
 
-        # Enough AP?
+        # Enough AP to attack?
         if target and entity.db.combat_ap >= entity.ap_to_attack():
             return weapon, target
