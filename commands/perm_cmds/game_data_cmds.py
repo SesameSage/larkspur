@@ -13,7 +13,7 @@ from evennia.utils.eveditor import EvEditor
 from combat.abilities import all_abilities
 from combat.abilities.all_abilities import ALL_ABILITIES
 from server import appearance
-from stats.combat_character import CombatEntity
+from stats.combat_entity import CombatEntity
 from stats.rpg_classes import Templar, Warden, Gladiator, Assassin, Ranger, Monk, Sorcerer, Cleric, Druid, Witch
 from typeclasses.living.characters import Vendor, Trainer, Character
 from typeclasses.living.creatures import Animal, Creature

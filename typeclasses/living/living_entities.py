@@ -2,7 +2,7 @@ from decimal import Decimal as Dec
 
 from evennia.utils.evtable import EvTable
 
-from stats.combat_character import CombatEntity
+from stats.combat_entity import CombatEntity
 from server import appearance
 from stats.stats_constants import BASE_CARRY_WEIGHT, BASE_CARRY_COUNT
 from typeclasses.base.objects import Object
