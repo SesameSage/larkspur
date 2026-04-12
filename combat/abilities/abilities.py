@@ -5,7 +5,7 @@ from evennia.utils import inherits_from
 from combat.combat_handler import COMBAT
 from combat.effects import *
 from typeclasses.base.objects import Object
-from typeclasses.inanimate.items.item_types.equipment import Bow
+from typeclasses.inanimate.items.item_types.equipment.weapons import Bow
 
 
 class Ability(Object):

@@ -10,8 +10,8 @@ from combat.effects import KnockedDown, EffectScript
 from combat.combat_constants import SECS_PER_TURN, DamageTypes
 from server import appearance
 from typeclasses.base.objects import Object
-from typeclasses.inanimate.items.item_types.equipment import Shield
-from typeclasses.inanimate.items.item_types.equipment import Weapon, TwoHanded
+from typeclasses.inanimate.items.item_types.equipment.apparel import Shield
+from typeclasses.inanimate.items.item_types.equipment.weapons import Weapon, TwoHanded
 from typeclasses.living.living_entities import LivingEntity
 
 

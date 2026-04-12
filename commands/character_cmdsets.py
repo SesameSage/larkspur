@@ -15,7 +15,7 @@ from commands.perm_cmds.location_data_cmds import LocationCmdSet
 from commands.perm_cmds.object_data_cmds import ObjectDataCmdSet
 from commands.perm_cmds.questbuild_cmds import QuestBuildCmdSet
 from typeclasses.inanimate.items.item_types.containers import ContainerCmdSet
-from typeclasses.inanimate.items.item_types.equipment import EquipmentCharacterCmdSet
+from typeclasses.inanimate.items.item_types.equipment.equipment import EquipmentCharacterCmdSet
 
 
 class PlayerCmdSet(CmdSet):
