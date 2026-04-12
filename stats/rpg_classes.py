@@ -8,14 +8,14 @@ from typeclasses.scripts.scripts import Script
 class CombatClass(Script):
     class_desc = ""
     equipment_types = []
-    level_to_attributes = {}
+    LEVEL_TO_ATTRIBUTES = {}
     ability_tree = None
 
 
 class Templar(CombatClass):
     name = "Templar"
     equipment_types = [Shield, Sword, Greatsword, Handaxe, Mace]
-    level_to_attributes = {1: [("Constitution", 1), ("Strength", 1)],
+    LEVEL_TO_ATTRIBUTES = {1: [("Constitution", 1), ("Strength", 1)],
                            2: [("Wisdom", 1)],
                            3: [("Constitution", 1), ("Wisdom", 1)],
                            4: [("Strength", 1)],
@@ -26,7 +26,7 @@ class Templar(CombatClass):
 class Warden(CombatClass):
     name = "Warden"
     equipment_types = [Shield, Javelin, Crossbow]
-    level_to_attributes = {1: [("Strength", 1), ("Dexterity", 1)],
+    LEVEL_TO_ATTRIBUTES = {1: [("Strength", 1), ("Dexterity", 1)],
                            2: [("Perception", 1), ("Strength", 1)],
                            3: [("Constitution", 1)],
                            4: [("Dexterity", 1), ("Strength", 1)],
@@ -37,7 +37,7 @@ class Warden(CombatClass):
 class Gladiator(CombatClass):
     name = "Gladiator"
     equipment_types = [Shield, Greatsword, Greataxe, Warhammer]
-    level_to_attributes = {1: [("Strength", 1), ("Constitution", 1)],
+    LEVEL_TO_ATTRIBUTES = {1: [("Strength", 1), ("Constitution", 1)],
                            2: [("Strength", 1)],
                            3: [("Constitution", 1)],
                            4: [("Spirit", 1), ("Strength", 1)],
@@ -48,7 +48,7 @@ class Gladiator(CombatClass):
 class Assassin(CombatClass):
     name = "Assassin"
     equipment_types = [Sword, Handaxe, Dagger, Blowgun]
-    level_to_attributes = {1: [("Dexterity", 1), ("Perception", 1)],
+    LEVEL_TO_ATTRIBUTES = {1: [("Dexterity", 1), ("Perception", 1)],
                            2: [("Intelligence", 1)],
                            3: [("Dexterity", 1), ("Perception", 1)],
                            4: [("Dexterity", 1), ("Intelligence", 1)],
@@ -59,18 +59,17 @@ class Assassin(CombatClass):
 class Ranger(CombatClass):
     name = "Ranger"
     equipment_types = [Blowgun, Bow, Crossbow]
-    level_to_attributes = {1: [("Perception", 1), ("Dexterity", 1)],
+    LEVEL_TO_ATTRIBUTES = {1: [("Perception", 1), ("Dexterity", 1)],
                            2: [("Dexterity", 1), ("Intelligence", 1)],
                            3: [("Perception", 1)],
                            4: [("Dexterity", 1), ("Intelligence", 1)],
                            5: [("Perception", 1)],
                            6: [("Perception", 1)]}
 
-
 class Monk(CombatClass):
     name = "Monk"
     equipment_types = [Dagger, Quarterstaff]
-    level_to_attributes = {1: [("Dexterity", 1), ("Wisdom", 1)],
+    LEVEL_TO_ATTRIBUTES = {1: [("Dexterity", 1), ("Wisdom", 1)],
                            2: [("Constitution", 1)],
                            3: [("Dexterity", 1)],
                            4: [("Wisdom", 1), ("Spirit", 1)],
@@ -82,7 +81,7 @@ class Monk(CombatClass):
 class Sorcerer(CombatClass):
     name = "Sorcerer"
     equipment_types = [Staff, Wand]
-    level_to_attributes = {1: [("Spirit", 1), ("Wisdom", 1)],
+    LEVEL_TO_ATTRIBUTES = {1: [("Spirit", 1), ("Wisdom", 1)],
                            2: [("Spirit", 1), ("Wisdom", 1)],
                            3: [("Spirit", 1)],
                            4: [("Spirit", 1), ("Wisdom", 1)],
@@ -93,7 +92,7 @@ class Sorcerer(CombatClass):
 class Cleric(CombatClass):
     name = "Cleric"
     equipment_types = [Staff]
-    level_to_attributes = {1: [("Spirit", 1), ("Wisdom", 1)],
+    LEVEL_TO_ATTRIBUTES = {1: [("Spirit", 1), ("Wisdom", 1)],
                            2: [("Spirit", 1)],
                            3: [("Wisdom", 1), ("Constitution", 1)],
                            4: [("Spirit", 1)],
@@ -107,7 +106,7 @@ class Druid(CombatClass):
     " advantage of the natural environment, and choose on-the-spot from a versatile array of combat strategies."
     " \n\nThe most important recommended attributes for a druid are wisdom, intelligence, and spirit."
     equipment_types = [Quarterstaff, Blowgun]
-    level_to_attributes = {1: [("Wisdom", 1), ("Spirit", 1)],
+    LEVEL_TO_ATTRIBUTES = {1: [("Wisdom", 1), ("Spirit", 1)],
                            2: [("Intelligence", 1)],
                            3: [("Spirit", 1)],
                            4: [("Wisdom", 1), ("Intelligence", 1)],
@@ -118,7 +117,7 @@ class Druid(CombatClass):
 class Witch(CombatClass):
     name = "Witch"
     equipment_types = [Wand, Dagger]
-    level_to_attributes = {1: [("Wisdom", 1), ("Spirit", 1)],
+    LEVEL_TO_ATTRIBUTES = {1: [("Wisdom", 1), ("Spirit", 1)],
                            2: [("Perception", 1)],
                            3: [("Wisdom", 1)],
                            4: [("Spirit", 1), ("Perception", 1)],
@@ -132,10 +131,10 @@ RPG_CLASSES = [Templar, Warden, Gladiator, Assassin, Ranger, Monk, Sorcerer, Cle
 def get_attributes(rpg_class, level: int):
     attributes = {"strength": 1, "constitution": 1, "dexterity": 1, "perception": 1,
                   "intelligence": 1, "wisdom": 1, "spirit": 1}
-    for i_level in rpg_class.level_to_attributes:
+    for i_level in rpg_class.LEVEL_TO_ATTRIBUTES:
         if i_level > level:
             break
         else:
-            for attr_to_add, amt in rpg_class.level_to_attributes[i_level]:
+            for attr_to_add, amt in rpg_class.LEVEL_TO_ATTRIBUTES[i_level]:
                 attributes[attr_to_add.lower()] += amt
     return attributes

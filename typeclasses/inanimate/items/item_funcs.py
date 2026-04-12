@@ -101,7 +101,7 @@ def itemfunc_restore_stamina(item, user, target, **kwargs):
         user.msg("You can't use %s on that." % item)
         return False  # Returning false aborts the item use
 
-    if target.db.stamina >= target.db.max_stam:
+    if target.db.stamina >= target.get_max("stamina"):
         user.msg("%s is already at full stamina." % target)
         return False
 

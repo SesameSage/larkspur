@@ -285,9 +285,9 @@ class CmdHP(Command):
             if not target.db.hp:
                 self.caller.msg(f"{target.name.capitalize()} doesn't have hitpoints!")
                 return
-            self.caller.msg(f"{target.name.capitalize()}'s HP: {appearance.hp}{target.db.hp}|n / {target.db.max_hp}")
+            self.caller.msg(f"{target.name.capitalize()}'s HP: {appearance.hp}{target.db.hp}|n / {target.get_max("HP")}")
         else:  # Show self HP
-            self.caller.msg(f"Your HP: {appearance.hp}{self.caller.db.hp}|n / {self.caller.db.max_hp}")
+            self.caller.msg(f"Your HP: {appearance.hp}{self.caller.db.hp}|n / {self.caller.get_max("HP")}")
 
 
 class CmdMana(Command):
@@ -315,9 +315,9 @@ class CmdMana(Command):
                 self.caller.msg(f"{target.name.capitalize()} doesn't have mana!")
                 return
             self.caller.msg(f"{target.name.capitalize()}'s mana: "
-                            f"{appearance.mana}{target.db.mana}|n / {target.db.max_mana}")
+                            f"{appearance.mana}{target.db.mana}|n / {target.get_max("mana")}")
         else:  # Show self mana
-            self.caller.msg(f"Your mana: {appearance.mana}{self.caller.db.mana}|n / {self.caller.db.max_mana}")
+            self.caller.msg(f"Your mana: {appearance.mana}{self.caller.db.mana}|n / {self.caller.get_max("mana")}")
 
 
 class CmdStamina(Command):
@@ -347,9 +347,10 @@ class CmdStamina(Command):
                 self.caller.msg(f"{target.name.capitalize()} doesn't have stamina!")
                 return
             self.caller.msg(f"{target.name.capitalize()}'s stamina: "
-                            f"{appearance.stamina}{target.db.stamina}|n / {target.db.max_stam}")
+                            f"{appearance.stamina}{target.db.stamina}|n / {target.get_max("stamina")}")
         else:  # Show self stamina
-            self.caller.msg(f"Your stamina: {appearance.stamina}{self.caller.db.stamina}|n / {self.caller.db.max_stam}")
+            self.caller.msg(f"Your stamina: {appearance.stamina}{self.caller.db.stamina}|n / "
+                            f"{self.caller.get_max("stam")}")
 
 
 class CmdStats(Command):

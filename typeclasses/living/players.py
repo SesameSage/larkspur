@@ -41,8 +41,6 @@ class PlayerCharacter(Character):
         self.cmdset.add(PlayerCmdSet)
         self.cmdset.add(OverloadedCmdSet, persistent=True)
 
-        self.update_base_stats()
-
     @lazy_property
     def quests(self):
         return QuestHandler(self)
@@ -86,18 +84,12 @@ class PlayerCharacter(Character):
     # </editor-fold>
 
     # <editor-fold desc="Stats">
-    def update_base_stats(self):
-        super().update_base_stats()
-        self.db.carry_weight = BASE_CARRY_WEIGHT + STR_TO_CARRY_WEIGHT[self.get_attr("str")]
 
     def gain_xp(self, amt):
         self.db.xp += amt
         self.msg(f"|345You gain {amt} experience!")
         if self.db.xp >= xp_threshold(self.db.level + 1):
             self.scripts.add(LevelUpReminder())
-
-    def level_up(self):
-        self.update_base_stats()
 
     def meets_level_requirement(self, target):
         # Abilities

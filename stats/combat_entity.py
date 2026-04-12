@@ -9,14 +9,14 @@ from combat.combat_constants import DIRECTION_NAMES_OPPOSITES
 from combat.combat_handler import COMBAT
 from combat.effects import EffectScript, DurationEffect
 from server import appearance
-from stats.stats_constants import MAX_HP_BASE, LVL_TO_MAXHP, CON_TO_MAXHP, MAX_MANA_BASE, LVL_TO_MAXMANA, \
-    SPIRIT_TO_MAXMANA, MAX_STAM_BASE, LVL_TO_MAXSTAM, STR_TO_MAXSTAM, CON_TO_DEFENSE, DEXT_TO_EVADE, WIS_TO_RESIST
+from stats.stats_calculations import level_to_max_hp, constitution_to_max_hp, level_to_max_stamina, \
+    level_to_max_mana, strength_to_max_stamina, spirit_to_max_mana
+from stats.stats_constants import (MAX_HP_BASE, MAX_MANA_BASE, MAX_STAM_BASE)
 from typeclasses.inanimate.fixtures import Fireplace
 from typeclasses.inanimate.items.item_types.equipment.equipment import EquipmentEntity
 from typeclasses.living.corpses import make_corpse, set_to_respawn
 from world.quests.quest import quest_desc
 
-# TODO: Track character-gained max hp/mana/stamina separately from base so that everyone's changes when base changes
 
 class CombatEntity(EquipmentEntity):
     """
@@ -33,23 +33,20 @@ class CombatEntity(EquipmentEntity):
 
         self.db.ai = None
         self.db.rpg_class = None
-        self.db.level = 1
+        self.db.level = 0
         self.db.attribs = {"strength": 1, "constitution": 1,
                            "dexterity": 1, "perception": 1, "intelligence": 1,
                            "wisdom": 1, "spirit": 1}
 
-        self.db.max_hp = MAX_HP_BASE
-        self.db.hp = self.db.max_hp
+        self.db.hp = MAX_HP_BASE
         self.db.hp_regen = round(Dec(0.2), 2)
         self.db.hp_buildup = Dec(0.0)
 
-        self.db.max_stam = MAX_STAM_BASE
-        self.db.stamina = self.db.max_stam
+        self.db.stamina = MAX_STAM_BASE
         self.db.stam_regen = round(Dec(0.2), 2)
         self.db.stam_buildup = Dec(0.0)
 
-        self.db.max_mana = MAX_MANA_BASE
-        self.db.mana = self.db.max_mana
+        self.db.mana = MAX_MANA_BASE
         self.db.mana_regen = round(Dec(0.2), 2)
         self.db.mana_buildup = Dec(0.0)
 
@@ -68,8 +65,6 @@ class CombatEntity(EquipmentEntity):
 
         # TODO: Make regenerating less computationally expensive
         tickerhandler.add(1, self.at_tick, idstring="tick_effects")
-
-        self.update_base_stats()
 
     # <editor-fold desc="Tick methods">
     def at_tick(self):
@@ -129,6 +124,7 @@ class CombatEntity(EquipmentEntity):
 
     # <editor-fold desc="Stats handling">
     # <editor-fold desc="Get stats in current effective form">
+
     def get_attr(self, att_input: str):
         """Gets the current effective Strength, Intelligence, etc. for this entity by attribute name."""
         # Standardize to full capitalized name
@@ -323,22 +319,28 @@ class CombatEntity(EquipmentEntity):
         return base_resist + dt_resist + eq_resist + effect_resist
 
     def get_max(self, stat_input):
-        stats = {"HP": self.db.max_hp, "Stamina": self.db.max_stam, "Mana": self.db.max_mana}
+        # Calculate character's max stats before effects
+        level = self.db.level
+        stats = {"HP": MAX_HP_BASE + level_to_max_hp(level) + constitution_to_max_hp(self.get_attr("con")),
+                 "Stamina": MAX_STAM_BASE + level_to_max_stamina(level) + strength_to_max_stamina(self.get_attr("str")),
+                 "Mana": MAX_MANA_BASE + level_to_max_mana(level) + spirit_to_max_mana(self.get_attr("spirit"))}
+
+        # Parse which stat we are getting the max of
         stat = None
         for i_stat in stats:
             if i_stat.lower().startswith(stat_input.lower()):
                 stat = i_stat
         if stat is None:
             logger.log_msg("No stat found for " + stat_input)
-            return
+            return None
+        character_max = stats[stat]
 
-        base = stats[stat]
-
-        effect = 0
+        # Get modifications from currently active effects
+        effects_mod = 0
         if "Max " + stat in self.db.effects:
-            effect = self.db.effects["Max " + stat]["amount"]
+            effects_mod = self.db.effects["Max " + stat]["amount"]
 
-        return base + effect
+        return character_max + effects_mod
 
     def get_regen(self, stat_input):
         stats = {"HP": self.db.hp_regen, "Stamina": self.db.stam_regen, "Mana": self.db.mana_regen}
@@ -371,27 +373,17 @@ class CombatEntity(EquipmentEntity):
 
     # </editor-fold>
 
-    def update_base_stats(self):
-        """Recalculates derived stats like max hp and base evasion."""
-        self.db.max_hp = MAX_HP_BASE + LVL_TO_MAXHP[self.db.level] + CON_TO_MAXHP[
-            self.get_attr("con")]
-        self.db.max_stam = MAX_STAM_BASE + LVL_TO_MAXSTAM[self.db.level] + STR_TO_MAXSTAM[
-            self.get_attr("str")]
-        self.db.max_mana = MAX_MANA_BASE + LVL_TO_MAXMANA[self.db.level] + SPIRIT_TO_MAXMANA[
-            self.get_attr("spi")]
-
-        self.db.char_defense[None] = CON_TO_DEFENSE[self.get_attr("con")]
-        self.db.char_evasion = DEXT_TO_EVADE[self.get_attr("dex")]
-        self.db.char_resistance[None] = WIS_TO_RESIST[self.get_attr("wis")]
-
     def cap_stats(self):
         """Ensure entity's hp, mana, and stamina are not greater than their maximum set values, or less than 0."""
-        if self.db.hp > self.get_max("hp"):
-            self.db.hp = self.get_max("hp")
-        if self.db.mana > self.get_max("mana"):
-            self.db.mana = self.get_max("mana")
-        if self.db.stamina > self.get_max("stam"):
-            self.db.stamina = self.get_max("stam")
+        max_hp = self.get_max("hp")
+        if self.db.hp > max_hp:
+            self.db.hp = max_hp
+        max_mana = self.get_max("mana")
+        if self.db.mana > max_mana:
+            self.db.mana = max_mana
+        max_stamina = self.get_max("stam")
+        if self.db.stamina > max_stamina:
+            self.db.stamina = max_stamina
 
         if self.db.hp < 0:
             self.db.hp = 0
@@ -618,7 +610,6 @@ class CombatEntity(EquipmentEntity):
         for script in self.scripts.all():
             if inherits_from(script, DurationEffect):
                 script.delete()
-        self.update_base_stats()
 
         if self.db.dies:
             make_corpse(self)

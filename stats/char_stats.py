@@ -24,18 +24,24 @@ def xp_remaining(character, level: int):
 
 def level_up(character):
     character.msg("You reflect on your experience and how your endeavors have honed your skills and traits.")
+
+    # Increase level
     character.db.level += 1
     new_level = character.db.level
     character.msg(f"{appearance.notify}You are now level {new_level}!")
-    for attribute, amt in character.db.rpg_class.level_to_attributes[new_level]:
+
+    # Do automatic attribute increases
+    for attribute, amt in character.db.rpg_class.LEVEL_TO_ATTRIBUTES[new_level]:
         character.db.attribs[attribute.lower()] += amt
         character.msg(f"{appearance.notify}Your {attribute} has increased by {amt}.")
 
+    # Award attribute points
     attr_points_gained = POINTS_GAINED_BY_LEVEL[new_level]["attribute"]
     if attr_points_gained:
         character.db.attr_points += attr_points_gained
         character.msg(f"{appearance.notify}You have {attr_points_gained} new attribute points!")
 
+    # Spend attribute points
     if character.db.attr_points > 0:
         spend_attribute_points(character)
 
@@ -64,6 +70,7 @@ def _increase_attribute(character, **kwargs):
     character.db.attribs[attribute] += 1
     character.msg(f"{appearance.notify}{attribute.capitalize()} increased to {character.db.attribs[attribute]}.")
     character.db.attr_points -= 1
+
     return "end_node"
 
 
