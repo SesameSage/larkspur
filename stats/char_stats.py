@@ -1,7 +1,8 @@
 from evennia.utils.evmenu import EvMenu
 
 from server import appearance
-from stats.stats_calculations import constitution_to_max_hp_gain
+from stats.stats_calculations import constitution_to_max_hp_gain, level_to_max_hp_gain, level_to_max_mana_gain, \
+    spirit_to_max_mana_gain, level_to_max_stamina_gain, strength_to_max_stamina_gain
 from stats.stats_constants import XP_THRESHOLD_INCREASES, POINTS_GAINED_BY_LEVEL, ATTRIBUTES
 
 
@@ -25,27 +26,37 @@ def xp_remaining(character, level: int):
 
 def level_up(character):
     character.msg("You reflect on your experience and how your endeavors have honed your skills and traits.")
+
+    # Increase level
     character.db.level += 1
     new_level = character.db.level
     character.msg(f"{appearance.notify}You are now level {new_level}!")
+
+    # Do automatic attribute increases
     for attribute, amt in character.db.rpg_class.LEVEL_TO_ATTRIBUTES[new_level]:
         character.db.attribs[attribute.lower()] += amt
         character.msg(f"{appearance.notify}Your {attribute} has increased by {amt}.")
-    for stat, amt in character.db.rpg_class.LEVEL_TO_MAX_STAT[new_level]:
-        if stat == "hp":
-            character.db.max_hp_gained += amt
-        elif stat == "stamina":
-            character.db.max_stam_gained += amt
-        elif stat == "mana":
-            character.db.max_mana_gained += amt
 
-        character.msg(f"{appearance.notify}Your max {stat} has increased by {amt}.")
+    # Increase hp, mana, stamina
+    hp_gain = level_to_max_hp_gain(new_level) + constitution_to_max_hp_gain(character.get_attr("con"))
+    character.db.max_hp_gained += hp_gain
+    character.msg(f"Your max hp has increased by {hp_gain}.")
 
+    mana_gain = level_to_max_mana_gain(new_level) + spirit_to_max_mana_gain(character.get_attr("spirit"))
+    character.db.max_mana_gained += mana_gain
+    character.msg(f"Your max mana has increased by {mana_gain}.")
+
+    stamina_gain = level_to_max_stamina_gain(new_level) + strength_to_max_stamina_gain(character.get_attr("strength"))
+    character.db.max_stam_gained += stamina_gain
+    character.msg(f"Your max stamina has increased by {stamina_gain}.")
+
+    # Award attribute points
     attr_points_gained = POINTS_GAINED_BY_LEVEL[new_level]["attribute"]
     if attr_points_gained:
         character.db.attr_points += attr_points_gained
         character.msg(f"{appearance.notify}You have {attr_points_gained} new attribute points!")
 
+    # Spend attribute points
     if character.db.attr_points > 0:
         spend_attribute_points(character)
 

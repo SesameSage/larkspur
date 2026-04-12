@@ -9,7 +9,6 @@ class CombatClass(Script):
     class_desc = ""
     equipment_types = []
     LEVEL_TO_ATTRIBUTES = {}
-    LEVEL_TO_MAX_STAT = {}
     ability_tree = None
 
 

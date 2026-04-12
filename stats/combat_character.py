@@ -70,8 +70,6 @@ class CombatEntity(EquipmentEntity):
         # TODO: Make regenerating less computationally expensive
         tickerhandler.add(1, self.at_tick, idstring="tick_effects")
 
-        self.update_base_stats()
-
     # <editor-fold desc="Tick methods">
     def at_tick(self):
         """Executes every second when out of combat, allowing finer control of its effects in combat."""
@@ -325,6 +323,7 @@ class CombatEntity(EquipmentEntity):
         return base_resist + dt_resist + eq_resist + effect_resist
 
     def get_max(self, stat_input):
+        # Get character's persistent max stat
         stats = {"HP": MAX_HP_BASE + self.db.max_hp_gained,
                  "Stamina": MAX_STAM_BASE + self.db.max_stam_gained,
                  "Mana": MAX_MANA_BASE + self.db.max_mana_gained}
@@ -335,14 +334,14 @@ class CombatEntity(EquipmentEntity):
         if stat is None:
             logger.log_msg("No stat found for " + stat_input)
             return
+        character_maxes = stats[stat]
 
-        base = stats[stat]
-
-        effect = 0
+        # Get modifications from currently active effects
+        effects_mod = 0
         if "Max " + stat in self.db.effects:
-            effect = self.db.effects["Max " + stat]["amount"]
+            effects_mod = self.db.effects["Max " + stat]["amount"]
 
-        return base + effect
+        return character_maxes + effects_mod
 
     def get_regen(self, stat_input):
         stats = {"HP": self.db.hp_regen, "Stamina": self.db.stam_regen, "Mana": self.db.mana_regen}
@@ -374,19 +373,6 @@ class CombatEntity(EquipmentEntity):
         return speed
 
     # </editor-fold>
-
-    def update_base_stats(self):
-        """Recalculates derived stats like max hp and base evasion."""
-        self.db.max_hp_gained = (level_to_max_hp_gain([self.db.level]) +
-                                 constitution_to_max_hp_gain([self.get_attr("con")]))
-        self.db.max_stam_gained = (level_to_max_stamina_gain([self.db.level]) +
-                                   strength_to_max_stamina_gain([self.get_attr("str")]))
-        self.db.max_mana_gained = (level_to_max_mana_gain([self.db.level]) +
-                                   spirit_to_max_mana_gain([self.get_attr("spi")]))
-
-        self.db.char_defense[None] = CON_TO_DEFENSE[self.get_attr("con")]
-        self.db.char_evasion = DEXT_TO_EVADE[self.get_attr("dex")]
-        self.db.char_resistance[None] = WIS_TO_RESIST[self.get_attr("wis")]
 
     def cap_stats(self):
         """Ensure entity's hp, mana, and stamina are not greater than their maximum set values, or less than 0."""
@@ -622,7 +608,6 @@ class CombatEntity(EquipmentEntity):
         for script in self.scripts.all():
             if inherits_from(script, DurationEffect):
                 script.delete()
-        self.update_base_stats()
 
         if self.db.dies:
             make_corpse(self)
