@@ -1,3 +1,4 @@
+# <editor-fold desc="Max HP/mana/stamina">
 def level_to_max_hp(level):
     return level * 5
 
@@ -15,3 +16,4 @@ def level_to_max_stamina(level):
 
 def strength_to_max_stamina(strength):
     return strength * 5
+# </editor-fold>

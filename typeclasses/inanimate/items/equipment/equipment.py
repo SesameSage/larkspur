@@ -107,13 +107,6 @@ class Equipment(Item):
             message = f"$You() $conj(equip) {self.get_display_name(article=True)}."
             wearer.location.msg_contents(message, from_obj=wearer)
 
-        eq_mods_mapping = {"Max HP": wearer.db.max_hp,
-                           "Max Stamina": wearer.db.max_stam,
-                           "Max Mana": wearer.db.max_mana,
-                           "HP Regen": wearer.db.hp_regen,
-                           "Stamina Regen": wearer.db.stam_regen,
-                           "Mana Regen": wearer.db.mana_regen}
-
         if len(self.db.equip_effects) > 0:
             for effect in self.db.equip_effects:
                 # Currently, all equip_effects are Stat Mods
