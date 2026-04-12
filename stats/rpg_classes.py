@@ -22,9 +22,6 @@ class Templar(CombatClass):
                            4: [("Strength", 1)],
                            5: [("Wisdom", 1), ("Constitution", 1)],
                            6: [("Wisdom", 1)]}
-    LEVEL_TO_MAX_STAT = {1: [("hp", 5), ("stamina", 3), ("mana", 2)],
-                         2: [("hp", 5), ("stamina", 3), ("mana", 2)]
-    }
 
 
 class Warden(CombatClass):
@@ -36,9 +33,6 @@ class Warden(CombatClass):
                            4: [("Dexterity", 1), ("Strength", 1)],
                            5: [("Perception", 1)],
                            6: [("Strength", 1)]}
-    LEVEL_TO_MAX_STAT = {1: [("hp", 5), ("stamina", 5)],
-                         2: [("hp", 5), ("stamina", 5)]
-                         }
 
 
 class Gladiator(CombatClass):
@@ -50,9 +44,6 @@ class Gladiator(CombatClass):
                            4: [("Spirit", 1), ("Strength", 1)],
                            5: [("Strength", 1), ("Constitution", 1)],
                            6: [("Wisdom", 1)]}
-    LEVEL_TO_MAX_STAT = {1: [("hp", 5), ("stamina", 5)],
-                         2: [("hp", 5), ("stamina", 5)]
-                         }
 
 
 class Assassin(CombatClass):
@@ -64,9 +55,6 @@ class Assassin(CombatClass):
                            4: [("Dexterity", 1), ("Intelligence", 1)],
                            5: [("Dexterity", 1)],
                            6: [("Intelligence", 1)]}
-    LEVEL_TO_MAX_STAT = {1: [("hp", 5), ("stamina", 5)],
-                         2: [("hp", 5), ("stamina", 5)]
-                         }
 
 
 class Ranger(CombatClass):
@@ -78,10 +66,6 @@ class Ranger(CombatClass):
                            4: [("Dexterity", 1), ("Intelligence", 1)],
                            5: [("Perception", 1)],
                            6: [("Perception", 1)]}
-    LEVEL_TO_MAX_STAT = {1: [("hp", 5), ("stamina", 5)],
-                         2: [("hp", 5), ("stamina", 5)]
-                         }
-
 
 class Monk(CombatClass):
     name = "Monk"
@@ -93,9 +77,6 @@ class Monk(CombatClass):
                            5: [("Wisdom", 1)],
                            6: [("Dexterity", 1), ("Constitution", 1)]}
     ability_tree = {1: (FocusMind, EnergyTap), 2: (Sweep,)}
-    LEVEL_TO_MAX_STAT = {1: [("hp", 5), ("stamina", 3), ("mana", 2)],
-                         2: [("hp", 5), ("stamina", 3), ("mana", 2)]
-                         }
 
 
 class Sorcerer(CombatClass):
@@ -107,9 +88,6 @@ class Sorcerer(CombatClass):
                            4: [("Spirit", 1), ("Wisdom", 1)],
                            5: [("Spirit", 1)],
                            6: [("Intelligence", 1)]}
-    LEVEL_TO_MAX_STAT = {1: [("hp", 4), ("mana", 5)],
-                         2: [("hp", 4), ("mana", 5)]
-                         }
 
 
 class Cleric(CombatClass):
@@ -121,9 +99,6 @@ class Cleric(CombatClass):
                            4: [("Spirit", 1)],
                            5: [("Spirit", 1), ("Constitution", 1)],
                            6: [("Wisdom", 1)]}
-    LEVEL_TO_MAX_STAT = {1: [("hp", 4), ("mana", 6)],
-                         2: [("hp", 4), ("mana", 6)]
-                         }
 
 
 class Druid(CombatClass):
@@ -138,9 +113,6 @@ class Druid(CombatClass):
                            4: [("Wisdom", 1), ("Intelligence", 1)],
                            5: [("Wisdom", 1)],
                            6: [("Wisdom", 1), ("Intelligence", 1)]}
-    LEVEL_TO_MAX_STAT = {1: [("hp", 4), ("mana", 6)],
-                         2: [("hp", 4), ("mana", 6)]
-                         }
 
 
 class Witch(CombatClass):
@@ -152,9 +124,6 @@ class Witch(CombatClass):
                            4: [("Spirit", 1), ("Perception", 1)],
                            5: [("Wisdom", 1), ("Spirit", 1)],
                            6: [("Perception", 1)]}
-    LEVEL_TO_MAX_STAT = {1: [("hp", 4), ("mana", 6)],
-                         2: [("hp", 4), ("mana", 6)]
-                         }
 
 
 RPG_CLASSES = [Templar, Warden, Gladiator, Assassin, Ranger, Monk, Sorcerer, Cleric, Druid, Witch]

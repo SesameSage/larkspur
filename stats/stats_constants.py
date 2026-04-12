@@ -50,55 +50,11 @@ POINTS_GAINED_BY_LEVEL = {  # How many points for increasing different types of 
 }
 # </editor-fold>
 
-# <editor-fold desc="Hitpoints">
 MAX_HP_BASE = 50  # Base classless amount of HP at Level 1
-LVL_TO_MAXHP = {  # How much Max HP is increased for all characters on leveling up
-    1: 0,
-    2: 10,
-}
-CON_TO_MAXHP = {  # How much Max HP is added by character's Constitution
-    1: 0,
-    2: 15,
-    3: 30,
-    4: 45,
-    5: 60
-}
-# </editor-fold>
 
-# <editor-fold desc="Mana">
 MAX_MANA_BASE = 25  # Base classless amount of mana at level 1
-LVL_TO_MAXMANA = {  # How much Max Mana is increased for all classes on leveling up
-    1: 0,
-    2: 5,
-    3: 10,
-}
-SPIRIT_TO_MAXMANA = {  # How much Max Mana is added by character's Spirit
-    1: 0,
-    2: 5,
-    3: 10,
-    4: 15,
-    5: 20,
-    6: 25,
-    7: 35,
-}
-# </editor-fold>
 
-# <editor-fold desc="Stamina">
 MAX_STAM_BASE = 25  # Base classless amount of stamina at level 1
-LVL_TO_MAXSTAM = {  # How much all classes' Max Stamina increases per level
-    1: 0,
-    2: 5,
-}
-STR_TO_MAXSTAM = {  # How much Max Stamina is added by character's Strength
-    1: 0,
-    2: 5,
-    3: 10,
-    4: 15,
-    5: 20,
-    6: 25,
-    7: 35,
-}
-# </editor-fold>
 
 # <editor-fold desc="Defense/Resistance/Evasion">
 CON_TO_DEFENSE = {  # How much defense is provided by the character's Constitution

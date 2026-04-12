@@ -1,6 +1,7 @@
 from evennia.utils.evmenu import EvMenu
 
 from server import appearance
+from stats.stats_calculations import constitution_to_max_hp_gain
 from stats.stats_constants import XP_THRESHOLD_INCREASES, POINTS_GAINED_BY_LEVEL, ATTRIBUTES
 
 
@@ -73,6 +74,9 @@ def _increase_attribute(character, **kwargs):
     character.db.attribs[attribute] += 1
     character.msg(f"{appearance.notify}{attribute.capitalize()} increased to {character.db.attribs[attribute]}.")
     character.db.attr_points -= 1
+
+    if attribute == "Constitution":
+        character.db.hp += constitution_to_max_hp_gain(character.get_attr("con"))
     return "end_node"
 
 

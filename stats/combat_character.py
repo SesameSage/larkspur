@@ -9,14 +9,15 @@ from combat.combat_constants import DIRECTION_NAMES_OPPOSITES
 from combat.combat_handler import COMBAT
 from combat.effects import EffectScript, DurationEffect
 from server import appearance
-from stats.stats_constants import MAX_HP_BASE, LVL_TO_MAXHP, CON_TO_MAXHP, MAX_MANA_BASE, LVL_TO_MAXMANA, \
-    SPIRIT_TO_MAXMANA, MAX_STAM_BASE, LVL_TO_MAXSTAM, STR_TO_MAXSTAM, CON_TO_DEFENSE, DEXT_TO_EVADE, WIS_TO_RESIST
+from stats.stats_calculations import level_to_max_hp_gain, constitution_to_max_hp_gain, level_to_max_stamina_gain, \
+    level_to_max_mana_gain, strength_to_max_stamina_gain, spirit_to_max_mana_gain
+from stats.stats_constants import (MAX_HP_BASE, MAX_MANA_BASE, MAX_STAM_BASE, CON_TO_DEFENSE, DEXT_TO_EVADE,
+                                   WIS_TO_RESIST)
 from typeclasses.inanimate.fixtures import Fireplace
 from typeclasses.inanimate.items.equipment.equipment import EquipmentEntity
 from typeclasses.living.corpses import make_corpse, set_to_respawn
 from world.quests.quest import quest_desc
 
-# TODO: Track character-gained max hp/mana/stamina separately from base so that everyone's changes when base changes
 
 class CombatEntity(EquipmentEntity):
     """
@@ -376,12 +377,12 @@ class CombatEntity(EquipmentEntity):
 
     def update_base_stats(self):
         """Recalculates derived stats like max hp and base evasion."""
-        self.db.max_hp = MAX_HP_BASE + LVL_TO_MAXHP[self.db.level] + CON_TO_MAXHP[
-            self.get_attr("con")]
-        self.db.max_stam = MAX_STAM_BASE + LVL_TO_MAXSTAM[self.db.level] + STR_TO_MAXSTAM[
-            self.get_attr("str")]
-        self.db.max_mana = MAX_MANA_BASE + LVL_TO_MAXMANA[self.db.level] + SPIRIT_TO_MAXMANA[
-            self.get_attr("spi")]
+        self.db.max_hp_gained = (level_to_max_hp_gain([self.db.level]) +
+                                 constitution_to_max_hp_gain([self.get_attr("con")]))
+        self.db.max_stam_gained = (level_to_max_stamina_gain([self.db.level]) +
+                                   strength_to_max_stamina_gain([self.get_attr("str")]))
+        self.db.max_mana_gained = (level_to_max_mana_gain([self.db.level]) +
+                                   spirit_to_max_mana_gain([self.get_attr("spi")]))
 
         self.db.char_defense[None] = CON_TO_DEFENSE[self.get_attr("con")]
         self.db.char_evasion = DEXT_TO_EVADE[self.get_attr("dex")]
