@@ -1,4 +1,3 @@
-# TODO: Update TurnHandler docs
 from random import randint
 
 from evennia.utils import evtable, inherits_from, delay
@@ -28,13 +27,11 @@ class TurnHandler(Script):
 
     # <editor-fold desc="Script methods">
     def at_script_creation(self):
-        """
-        Called once, when the script is created.
-        """
         super().at_script_creation()
         self.key = "Combat Turn Handler"
         self.interval = 5  # Once every 5 seconds
         self.persistent = True
+
         self.db.grid = None
         self.db.fighters = []
 
@@ -57,8 +54,7 @@ class TurnHandler(Script):
         self.obj.db.combat_turnhandler = self
 
         # Roll initiative and sort the list of fighters depending on who rolls highest to determine
-        # turn order.  The initiative roll is determined by the roll_init method and can be
-        # customized easily.
+        # turn order.  The initiative roll is determined by the roll_init method and can be customized easily.
         ordered_by_roll = sorted(self.db.fighters, key=self.roll_init, reverse=True)
         self.db.fighters = ordered_by_roll
 
@@ -75,7 +71,7 @@ class TurnHandler(Script):
         if not self.db.round == 0:
             return
 
-        self.roll_turn_order()
+        self.declare_turn_order()
 
         # Push the fight starter to the beginning
         self.db.fighters.remove(self.db.starter)
@@ -88,12 +84,9 @@ class TurnHandler(Script):
         self.start_turn(self.db.fighters[0])
 
     def at_stop(self):
-        """
-        Called at script termination.
-        """
+        # Clean up the combat attributes for every fighter.
         for fighter in self.db.fighters:
             if fighter:
-                # Clean up the combat attributes for every fighter.
                 self.combat_cleanup(fighter)
         self.obj.db.combat_turnhandler = None  # Remove reference to turn handler in location
         try:
@@ -106,14 +99,15 @@ class TurnHandler(Script):
         """
         Called once every self.interval seconds.
         """
-        currentchar = self.db.fighters[
-            self.db.turn_order_pos
-        ]  # Note the current character in the turn order.
-        self.db.timer -= self.interval  # Count down the timer.
+        # Note the current character in the turn order.
+        currentchar = self.db.fighters[self.db.turn_order_pos]
+
+        # Count down the timer.
+        self.db.timer -= self.interval
         """self.all_defeat_check()"""
 
+        # Force current character to disengage if timer runs out.
         if self.db.timer <= 0:
-            # Force current character to disengage if timer runs out.
             self.obj.msg_contents("%s's turn timed out!" % currentchar.get_display_name(capital=True))
             self.next_turn()
             return
@@ -163,26 +157,12 @@ class TurnHandler(Script):
         Returns:
             initiative (int): The character's place in initiative - higher
             numbers go first.
-
-        Notes:
-            By default, does not reference the character and simply returns
-            a random integer from 1 to 1000.
-
-            Since the character is passed to this function, you can easily reference
-            a character's stats to determine an initiative roll - for example, if your
-            character has a 'dexterity' attribute, you can use it to give that character
-            an advantage in turn order, like so:
-
-            return (randint(1,20)) + character.db.dexterity
-
-            This way, characters with a higher dexterity will go first more often.
         """
         return randint(1, 20) + character.get_attr("dex")
 
-    def roll_turn_order(self):
-        # Roll initiative and sort the list of fighters depending on who rolls highest to determine
-        # turn order.  The initiative roll is determined by the roll_init method and can be
-        # customized easily.
+    def declare_turn_order(self):
+        """Roll initiative and sort the list of fighters depending on who rolls highest to determine turn order.
+        The initiative roll is determined by the roll_init method."""
         ordered_by_roll = sorted(self.db.fighters, key=self.roll_init, reverse=True)
         self.db.fighters = ordered_by_roll
         self.db.fighters.remove(self.db.starter)
@@ -204,7 +184,7 @@ class TurnHandler(Script):
                     nonhostiles_left += 1
         return hostiles_left, nonhostiles_left
 
-    def join_fight(self, character):
+    def add_to_fight(self, character):
         """
         Adds a new character to a fight already in progress.
 
@@ -220,24 +200,17 @@ class TurnHandler(Script):
 
     def start_turn(self, character):
         """
-        Readies a character for the start of their turn by replenishing their
-        available actions and notifying them that their turn has come up.
-
-        Args:
-            character (obj): Character to be readied.
-
-        Notes:
-            Here, you only get one action per turn, but you might want to allow more than
-            one per turn, or even grant a number of actions based on a character's
-            attributes. You can even add multiple different kinds of actions, I.E. actions
-            separated for movement, by adding "character.db.combat_movesleft = 3" or
-            something similar.
+        Readies a character for the start of their turn by replenishing their available actions, regenerating their
+        hp/mana/stamina, and notifying everyone that their turn has started.
         """
 
+        # Check that the TurnHandler is still running
         if not self.id:
             return
 
         character.regenerate(SECS_PER_TURN)
+
+        # Replenish AP
         gain_ap = True
         if (character.effect_active("Frozen")
                 or character.effect_active("Knocked Down") and character.db.effects["Knocked Down"][
@@ -246,7 +219,7 @@ class TurnHandler(Script):
         if gain_ap:
             character.db.combat_ap += COMBAT.get_ap(character)  # Replenish actions
 
-        # Set AP to spend on the first step, then let entity take steps up to speed before spending more
+        # Spend AP to get steps that can be taken before another AP must be spent
         character.db.combat_stepsleft = 0
 
         # Display grid
@@ -307,7 +280,7 @@ class TurnHandler(Script):
             if character.db.combat_ap > 0:
                 self.next_turn()
 
-        # Take turn if AI
+        # Start taking turn if controlled by AI
         combat_ai = character.db.ai
         if combat_ai:
             combat_ai.take_turn()
@@ -355,10 +328,7 @@ class TurnHandler(Script):
 
     def turn_end_check(self, character):
         """
-        Tests to see if a character's turn is over, and cycles to the next turn if it is.
-
-        Args:
-            character (obj): Character to test for end of turn
+        Tests to see if this character's turn is over, and cycles to the next turn if it is.
         """
         if character.db.combat_ap > 0:
             character.msg(f"You have {appearance.highlight}{character.db.combat_ap} AP.")
@@ -405,12 +375,6 @@ class TurnHandler(Script):
 
         Args:
             defeated (obj): Fighter that's been defeated.
-
-        Notes:
-            All this does is announce a defeat message by default, but if you
-            want anything else to happen to defeated fighters (like putting them
-            into a dying state or something similar) then this is the place to
-            do it.
         """
         if defeated.db.hp < 0:
             defeated.db.hp = 0
@@ -430,7 +394,7 @@ class TurnHandler(Script):
         return True
 
     def all_defeat_check(self):
-        """Check if all fighters on one 'side' are defeated - either no hostiles left or no nonhostiles left"""
+        """Check if all fighters on one 'side' are defeated - either no hostiles left or no nonhostiles left."""
         if not self.id:
             return
         # Check if all left standing are either hostile or friendly

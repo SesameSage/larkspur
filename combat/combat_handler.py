@@ -31,7 +31,7 @@ class CombatHandler:
         here = attacker.location
         if not attacker.is_in_combat():
             if here.db.combat_turnhandler:
-                here.db.combat_turnhandler.join_fight(attacker)
+                here.db.combat_turnhandler.add_to_fight(attacker)
             else:
                 rng = COMBAT.action_range(action)
                 create_script(typeclass="combat.turn_handler.TurnHandler", obj=here,
@@ -39,7 +39,7 @@ class CombatHandler:
                                           ("starter_distance", rng if rng < 8 else 8)])
         if not isinstance(target, tuple) and not target.is_in_combat():
             if here.db.combat_turnhandler:
-                here.db.combat_turnhandler.join_fight(target)
+                here.db.combat_turnhandler.add_to_fight(target)
 
     def at_post_move(self, entity):
         if entity.effect_active("Bleeding"):
