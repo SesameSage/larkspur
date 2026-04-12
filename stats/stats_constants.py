@@ -50,11 +50,11 @@ POINTS_GAINED_BY_LEVEL = {  # How many points for increasing different types of 
 }
 # </editor-fold>
 
-MAX_HP_BASE = 50  # Base classless amount of HP at Level 1
+MAX_HP_BASE = 25  # Base classless amount of HP at Level 1
 
-MAX_MANA_BASE = 25  # Base classless amount of mana at level 1
+MAX_MANA_BASE = 20  # Base classless amount of mana at level 1
 
-MAX_STAM_BASE = 25  # Base classless amount of stamina at level 1
+MAX_STAM_BASE = 20  # Base classless amount of stamina at level 1
 
 # <editor-fold desc="Defense/Resistance/Evasion">
 CON_TO_DEFENSE = {  # How much defense is provided by the character's Constitution

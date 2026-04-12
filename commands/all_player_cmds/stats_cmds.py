@@ -285,9 +285,9 @@ class CmdHP(Command):
             if not target.db.hp:
                 self.caller.msg(f"{target.name.capitalize()} doesn't have hitpoints!")
                 return
-            self.caller.msg(f"{target.name.capitalize()}'s HP: {appearance.hp}{target.db.hp}|n / {target.db.max_hp}")
+            self.caller.msg(f"{target.name.capitalize()}'s HP: {appearance.hp}{target.db.hp}|n / {target.get_max("HP")}")
         else:  # Show self HP
-            self.caller.msg(f"Your HP: {appearance.hp}{self.caller.db.hp}|n / {self.caller.db.max_hp}")
+            self.caller.msg(f"Your HP: {appearance.hp}{self.caller.db.hp}|n / {self.caller.get_max("HP")}")
 
 
 class CmdMana(Command):
