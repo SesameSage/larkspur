@@ -10,6 +10,7 @@ from typeclasses.scripts.player_scripts import LevelUpReminder
 from world.locations import rooms
 from world.quests.quest_handler import QuestHandler
 
+# TODO: Redo CmdCharCreate to give the proper play command
 
 class PlayerCharacter(Character):
     """A character intended to be played by a user. """
