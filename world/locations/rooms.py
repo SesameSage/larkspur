@@ -1,8 +1,9 @@
 from collections import defaultdict
 
 from evennia.objects.objects import DefaultRoom
-from evennia.utils import iter_to_str, is_iter, make_iter, lazy_property, delay
+from evennia.utils import iter_to_str, is_iter, make_iter, lazy_property, delay, inherits_from
 
+from combat.abilities.abilities import Ability
 from server import appearance
 from server.appearance import ENVIRONMENTS_BY_TYPE
 from server.funcparser import MyFuncParser, MY_ACTOR_STANCE_CALLABLES
@@ -42,22 +43,28 @@ class Room(Object, DefaultRoom):
 
     def at_object_receive(self, moved_obj, source_location, move_type="move", **kwargs):
         super().at_object_receive(moved_obj, source_location, move_type, **kwargs)
-        # If any quest is advanced by entering this room, advance it
-        hooks = self.db.quest_hooks["at_object_receive"]
-        for qid in hooks:
-            for stage in hooks[qid]:
-                hook_data = hooks[qid][stage]
-                if moved_obj.attributes.has("quest_stages") and moved_obj.quests.at_stage(qid, stage):
-                    moved_obj.msg(hook_data["msg"])
-                    moved_obj.quests.advance_quest(hook_data["next_stage"])
 
-        # If any NPCs in the room speak automatically when someone enters, have them speak
-        for content in self.contents:
-            if content.db.auto_lines:
-                delay(1, content.say_auto_lines, moved_obj)
-            # Start a battle with any hostiles in the room when a player enters
-            if content.db.hostile_to_players:
-                delay(1, content.db.ai.start_fight)
+        if inherits_from(moved_obj, "typeclasses.living.players.PlayerCharacter"):
+            # If any quest is advanced by entering this room, advance it
+            hooks = self.db.quest_hooks["at_object_receive"]
+            for qid in hooks:
+                for stage in hooks[qid]:
+                    hook_data = hooks[qid][stage]
+                    if moved_obj.attributes.has("quest_stages") and moved_obj.quests.at_stage(qid, stage):
+                        moved_obj.msg(hook_data["msg"])
+                        moved_obj.quests.advance_quest(hook_data["next_stage"])
+
+            # If any NPCs in the room speak automatically when someone enters, have them speak
+            for content in self.contents:
+                if content.db.auto_lines:
+                    delay(1, content.say_auto_lines, moved_obj)
+                # Start a battle with any hostiles in the room when a player enters
+                if content.db.hostile_to_players:
+                    delay(1, content.db.ai.start_fight)
+
+        # Destroy any abilties that are dropped
+        elif inherits_from(moved_obj, Ability):
+            moved_obj.delete()
 
     # <editor-fold desc="Properties">
     @lazy_property

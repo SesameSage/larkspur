@@ -1,5 +1,3 @@
-import random
-
 from evennia.prototypes import spawner
 
 from typeclasses.scripts.item_scripts import TemporarilyHide
