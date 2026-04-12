@@ -349,7 +349,7 @@ class CombatHandler:
         def get_damage_values(damage_values):
             if not damage_values:
                 # If attacking with weapon or unarmed
-                if (inherits_from(attack, "typeclasses.inanimate.items.equipment.weapons.Weapon")
+                if (inherits_from(attack, "typeclasses.inanimate.items.item_types.equipment.weapons.Weapon")
                         or isinstance(attack, str)):
                     damage_values = attacker.get_weapon_damage()
                 # Else attacking with ability

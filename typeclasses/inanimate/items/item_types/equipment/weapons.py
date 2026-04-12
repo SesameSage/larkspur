@@ -1,5 +1,5 @@
-from typeclasses.inanimate.items.equipment.equipment import Equipment
-from typeclasses.inanimate.items.usables import Usable
+from typeclasses.inanimate.items.item_types.equipment.equipment import Equipment
+from typeclasses.inanimate.items.item_types.usables import Usable
 
 
 class Weapon(Equipment):

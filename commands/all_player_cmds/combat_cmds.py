@@ -6,7 +6,7 @@ from evennia.utils import inherits_from
 
 from combat.combat_handler import COMBAT
 from server import appearance
-from typeclasses.inanimate.items.usables import Consumable
+from typeclasses.inanimate.items.item_types.usables import Consumable
 
 
 class CmdAttack(Command):
@@ -188,7 +188,7 @@ class CmdUse(MuxCommand):
                 self.caller.msg("You can only use items on your turn.")
                 return
 
-        if not inherits_from(item, "typeclasses.inanimate.items.usables.Usable"):
+        if not inherits_from(item, "typeclasses.inanimate.items.item_types.usables.Usable"):
             self.caller.msg("'%s' is not a usable item." % item.key.capitalize())
             return
 

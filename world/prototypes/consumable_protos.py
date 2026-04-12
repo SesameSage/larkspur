@@ -3,13 +3,13 @@ from decimal import Decimal as Dec
 from combat.combat_constants import SECS_PER_TURN
 
 POTION = {
-    "typeclass": "typeclasses.inanimate.items.usables.Potion",
+    "typeclass": "typeclasses.inanimate.items.item_types.usables.Potion",
     "self_only": True
 }
 
 POISON_FLASK = {
     "key": "poison flask",
-    "typeclass": "typeclasses.inanimate.items.usables.Consumable",
+    "typeclass": "typeclasses.inanimate.items.item_types.usables.Consumable",
     "desc": "A vial of deadly poison. Can be used on enemies in combat.",
     "item_func": "add_effect",
     "can_use_on_self": False,

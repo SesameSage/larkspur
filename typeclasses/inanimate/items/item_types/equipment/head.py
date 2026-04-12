@@ -1,4 +1,4 @@
-from typeclasses.inanimate.items.equipment.apparel import Headwear
+from typeclasses.inanimate.items.item_types.equipment.apparel import Headwear
 
 class Helmet(Headwear):
     def at_object_creation(self):

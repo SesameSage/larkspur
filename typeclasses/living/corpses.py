@@ -1,7 +1,7 @@
 from evennia.utils.create import create_object, ObjectDB
 
 from server import appearance
-from typeclasses.inanimate.items.containers import Container
+from typeclasses.inanimate.items.item_types.containers import Container
 from typeclasses.inanimate.gold import generate_gold_object
 from typeclasses.scripts.item_scripts import TemporarilyHide
 

@@ -1,4 +1,4 @@
-from typeclasses.inanimate.items.equipment.apparel import Bodywear
+from typeclasses.inanimate.items.item_types.equipment.apparel import Bodywear
 
 
 class Cape(Bodywear):

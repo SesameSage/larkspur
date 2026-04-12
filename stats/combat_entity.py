@@ -12,7 +12,7 @@ from server import appearance
 from stats.stats_constants import MAX_HP_BASE, LVL_TO_MAXHP, CON_TO_MAXHP, MAX_MANA_BASE, LVL_TO_MAXMANA, \
     SPIRIT_TO_MAXMANA, MAX_STAM_BASE, LVL_TO_MAXSTAM, STR_TO_MAXSTAM, CON_TO_DEFENSE, DEXT_TO_EVADE, WIS_TO_RESIST
 from typeclasses.inanimate.fixtures import Fireplace
-from typeclasses.inanimate.items.equipment.equipment import EquipmentEntity
+from typeclasses.inanimate.items.item_types.equipment import EquipmentEntity
 from typeclasses.living.corpses import make_corpse, set_to_respawn
 from world.quests.quest import quest_desc
 

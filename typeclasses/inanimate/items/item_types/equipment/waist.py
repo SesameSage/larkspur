@@ -1,4 +1,4 @@
-from typeclasses.inanimate.items.equipment.apparel import Waistwear
+from typeclasses.inanimate.items.item_types.equipment.apparel import Waistwear
 
 
 class Belt(Waistwear):

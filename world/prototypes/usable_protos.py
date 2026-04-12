@@ -2,7 +2,7 @@ from combat.combat_constants import SECS_PER_TURN
 
 
 ARROW = {
-    "typeclass": "typeclasses.inanimate.items.usables.Arrow",
+    "typeclass": "typeclasses.inanimate.items.item_types.usables.Arrow",
     "item_func": "attack",
 }
 POISON_ARROW = {

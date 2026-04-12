@@ -1,7 +1,6 @@
-from combat.abilities.effect_abilities import Sweep, NeutralizingHum
+from combat.abilities.effect_abilities import Sweep
 from combat.abilities.self_abilities import EnergyTap, FocusMind
-from typeclasses.inanimate.items.equipment.apparel import Shield
-from typeclasses.inanimate.items.equipment.weapons import *
+from typeclasses.inanimate.items.item_types.equipment import Shield
 from typeclasses.scripts.scripts import Script
 
 

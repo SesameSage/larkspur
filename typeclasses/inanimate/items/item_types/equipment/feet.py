@@ -1,4 +1,4 @@
-from typeclasses.inanimate.items.equipment.apparel import Footwear
+from typeclasses.inanimate.items.item_types.equipment.apparel import Footwear
 
 
 class Footwraps(Footwear):

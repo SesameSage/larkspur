@@ -7,7 +7,7 @@ from combat.abilities.all_abilities import HEALING_ABILITIES
 from combat.combat_constants import DIRECTION_NAMES_OPPOSITES
 from combat.combat_grid import DIRECTIONS
 from combat.combat_handler import COMBAT
-from typeclasses.inanimate.items.usables import Usable
+from typeclasses.inanimate.items.item_types.usables import Usable
 from typeclasses.scripts.scripts import Script
 
 # TODO: enemy turns time out after server restart

@@ -1,7 +1,6 @@
 from evennia.commands.cmdset import CmdSet
 from evennia.contrib.grid.simpledoor import SimpleDoorCmdSet
 
-from commands.all_player_cmds.account_cmds import OOCCmdSet
 from commands.all_player_cmds.combat_cmds import BattleCmdSet
 from commands.all_player_cmds.communication_cmds import CommsCmdSet
 from commands.all_player_cmds.info_cmds import InfoCmdSet
@@ -15,8 +14,8 @@ from commands.perm_cmds.game_data_cmds import GameDataCmdSet
 from commands.perm_cmds.location_data_cmds import LocationCmdSet
 from commands.perm_cmds.object_data_cmds import ObjectDataCmdSet
 from commands.perm_cmds.questbuild_cmds import QuestBuildCmdSet
-from typeclasses.inanimate.items.containers import ContainerCmdSet
-from typeclasses.inanimate.items.equipment.equipment import EquipmentCharacterCmdSet
+from typeclasses.inanimate.items.item_types.containers import ContainerCmdSet
+from typeclasses.inanimate.items.item_types.equipment import EquipmentCharacterCmdSet
 
 
 class PlayerCmdSet(CmdSet):

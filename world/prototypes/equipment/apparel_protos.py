@@ -1,7 +1,7 @@
 from decimal import Decimal as Dec
 
 COROLLA = {
-    "typeclass": "typeclasses.inanimate.items.equipment.head.Circlet",
+    "typeclass": "typeclasses.inanimate.items.item_types.equipment.head.Circlet",
     "weight": Dec(3),
 }
 

@@ -1,4 +1,4 @@
-from typeclasses.inanimate.items.equipment.apparel import Armwear
+from typeclasses.inanimate.items.item_types.equipment.apparel import Armwear
 
 
 class Bracers(Armwear):

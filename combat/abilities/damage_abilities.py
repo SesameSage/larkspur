@@ -6,12 +6,12 @@ from evennia.utils import inherits_from
 from combat import combat_grid
 from combat.abilities.abilities import Ability, BowAbility
 from combat.combat_handler import COMBAT
-from combat.effects import KnockedDown, Poisoned, Burning, EffectScript
+from combat.effects import KnockedDown, EffectScript
 from combat.combat_constants import SECS_PER_TURN, DamageTypes
 from server import appearance
 from typeclasses.base.objects import Object
-from typeclasses.inanimate.items.equipment.apparel import Shield
-from typeclasses.inanimate.items.equipment.weapons import Weapon, TwoHanded
+from typeclasses.inanimate.items.item_types.equipment import Shield
+from typeclasses.inanimate.items.item_types.equipment import Weapon, TwoHanded
 from typeclasses.living.living_entities import LivingEntity
 
 

@@ -1,4 +1,4 @@
-from typeclasses.inanimate.items.equipment.apparel import Neckwear
+from typeclasses.inanimate.items.item_types.equipment.apparel import Neckwear
 
 
 class Necklace(Neckwear):

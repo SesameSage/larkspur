@@ -2,7 +2,7 @@ from decimal import Decimal as Dec
 
 from combat.combat_constants import DamageTypes
 
-path = "typeclasses.inanimate.items.equipment.head."
+path = "typeclasses.inanimate.items.item_types.equipment.head."
 
 LEATHER_CAP = {
     "key": "leather cap",
@@ -14,7 +14,7 @@ LEATHER_CAP = {
 }
 CLOTH_HOOD = {
     "key": "cloth hood",
-    "typeclass": "typeclasses.inanimate.items.equipment.head.Hood",
+    "typeclass": "typeclasses.inanimate.items.item_types.equipment.head.Hood",
     "weight": Dec(2),
 
     "evasion": 5,

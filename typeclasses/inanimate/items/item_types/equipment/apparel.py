@@ -1,5 +1,5 @@
 from combat.combat_constants import DamageTypes
-from typeclasses.inanimate.items.equipment.equipment import Equipment
+from typeclasses.inanimate.items.item_types.equipment.equipment import Equipment
 
 
 class Apparel(Equipment):

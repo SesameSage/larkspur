@@ -1,4 +1,4 @@
-from typeclasses.inanimate.items.equipment.apparel import Legwear
+from typeclasses.inanimate.items.item_types.equipment.apparel import Legwear
 
 
 class Leggings(Legwear):
