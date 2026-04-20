@@ -29,7 +29,9 @@ class KneeSlash(Ability):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} lacerates "
                                      f"{target.get_display_name(article=True)}'s knee!")
 
-        attributes = [("effect_key", "Slowed"), ("duration", 4 * SECS_PER_TURN), ("source", self.get_display_name())]
+        attributes = [("effect_key", "Slowed"),
+                      ("duration", 4 * SECS_PER_TURN),
+                      ("source", self.get_display_name())]
         target.add_effect(typeclass=DurationEffect, attributes=attributes)
 
 
@@ -84,7 +86,9 @@ class PinningShot(Ability):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} fires a shot at the feet of "
                                      f"{target.get_display_name(article=True)}!")
 
-        attributes = [("effect_key", "Pinned"), ("duration", 2 * SECS_PER_TURN), ("source", self.get_display_name())]
+        attributes = [("effect_key", "Pinned"),
+                      ("duration", 2 * SECS_PER_TURN),
+                      ("source", self.get_display_name())]
         caster_roll = caster.get_attr("perception") + randint(1, 25)
         caster.location.more_info("Caster roll "+ str(caster_roll))
         target_roll = caster.get_defense() + randint(1, 25)
@@ -119,7 +123,9 @@ class SolarPlexusStrike(Ability):
 
         target.location.msg_contents(f"{caster.get_display_name(capital=True)} strikes at the center of power in "
                                      f"{target.get_display_name()}'s body!")
-        attributes = [("effect_key", "-Damage"), ("amount", -5), ("duration", 4 * SECS_PER_TURN),
+        attributes = [("effect_key", "-Damage"),
+                      ("amount", -5),
+                      ("duration", 4 * SECS_PER_TURN),
                       ("source", self.get_display_name())]
         target.add_effect(typeclass=TimedStatMod, stack=True, attributes=attributes)
 
@@ -191,8 +197,10 @@ class Threaten(Ability):
         else:
             target.location.msg_contents(f"{caster.get_display_name(capital=True)} threatens "
                                          f"{caster.get_display_name(article=True)}!")
-            attributes = [("effect_key", "Afraid"), ("duration", 3 * SECS_PER_TURN),
-                          ("source", self.get_display_name()), ("caster", caster)]
+            attributes = [("effect_key", "Afraid"),
+                          ("duration", 3 * SECS_PER_TURN),
+                          ("source", self.get_display_name()),
+                          ("caster", caster)]
             target.add_effect(typeclass=DurationEffect, attributes=attributes)
 
 
@@ -217,8 +225,10 @@ class TwistKnife(Ability):
         return caster.get_weapon_damage()
 
     def func(self, caster: LivingEntity, target: Object = None):
-        attributes = [("effect_key", "Bleeding"), ("duration", self.db.duration),
-                          ("source", self.get_display_name()), ("caster", caster)]
+        attributes = [("effect_key", "Bleeding"),
+                      ("duration", self.db.duration),
+                      ("source", self.get_display_name()),
+                      ("caster", caster)]
 
         result = COMBAT.resolve_attack(attacker=caster, defender=target, attack=self)
         if result[0]:

@@ -67,7 +67,8 @@ class Thistle(TileAbility):
 
         unique_attributes = [
             ("tiles", get_tiles(entity=caster, center=target, length=self.db.length, width=self.db.width)),
-            ("damage_type", self.db.damage_type), ("range", self.db.dmg_range)
+            ("damage_type", self.db.damage_type),
+            ("range", self.db.dmg_range)
         ]
         attributes = self.db.attributes + unique_attributes
 

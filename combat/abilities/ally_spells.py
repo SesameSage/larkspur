@@ -25,11 +25,13 @@ class Cleanse(Spell):
     def func(self, caster: LivingEntity, target: Object = None):
         target.location.msg_contents(f"{caster.get_display_name(capital=True)} shines a cleansing light on "
                                      f"{target.get_display_name()}.")
+
         for script in target.scripts.all():
             if script.db.duration and not script.db.positive:
                 script.add_seconds(amt=script.db.duration)
                 script.check_duration()
                 return True
+
         target.location.msg(f"Couldn't find a negative effect on {target.get_display_name()}!")
         return False
 
@@ -53,6 +55,7 @@ class HealWounds(Spell):
     def func(self, caster: LivingEntity, target: Object = None):
         target.location.msg_contents(f"{caster.get_display_name(capital=True)} immerses "
                                      f"{target.get_display_name(article=True)}'s wounds in holy water.")
+
         amt_healed = caster.get_attr("spirit") * 10
         amt_can_be_healed = target.get_max("hp") - target.db.hp
         if amt_healed > amt_can_be_healed:

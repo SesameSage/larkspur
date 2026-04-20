@@ -48,14 +48,17 @@ class Curse(Spell):
     def func(self, caster: LivingEntity, target: Object = None):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} recites a horrid curse in "
                                      f"{target.get_display_name()}'s name!")
+
         spirit = caster.get_attr("spirit")
         if target.get_resistance() > 1.75 * spirit:
             caster.location.msg_contents(f"{target.get_display_name(capital=True)} wards off the curse!")
             return True
+
         else:
             attributes = [("effect_key", "Cursed"), ("duration", 4 * SECS_PER_TURN), ("amount", spirit),
                           ("source", self.get_display_name())]
             target.add_effect(typeclass=TimedStatMod, attributes=attributes)
+
         return True
 
 
@@ -103,7 +106,8 @@ class Roots(Spell):
 
     def func(self, caster: LivingEntity, target: Object = None):
         target.location.msg_contents(f"Roots rise from the soil and hold {target.get_display_name()} in place!")
-        target.add_effect(typeclass=DurationEffect, attributes=[("effect_key", "Pinned"), ("duration", self.db.duration),
+        target.add_effect(typeclass=DurationEffect, attributes=[("effect_key", "Pinned"),
+                                                                ("duration", self.db.duration),
                                                                 ("source", self.get_display_name())])
 
 class Wither(Spell):
@@ -129,7 +133,10 @@ class Wither(Spell):
         else:
             target.location.msg_contents(f"{caster.get_display_name(capital=True)} casts a trembling over "
                                          f"{target.get_display_name()}'s body, causing their stamina to wither away!")
-            attributes = [("effect_key", "Stamina Drain"), ("stat", "stamina"), ("duration", 5 * SECS_PER_TURN),
-                          ("amount", caster.get_attr("spirit")), ("source", self.get_display_name())]
+            attributes = [("effect_key", "Stamina Drain"),
+                          ("stat", "stamina"),
+                          ("duration", 5 * SECS_PER_TURN),
+                          ("amount", caster.get_attr("spirit")),
+                          ("source", self.get_display_name())]
             target.add_effect(typeclass=Drain, attributes=attributes)
             return True

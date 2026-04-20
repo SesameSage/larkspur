@@ -25,8 +25,11 @@ class EnergyTap(Ability):
     def func(self, caster: LivingEntity, target: Object = None):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} adjusts their stance to redirect their "
                                      f"opponents' energy into their own attacks!")
-        attributes = [("effect_key", "Siphon Stamina"), ("duration", 5 * SECS_PER_TURN),
+
+        attributes = [("effect_key", "Siphon Stamina"),
+                      ("duration", 5 * SECS_PER_TURN),
                       ("source", self.get_display_name())]
+
         caster.add_effect(typeclass=DurationEffect, attributes=attributes)
         return True
 
@@ -48,11 +51,13 @@ class Expel(Ability):
 
     def func(self, caster: LivingEntity, target: Object = None):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} collects and expels negative aura.")
+
         for script in caster.scripts.all():
             if script.db.duration and not script.db.positive:
                 script.add_seconds(amt=script.db.duration)
                 script.check_duration()
                 return True
+
         caster.location.msg(f"Couldn't find a negative effect on {target.get_display_name()}!")
         return False
 
@@ -74,7 +79,9 @@ class FocusMind(Ability):
 
     def func(self, caster: LivingEntity, target: Object = None):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} centers and focuses their mind.")
-        attributes = [("effect_key", "+Accuracy"), ("amount", 20), ("duration", 3 * SECS_PER_TURN),
+        attributes = [("effect_key", "+Accuracy"),
+                      ("amount", 20),
+                      ("duration", 3 * SECS_PER_TURN),
                       ("source", self.get_display_name())]
         caster.add_effect(typeclass=TimedStatMod, attributes=attributes)
 
@@ -96,8 +103,10 @@ class PoisonBlade(Ability):
 
     def func(self, caster, target=None):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} poisons their blade!")
-        attributes = [("effect_key", "Poison Chance"), ("amount", caster.get_attr("int")),
-                      ("duration", 4 * SECS_PER_TURN), ("source", self.get_display_name())]
+        attributes = [("effect_key", "Poison Chance"), # TODO: What exactly was I going for here?
+                      ("amount", caster.get_attr("int")),
+                      ("duration", 4 * SECS_PER_TURN),
+                      ("source", self.get_display_name())]
         caster.add_effect(typeclass=TimedStatMod, attributes=attributes)
 
 
@@ -120,7 +129,9 @@ class Windstep(Ability):
 
     def func(self, caster, target=None):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} moves with the wind!")
-        attributes = [("effect_key", "+Evasion"), ("amount", caster.get_attr("dex")),
-                      ("duration", self.db.duration), ("source", self.get_display_name())]
+        attributes = [("effect_key", "+Evasion"),
+                      ("amount", caster.get_attr("dex")),
+                      ("duration", self.db.duration),
+                      ("source", self.get_display_name())]
         caster.add_effect(typeclass=TimedStatMod, attributes=attributes)
 

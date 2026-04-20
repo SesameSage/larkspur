@@ -27,7 +27,10 @@ class EaglesCall(Ability):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} begins a mind-clearing monotonous "
                                      f"hum.")
 
-        attributes = [("effect_key", "+Accuracy"), ("amount", 15), ("duration", 3 * SECS_PER_TURN), ("source", self)]
+        attributes = [("effect_key", "+Accuracy"),
+                      ("amount", 15),
+                      ("duration", 3 * SECS_PER_TURN),
+                      ("source", self)]
         for ally in COMBAT.get_allies(caster):
                 ally.add_effect(typeclass=TimedStatMod, attributes=attributes)
 
@@ -49,15 +52,19 @@ class RallyingCry(Ability):
 
     def func(self, caster: LivingEntity, target: Object = None):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} raises allies' morale with a rallying cry!")
-        attributes = [("effect_key", "+AP"), ("amount", 2), ("duration", 2 * SECS_PER_TURN),
+
+        attributes = [("effect_key", "+AP"),
+                      ("amount", 2),
+                      ("duration", 2 * SECS_PER_TURN),
                       ("source", self.get_display_name())]
+
         for ally in COMBAT.get_allies(caster):
             ally.add_effect(typeclass=TimedStatMod, attributes=attributes)
 
 
 class WarCry(Ability):
     key = "War Cry"
-    desc = "Your allies hit harder when envigored with your powerful war cry."
+    desc = "Your allies hit harder when invigorated with your powerful war cry."
     
     def at_object_creation(self):
         super().at_object_creation()
@@ -72,8 +79,12 @@ class WarCry(Ability):
 
     def func(self, caster: LivingEntity, target: Object = None):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} lets out an earth-splitting war cry!")
-        attributes = [("effect_key", "+Damage"), ("amount", 5), ("duration", 4 * SECS_PER_TURN),
+
+        attributes = [("effect_key", "+Damage"),
+                      ("amount", 5),
+                      ("duration", 4 * SECS_PER_TURN),
                       ("source", self.get_display_name())]
+
         for ally in COMBAT.get_allies(caster):
             ally.add_effect(typeclass=TimedStatMod, attributes=attributes, stack=True)
 
@@ -95,7 +106,9 @@ class MindClearingTone(Ability):
 
     def func(self, caster: LivingEntity, target: Object = None):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} hums a deep meditational tone.")
-        attributes = [("effect_key", "+Mana Regen"), ("amount", 0.50), ("duration", 5 * SECS_PER_TURN),
+        attributes = [("effect_key", "+Mana Regen"),
+                      ("amount", 0.50),
+                      ("duration", 5 * SECS_PER_TURN),
                       ("source", self.get_display_name())]
         for ally in COMBAT.get_allies(caster):
             ally.add_effect(typeclass=TimedStatMod, attributes=attributes, stack=True)

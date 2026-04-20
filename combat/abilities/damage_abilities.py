@@ -90,12 +90,14 @@ class OilSplash(Ability):
         self.db.cooldown = 3 * SECS_PER_TURN
 
     def choose_target(self, caster, in_range_targets):
+        """Try to find a burning target."""
         for potential_target in in_range_targets:
             if potential_target.effect_active("Burning"):
                 return potential_target
         return None
 
     def check_ai(self, caster, target):
+        """Ensure target is burning."""
         super().check_ai(caster, target)
         if target.effect_active("Burning"):
             return True
@@ -196,6 +198,7 @@ class SpinningAssault(Ability):
         self.db.cooldown = 4 * SECS_PER_TURN
 
     def check(self, caster, target):
+        """Ensure we have a two-handed weapon equipped."""
         if not super().check(caster, target):
             return False
         weapon = caster.get_weapon()

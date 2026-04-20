@@ -121,6 +121,7 @@ class WaterWhip(Spell):
         self.db.cooldown = 2 * SECS_PER_TURN
 
     def check(self, caster, target):
+        """Ensure there is water in the room."""
         if not super().check(caster, target):
             return False
         if not caster.location.has_water():

@@ -48,6 +48,8 @@ class Consume(Spell):
     def func(self, caster: LivingEntity, target: Object = None):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} begins grotesquely consuming life from "
                                      f"their foes!")
-        attributes = [("effect_key", "Siphon HP"), ("duration", 5 * SECS_PER_TURN), ("source", self.get_display_name())]
+        attributes = [("effect_key", "Siphon HP"),
+                      ("duration", 5 * SECS_PER_TURN),
+                      ("source", self.get_display_name())]
         caster.add_effect(typeclass=DurationEffect, attributes=attributes)
         return True
