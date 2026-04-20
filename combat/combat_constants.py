@@ -31,14 +31,8 @@ DIRECTION_NAMES_OPPOSITES = { # Quick reference for which direction names are op
         "o": ("out", "i"),
     }
 
+TURN_TIMEOUT = 30  # Time before turns automatically end, in seconds
 SECS_PER_TURN = 3  # How many real-time seconds each combat turn simulates
-PERCEPT_TO_ACCURACY_BONUS = {  # How much is added to character's hit rolls by their Perception
-    1: 5,
-    2: 10,
-    3: 15,
-    4: 20,
-    5: 25
-}
 RAIN_FIRE_DMG_REDUCTION = Dec(0.7)  # What percentage fire damage should be reduced to in the rain
 
 

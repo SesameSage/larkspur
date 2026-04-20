@@ -3,14 +3,14 @@ from random import randint
 from evennia.utils import evtable, inherits_from, delay
 from evennia.utils.create import create_script
 
-from combat.combat_constants import SECS_PER_TURN
+from combat.combat_constants import SECS_PER_TURN, TURN_TIMEOUT
 from combat.combat_grid import CombatGrid
 from combat.combat_handler import COMBAT
 from combat.effects import DurationEffect
 from server import appearance
 from typeclasses.scripts.scripts import Script
 
-TURN_TIMEOUT = 30  # Time before turns automatically end, in seconds
+
 # TODO: Battle ending twice on enemy defeat
 
 class TurnHandler(Script):

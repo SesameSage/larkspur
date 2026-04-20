@@ -56,6 +56,14 @@ MAX_MANA_BASE = 20  # Base classless amount of mana at level 1
 
 MAX_STAM_BASE = 20  # Base classless amount of stamina at level 1
 
+PERCEPT_TO_ACCURACY_BONUS = {  # How much is added to character's hit rolls by their Perception
+    1: 5,
+    2: 10,
+    3: 15,
+    4: 20,
+    5: 25
+}
+
 # <editor-fold desc="Defense/Resistance/Evasion">
 CON_TO_DEFENSE = {  # How much defense is provided by the character's Constitution
     1: 0,
