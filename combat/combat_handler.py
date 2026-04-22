@@ -4,10 +4,11 @@ from random import randint
 from evennia.utils import inherits_from
 from evennia.utils.create import create_script
 
-from combat.combat_constants import PERCEPT_TO_ACCURACY_BONUS, RAIN_FIRE_DMG_REDUCTION
+from combat.combat_constants import RAIN_FIRE_DMG_REDUCTION
 from combat.combat_constants import DamageTypes
 from server import appearance
 from server.appearance import dmg_color
+from stats.stats_constants import PERCEPT_TO_ACCURACY_BONUS
 from typeclasses.scripts.weather import RAINING
 
 
