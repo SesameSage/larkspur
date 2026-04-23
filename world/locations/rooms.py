@@ -59,7 +59,7 @@ class Room(Object, DefaultRoom):
                 if content.db.auto_lines:
                     delay(1, content.say_auto_lines, moved_obj)
                 # Start a battle with any hostiles in the room when a player enters
-                if content.db.hostile_to_players:
+                if content.db.hostile_to_players and hasattr(content, "ai"):
                     delay(1, content.db.ai.start_fight)
 
         # Destroy any abilties that are dropped
