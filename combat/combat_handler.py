@@ -1,11 +1,13 @@
 import math
 from random import randint
+from decimal import Decimal as Dec
 
 from evennia.utils import inherits_from
 from evennia.utils.create import create_script
 
-from combat.combat_constants import RAIN_FIRE_DMG_REDUCTION
+from combat.combat_constants import RAIN_FIRE_DMG_REDUCTION, SECS_PER_TURN
 from combat.combat_constants import DamageTypes
+from combat.effects import Poisoned
 from server import appearance
 from server.appearance import dmg_color
 from stats.stats_constants import PERCEPT_TO_ACCURACY_BONUS
@@ -392,6 +394,19 @@ class CombatHandler:
                 attacker.apply_damage({None: amount})
                 attacker.location.msg_contents(f"{attacker.get_display_name(capital=True)} takes "
                                                f"{appearance.dmg_color(attacker)}{amount} damage|n from bleeding!")
+
+            if attacker.effect_active("Poison Chance"):
+                percent_chance = attacker.db.effects["Poison Chance"]["amount"]
+                if randint(0, 100) < percent_chance:
+                    # 1-2% hp per second
+                    max_hp = Dec(defender.get_max("hp"))
+                    min_dmg = int(math.ceil(Dec(.01) * max_hp))
+                    max_dmg = int(math.ceil(Dec(.02) * max_hp))
+
+                    defender.add_effect(typeclass=Poisoned, attributes=[
+                    ("duration", 3 * int(SECS_PER_TURN)),
+                    ("range", (min_dmg, max_dmg)),
+                    ("source", attacker.search("poison blade"))]) # This will have to change if other sources are added
 
             if attacker.effect_active("Siphon HP"):
                 siphoned = int(total_damage / 3)

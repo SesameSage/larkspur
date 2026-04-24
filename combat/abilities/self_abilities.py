@@ -103,8 +103,8 @@ class PoisonBlade(Ability):
 
     def func(self, caster, target=None):
         caster.location.msg_contents(f"{caster.get_display_name(capital=True)} poisons their blade!")
-        attributes = [("effect_key", "Poison Chance"), # TODO: What exactly was I going for here?
-                      ("amount", caster.get_attr("int")),
+        attributes = [("effect_key", "Poison Chance"),
+                      ("amount", 50), # 50% Chance
                       ("duration", 4 * SECS_PER_TURN),
                       ("source", self.get_display_name())]
         caster.add_effect(typeclass=TimedStatMod, attributes=attributes)
